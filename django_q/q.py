@@ -3,110 +3,124 @@ from time import sleep
 from multiprocessing import Queue, Process, current_process, cpu_count
 import sys
 import signal
+from uuid import uuid4
+import ujson as json
 
 import redis
 from django.conf import settings
 
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
-
-r = redis.StrictRedis()
+r = redis.StrictRedis(decode_responses=True)
 secret = settings.SECRET_KEY
 prefix = 'django_q'
 q_list = '{}:q'.format(prefix)
 
 
 def test():
-    for i in range(20):
-        defer('testq.tasks.multiply', 5, i)
+    for i in range(4):
+        defer(u'testq.tasks.multiply', 5, i)
 
 
 def defer(func, *args, **kwargs):
-    # serialize the func
-    task = {u'func': func, u'args': args, u'kwargs': kwargs}
-    pack = pickle.dumps(task)
+    pack = json.dumps([uuid4().urn, func, args, kwargs])
     r.rpush(q_list, pack)
 
 
 class Worker(object):
     def __init__(self):
         self.running = True
-        self.stable_size = cpu_count()
+        self.stable_size = cpu_count() - 2
         self.stable = []
         self.task_queue = Queue()
         self.done_queue = Queue()
+        self.fail_queue = Queue()
+        self.failure_monitor_pid = None
+        self.success_monitor_pid = None
         # Spawn work horses
         for i in range(self.stable_size):
-            self._spawn_horse()
-        # Spawn monitor
-        self._spawn_monitor()
+            self.spawn_horse()
+        # Spawn monitors
+        self.spawn_success_monitor()
+        self.spawn_failure_monitor()
         # Attach signal handler
-        signal.signal(signal.SIGTERM, self.sighandler)
-        signal.signal(signal.SIGINT, self.sighandler)
+        signal.signal(signal.SIGTERM, self.sig_handler)
+        signal.signal(signal.SIGINT, self.sig_handler)
         # Keep popping Redis
         while self.running:
-            self.work()
+            self.stable_boy()
             sleep(0.2)
+            task = r.lpop(q_list)
+            if task:
+                self.task_queue.put(task)
 
-    def _spawn_horse(self):
+    def spawn_process(self, target, *args):
         # This is just for PyCharm to not crash. Ignore it.
         if not hasattr(sys.stdin, 'close'):
             def dummy_close():
                 pass
 
             sys.stdin.close = dummy_close
-
-        p = Process(target=self.horse, args=(self.task_queue, self.done_queue))
+        p = Process(target=target, args=args)
         self.stable.append(p)
         p.start()
+        return p.pid
 
-    def _spawn_monitor(self):
-        # This is just for PyCharm to not crash. Ignore it.
-        if not hasattr(sys.stdin, 'close'):
-            def dummy_close():
-                pass
+    def spawn_horse(self):
+        self.spawn_process(self.horse, self.task_queue, self.done_queue, self.fail_queue)
 
-            sys.stdin.close = dummy_close
+    def spawn_success_monitor(self):
+        self.success_monitor_pid = self.spawn_process(self.success_monitor, self.done_queue)
 
-        self.mon = Process(target=self.monitor, args=(self.done_queue,))
-        self.mon.start()
+    def spawn_failure_monitor(self):
+        self.failure_monitor_pid = self.spawn_process(self.failure_monitor, self.fail_queue)
 
-    @staticmethod
-    def monitor(queue_in):
-        print("Monitor started at {}".format(current_process().pid))
-        for result in iter(queue_in.get, 'STOP'):
-            task = result['task']
-            res = result['result']
-            print("{} - {}".format(task['func'], res))
-        print("Monitor stopped")
+    def reincarnate(self, pid):
+        if pid == self.success_monitor_pid:
+            self.spawn_success_monitor()
+        elif pid == self.failure_monitor_pid:
+            self.spawn_failure_monitor()
+        else:
+            self.spawn_horse()
 
     @staticmethod
-    def horse(queue_in, queue_out):
+    def success_monitor(done_queue):
         name = current_process().name
-        print(name, 'Ready for work at {}'.format(current_process().pid))
-        for pack in iter(queue_in.get, 'STOP'):
-            task = pickle.loads(pack)
-            func = task['func']
+        print("{} monitoring successes at {}".format(name, current_process().pid))
+        for result in iter(done_queue.get, 'STOP'):
+            task = result[0]
+            res = result[1]
+            print("Success [{}:{} - {}]".format(task[1], task[0], res))
+        print("{} stopped".format(name))
+
+    @staticmethod
+    def failure_monitor(fail_queue):
+        name = current_process().name
+        print("{} monitoring failures at {}".format(name, current_process().pid))
+        for result in iter(fail_queue.get, 'STOP'):
+            task = result[0]
+            e = result[1]
+            print("Failure [{}:{} - {}]".format(task[1], task[0], e))
+        print("{} stopped".format(name))
+
+    @staticmethod
+    def horse(task_queue, done_queue, fail_queue):
+        name = current_process().name
+        print('{} ready for work at {}'.format(name, current_process().pid))
+        for pack in iter(task_queue.get, 'STOP'):
+            task = json.loads(pack)
+            uid = task[0]
+            func = task[1]
             module, func = func.rsplit('.', 1)
-            args = task['args']
-            kwargs = task['kwargs']
-            print(name, 'Starting Task {}'.format(func))
+            args = task[2]
+            kwargs = task[3]
+            print(name, 'Processing [{}:{}]'.format(func, uid))
             try:
                 m = importlib.import_module(module)
                 f = getattr(m, func)
                 result = f(*args, **kwargs)
-                queue_out.put({'task': task, 'result': result})
-                print(name, 'Finished JTask {}'.format(func))
-            except TypeError:
-                print('job failed')
-                # TODO log failure to django
+                done_queue.put((task, result))
+            except TypeError as e:
+                fail_queue.put((task, e))
         print(name, 'Stopped')
-
-    def work(self):
-        self.stable_boy()
-        self.task_queue.put(r.brpop(q_list))
 
     def stable_boy(self):
         # Check if all the horses are alive
@@ -116,22 +130,23 @@ class Worker(object):
                 p.terminate()
                 self.stable.remove(p)
                 # Replace it with a fresh one
-                self._spawn_horse()
+                self.reincarnate(p.pid)
 
     def stop(self):
         # Send the STOP signal to the stable
         self.running = False
-        print('Stopping queue')
-        for i in range(self.stable_size):
-            self.task_queue.put('STOP')
-            # Optional: Delete everything in the queue and then add STOP
-        self.done_queue.put('STOP')
+        print('Stopping')
         # Wait for all the workers to finish the queue
         for p in self.stable:
+            if p.pid == self.failure_monitor_pid:
+                self.fail_queue.put('STOP')
+            elif p.pid == self.success_monitor_pid:
+                self.done_queue.put('STOP')
+            else:
+                self.task_queue.put('STOP')
             p.join()
-        self.mon.join()
-        print('All horses stopped.')
+
         print('Goodbye. Have a wonderful time.')
 
-    def sighandler(self, signum, frame):
+    def sig_handler(self, signum, frame):
         self.stop()
