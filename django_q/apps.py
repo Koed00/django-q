@@ -1,20 +1,20 @@
 import importlib
-from random import randint
 from multiprocessing import Queue, Process, Event, current_process, cpu_count
 import sys
 import signal
 import logging
 from time import sleep
 
+from django.apps import AppConfig
 import jsonpickle as json
-
 import coloredlogs
 import redis
+
 from django.conf import settings
+
 from django.utils import timezone
 
 from .models import Task
-
 from .humanhash import uuid
 
 r = redis.StrictRedis(decode_responses=True)
@@ -26,16 +26,18 @@ logger = logging.getLogger('django-q')
 coloredlogs.install(level=logging.INFO)
 
 
-def test():
-    for i in range(20):
-        defer(u'testq.tasks.multiply', 5, i * randint(2, 100))
+class SessionAdminConfig(AppConfig):
+    name = 'django_q'
+    verbose_name = "Django Q"
 
 
 def defer(func, *args, **kwargs):
-    # [name, func, args, kwargs, started, finished, result]
-    pack = json.dumps([uuid()[0], func, args, kwargs, timezone.now()])
+    # [name, func, args, kwargs, started, finished, result, success]
+    name = uuid()[0]
+    pack = json.dumps([name, func, args, kwargs, timezone.now()])
     r.rpush(q_list, pack)
     logger.debug('Pushed {}'.format(pack))
+    return name
 
 
 class Worker(object):
@@ -47,15 +49,12 @@ class Worker(object):
         self.stable = []
         self.task_queue = Queue()
         self.done_queue = Queue()
-        self.fail_queue = Queue()
         # Spawn work horses
         for i in range(self.stable_size):
             self.spawn_horse()
-        # Spawn monitors
-        self.success_monitor_pid = None
-        self.spawn_success_monitor()
-        self.failure_monitor_pid = None
-        self.spawn_failure_monitor()
+        # Spawn monitor
+        self.monitor_pid = None
+        self.spawn_monitor()
         # Spawn pusher
         self.pusher_pid = None
         self.pusher_stop = Event()
@@ -81,21 +80,18 @@ class Worker(object):
         self.pusher_pid = self.spawn_process(self.pusher, self.task_queue, self.pusher_stop)
 
     def spawn_horse(self):
-        self.spawn_process(self.horse, self.task_queue, self.done_queue, self.fail_queue)
+        self.spawn_process(self.horse, self.task_queue, self.done_queue)
 
-    def spawn_success_monitor(self):
-        self.success_monitor_pid = self.spawn_process(self.success_monitor, self.done_queue)
-
-    def spawn_failure_monitor(self):
-        self.failure_monitor_pid = self.spawn_process(self.failure_monitor, self.fail_queue)
+    def spawn_monitor(self):
+        self.monitor_pid = self.spawn_process(self.monitor, self.done_queue)
 
     def reincarnate(self, pid):
-        if pid == self.success_monitor_pid:
-            self.spawn_success_monitor()
-            logger.warn("reincarnated success monitor after death of {}".format(pid))
-        elif pid == self.failure_monitor_pid:
-            self.spawn_failure_monitor()
-            logger.warn("reincarnated failure monitor after death of {}".format(pid))
+        if pid == self.monitor_pid:
+            self.spawn_monitor()
+            logger.warn("reincarnated monitor after death of {}".format(pid))
+        elif pid == self.pusher_pid:
+            self.spawn_pusher()
+            logger.warn("reincarnated pusher after death of {}".format(pid))
         else:
             self.spawn_horse()
             logger.warn("reincarnated work horse after death of {}".format(pid))
@@ -110,29 +106,30 @@ class Worker(object):
                 logger.debug('queueing {}'.format(task[1]))
 
     @staticmethod
-    def success_monitor(done_queue):
+    def monitor(done_queue):
         name = current_process().name
-        logger.info("{} monitoring successes at {}".format(name, current_process().pid))
+        logger.info("{} monitoring at {}".format(name, current_process().pid))
         for task in iter(done_queue.get, 'STOP'):
-            logger.info("Finished [{}:{}]".format(task[1], task[0]))
-            Task.objects.create(name=task[0], func=task[1], task=json.dumps(task),
+            name = task[0]
+            func = task[1]
+            result = task[6]
+            success = task[7]
+            if success:
+                logger.info("Finished [{}:{}]".format(func, name))
+                result = json.dumps(result)
+            else:
+                logger.error("Failed [{}:{}] - {}".format(func, name, result))
+            Task.objects.create(name=name,
+                                func=func,
+                                task=json.dumps(task),
                                 started=task[4],
-                                stopped=task[5])
+                                stopped=task[5],
+                                result=result,
+                                success=success)
         logger.info("{} stopped".format(name))
 
     @staticmethod
-    def failure_monitor(fail_queue):
-        name = current_process().name
-        logger.info("{} monitoring failures at {}".format(name, current_process().pid))
-        for task in iter(fail_queue.get, 'STOP'):
-            logger.error("Failure [{}:{} - {}]".format(task[1], task[0], task[6]))
-            Task.objects.create(name=task[0], func=task[1], task=json.dumps(task),
-                                started=task[4],
-                                stopped=task[5], success=False)
-        logger.info("{} stopped".format(name))
-
-    @staticmethod
-    def horse(task_queue, done_queue, fail_queue):
+    def horse(task_queue, done_queue):
         name = current_process().name
         logger.info('{} ready for work at {}'.format(name, current_process().pid))
         for pack in iter(task_queue.get, 'STOP'):
@@ -152,10 +149,12 @@ class Worker(object):
                 f = getattr(m, func)
                 result = f(*args, **kwargs)
                 task.append(result)
+                task.append(True)
                 done_queue.put(task)
-            except TypeError as e:
+            except Exception as e:
                 task.append(e)
-                fail_queue.put(task)
+                task.append(False)
+                done_queue.put(task)
         logger.info('{} Stopped'.format(name))
 
     def stable_boy(self):
@@ -174,9 +173,7 @@ class Worker(object):
         logger.info('Stopping')
         # Wait for all the workers to finish the queue
         for p in self.stable:
-            if p.pid == self.failure_monitor_pid:
-                self.fail_queue.put('STOP')
-            elif p.pid == self.success_monitor_pid:
+            if p.pid == self.monitor_pid:
                 self.done_queue.put('STOP')
             elif p.pid == self.pusher_pid:
                 self.pusher_stop.set()

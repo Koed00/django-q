@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from django_q.q import Worker
+from django_q.apps import Worker
 
 
 class Command(BaseCommand):
