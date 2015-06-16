@@ -1,6 +1,5 @@
-ujson
-simplejson
+jsonpickle
+coloredlogs
 Django==1.8.2
 hiredis==0.2.0
-pyzmq==14.6.0
 redis==2.10.3
