@@ -1,17 +1,17 @@
 import importlib
 import logging
-import pickle
 import signal
 from multiprocessing import cpu_count, Queue, Event, Process, current_process
 import sys
 from time import sleep
 
+import jsonpickle
 import coloredlogs
-
+from django.core.signing import BadSignature
 from django.utils import timezone
 import redis
 
-from django.core.signing import Signer, BadSignature
+from django.core import signing
 
 from django_q.apps import LOG_LEVEL, SECRET_KEY, SAVE_LIMIT
 from django_q.humanhash import uuid
@@ -19,7 +19,6 @@ from django_q.models import Task, Success
 
 prefix = 'django_q'
 q_list = '{}:q'.format(prefix)
-signer = Signer(SECRET_KEY)
 logger = logging.getLogger('django-q')
 coloredlogs.install(level=getattr(logging, LOG_LEVEL))
 
@@ -120,13 +119,10 @@ class Cluster(object):
         for pack in iter(task_queue.get, 'STOP'):
             # unpickle the task
             try:
-                task = pickle.loads(pack)
+                task = signing.loads(pack, key=SECRET_KEY, salt='django_q.q', serializer=JSONPickleSerializer)
             except TypeError as e:
                 logger.error(e)
                 continue
-            # check signature
-            try:
-                task[0] = signer.unsign(task[0])
             except BadSignature as e:
                 task[0] = task[0].rsplit(":", 1)[0]
                 task.append(timezone.now())
@@ -197,9 +193,24 @@ class Cluster(object):
 
 
 def async(func, *args, **kwargs):
-    # [name, func, args, kwargs, started, finished, result, success]
-    name = signer.sign(uuid()[0])
-    pack = pickle.dumps([name, func, args, kwargs, timezone.now()])
+    """
+    Schedules a module function
+    [name, func, args, kwargs, started, finished, result, success]
+    """
+    name = uuid()[0]
+    pack = signing.dumps([name, func, args, kwargs, timezone.now()], key=SECRET_KEY, salt='django_q.q', compress=True,
+                         serializer=JSONPickleSerializer)
     r.rpush(q_list, pack)
     logger.debug('Pushed {}'.format(pack))
     return name
+
+class JSONPickleSerializer(object):
+    """
+    Simple wrapper around jsonpickle to be used in signing.dumps and
+    signing.loads.
+    """
+    def dumps(self, obj):
+        return jsonpickle.dumps(obj).encode('latin-1')
+
+    def loads(self, data):
+        return jsonpickle.loads(data.decode('latin-1'))
