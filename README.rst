@@ -1,4 +1,4 @@
-Django-q
+Django Q
 ========
 
 A multiprocessing task queue application for Django
