@@ -1,19 +1,20 @@
 import importlib
 import logging
 import signal
-from multiprocessing import cpu_count, Queue, Event, Process, current_process
+from multiprocessing import Queue, Event, Process, current_process
 import sys
 from time import sleep
 
 import jsonpickle
 import coloredlogs
 from django.core.signing import BadSignature
+
 from django.utils import timezone
 import redis
 
 from django.core import signing
 
-from django_q.apps import LOG_LEVEL, SECRET_KEY, SAVE_LIMIT
+from django_q.apps import LOG_LEVEL, SECRET_KEY, SAVE_LIMIT, WORKERS, COMPRESSED
 from django_q.humanhash import uuid
 from django_q.models import Task, Success
 
@@ -35,7 +36,7 @@ class Cluster(object):
             logger.error('Can not connect to Redis server')
             return
         self.running = True
-        self.pool_size = cpu_count()
+        self.pool_size = WORKERS
         self.pool = []
         self.task_queue = Queue()
         self.done_queue = Queue()
@@ -198,19 +199,26 @@ def async(func, *args, **kwargs):
     [name, func, args, kwargs, started, finished, result, success]
     """
     name = uuid()[0]
-    pack = signing.dumps([name, func, args, kwargs, timezone.now()], key=SECRET_KEY, salt='django_q.q', compress=True,
+    pack = signing.dumps([name, func, args, kwargs, timezone.now()],
+                         key=SECRET_KEY,
+                         salt='django_q.q',
+                         compress=COMPRESSED,
                          serializer=JSONPickleSerializer)
     r.rpush(q_list, pack)
     logger.debug('Pushed {}'.format(pack))
     return name
+
 
 class JSONPickleSerializer(object):
     """
     Simple wrapper around jsonpickle to be used in signing.dumps and
     signing.loads.
     """
-    def dumps(self, obj):
+
+    @staticmethod
+    def dumps(obj):
         return jsonpickle.dumps(obj).encode('latin-1')
 
-    def loads(self, data):
+    @staticmethod
+    def loads(data):
         return jsonpickle.loads(data.decode('latin-1'))

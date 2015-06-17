@@ -1,3 +1,5 @@
+from multiprocessing import cpu_count
+
 from django.apps import AppConfig
 from django.conf import settings
 
@@ -5,6 +7,7 @@ from django.conf import settings
 class SessionAdminConfig(AppConfig):
     name = 'django_q'
     verbose_name = "Django Q"
+
 
 """
 Sets the logging level for the app
@@ -31,3 +34,16 @@ try:
     SAVE_LIMIT = settings.Q_SAVE_LIMIT
 except AttributeError:
     SAVE_LIMIT = 100
+
+try:
+    WORKERS = settings.Q_WORKERS
+except AttributeError:
+    WORKERS = cpu_count()
+
+"""
+Turns compression on/off for task packages
+"""
+try:
+    COMPRESSED = settings.Q_COMPRESSED
+except AttributeError:
+    COMPRESSED = False
