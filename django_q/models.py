@@ -1,13 +1,14 @@
 from django.db import models
 import socket
 from django.utils.translation import ugettext_lazy as _
+from picklefield import PickledObjectField
 
 
 class Task(models.Model):
     name = models.CharField(max_length=100)
     func = models.CharField(max_length=256)
-    task = models.TextField(null=True)
-    result = models.TextField(null=True)
+    task = PickledObjectField()
+    result = PickledObjectField()
     started = models.DateTimeField()
     stopped = models.DateTimeField()
     success = models.BooleanField(default=True)

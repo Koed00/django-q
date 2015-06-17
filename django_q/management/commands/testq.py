@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from django_q.apps import defer
+from django_q import async
 
 
 class Command(BaseCommand):
@@ -8,4 +8,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for i in range(20):
-            defer('testq.tasks.multiply', 2, i)
+            async('testq.tasks.multiply', 2, i)

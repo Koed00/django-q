@@ -1,10 +1,10 @@
 import pytest
-from django_q.apps import Worker
+from django_q import Cluster
 
 
 @pytest.fixture
 def qworker():
-    return Worker()
+    return Cluster()
 
 
 def test_worker(qworker):
