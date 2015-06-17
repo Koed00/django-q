@@ -12,10 +12,10 @@ from django.utils import timezone
 import redis
 
 from django.core.signing import Signer, BadSignature
-from django_q.apps import LOG_LEVEL, SECRET_KEY
 
+from django_q.apps import LOG_LEVEL, SECRET_KEY, SAVE_LIMIT
 from django_q.humanhash import uuid
-from django_q.models import Task
+from django_q.models import Task, Success
 
 prefix = 'django_q'
 q_list = '{}:q'.format(prefix)
@@ -23,7 +23,7 @@ signer = Signer(SECRET_KEY)
 logger = logging.getLogger('django-q')
 coloredlogs.install(level=getattr(logging, LOG_LEVEL))
 
-r = redis.StrictRedis(decode_responses=True)
+r = redis.StrictRedis()
 
 
 class Cluster(object):
@@ -110,13 +110,7 @@ class Cluster(object):
                 logger.info("Finished [{}:{}]".format(func, name))
             else:
                 logger.error("Failed [{}:{}] - {}".format(func, name, result))
-            Task.objects.create(name=name,
-                                func=func,
-                                task=task,
-                                started=task[4],
-                                stopped=task[5],
-                                result=task[6],
-                                success=success)
+            Cluster.save_task(task)
         logger.info("{} stopped".format(name))
 
     @staticmethod
@@ -134,12 +128,12 @@ class Cluster(object):
             try:
                 task[0] = signer.unsign(task[0])
             except BadSignature as e:
-                    logger.error("Bad signature on task.")
-                    task.append(timezone.now())
-                    task.append(e)
-                    task.append(False)
-                    done_queue.put(task)
-                    continue
+                task[0] = task[0].rsplit(":", 1)[0]
+                task.append(timezone.now())
+                task.append(e)
+                task.append(False)
+                done_queue.put(task)
+                continue
             func = task[1]
             module, func = func.rsplit('.', 1)
             args = task[2]
@@ -168,6 +162,19 @@ class Cluster(object):
                 self.pool.remove(p)
                 # Replace it with a fresh one
                 self.reincarnate(p.pid)
+
+    @staticmethod
+    def save_task(task):
+        if task[7] and 0 < SAVE_LIMIT < Success.objects.count():
+            Success.objects.first().delete()
+        Task.objects.create(name=task[0],
+                            func=task[1],
+                            args=task[2],
+                            kwargs=task[3],
+                            started=task[4],
+                            stopped=task[5],
+                            result=task[6],
+                            success=task[7])
 
     def stop(self):
         # Send the STOP signal to the pool

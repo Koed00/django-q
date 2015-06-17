@@ -14,14 +14,33 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Task',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
+                ('id', models.AutoField(serialize=False, auto_created=True, verbose_name='ID', primary_key=True)),
                 ('name', models.CharField(max_length=100)),
                 ('func', models.CharField(max_length=256)),
-                ('task', picklefield.fields.PickledObjectField(editable=False)),
+                ('args', picklefield.fields.PickledObjectField(editable=False)),
+                ('kwargs', picklefield.fields.PickledObjectField(editable=False)),
                 ('result', picklefield.fields.PickledObjectField(editable=False)),
                 ('started', models.DateTimeField()),
                 ('stopped', models.DateTimeField()),
                 ('success', models.BooleanField(default=True)),
             ],
+        ),
+        migrations.CreateModel(
+            name='Failure',
+            fields=[
+            ],
+            options={
+                'proxy': True,
+            },
+            bases=('django_q.task',),
+        ),
+        migrations.CreateModel(
+            name='Success',
+            fields=[
+            ],
+            options={
+                'proxy': True,
+            },
+            bases=('django_q.task',),
         ),
     ]
