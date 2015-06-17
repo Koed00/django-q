@@ -18,7 +18,7 @@ setup(
     description='A multiprocessing task queue for Django',
     long_description=README,
     include_package_data=True,
-    install_requires=['django>=1.7', 'redis'],
+    install_requires=['django>=1.7', 'redis', 'coloredlogs', 'django-picklefield'],
     test_suite='django_q.tests',
     classifiers=[
         'Development Status :: 2 - PreAlpha',
