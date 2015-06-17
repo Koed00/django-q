@@ -1,4 +1,9 @@
+import importlib
+import logging
+
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from picklefield import PickledObjectField
 
 
@@ -14,13 +19,27 @@ class Task(models.Model):
 
     @staticmethod
     def get_result(name):
-        return Task.objects.filter(name=name).values_list('result', flat=True)
+        return Task.objects.get(name=name).result
 
     def time_taken(self):
         return (self.stopped - self.started).total_seconds()
 
     class Meta:
         app_label = 'django_q'
+
+
+@receiver(post_save, sender=Task)
+def call_hook(sender, instance, **kwargs):
+    if instance.kwargs.get('hook'):
+        module, func = instance.kwargs.get('hook').rsplit('.', 1)
+        try:
+            m = importlib.import_module(module)
+            f = getattr(m, func)
+            f(task=instance)
+        except Exception as e:
+            logger = logging.getLogger('django-q')
+            logger.error('return hook failed on {}'.format(instance.name))
+            logger.exception(e)
 
 
 class SuccessManager(models.Manager):
