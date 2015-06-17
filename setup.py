@@ -13,7 +13,7 @@ setup(
     author='Ilan Steemers',
     author_email='koed00@gmail.com',
     packages=['django_q'],
-    url='https://github.com/koed00/django-whoshere',
+    url='https://github.com/koed00/django-q',
     license='MIT',
     description='A multiprocessing task queue for Django',
     long_description=README,
