@@ -32,5 +32,11 @@ Failed packages are always saved.
 The medic loop checks the health of all workers, including the pusher and the monitor.
 In case one of them dies, the medic will reincarnate a new process to take over the duties of the deceased.
 
+### Hooks
+
+When you pass `hook='module.somefunction'` to the package, upon completion of the package this function will be called with the Task object as the first argument.
+
+
+
 ### Todo
 I'll add to this README while I'm developing the various parts.
