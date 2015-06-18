@@ -108,11 +108,17 @@ class Cluster(object):
         logger.info('{} stopping pool processes'.format(name))
         # Stopping pusher
         self.event_stop.set()
-        # Stopping monitor
-        self.done_queue.put('STOP')
-        # Stopping workers
+        # Putting poison pills in the queue
         for _ in self.pool:
             self.task_queue.put('STOP')
+        while len(self.pool) > 2:
+            for p in list(self.pool):
+                if not p.is_alive():
+                    logger.debug('{} stopped gracefully'.format(p.pid))
+                    self.pool.remove(p)
+            sleep(0.2)
+        # Finally stop the monitor
+        self.done_queue.put('STOP')
 
     def sig_handler(self, signum, frame):
         logger.debug('{} got signal {}'.format(current_process().name, SIGNAL_NAMES.get(signum, 'UNKNOWN')))
