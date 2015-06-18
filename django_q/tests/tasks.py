@@ -9,5 +9,16 @@ def countdown(n):
     return stop_time - start_time
 
 
+def count_letters(tup):
+    total = 0
+    for word in tup:
+        total += len(word)
+    return total
+
+def count_letters2(obj):
+    return count_letters(obj.get_words())
+
 def result(obj):
-    print('RESULT HOOK: {}'.format(obj.result))
+    print('RESULT HOOK {} : {}'.format(obj.name, obj.result))
+
+

@@ -7,16 +7,28 @@ A multiprocessing task queue application for Django
 Status
 ~~~~~~
 
-Currently in the pre-alpha stage and Python 3 only (for now).
+In Alpha and Python 3 only (for now). Everything should work, but the
+basic structure can still change. Main focus will be put on creating
+tests now.
 
 Architecture
 ~~~~~~~~~~~~
 
-|Django Q schema| ### Signed Tasks Tasks are first pickled to Json and
-then signed using Django's own signing module before being sent to a
-Redis list. This ensures that task packages on the Redis server can only
-be excuted and read by clusters and django servers who share the same
-secret key.
+.. figure:: http://i.imgur.com/wTIeg2T.png
+   :alt: Django Q schema
+
+   Django Q schema
+.. code:: python
+
+    async(func,*args,hook=None,**kwargs)
+
+Signed Tasks
+~~~~~~~~~~~~
+
+Tasks are first pickled to Json and then signed using Django's own
+signing module before being sent to a Redis list. This ensures that task
+packages on the Redis server can only be excuted and read by clusters
+and django servers who share the same secret key.
 
 Optionally, packages can be compressed before transport by setting
 ``Q_COMPRESSED = True``
@@ -36,7 +48,7 @@ any of these steps, the package is then pushed onto the Result Queue.
 
 By default Django Q spawns a worker for each detected CPU on the host
 system. This can be overridden by setting ``Q_WORKERS =  n``. With *n*
-being the numbered of desired worker processes.
+being the numbe of desired worker processes.
 
 Monitor
 ~~~~~~~
@@ -65,9 +77,19 @@ Hooks
 Packages can be assigned a hook function, upon completion of the package
 this function will be called with the Task object as the first argument.
 
+Management command
+~~~~~~~~~~~~~~~~~~
+
+Start the cluster with ``./manage.py qcluster``
+
+Admin integration
+~~~~~~~~~~~~~~~~~
+
+Django Q registers itself with the admin page to show failed and
+succesful tasks. From there task results can be read or deleted. If
+neccesary, failed tasks can be reintroduced to the queue.
+
 Todo
 ~~~~
 
 I'll add to this README while I'm developing the various parts.
-
-.. |Django Q schema| image:: http://i.imgur.com/wTIeg2T.png
