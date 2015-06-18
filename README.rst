@@ -62,4 +62,4 @@ Todo
 
 I'll add to this README while I'm developing the various parts.
 
-.. |Django Q schema| image:: http://i.imgur.com/jYRb1mJ.png
+.. |Django Q schema| image:: http://i.imgur.com/wTIeg2T.png

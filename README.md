@@ -4,7 +4,7 @@
 Currently in the pre-alpha stage and Python 3 only (for now).
 
 ### Architecture
-![Django Q schema](http://i.imgur.com/jYRb1mJ.png) 
+![Django Q schema](http://i.imgur.com/wTIeg2T.png) 
 ### Signed Tasks
 Tasks are first pickled to Json and then signed using Django's own signing module before being sent to a Redis list. This ensures that task packages on the Redis server can only be excuted and read by clusters and django servers who share the same secret key. 
 
