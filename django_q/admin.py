@@ -1,5 +1,7 @@
 from django.contrib import admin
 
+from django_q import async
+
 from .models import Success, Failure
 
 
@@ -29,7 +31,9 @@ class TaskAdmin(admin.ModelAdmin):
 
 
 def retry_failed(FailAdmin, request, queryset):
-    pass
+    for task in queryset:
+        async(task.func, *task.args, hook=task.hook, **task.kwargs)
+        task.delete()
 
 
 retry_failed.short_description = "Resubmit selected tasks to Q"
@@ -42,6 +46,11 @@ class FailAdmin(admin.ModelAdmin):
         'started',
         'result'
     )
+
+    def has_add_permission(self, request, obj=None):
+        """Don't allow adds"""
+        return False
+
     actions = [retry_failed]
     search_fields = ['name']
     readonly_fields = []

@@ -54,6 +54,7 @@ class Success(Task):
 
     class Meta:
         app_label = 'django_q'
+        verbose_name = 'Successful task'
         proxy = True
 
 
@@ -68,4 +69,5 @@ class Failure(Task):
 
     class Meta:
         app_label = 'django_q'
+        verbose_name = 'Failed task'
         proxy = True
