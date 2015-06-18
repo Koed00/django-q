@@ -7,3 +7,5 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         q = Cluster()
+        q.start()
+

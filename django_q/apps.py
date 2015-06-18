@@ -9,6 +9,8 @@ class SessionAdminConfig(AppConfig):
     verbose_name = "Django Q"
 
 
+VERSION = '0.1.0'
+
 """
 Sets the logging level for the app
 """

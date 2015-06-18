@@ -1,11 +1,15 @@
+import sys, os
+myPath = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, myPath + '/../')
+
 import pytest
 from django_q import Cluster
 
 
-@pytest.fixture
-def qworker():
+@pytest.fixture(scope='session')
+def cluster():
     return Cluster()
 
 
-def test_worker(qworker):
-    assert len(qworker.stable) == qworker.stable_size
+def test_worker(cluster):
+    assert len(cluster.stable) == cluster.stable_size

@@ -1,7 +1,7 @@
 import time
 
 # simple countdown
-def count(n):
+def countdown(n):
     start_time = time.time()
     while n > 0:
         n -= 1
