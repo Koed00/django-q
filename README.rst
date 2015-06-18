@@ -50,12 +50,20 @@ database. This can be increased or decreased at will by settings
 ``Q_SAVE_LIMIT = 0`` to save all results to the database. Failed
 packages are always saved.
 
-Medic
+Sentinel
+~~~~~~~~
+
+The sentinel spawns all process and then checks the health of all
+workers, including the pusher and the monitor. Reincarnating processes
+if any may fail. In case of a stop signal, the sentinel will halt the
+pusher and instruct the workers and monitor to finish the remaining
+items , before exiting.
+
+Hooks
 ~~~~~
 
-The medic loop checks the health of all workers, including the pusher
-and the monitor. In case one of them dies, the medic will reincarnate a
-new process to take over the duties of the deceased.
+Packages can be assigned a hook function, upon completion of the package
+this function will be called with the Task object as the first argument.
 
 Todo
 ~~~~
