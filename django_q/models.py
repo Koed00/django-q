@@ -10,6 +10,7 @@ from picklefield import PickledObjectField
 class Task(models.Model):
     name = models.CharField(max_length=100)
     func = models.CharField(max_length=256)
+    hook = models.CharField(max_length=256, null=True)
     args = PickledObjectField()
     kwargs = PickledObjectField()
     result = PickledObjectField()
@@ -30,12 +31,12 @@ class Task(models.Model):
 
 @receiver(post_save, sender=Task)
 def call_hook(sender, instance, **kwargs):
-    if instance.kwargs.get('hook'):
-        module, func = instance.kwargs.get('hook').rsplit('.', 1)
+    if instance.hook:
+        module, func = instance.hook.rsplit('.', 1)
         try:
             m = importlib.import_module(module)
             f = getattr(m, func)
-            f(task=instance)
+            f(instance)
         except Exception as e:
             logger = logging.getLogger('django-q')
             logger.error('return hook failed on {}'.format(instance.name))

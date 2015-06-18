@@ -14,7 +14,7 @@ import redis
 
 from django.core import signing
 
-from .apps import LOG_LEVEL, SECRET_KEY, SAVE_LIMIT, WORKERS, COMPRESSED, VERSION
+from .conf import LOG_LEVEL, SECRET_KEY, SAVE_LIMIT, WORKERS, COMPRESSED, VERSION
 from .humanhash import uuid
 from .models import Task, Success
 
@@ -127,23 +127,19 @@ def pusher(task_queue, e):
             task = task[1]
             task_queue.put(task)
             logger.debug('queueing {}'.format(task))
-    logger.info("{} stopped pushing".format(current_process().name))
+    logger.info("{} stopped pushing tasks".format(current_process().name))
 
 
 def monitor(done_queue):
     name = current_process().name
-    logger.info("{} monitoring at {}".format(name, current_process().pid))
+    logger.info("{} monitoring results at {}".format(name, current_process().pid))
     for task in iter(done_queue.get, 'STOP'):
-        name = task[0]
-        func = task[1]
-        result = task[6]
-        success = task[7]
-        if success:
-            logger.info("Finished [{}:{}]".format(func, name))
+        if task['success']:
+            logger.info("Finished [{}:{}]".format(task['func'], task['name']))
         else:
-            logger.error("Failed [{}:{}] - {}".format(func, name, result))
+            logger.error("Failed [{}:{}] - {}".format(task['func'], task['name'], task['result']))
         save_task(task)
-    logger.info("{} stopped monitoring".format(name))
+    logger.info("{} stopped monitoring results".format(name))
 
 
 def worker(task_queue, done_queue):
@@ -157,59 +153,56 @@ def worker(task_queue, done_queue):
             logger.error(e)
             continue
         except BadSignature as e:
-            task[0] = task[0].rsplit(":", 1)[0]
-            task.append(timezone.now())
-            task.append(e)
-            task.append(False)
+            task['name'] = task['name'].rsplit(":", 1)[0]
+            task['stopped'] = timezone.now()
+            task['result'] = e
+            task['success'] = False
             done_queue.put(task)
             continue
-        func = task[1]
-        module, func = func.rsplit('.', 1)
-        args = task[2]
-        kwargs = task[3]
-        logger.info('{} processing [{}:{}]'.format(name, func, task[0]))
-        task.append(timezone.now())
+        module, func = task['func'].rsplit('.', 1)
+        logger.info('{} processing [{}:{}]'.format(name, task['func'], task['name']))
         try:
             m = importlib.import_module(module)
             f = getattr(m, func)
-            result = f(*args, **kwargs)
-            task.append(result)
-            task.append(True)
+            task['result'] = f(*task['args'], **task['kwargs'])
+            task['stopped'] = timezone.now()
+            task['success'] = True
             done_queue.put(task)
         except Exception as e:
-            task.append(e)
-            task.append(False)
+            task['result'] = e
+            task['stopped'] = timezone.now()
+            task['success'] = False
             done_queue.put(task)
-    logger.info('{} stopped working'.format(name))
+    logger.info('{} stopped doing work'.format(name))
 
 
 def save_task(task):
-    if task[7] and 0 < SAVE_LIMIT < Success.objects.count():
+    if task['success'] and 0 < SAVE_LIMIT < Success.objects.count():
         Success.objects.first().delete()
-    Task.objects.create(name=task[0],
-                        func=task[1],
-                        args=task[2],
-                        kwargs=task[3],
-                        started=task[4],
-                        stopped=task[5],
-                        result=task[6],
-                        success=task[7])
+    Task.objects.create(name=task['name'],
+                        func=task['func'],
+                        hook=task['hook'],
+                        args=task['args'],
+                        kwargs=task['kwargs'],
+                        started=task['started'],
+                        stopped=task['stopped'],
+                        result=task['result'],
+                        success=task['success'])
 
 
-def async(func, *args, **kwargs):
+def async(func, *args, hook=None, **kwargs):
     """
-    Schedules a module function
-    [name, func, args, kwargs, started, finished, result, success]
+    Schedules a task
     """
-    name = uuid()[0]
-    pack = signing.dumps([name, func, args, kwargs, timezone.now()],
+    task = {'name': uuid()[0], 'func': func, 'hook': hook, 'args': args, 'kwargs': kwargs, 'started': timezone.now()}
+    pack = signing.dumps(task,
                          key=SECRET_KEY,
                          salt='django_q.q',
                          compress=COMPRESSED,
                          serializer=JSONPickleSerializer)
     r.rpush(q_list, pack)
     logger.debug('Pushed {}'.format(pack))
-    return name
+    return task['name']
 
 
 class JSONPickleSerializer(object):

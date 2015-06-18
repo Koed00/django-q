@@ -14,9 +14,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Task',
             fields=[
-                ('id', models.AutoField(serialize=False, auto_created=True, verbose_name='ID', primary_key=True)),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', primary_key=True, auto_created=True)),
                 ('name', models.CharField(max_length=100)),
                 ('func', models.CharField(max_length=256)),
+                ('hook', models.CharField(max_length=256, null=True)),
                 ('args', picklefield.fields.PickledObjectField(editable=False)),
                 ('kwargs', picklefield.fields.PickledObjectField(editable=False)),
                 ('result', picklefield.fields.PickledObjectField(editable=False)),

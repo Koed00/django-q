@@ -7,3 +7,7 @@ def countdown(n):
         n -= 1
     stop_time = time.time()
     return stop_time - start_time
+
+
+def result(obj):
+    print('RESULT HOOK: {}'.format(obj.result))
