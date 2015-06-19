@@ -35,14 +35,48 @@ class Cluster(object):
         except ():
             logger.error('Can not connect to Redis server')
             return
+        self.sentinel = None
+        self.stop_event = None
+        signal.signal(signal.SIGTERM, self.sig_handler)
+        signal.signal(signal.SIGINT, self.sig_handler)
+
+    def start(self):
+        # This is just for PyCharm to not crash. Ignore it.
+        if not hasattr(sys.stdin, 'close'):
+            def dummy_close():
+                pass
+
+            sys.stdin.close = dummy_close
+        # Start Sentinel
+        self.stop_event = Event()
+        self.sentinel = Process(target=Sentinel, args=(self.stop_event,))
+        self.sentinel.start()
+        logger.info('Starting Q cluster version {} at {}'.format(VERSION, current_process().pid))
+
+    def stop(self):
+        self.stop_event.set()
+        self.sentinel.join()
+        logger.info('Q cluster has stopped.')
+
+    def sig_handler(self, signum, frame):
+        logger.debug('{} got signal {}'.format(current_process().name, SIGNAL_NAMES.get(signum, 'UNKNOWN')))
+        self.stop()
+
+
+class Sentinel(object):
+    def __init__(self, event):
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+        signal.signal(signal.SIGTERM, signal.SIG_DFL)
+        self.stop_event = event
         self.pool_size = WORKERS
         self.pool = []
         self.task_queue = Queue()
         self.done_queue = Queue()
-        self.event_stop = Event()
+        self.event_out = Event()
         self.monitor_pid = None
         self.pusher_pid = None
-        self.sentinel_pid = None
+        self.spawn_cluster()
+        self.guard()
 
     def spawn_process(self, target, *args):
         # This is just for PyCharm to not crash. Ignore it.
@@ -52,21 +86,19 @@ class Cluster(object):
 
             sys.stdin.close = dummy_close
         p = Process(target=target, args=args)
+        p.daemon = True
         self.pool.append(p)
         p.start()
         return p.pid
 
     def spawn_pusher(self):
-        return self.spawn_process(pusher, self.task_queue, self.event_stop)
+        return self.spawn_process(pusher, self.task_queue, self.event_out)
 
     def spawn_worker(self):
         self.spawn_process(worker, self.task_queue, self.done_queue)
 
     def spawn_monitor(self):
         return self.spawn_process(monitor, self.done_queue)
-
-    def spawn_sentinel(self):
-        return self.spawn_process(self.sentinel, self.event_stop)
 
     def reincarnate(self, pid):
         if pid == self.monitor_pid:
@@ -79,13 +111,15 @@ class Cluster(object):
             self.spawn_worker()
             logger.warn("reincarnated work worker after death of {}".format(pid))
 
-    def sentinel(self, e):
+    def spawn_cluster(self):
         for i in range(self.pool_size):
             self.spawn_worker()
         self.monitor_pid = self.spawn_monitor()
         self.pusher_pid = self.spawn_pusher()
+
+    def guard(self):
         logger.info('{} checking worker health at {}'.format(current_process().name, current_process().pid))
-        while not e.is_set():
+        while not self.stop_event.is_set():
             for p in list(self.pool):
                 if not p.is_alive():
                     # Be humane
@@ -96,18 +130,12 @@ class Cluster(object):
             sleep(1)
         self.stop()
 
-    def start(self):
-        signal.signal(signal.SIGTERM, self.sig_handler)
-        signal.signal(signal.SIGINT, self.sig_handler)
-        self.sentinel_pid = self.spawn_sentinel()
-        logger.info('Starting Q cluster version {} at {}'.format(VERSION, current_process().pid))
-
     def stop(self):
         # Send the STOP signal to the pool
         name = current_process().name
         logger.info('{} stopping pool processes'.format(name))
         # Stopping pusher
-        self.event_stop.set()
+        self.event_out.set()
         # Putting poison pills in the queue
         for _ in self.pool:
             self.task_queue.put('STOP')
@@ -119,10 +147,7 @@ class Cluster(object):
             sleep(0.2)
         # Finally stop the monitor
         self.done_queue.put('STOP')
-
-    def sig_handler(self, signum, frame):
-        logger.debug('{} got signal {}'.format(current_process().name, SIGNAL_NAMES.get(signum, 'UNKNOWN')))
-        self.event_stop.set()
+        self.pool = []
 
 
 def pusher(task_queue, e):
