@@ -1,19 +1,22 @@
 import importlib
 import logging
+import os
 import signal
 from multiprocessing import Queue, Event, Process, current_process
 import sys
 from time import sleep
 
+# External
 import jsonpickle
 import coloredlogs
-from django.core.signing import BadSignature
-
-from django.utils import timezone
 import redis
 
+# Django
 from django.core import signing
 
+from django.utils import timezone
+
+# Local
 from .conf import LOG_LEVEL, SECRET_KEY, SAVE_LIMIT, WORKERS, COMPRESSED, VERSION
 from .humanhash import uuid
 from .models import Task, Success
@@ -37,6 +40,7 @@ class Cluster(object):
             return
         self.sentinel = None
         self.stop_event = None
+        self.pid = current_process().pid
         signal.signal(signal.SIGTERM, self.sig_handler)
         signal.signal(signal.SIGINT, self.sig_handler)
 
@@ -51,12 +55,15 @@ class Cluster(object):
         self.stop_event = Event()
         self.sentinel = Process(target=Sentinel, args=(self.stop_event,))
         self.sentinel.start()
-        logger.info('Starting Q cluster version {} at {}'.format(VERSION, current_process().pid))
+        logger.info('Starting Q cluster version {} at {}'.format(VERSION, self.pid))
 
     def stop(self):
         self.stop_event.set()
         self.sentinel.join()
         logger.info('Q cluster has stopped.')
+
+    def stats(self):
+        return Stat.load(self.pid)
 
     def sig_handler(self, signum, frame):
         logger.debug('{} got signal {}'.format(current_process().name, SIGNAL_NAMES.get(signum, 'UNKNOWN')))
@@ -67,6 +74,11 @@ class Sentinel(object):
     def __init__(self, event):
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         signal.signal(signal.SIGTERM, signal.SIG_DFL)
+        self.pid = current_process().pid
+        self.parent_pid = os.getppid()
+        self.name = current_process().name
+        self.status = 'Initializing'
+        self.tob = timezone.now()
         self.stop_event = event
         self.pool_size = WORKERS
         self.pool = []
@@ -118,7 +130,8 @@ class Sentinel(object):
         self.pusher_pid = self.spawn_pusher()
 
     def guard(self):
-        logger.info('{} checking worker health at {}'.format(current_process().name, current_process().pid))
+        logger.info('{} guarding cluster at {}'.format(current_process().name, self.pid))
+        self.status = 'Running'
         while not self.stop_event.is_set():
             for p in list(self.pool):
                 if not p.is_alive():
@@ -127,10 +140,15 @@ class Sentinel(object):
                     self.pool.remove(p)
                     # Replace it with a fresh one
                     self.reincarnate(p.pid)
+            self.stats()
             sleep(1)
         self.stop()
 
+    def stats(self):
+        Stat(self).save()
+
     def stop(self):
+        self.status = 'Stopping'
         # Send the STOP signal to the pool
         name = current_process().name
         logger.info('{} stopping pool processes'.format(name))
@@ -148,6 +166,7 @@ class Sentinel(object):
         # Finally stop the monitor
         self.done_queue.put('STOP')
         self.pool = []
+        self.status = 'Stopped'
 
 
 def pusher(task_queue, e):
@@ -179,11 +198,11 @@ def worker(task_queue, done_queue):
     for pack in iter(task_queue.get, 'STOP'):
         # unpickle the task
         try:
-            task = signing.loads(pack, key=SECRET_KEY, salt='django_q.q', serializer=JSONPickleSerializer)
+            task = SignedPackage.loads(pack)
         except TypeError as e:
             logger.error(e)
             continue
-        except BadSignature as e:
+        except signing.BadSignature as e:
             task['name'] = task['name'].rsplit(":", 1)[0]
             task['stopped'] = timezone.now()
             task['result'] = e
@@ -226,19 +245,36 @@ def async(func, *args, hook=None, **kwargs):
     Schedules a task
     """
     task = {'name': uuid()[0], 'func': func, 'hook': hook, 'args': args, 'kwargs': kwargs, 'started': timezone.now()}
-    pack = signing.dumps(task,
-                         key=SECRET_KEY,
-                         salt='django_q.q',
-                         compress=COMPRESSED,
-                         serializer=JSONPickleSerializer)
+    pack = SignedPackage.dumps(task)
     r.rpush(q_list, pack)
     logger.debug('Pushed {}'.format(pack))
     return task['name']
 
 
+class SignedPackage(object):
+    """
+    Wraps Django's signing module with custom JsonPickle serializer
+    """
+
+    @staticmethod
+    def dumps(obj, compressed=COMPRESSED):
+        return signing.dumps(obj,
+                             key=SECRET_KEY,
+                             salt='django_q.q',
+                             compress=compressed,
+                             serializer=JSONPickleSerializer)
+
+    @staticmethod
+    def loads(obj):
+        return signing.loads(obj,
+                             key=SECRET_KEY,
+                             salt='django_q.q',
+                             serializer=JSONPickleSerializer)
+
+
 class JSONPickleSerializer(object):
     """
-    Simple wrapper around jsonpickle to be used in signing.dumps and
+    Simple wrapper around JsonPickle for signing.dumps and
     signing.loads.
     """
 
@@ -249,3 +285,53 @@ class JSONPickleSerializer(object):
     @staticmethod
     def loads(data):
         return jsonpickle.loads(data.decode('latin-1'))
+
+
+class Stat(object):
+    def __init__(self, sentinel):
+        self.cluster_id = sentinel.parent_pid
+        self.status = sentinel.status
+        self.sentinel = sentinel.pid
+        self.monitor = sentinel.monitor_pid
+        self.pusher = sentinel.pusher_pid
+        self.workers = []
+        for w in sentinel.pool:
+            self.workers.append(w.pid)
+        self.task_q_size = sentinel.task_queue.qsize()
+        self.done_q_size = sentinel.done_queue.qsize()
+        self.tob = sentinel.tob
+        self.timestamp = timezone.now()
+
+    @property
+    def key(self):
+        return self.get_key(self.cluster_id)
+
+    @staticmethod
+    def get_key(cluster_id):
+        return '{}:cluster:{}'.format(prefix, cluster_id)
+
+    def save(self):
+        r.set(self.key, SignedPackage.dumps(self, True), 5)
+
+    @staticmethod
+    def load(cluster_id=None):
+        if not cluster_id:
+            stats = []
+            keys = r.keys(pattern='{}:cluster:*'.format(prefix))
+            if not keys:
+                return None
+            packs = r.mget(keys)
+            for pack in packs:
+                try:
+                    stats.append(SignedPackage.loads(pack))
+                except signing.BadSignature:
+                    continue
+            return stats
+        else:
+            pack = r.get(Stat.get_key(cluster_id))
+            if pack:
+                try:
+                    return SignedPackage.loads(pack)
+                except signing.BadSignature:
+                    return None
+            return None
