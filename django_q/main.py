@@ -3,6 +3,7 @@ import logging
 import os
 import signal
 from multiprocessing import Queue, Event, Process, current_process
+import socket
 import sys
 from time import sleep
 
@@ -62,9 +63,6 @@ class Cluster(object):
         self.sentinel.join()
         logger.info('Q cluster has stopped.')
 
-    def stats(self):
-        return Stat.load(self.pid)
-
     def sig_handler(self, signum, frame):
         logger.debug('{} got signal {}'.format(current_process().name, SIGNAL_NAMES.get(signum, 'UNKNOWN')))
         self.stop()
@@ -77,7 +75,8 @@ class Sentinel(object):
         self.pid = current_process().pid
         self.parent_pid = os.getppid()
         self.name = current_process().name
-        self.status = 'Initializing'
+        self.status = None
+        self.reincarnations = 0
         self.tob = timezone.now()
         self.stop_event = event
         self.pool_size = WORKERS
@@ -122,8 +121,10 @@ class Sentinel(object):
         else:
             self.spawn_worker()
             logger.warn("reincarnated work worker after death of {}".format(pid))
+        self.reincarnations += 1
 
     def spawn_cluster(self):
+        self.set_status('Starting')
         for i in range(self.pool_size):
             self.spawn_worker()
         self.monitor_pid = self.spawn_monitor()
@@ -131,7 +132,7 @@ class Sentinel(object):
 
     def guard(self):
         logger.info('{} guarding cluster at {}'.format(current_process().name, self.pid))
-        self.status = 'Running'
+        self.set_status('Running')
         while not self.stop_event.is_set():
             for p in list(self.pool):
                 if not p.is_alive():
@@ -140,16 +141,12 @@ class Sentinel(object):
                     self.pool.remove(p)
                     # Replace it with a fresh one
                     self.reincarnate(p.pid)
-            self.stats()
-            sleep(1)
+            Stat(self).publish()
+            sleep(2)
         self.stop()
 
-    def stats(self):
-        Stat(self).save()
-
     def stop(self):
-        self.status = 'Stopping'
-        # Send the STOP signal to the pool
+        self.set_status('Stopping')
         name = current_process().name
         logger.info('{} stopping pool processes'.format(name))
         # Stopping pusher
@@ -166,7 +163,10 @@ class Sentinel(object):
         # Finally stop the monitor
         self.done_queue.put('STOP')
         self.pool = []
-        self.status = 'Stopped'
+        self.set_status('Stopped')
+
+    def set_status(self, message=None):
+        Stat(self, message).publish()
 
 
 def pusher(task_queue, e):
@@ -185,9 +185,9 @@ def monitor(done_queue):
     logger.info("{} monitoring results at {}".format(name, current_process().pid))
     for task in iter(done_queue.get, 'STOP'):
         if task['success']:
-            logger.info("Finished [{}:{}]".format(task['func'], task['name']))
+            logger.info("Finished [{}]".format(task['name']))
         else:
-            logger.error("Failed [{}:{}] - {}".format(task['func'], task['name'], task['result']))
+            logger.error("Failed [{}] - {}".format(task['name'], task['result']))
         save_task(task)
     logger.info("{} stopped monitoring results".format(name))
 
@@ -210,7 +210,7 @@ def worker(task_queue, done_queue):
             done_queue.put(task)
             continue
         module, func = task['func'].rsplit('.', 1)
-        logger.info('{} processing [{}:{}]'.format(name, task['func'], task['name']))
+        logger.info('{} processing [{}]'.format(name, task['name']))
         try:
             m = importlib.import_module(module)
             f = getattr(m, func)
@@ -288,8 +288,11 @@ class JSONPickleSerializer(object):
 
 
 class Stat(object):
-    def __init__(self, sentinel):
+    def __init__(self, sentinel, message=None):
         self.cluster_id = sentinel.parent_pid
+        self.host = socket.gethostname()
+        if message:
+            sentinel.status = message
         self.status = sentinel.status
         self.sentinel = sentinel.pid
         self.monitor = sentinel.monitor_pid
@@ -297,6 +300,7 @@ class Stat(object):
         self.workers = []
         for w in sentinel.pool:
             self.workers.append(w.pid)
+        self.reincarnations = sentinel.reincarnations
         self.task_q_size = sentinel.task_queue.qsize()
         self.done_q_size = sentinel.done_queue.qsize()
         self.tob = sentinel.tob
@@ -304,34 +308,11 @@ class Stat(object):
 
     @property
     def key(self):
-        return self.get_key(self.cluster_id)
+        return self.get_key()
 
     @staticmethod
-    def get_key(cluster_id):
-        return '{}:cluster:{}'.format(prefix, cluster_id)
+    def get_key():
+        return '{}:cluster'.format(prefix)
 
-    def save(self):
-        r.set(self.key, SignedPackage.dumps(self, True), 5)
-
-    @staticmethod
-    def load(cluster_id=None):
-        if not cluster_id:
-            stats = []
-            keys = r.keys(pattern='{}:cluster:*'.format(prefix))
-            if not keys:
-                return None
-            packs = r.mget(keys)
-            for pack in packs:
-                try:
-                    stats.append(SignedPackage.loads(pack))
-                except signing.BadSignature:
-                    continue
-            return stats
-        else:
-            pack = r.get(Stat.get_key(cluster_id))
-            if pack:
-                try:
-                    return SignedPackage.loads(pack)
-                except signing.BadSignature:
-                    return None
-            return None
+    def publish(self):
+        r.publish(self.key, SignedPackage.dumps(self, True))
