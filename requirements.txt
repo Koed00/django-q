@@ -1,3 +1,5 @@
+blessed
+future
 -e .
 coloredlogs==1.0.1
 django-picklefield==0.3.1

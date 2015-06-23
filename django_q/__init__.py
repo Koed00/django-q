@@ -1,10 +1,7 @@
-"""
-A multiprocessing task queue application for Django
-Author: Ilan Steemers (koed00@gmail.com
-Github: https://github.com/Koed00/django-q
-"""
+from django_q.models import Task
+from django_q.core import async, Cluster
 
-from .main import Cluster, async, SignedPackage, Stat
+default_app_config = 'django_q.apps.DjangoQConfig'
 
-
-default_app_config = 'django_q.apps.SessionAdminConfig'
+def result(name):
+    return Task.get_result(name)

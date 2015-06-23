@@ -4,6 +4,14 @@ from multiprocessing import cpu_count
 VERSION = '0.1.0'
 
 """
+Prefixes the Redis keys. Defaults to django_q
+"""
+try:
+    PREFIX = settings.Q_PREFIX
+except AttributeError:
+    PREFIX = 'django_q'
+
+"""
 Sets the logging level for the app
 """
 try:
@@ -41,3 +49,8 @@ try:
     COMPRESSED = settings.Q_COMPRESSED
 except AttributeError:
     COMPRESSED = False
+
+try:
+    USE_TZ = settings.USE_TZ
+except AttributeError:
+    USE_TZ = False

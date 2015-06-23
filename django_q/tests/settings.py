@@ -103,3 +103,5 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# Django Q specific
+#Q_PREFIX = 'test_django_q'

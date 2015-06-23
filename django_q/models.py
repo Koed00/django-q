@@ -20,7 +20,9 @@ class Task(models.Model):
 
     @staticmethod
     def get_result(name):
-        return Task.objects.get(name=name).result
+        if Task.objects.filter(name=name).exists():
+            return Task.objects.get(name=name).result
+        return None
 
     def time_taken(self):
         return (self.stopped - self.started).total_seconds()

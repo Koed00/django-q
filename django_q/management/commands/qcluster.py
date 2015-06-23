@@ -1,9 +1,9 @@
 from django.core.management.base import BaseCommand
-from django_q import Cluster
+from django_q.core import Cluster
 
 
 class Command(BaseCommand):
-    help = "My shiny new management command."
+    help = "Starts a Django Q Cluster."
 
     def handle(self, *args, **options):
         q = Cluster()

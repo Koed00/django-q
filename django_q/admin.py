@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from django_q import async
+from django_q.core import async
 
 from .models import Success, Failure
 
