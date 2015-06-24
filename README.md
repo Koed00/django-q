@@ -2,9 +2,9 @@
 ##A multiprocessing task queue application for Django
 [![](https://travis-ci.org/Koed00/django-q.svg?branch=master)](https://travis-ci.org/Koed00/django-q)
 ### Status
-In Alpha and Python 3 only (for now).
+In Alpha.
 Everything should work, but the basic structure can still change.
-Main focus will be put on creating tests now.
+Main focus is on creating more test, better coverage and stability.
 
 
 ### Architecture
