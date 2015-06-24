@@ -2,7 +2,7 @@ import importlib
 import logging
 
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from picklefield import PickledObjectField
 
@@ -30,8 +30,7 @@ class Task(models.Model):
     class Meta:
         app_label = 'django_q'
 
-
-@receiver(post_save, sender=Task)
+@receiver(pre_save, sender=Task)
 def call_hook(sender, instance, **kwargs):
     if instance.hook:
         module, func = instance.hook.rsplit('.', 1)
