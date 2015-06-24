@@ -14,7 +14,7 @@ env:
 install:
   - pip install -q django==$DJANGO
   - pip install -r requirements.txt
-  - pip install pytest-django pytz coverage coveralls
+  - pip install pytest-django pytz coveralls
   - python setup.py install
 
 script:
