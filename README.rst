@@ -18,9 +18,36 @@ Architecture
    :alt: Django Q schema
 
    Django Q schema
+Usage
+~~~~~
+
+Schedule the asynchronous exectution of a function by calling ``async``
+from within your Django project.
+
 .. code:: python
 
     async(func,*args,hook=None,**kwargs)
+
+Management commands
+~~~~~~~~~~~~~~~~~~~
+
+``qcluster``
+^^^^^^^^^^^^
+
+Start a cluster with ``./manage.py qcluster``
+
+``qmonitor``
+^^^^^^^^^^^^
+
+You can monitor basic information about all the connected clusters by
+running ``./manage.py qmonitor``
+
+Admin integration
+~~~~~~~~~~~~~~~~~
+
+Django Q registers itself with the admin page to show failed and
+succesful tasks. From there task results can be read or deleted. If
+neccesary, failed tasks can be reintroduced to the queue.
 
 Signed Tasks
 ~~~~~~~~~~~~
@@ -76,18 +103,6 @@ Hooks
 
 Packages can be assigned a hook function, upon completion of the package
 this function will be called with the Task object as the first argument.
-
-Management command
-~~~~~~~~~~~~~~~~~~
-
-Start the cluster with ``./manage.py qcluster``
-
-Admin integration
-~~~~~~~~~~~~~~~~~
-
-Django Q registers itself with the admin page to show failed and
-succesful tasks. From there task results can be read or deleted. If
-neccesary, failed tasks can be reintroduced to the queue.
 
 Todo
 ~~~~

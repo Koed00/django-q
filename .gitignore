@@ -60,3 +60,4 @@ dev-requirements.txt
 manage.py
 testq
 db.sqlite3
+.venv
