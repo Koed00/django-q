@@ -39,18 +39,26 @@ Management commands
 
 Start a cluster with ``./manage.py qcluster``
 
+.. figure:: http://i.imgur.com/7sVhR3v.png
+   :alt: qcluster command
+
+   qcluster command
 ``qmonitor``
 ^^^^^^^^^^^^
 
 You can monitor basic information about all the connected clusters by
 running ``./manage.py qmonitor``
 
+.. figure:: http://i.imgur.com/5cm7hdP.png
+   :alt: qmonitor command
+
+   qmonitor command
 Admin integration
 ~~~~~~~~~~~~~~~~~
 
 Django Q registers itself with the admin page to show failed and
-successful tasks. From there task results can be read or deleted. If
-necessary, failed tasks can be reintroduced to the queue.
+succesful tasks. From there task results can be read or deleted. If
+neccesary, failed tasks can be reintroduced to the queue.
 
 Signed Tasks
 ~~~~~~~~~~~~
@@ -66,7 +74,7 @@ Optionally, packages can be compressed before transport by setting
 Pusher
 ~~~~~~
 
-The pusher process continuously checks the Redis list for new task
+The pusher process continously checks the Redis list for new task
 packages and pushes them on the Task Queue.
 
 Worker
@@ -78,20 +86,19 @@ any of these steps, the package is then pushed onto the Result Queue.
 
 By default Django Q spawns a worker for each detected CPU on the host
 system. This can be overridden by setting ``Q_WORKERS =  n``. With *n*
-being the number of desired worker processes.
+being the numbe of desired worker processes.
 
 Monitor
 ~~~~~~~
 
 The result monitor checks the Result Queue for processed packages and
-saves both failed and successful packages to the Django database.
+saves both failed and succesful packages to the Django database.
 
-By default only the last 100 successful packages are kept in the
+By default only the last 100 succesful packages are kept in the
 database. This can be increased or decreased at will by settings
 ``Q_SAVE_LIMIT = n``. With *n* being the desired number of records. Set
-``Q_SAVE_LIMIT = 0`` to save all results to the database.
-``Q_SAVE_LIMIT = None`` will make the monitor refrain from savig success
-Failed packages are always saved.
+``Q_SAVE_LIMIT = 0`` to save all results to the database. Failed
+packages are always saved.
 
 Sentinel
 ~~~~~~~~
