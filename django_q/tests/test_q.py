@@ -8,9 +8,9 @@ import pytest
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
-from django_q.core import Cluster, r, async, Q_LIST, pusher, worker, monitor
+from django_q.core import Cluster, r, async, pusher, worker, monitor, Sentinel
 from django_q.humanhash import DEFAULT_WORDLIST
-from django_q import result
+from django_q import result, get_task
 
 
 class WordClass(object):
@@ -50,11 +50,19 @@ def test_cluster_initial():
     assert c.has_stopped
 
 
+def test_sentinel():
+    start_event = Event()
+    stop_event = Event()
+    stop_event.set()
+    Sentinel(stop_event, start_event, list_key='sentinel_test:q')
+    assert start_event.is_set()
+
 @pytest.mark.django_db
 def test_cluster():
-    task = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST)
-    task_count = r.llen(Q_LIST)
-    assert task_count >= 1
+    list_key = 'cluster_test:q'
+    r.delete(list_key)
+    task = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, list_key=list_key)
+    assert r.llen(list_key) == 1
     task_queue = Queue()
     assert task_queue.qsize() == 0
     result_queue = Queue()
@@ -62,9 +70,9 @@ def test_cluster():
     event = Event()
     event.set()
     # Test push
-    pusher(task_queue, event)
+    pusher(task_queue, event, list_key=list_key)
     assert task_queue.qsize() == 1
-    assert r.llen(Q_LIST) == task_count - 1
+    assert r.llen(list_key) == 0
     # Test work
     task_queue.put('STOP')
     worker(task_queue, result_queue)
@@ -74,33 +82,51 @@ def test_cluster():
     result_queue.put('STOP')
     monitor(result_queue)
     assert result_queue.qsize() == 0
-
     # check result
     assert result(task) == 1506
-
+    r.delete(list_key)
 
 @pytest.mark.django_db
-def test_async():
-    a = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, hook='django_q.tests.test_q.assert_result')
-    b = async('django_q.tests.tasks.count_letters2', WordClass(), hook='django_q.tests.test_q.assert_result')
-    c = Cluster()
+def run_cluster():
+    list_key = 'run_test:q'
+    r.delete(list_key)
+    c = Cluster(list_key=list_key)
     assert c.start() > 0
     while not c.is_running:
         sleep(0.5)
-    assert isinstance(a, str)
-    assert isinstance(b, str)
     while c.stat.task_q_size > 0 and c.stat.done_q_size > 0:
         sleep(0.5)
     assert c.stop() is True
-    result_a = result(a)
+    r.delete(list_key)
+
+@pytest.mark.django_db
+def blah_async():
+    a = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, hook='django_q.tests.test_q.assert_result')
+    b = async('django_q.tests.tasks.count_letters2', WordClass(), hook='django_q.tests.test_q.assert_result')
+    # unknown argument
+    c = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, 'oneargumentoomany',
+              hook='django_q.tests.test_q.assert_bad_result')
+    # unknown function
+    d =  async('django_q.tests.tasks.does_not_exist', WordClass(), hook='django_q.tests.test_q.assert_bad_result')
+    assert isinstance(a, str)
+    assert isinstance(b, str)
+    assert isinstance(c, str)
+    assert isinstance(d, str)
+    run_cluster()
+    result_a = get_task(a)
     assert result_a is not None
     assert result_a.success is True
-    assert result_a.result == 1506
-    result_b = result(b)
+    assert result(a) == 1506
+    result_b = get_task(b)
     assert result_b is not None
     assert result_b.success is True
-    assert result_b.result == 1506
-
+    assert result(b) == 1506
+    result_c = get_task(c)
+    assert result_c is not None
+    assert result_c.success is False
+    result_d = get_task(d)
+    assert result_d is not None
+    assert result_d.success is False
 
 
 @pytest.mark.django_db
@@ -108,20 +134,6 @@ def assert_result(task):
     assert task is not None
     assert task.success is True
     assert task.result == 1506
-
-
-@pytest.mark.django_db
-def broken_package():
-    a = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, 'oneargumentoomany',
-              hook='django_q.tests.test_q.assert_bad_result')
-    b = async('django_q.tests.tasks.does_not_exist', WordClass(), hook='django_q.tests.test_q.assert_bad_result')
-    assert isinstance(a, str)
-    assert isinstance(b, str)
-    sleep(5)
-    result_a = result(a)
-    assert result_a.success is False
-    result_b = result(b)
-    assert result_b.success is False
 
 
 @pytest.mark.django_db

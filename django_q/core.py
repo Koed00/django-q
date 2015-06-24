@@ -56,7 +56,7 @@ def time_zone(value):
     return value
 
 class Cluster(object):
-    def __init__(self):
+    def __init__(self, list_key=Q_LIST):
         try:
             r.ping()
         except ():
@@ -67,6 +67,7 @@ class Cluster(object):
         self.start_event = None
         self.stopped_event = None
         self.pid = current_process().pid
+        self.list_key = list_key
         signal.signal(signal.SIGTERM, self.sig_handler)
         signal.signal(signal.SIGINT, self.sig_handler)
 
@@ -80,7 +81,7 @@ class Cluster(object):
         # Start Sentinel
         self.stop_event = Event()
         self.start_event = Event()
-        self.sentinel = Process(target=Sentinel, args=(self.stop_event, self.start_event))
+        self.sentinel = Process(target=Sentinel, args=(self.stop_event, self.start_event, self.list_key))
         self.sentinel.start()
         logger.info('Q Cluster-{} starting.'.format(self.pid))
         return self.pid
@@ -128,12 +129,13 @@ class Cluster(object):
 
 
 class Sentinel(object):
-    def __init__(self, stop_event, start_event):
+    def __init__(self, stop_event, start_event, list_key=Q_LIST):
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         signal.signal(signal.SIGTERM, signal.SIG_DFL)
         self.pid = current_process().pid
         self.parent_pid = os.getppid()
         self.name = current_process().name
+        self.list_key = list_key
         self.status = None
         self.reincarnations = 0
         self.tob = datetime.utcnow()
@@ -163,7 +165,7 @@ class Sentinel(object):
         return p.pid
 
     def spawn_pusher(self):
-        return self.spawn_process(pusher, self.task_queue, self.event_out)
+        return self.spawn_process(pusher, self.task_queue, self.event_out, self.list_key)
 
     def spawn_worker(self):
         self.spawn_process(worker, self.task_queue, self.done_queue)
@@ -231,10 +233,10 @@ class Sentinel(object):
         Stat(self, message).save()
 
 
-def pusher(task_queue, e):
+def pusher(task_queue, e, list_key=Q_LIST):
     logger.info('{} pushing tasks at {}'.format(current_process().name, current_process().pid))
     while True:
-        task = r.blpop(Q_LIST, 1)
+        task = r.blpop(list_key, 1)
         if task:
             task = task[1]
             task_queue.put(task)
@@ -309,14 +311,21 @@ def async(func, *args, **kwargs):
     """
     Schedules a task with optional hook
     """
+    # Check for hook
     if 'hook' in kwargs:
         hook = kwargs['hook']
         del kwargs['hook']
     else:
         hook = None
+    # Check for list_key override
+    if 'list_key' in kwargs:
+        list_key = kwargs['list_key']
+        del kwargs['list_key']
+    else:
+        list_key = Q_LIST
     task = {'name': uuid()[0], 'func': func, 'hook': hook, 'args': args, 'kwargs': kwargs, 'started': datetime.utcnow()}
     pack = SignedPackage.dumps(task)
-    r.rpush(Q_LIST, pack)
+    r.rpush(list_key, pack)
     logger.debug('Pushed {}'.format(pack))
     return task['name']
 
