@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand
 from blessed import Terminal
-from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.utils import timezone
 
 from django_q.core import Stat, RUNNING, STOPPED
@@ -47,10 +46,12 @@ class Command(BaseCommand):
                     print(term.move(i, 0) + term.center('{}'.format(stat.host), width=col_width - 1))
                     print(term.move(i, 1 * col_width) + term.center('{}'.format(stat.cluster_id), width=col_width - 1))
                     print(term.move(i, 2 * col_width) + term.center('{}'.format(status), width=col_width - 1))
-                    print(term.move(i, 3 * col_width) + term.center('{}'.format(len(stat.workers)), width=col_width - 1))
+                    print(
+                        term.move(i, 3 * col_width) + term.center('{}'.format(len(stat.workers)), width=col_width - 1))
                     print(term.move(i, 4 * col_width) + term.center('{}'.format(stat.task_q_size), width=col_width - 1))
                     print(term.move(i, 5 * col_width) + term.center('{}'.format(stat.done_q_size), width=col_width - 1))
-                    print(term.move(i, 6 * col_width) + term.center('{}'.format(stat.reincarnations), width=col_width - 1))
+                    print(term.move(i, 6 * col_width) + term.center('{}'.format(stat.reincarnations),
+                                                                    width=col_width - 1))
                     print(term.move(i, 7 * col_width) + term.center('{}'.format(uptime), width=col_width - 1))
                     i += 1
                 print(term.move(i + 2, 0) + term.center('[Press q to quit]'))
