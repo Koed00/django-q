@@ -11,7 +11,7 @@ class PyTest(Command):
     user_options = []
 
     def initialize_options(self):
-        os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'django_q.tests.settings'
 
     def finalize_options(self):
         pass
