@@ -43,7 +43,7 @@ class Command(BaseCommand):
                     else:
                         status = term.yellow(stat.status)
                     # format uptime
-                    uptime = (timezone.now() - timezone.make_aware(stat.tob)).total_seconds()
+                    uptime = (timezone.now() - stat.tob).total_seconds()
                     hours, remainder = divmod(uptime, 3600)
                     minutes, seconds = divmod(remainder, 60)
                     uptime = '%d:%02d:%02d' % (hours, minutes, seconds)

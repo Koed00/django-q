@@ -5,9 +5,6 @@ from __future__ import division
 from __future__ import absolute_import
 from builtins import dict
 from builtins import range
-from datetime import datetime
-
-from django.utils.timezone import make_aware
 from future import standard_library
 
 standard_library.install_aliases()
@@ -34,9 +31,10 @@ import redis
 
 # Django
 from django.core import signing
+from django.utils import timezone
 
 # Local
-from .conf import LOG_LEVEL, SECRET_KEY, SAVE_LIMIT, WORKERS, COMPRESSED, PREFIX, USE_TZ
+from .conf import LOG_LEVEL, SECRET_KEY, SAVE_LIMIT, WORKERS, COMPRESSED, PREFIX
 from .humanhash import uuid
 from .models import Task, Success
 
@@ -52,12 +50,6 @@ STOPPED = 'Stopped'
 STOPPING = 'Stopping'
 
 r = redis.StrictRedis()
-
-# JsonPickle seems to have a problem with django's timezone.now
-def time_zone(value):
-    if USE_TZ:
-        return make_aware(value)
-    return value
 
 
 class Cluster(object):
@@ -143,7 +135,7 @@ class Sentinel(object):
         self.list_key = list_key
         self.status = None
         self.reincarnations = 0
-        self.tob = datetime.utcnow()
+        self.tob = timezone.now()
         self.stop_event = stop_event
         self.start_event = start_event
         self.pool_size = WORKERS
@@ -275,7 +267,7 @@ def worker(task_queue, done_queue):
             continue
         except signing.BadSignature as e:
             task['name'] = task['name'].rsplit(":", 1)[0]
-            task['stopped'] = datetime.utcnow()
+            task['stopped'] = timezone.now()
             task['result'] = e
             task['success'] = False
             done_queue.put(task)
@@ -286,13 +278,13 @@ def worker(task_queue, done_queue):
             m = importlib.import_module(module)
             f = getattr(m, func)
             task['result'] = f(*task['args'], **task['kwargs'])
-            task['stopped'] = datetime.utcnow()
+            task['stopped'] = timezone.now()
             task['success'] = True
             done_queue.put(task)
             gc.collect()
         except Exception as e:
             task['result'] = e
-            task['stopped'] = datetime.utcnow()
+            task['stopped'] = timezone.now()
             task['success'] = False
             done_queue.put(task)
     logger.info('{} stopped doing work'.format(name))
@@ -306,8 +298,8 @@ def save_task(task):
                         hook=task['hook'],
                         args=task['args'],
                         kwargs=task['kwargs'],
-                        started=time_zone(task['started']),
-                        stopped=time_zone(task['stopped']),
+                        started=task['started'],
+                        stopped=task['stopped'],
                         result=task['result'],
                         success=task['success'])
 
@@ -328,7 +320,7 @@ def async(func, *args, **kwargs):
         del kwargs['list_key']
     else:
         list_key = Q_LIST
-    task = {'name': uuid()[0], 'func': func, 'hook': hook, 'args': args, 'kwargs': kwargs, 'started': datetime.utcnow()}
+    task = {'name': uuid()[0], 'func': func, 'hook': hook, 'args': args, 'kwargs': kwargs, 'started': timezone.now()}
     pack = SignedPackage.dumps(task)
     r.rpush(list_key, pack)
     logger.debug('Pushed {}'.format(pack))
@@ -384,7 +376,7 @@ class Status(object):
         self.monitor = 0
         self.task_q_size = 0
         self.pusher = 0
-        self.timestamp = datetime.utcnow()
+        self.timestamp = timezone.now()
 
 
 class Stat(Status):
@@ -404,7 +396,7 @@ class Stat(Status):
             self.workers.append(w.pid)
 
     def uptime(self):
-        return (datetime.utcnow() - self.tob).total_seconds()
+        return (timezone.now() - self.tob).total_seconds()
 
     @property
     def key(self):
