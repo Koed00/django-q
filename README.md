@@ -22,7 +22,7 @@ The optional hook function gets the finished task object as its first argument a
 #### `qcluster`
 Start a cluster with `./manage.py qcluster`
 
-![qcluster command](http://i.imgur.com/7sVhR3v.png) 
+![qcluster command](http://i.imgur.com/xccUxhW.png) 
 
 ####`qmonitor`
 You can monitor basic information about all the connected clusters by running  `./manage.py qmonitor`

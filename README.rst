@@ -39,7 +39,7 @@ Management commands
 
 Start a cluster with ``./manage.py qcluster``
 
-.. figure:: http://i.imgur.com/7sVhR3v.png
+.. figure:: http://i.imgur.com/xccUxhW.png
    :alt: qcluster command
 
    qcluster command
