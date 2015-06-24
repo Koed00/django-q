@@ -383,8 +383,8 @@ class Status(object):
 
 
 class Stat(Status):
-    def __init__(self, sentinel, message=None):
-        super().__init__(sentinel.parent_pid)
+    def __init__(self, sentinel,  message=None):
+        super(Stat, self).__init__(sentinel.parent_pid)
         if message:
             sentinel.status = message
         self.tob = sentinel.tob
