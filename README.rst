@@ -28,6 +28,9 @@ from within your Django project.
 
     async(func,*args,hook=None,**kwargs)
 
+The optional hook function gets the finished task object as its first
+argument after execution
+
 Management commands
 ~~~~~~~~~~~~~~~~~~~
 
