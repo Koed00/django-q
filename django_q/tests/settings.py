@@ -37,7 +37,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_extensions',
     'django_q'
 )
 
@@ -104,4 +103,4 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # Django Q specific
-#Q_PREFIX = 'test_django_q'
+Q_PREFIX = 'test_django_q'
