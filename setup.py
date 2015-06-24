@@ -30,11 +30,12 @@ setup(
     author='Ilan Steemers',
     author_email='koed00@gmail.com',
     packages=['django_q'],
+    include_package_data=True,
     url='https://github.com/koed00/django-q',
     license='MIT',
     description='A multiprocessing task queue for Django',
     long_description=README,
-    install_requires=['django>=1.7', 'redis', 'coloredlogs', 'django-picklefield', 'jsonpickle'],
+    install_requires=['django>=1.7', 'redis', 'coloredlogs', 'django-picklefield', 'jsonpickle', 'blessed'],
     cmdclass={'test': PyTest},
     classifiers=[
         'Development Status :: 2 - PreAlpha',

@@ -1,0 +1,6 @@
+include LICENSE
+include README.rst
+include django_q/management/*.py
+include django_q/management/commands/*.py
+exclude django_q/management/commands/qtest.py
+include django_q/migrations/*.py
