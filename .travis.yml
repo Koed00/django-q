@@ -13,7 +13,7 @@ env:
 
 install:
   - pip install -q django==$DJANGO --use-mirrors
-  - pip install redis coveralls coloredlogs hiredis jsonpickle simplejson --use-mirrors
+  - pip install redis coveralls coloredlogs hiredis jsonpickle simplejson future pytz --use-mirrors
   - python setup.py install
 
 script:
