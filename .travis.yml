@@ -14,7 +14,7 @@ env:
 install:
   - pip install -q django==$DJANGO --use-mirrors
   - pip install -r requirements.txt
-  - pip install pytest-django simplejson pytz
+  - pip install pytest-django simplejson pytz coverage coveralls
   - python setup.py install
 
 script:
