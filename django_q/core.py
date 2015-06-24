@@ -6,8 +6,8 @@ from __future__ import absolute_import
 from builtins import dict
 from builtins import range
 from datetime import datetime
-from django.utils.timezone import make_aware
 
+from django.utils.timezone import make_aware
 from future import standard_library
 
 standard_library.install_aliases()
@@ -23,8 +23,12 @@ import sys
 from time import sleep
 import gc
 
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
+
 # External
-import jsonpickle
 import coloredlogs
 import redis
 
@@ -54,6 +58,7 @@ def time_zone(value):
     if USE_TZ:
         return make_aware(value)
     return value
+
 
 class Cluster(object):
     def __init__(self, list_key=Q_LIST):
@@ -341,17 +346,17 @@ class SignedPackage(object):
                              key=SECRET_KEY,
                              salt='django_q.q',
                              compress=compressed,
-                             serializer=JSONPickleSerializer)
+                             serializer=PickleSerializer)
 
     @staticmethod
     def loads(obj):
         return signing.loads(obj,
                              key=SECRET_KEY,
                              salt='django_q.q',
-                             serializer=JSONPickleSerializer)
+                             serializer=PickleSerializer)
 
 
-class JSONPickleSerializer(object):
+class PickleSerializer(object):
     """
     Simple wrapper around JsonPickle for signing.dumps and
     signing.loads.
@@ -359,11 +364,11 @@ class JSONPickleSerializer(object):
 
     @staticmethod
     def dumps(obj):
-        return jsonpickle.dumps(obj).encode('latin-1')
+        return pickle.dumps(obj)
 
     @staticmethod
     def loads(data):
-        return jsonpickle.loads(data.decode('latin-1'))
+        return pickle.loads(data)
 
 
 class Status(object):
@@ -383,7 +388,7 @@ class Status(object):
 
 
 class Stat(Status):
-    def __init__(self, sentinel,  message=None):
+    def __init__(self, sentinel, message=None):
         super(Stat, self).__init__(sentinel.parent_pid)
         if message:
             sentinel.status = message
