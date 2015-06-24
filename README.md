@@ -26,8 +26,8 @@ Start a cluster with `./manage.py qcluster`
 You can monitor basic information about all the connected clusters by running  `./manage.py qmonitor`
 
 ###Admin integration
-Django Q registers itself with the admin page to show failed and succesful tasks.
-From there task results can be read or deleted. If neccesary, failed tasks can be reintroduced to the queue.
+Django Q registers itself with the admin page to show failed and successful tasks.
+From there task results can be read or deleted. If necessary, failed tasks can be reintroduced to the queue.
 
 ### Signed Tasks
 Tasks are first pickled to Json and then signed using Django's own signing module before being sent to a Redis list. This ensures that task packages on the Redis server can only be excuted and read by clusters and django servers who share the same secret key. 
@@ -35,20 +35,21 @@ Tasks are first pickled to Json and then signed using Django's own signing modul
 Optionally, packages can be compressed before transport by setting `Q_COMPRESSED = True `
 
 ### Pusher
-The pusher process continously checks the Redis list for new task packages and pushes them on the Task Queue.
+The pusher process continuously checks the Redis list for new task packages and pushes them on the Task Queue.
 
 ### Worker
 A worker process checks the package signing, unpacks the task, executes it and saves the return value. Irrespective of the failure or success of any of these steps, the package is then pushed onto the Result Queue. 
 
 By default Django Q spawns a worker for each detected CPU on the host system.
-This can be overridden by setting `Q_WORKERS =  n`. With *n* being the numbe of desired worker processes.
+This can be overridden by setting `Q_WORKERS =  n`. With *n* being the number of desired worker processes.
 
 ### Monitor
-The result monitor checks the Result Queue for processed packages and saves both failed and succesful packages to the Django database.
+The result monitor checks the Result Queue for processed packages and saves both failed and successful packages to the Django database.
 
-By default only the last 100 succesful packages are kept in the database.
+By default only the last 100 successful packages are kept in the database.
 This can be increased or decreased at will by settings `Q_SAVE_LIMIT = n`. With *n* being the desired number of records. 
 Set `Q_SAVE_LIMIT = 0` to save all results to the database.
+`Q_SAVE_LIMIT = None` will make the monitor refrain from savig success
 Failed packages are always saved.
 
 ### Sentinel
