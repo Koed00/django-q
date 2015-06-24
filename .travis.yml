@@ -1,0 +1,20 @@
+language: python
+
+python:
+  - "2.7"
+  - "3.4"
+
+env:
+    - DJANGO=1.8.2
+    - DJANGO=1.7.8
+
+install:
+  - pip install -q django==$DJANGO --use-mirrors
+  - pip install redis coveralls coloredlogs hiredis jsonpickle simplejson
+  - python setup.py install
+
+script:
+  - coverage run --source=django_q setup.py test
+
+after_success:
+  - coveralls
