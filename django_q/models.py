@@ -13,7 +13,7 @@ class Task(models.Model):
     hook = models.CharField(max_length=256, null=True)
     args = PickledObjectField()
     kwargs = PickledObjectField()
-    result = PickledObjectField()
+    result = PickledObjectField(null=True)
     started = models.DateTimeField()
     stopped = models.DateTimeField()
     success = models.BooleanField(default=True)
