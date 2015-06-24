@@ -108,10 +108,13 @@ def blah_async():
               hook='django_q.tests.test_q.assert_bad_result')
     # unknown function
     d =  async('django_q.tests.tasks.does_not_exist', WordClass(), hook='django_q.tests.test_q.assert_bad_result')
+    # function without result
+    e = async('django_q.tests.tasks.countdown', 100000)
     assert isinstance(a, str)
     assert isinstance(b, str)
     assert isinstance(c, str)
     assert isinstance(d, str)
+    assert isinstance(e, str)
     run_cluster()
     result_a = get_task(a)
     assert result_a is not None
@@ -127,6 +130,10 @@ def blah_async():
     result_d = get_task(d)
     assert result_d is not None
     assert result_d.success is False
+    result_e = get_task(e)
+    assert result_e is not None
+    assert result_e.success is True
+    assert result(b) is None
 
 
 @pytest.mark.django_db

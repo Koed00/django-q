@@ -1,13 +1,7 @@
-import time
-
-# simple countdown
+# simple countdown, returns nothing
 def countdown(n):
-    start_time = time.time()
     while n > 0:
         n -= 1
-    stop_time = time.time()
-    return stop_time - start_time
-
 
 def count_letters(tup):
     total = 0
