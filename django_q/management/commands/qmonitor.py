@@ -1,7 +1,11 @@
+# Django
 from django.core.management.base import BaseCommand
-from blessed import Terminal
 from django.utils import timezone
 
+# External
+from blessed import Terminal
+
+# Local
 from django_q.core import Stat, RUNNING, STOPPED
 
 
