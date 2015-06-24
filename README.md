@@ -1,5 +1,6 @@
 # Django Q
 ##A multiprocessing task queue application for Django
+[![](https://travis-ci.org/Koed00/django-q.svg?branch=master)](https://travis-ci.org/Koed00/django-q)
 ### Status
 In Alpha and Python 3 only (for now).
 Everything should work, but the basic structure can still change.
