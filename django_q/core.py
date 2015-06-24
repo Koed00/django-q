@@ -248,7 +248,7 @@ def pusher(task_queue, e, list_key=Q_LIST):
 
 def monitor(done_queue):
     name = current_process().name
-    logger.info("{} monitoring results at {}".format(name, current_process().pid))
+    logger.info("{} monitoring at {}".format(name, current_process().pid))
     for task in iter(done_queue.get, 'STOP'):
         if task['success']:
             logger.info("Processed [{}]".format(task['name']))
