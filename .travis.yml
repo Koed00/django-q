@@ -1,5 +1,8 @@
 language: python
 
+services:
+  - redis-server
+
 python:
   - "2.7"
   - "3.4"
@@ -10,11 +13,11 @@ env:
 
 install:
   - pip install -q django==$DJANGO --use-mirrors
-  - pip install redis coveralls coloredlogs hiredis jsonpickle simplejson
+  - pip install redis coveralls coloredlogs hiredis jsonpickle simplejson --use-mirrors
   - python setup.py install
 
 script:
-  - coverage run --source=django_q setup.py test
+  - coverage run setup.py test
 
 after_success:
   - coveralls

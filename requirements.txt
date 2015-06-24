@@ -1,11 +1,9 @@
-blessed
-future
--e .
+blessed==1.9.5
 coloredlogs==1.0.1
 django-picklefield==0.3.1
 Django==1.8.2
+future==0.14.3
 hiredis==0.2.0
-humanfriendly==1.27
 jsonpickle==0.9.2
-logutils==0.3.3
 redis==2.10.3
+
