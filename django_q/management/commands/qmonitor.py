@@ -12,16 +12,8 @@ from django_q.core import Stat, RUNNING, STOPPED
 class Command(BaseCommand):
     help = "Monitors cluster activity"
 
-    def add_arguments(self, parser):
-        parser.add_argument('--run-once',
-                            action='store_true',
-                            dest='run_once',
-                            default=False,
-                            help='Run once till first stat')
-
     def handle(self, *args, **options):
-        monitor(run_once=options['run_once'])
-
+        monitor()
 
 def monitor(run_once=False):
     term = Terminal()

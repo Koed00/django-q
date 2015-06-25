@@ -8,4 +8,9 @@ def test_monitor():
     stats = monitor(run_once=True)
     c.stop()
     assert len(stats) > 0
-    assert stats[0].cluster_id == c.pid
+    found_c = False
+    for stat in stats:
+        if stat.cluster_id == c.pid:
+            found_c = True
+            break
+    assert found_c is True
