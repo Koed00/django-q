@@ -34,7 +34,7 @@ You can monitor basic information about all the connected clusters by running  `
 Django Q registers itself with the admin page to show failed, successful and scheduled tasks.
 From there task results can be read or deleted. If necessary, failed tasks can be reintroduced to the queue.
 Schedules be created and their results monitored.
-![q admin](http://i.imgur.com/WTZkW9r.png)
+![q admin](http://i.imgur.com/FBlusZB.png)
 
 ###Schedules
 Scheduled tasks are a django model and can be created through the admin interface or by creating a Schedule instance directly.

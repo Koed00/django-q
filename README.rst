@@ -130,4 +130,4 @@ I'll add to this README while I'm developing the various parts.
 
 .. |image0| image:: https://travis-ci.org/Koed00/django-q.svg?branch=master
    :target: https://travis-ci.org/Koed00/django-q
-.. |q admin| image:: http://i.imgur.com/WTZkW9r.png
+.. |q admin| image:: http://i.imgur.com/FBlusZB.png
