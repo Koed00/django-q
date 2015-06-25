@@ -31,8 +31,15 @@ You can monitor basic information about all the connected clusters by running  `
 ![qmonitor command](http://i.imgur.com/5cm7hdP.png) 
 
 ###Admin integration
-Django Q registers itself with the admin page to show failed and successful tasks.
+Django Q registers itself with the admin page to show failed, successful and scheduled tasks.
 From there task results can be read or deleted. If necessary, failed tasks can be reintroduced to the queue.
+Schedules be created and their results monitored.
+![q admin](http://i.imgur.com/WTZkW9r.png)
+
+###Schedules
+Scheduled tasks are a django model and can be created through the admin interface or by creating a Schedule instance directly.
+Like the Async Task, a Schedule can take an optional hook keyword and is used as a template to create the actual task package at the scheduled time.
+If a result task is available in the database, it can be accessed through the Schedule instance's `result()` method.
 
 ### Signed Tasks
 Tasks are first pickled to Json and then signed using Django's own signing module before being sent to a Redis list. This ensures that task packages on the Redis server can only be excuted and read by clusters and django servers who share the same secret key. 

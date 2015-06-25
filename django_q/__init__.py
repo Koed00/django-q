@@ -1,4 +1,4 @@
-from django_q.models import Task
+from django_q.models import Task, Schedule
 from django_q.core import async
 
 default_app_config = 'django_q.apps.DjangoQConfig'

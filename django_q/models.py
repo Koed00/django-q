@@ -79,10 +79,10 @@ class Failure(Task):
 
 
 class Schedule(models.Model):
-    func = models.CharField(max_length=256)
-    hook = models.CharField(max_length=256, null=True, blank=True)
-    args = models.CharField(max_length=256, null=True, blank=True)
-    kwargs = models.CharField(max_length=256, null=True, blank=True)
+    func = models.CharField(max_length=256, help_text='e.g. module.tasks.function')
+    hook = models.CharField(max_length=256, null=True, blank=True, help_text='e.g. module.tasks.result_function')
+    args = models.CharField(max_length=256, null=True, blank=True, help_text=_("e.g. 1, 2, 'John'"))
+    kwargs = models.CharField(max_length=256, null=True, blank=True, help_text=_("e.g. x=1, y=2, name='John'"))
     ONCE = 'O'
     HOURLY = 'H'
     DAILY = 'D'
@@ -100,7 +100,7 @@ class Schedule(models.Model):
         (YEARLY, _('Yearly')),
     )
     schedule_type = models.CharField(max_length=1, choices=TYPE, default=TYPE[0][0], verbose_name=_('Schedule Type'))
-    repeats = models.SmallIntegerField(default=-1, verbose_name=_('Repeats'))
+    repeats = models.SmallIntegerField(default=-1, verbose_name=_('Repeats'), help_text=_('n = n times, -1 = forever'))
     next_run = models.DateTimeField(verbose_name=_('Next Run'), default=timezone.now, null=True)
     task = models.CharField(max_length=100, editable=False, null=True)
 

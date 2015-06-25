@@ -53,9 +53,20 @@ running ``./manage.py qmonitor``
 Admin integration
 ~~~~~~~~~~~~~~~~~
 
-Django Q registers itself with the admin page to show failed and
-successful tasks. From there task results can be read or deleted. If
-necessary, failed tasks can be reintroduced to the queue.
+Django Q registers itself with the admin page to show failed, successful
+and scheduled tasks. From there task results can be read or deleted. If
+necessary, failed tasks can be reintroduced to the queue. Schedules be
+created and their results monitored. |q admin|
+
+Schedules
+~~~~~~~~~
+
+Scheduled tasks are a django model and can be created through the admin
+interface or by creating a Schedule instance directly. Like the Async
+Task, a Schedule can take an optional hook keyword and is used as a
+template to create the actual task package at the scheduled time. If a
+result task is available in the database, it can be accessed through the
+Schedule instance's ``result()`` method.
 
 Signed Tasks
 ~~~~~~~~~~~~
@@ -119,3 +130,4 @@ I'll add to this README while I'm developing the various parts.
 
 .. |image0| image:: https://travis-ci.org/Koed00/django-q.svg?branch=master
    :target: https://travis-ci.org/Koed00/django-q
+.. |q admin| image:: http://i.imgur.com/WTZkW9r.png
