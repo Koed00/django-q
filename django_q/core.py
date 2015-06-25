@@ -3,8 +3,10 @@ from __future__ import unicode_literals
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
+import ast
 from builtins import dict
 from builtins import range
+
 from future import standard_library
 
 standard_library.install_aliases()
@@ -28,6 +30,7 @@ except ImportError:
 # External
 import coloredlogs
 import redis
+import arrow
 
 # Django
 from django.core import signing
@@ -36,7 +39,7 @@ from django.utils import timezone
 # Local
 from .conf import LOG_LEVEL, SECRET_KEY, SAVE_LIMIT, WORKERS, COMPRESSED, PREFIX
 from .humanhash import uuid
-from .models import Task, Success
+from .models import Task, Success, Schedule
 
 SIGNAL_NAMES = dict((getattr(signal, n), n) for n in dir(signal) if n.startswith('SIG') and '_' not in n)
 
@@ -197,6 +200,7 @@ class Sentinel(object):
         self.start_event.set()
         self.set_status(RUNNING)
         logger.info('Q Cluster-{} running.'.format(self.parent_pid))
+        counter = 0
         while True:
             for p in list(self.pool):
                 if not p.is_alive():
@@ -206,6 +210,10 @@ class Sentinel(object):
             Stat(self).save()
             if self.stop_event.is_set():
                 break
+            counter += 1
+            if counter > 15:
+                counter = 0
+                scheduler()
             sleep(2)
         self.stop()
 
@@ -438,3 +446,44 @@ class Stat(Status):
                 except signing.BadSignature:
                     continue
         return stats
+
+
+def scheduler():
+    for schedule in Schedule.objects.exclude(repeats=0).filter(next_run__lt=timezone.now()):
+        args = ()
+        kwargs= {}
+        if schedule.kwargs:
+            try:
+                kwargs = eval('dict({})'.format(schedule.kwargs))
+            except SyntaxError:
+                kwargs={}
+        if schedule.args:
+            args = ast.literal_eval(schedule.args)
+            if type(args) != tuple:
+                args = (args,)
+        if schedule.hook:
+            kwargs['hook'] = schedule.hook
+        schedule.task = async(schedule.func, *args, **kwargs)
+        if not schedule.schedule_type == schedule.ONCE:
+            next_run = arrow.get(schedule.next_run)
+            if schedule.schedule_type == schedule.HOURLY:
+                next_run = next_run.replace(hours=+1)
+            elif schedule.schedule_type == schedule.DAILY:
+                next_run = next_run.replace(days=+1)
+            elif schedule.schedule_type == schedule.WEEKLY:
+                next_run = next_run.replace(weeks=+1)
+            elif schedule.schedule_type == schedule.MONTHLY:
+                next_run = next_run.replace(months=+1)
+            elif schedule.schedule_type == schedule.QUARTERLY:
+                next_run = next_run.replace(months=+3)
+            elif schedule.schedule_type == schedule.YEARLY:
+                next_run = next_run.replace(years=+1)
+            schedule.next_run = next_run.datetime
+            schedule.repeats += -1
+        else:
+            schedule.repeats = 0
+        if not schedule.task:
+            logger.error('{} failed to create task from  schedule {}').format(current_process().name, schedule.id)
+        else:
+            logger.info('{} created [{}] from schedule {}'.format(current_process().name, schedule.task, schedule.id))
+        schedule.save()

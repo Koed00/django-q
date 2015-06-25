@@ -3,6 +3,9 @@ def countdown(n):
     while n > 0:
         n -= 1
 
+def multiply(x, y):
+    return x * y
+
 def count_letters(tup):
     total = 0
     for word in tup:

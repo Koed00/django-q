@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from django_q.core import async
 
-from .models import Success, Failure
+from .models import Success, Failure, Schedule
 
 
 class TaskAdmin(admin.ModelAdmin):
@@ -59,6 +59,19 @@ class FailAdmin(admin.ModelAdmin):
         return list(self.readonly_fields) + \
                [field.name for field in obj._meta.fields]
 
+class ScheduleAdmin(admin.ModelAdmin):
+    list_display = (
+        u'id',
+        'func',
+        'schedule_type',
+        'repeats',
+        'next_run',
+        'result',
+        'success'
+    )
 
+    list_filter = ('next_run', 'schedule_type')
+
+admin.site.register(Schedule, ScheduleAdmin)
 admin.site.register(Success, TaskAdmin)
 admin.site.register(Failure, FailAdmin)
