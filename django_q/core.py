@@ -64,6 +64,7 @@ class Cluster(object):
         self.start_event = None
         self.stopped_event = None
         self.pid = current_process().pid
+        self.host = socket.gethostname()
         self.list_key = list_key
         signal.signal(signal.SIGTERM, self.sig_handler)
         signal.signal(signal.SIGINT, self.sig_handler)
@@ -81,6 +82,8 @@ class Cluster(object):
         self.sentinel = Process(target=Sentinel, args=(self.stop_event, self.start_event, self.list_key))
         self.sentinel.start()
         logger.info('Q Cluster-{} starting.'.format(self.pid))
+        while not self.start_event.is_set():
+            sleep(0.2)
         return self.pid
 
     def stop(self):
@@ -329,7 +332,7 @@ def async(func, *args, **kwargs):
 
 class SignedPackage(object):
     """
-    Wraps Django's signing module with custom JsonPickle serializer
+    Wraps Django's signing module with custom Pickle serializer
     """
 
     @staticmethod
@@ -350,7 +353,7 @@ class SignedPackage(object):
 
 class PickleSerializer(object):
     """
-    Simple wrapper around JsonPickle for signing.dumps and
+    Simple wrapper around Pickle for signing.dumps and
     signing.loads.
     """
 

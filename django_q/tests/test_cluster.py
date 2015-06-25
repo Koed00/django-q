@@ -20,16 +20,6 @@ class WordClass(object):
     def get_words(self):
         return self.word_list
 
-
-def test_admin_view(admin_client):
-    response = admin_client.get('/admin/django_q/')
-    assert response.status_code == 200
-    response = admin_client.get('/admin/django_q/failure/')
-    assert response.status_code == 200
-    response = admin_client.get('/admin/django_q/success/')
-    assert response.status_code == 200
-
-
 def test_redis_connection():
     assert r.ping() is True
 
@@ -39,13 +29,9 @@ def test_cluster_initial():
     assert c.sentinel is None
     assert c.is_idle
     c.start()
-    while c.is_starting:
-        sleep(0.2)
     assert c.sentinel.is_alive() is True
     assert c.is_running
     c.stop()
-    while c.is_stopping:
-        sleep(0.2)
     assert c.sentinel.is_alive() is False
     assert c.has_stopped
 
@@ -92,8 +78,6 @@ def run_cluster():
     r.delete(list_key)
     c = Cluster(list_key=list_key)
     assert c.start() > 0
-    while not c.is_running:
-        sleep(0.5)
     while c.stat.task_q_size > 0 and c.stat.done_q_size > 0:
         sleep(0.5)
     assert c.stop() is True
