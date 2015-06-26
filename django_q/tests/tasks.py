@@ -15,6 +15,9 @@ def count_letters(tup):
 def count_letters2(obj):
     return count_letters(obj.get_words())
 
+def get_task_name(task):
+    return task.name
+
 def result(obj):
     print('RESULT HOOK {} : {}'.format(obj.name, obj.result))
 

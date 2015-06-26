@@ -23,4 +23,5 @@ def get_task(name):
     :return: the full task object
     :rtype: Task
     """
-    return Task.objects.get(name=name)
+    if Task.objects.filter(name=name).exists():
+        return Task.objects.get(name=name)

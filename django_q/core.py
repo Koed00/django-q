@@ -20,7 +20,6 @@ from multiprocessing import Queue, Event, Process, current_process
 import socket
 import sys
 from time import sleep
-import gc
 
 try:
     import cPickle as pickle
