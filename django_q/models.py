@@ -37,14 +37,19 @@ class Task(models.Model):
 @receiver(pre_save, sender=Task)
 def call_hook(sender, instance, **kwargs):
     if instance.hook:
-        module, func = instance.hook.rsplit('.', 1)
+        logger = logging.getLogger('django-q')
+        f = instance.hook
+        if not callable(f):
+            try:
+                module, func = f.rsplit('.', 1)
+                m = importlib.import_module(module)
+                f = getattr(m, func)
+            except (ValueError, ImportError, AttributeError):
+                logger.error(_('malformed return hook \'{}\' for {}').format(instance.hook, instance.name))
         try:
-            m = importlib.import_module(module)
-            f = getattr(m, func)
             f(instance)
         except Exception as e:
-            logger = logging.getLogger('django-q')
-            logger.error(_('return hook failed on {}').format(instance.name))
+            logger.error(_('return hook {} failed on {}').format(instance.hook, instance.name))
             logger.exception(e)
 
 

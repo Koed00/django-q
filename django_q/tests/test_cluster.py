@@ -11,6 +11,7 @@ sys.path.insert(0, myPath + '/../')
 from django_q.core import Cluster, r, async, pusher, worker, monitor, Sentinel
 from django_q.humanhash import DEFAULT_WORDLIST
 from django_q import result, get_task
+from django_q.tests.tasks import multiply
 
 
 class WordClass(object):
@@ -19,6 +20,7 @@ class WordClass(object):
 
     def get_words(self):
         return self.word_list
+
 
 def test_redis_connection():
     assert r.ping() is True
@@ -42,6 +44,7 @@ def test_sentinel():
     stop_event.set()
     Sentinel(stop_event, start_event, list_key='sentinel_test:q')
     assert start_event.is_set()
+
 
 @pytest.mark.django_db
 def test_cluster():
@@ -72,6 +75,7 @@ def test_cluster():
     assert result(task) == 1506
     r.delete(list_key)
 
+
 @pytest.mark.django_db
 def run_cluster():
     list_key = 'run_test:q'
@@ -83,6 +87,7 @@ def run_cluster():
     assert c.stop() is True
     r.delete(list_key)
 
+
 @pytest.mark.django_db
 def blah_async():
     a = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, hook='django_q.tests.test_q.assert_result')
@@ -91,35 +96,50 @@ def blah_async():
     c = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, 'oneargumentoomany',
               hook='django_q.tests.test_q.assert_bad_result')
     # unknown function
-    d =  async('django_q.tests.tasks.does_not_exist', WordClass(), hook='django_q.tests.test_q.assert_bad_result')
+    d = async('django_q.tests.tasks.does_not_exist', WordClass(), hook='django_q.tests.test_q.assert_bad_result')
     # function without result
     e = async('django_q.tests.tasks.countdown', 100000)
+    # function as instance
+    f = async(multiply, 753, 2, hook=assert_result)
+    # check if everything has a task name
     assert isinstance(a, str)
     assert isinstance(b, str)
     assert isinstance(c, str)
     assert isinstance(d, str)
     assert isinstance(e, str)
+    assert isinstance(f, str)
+    # run the cluster to execute the tasks
     run_cluster()
+    # task a
     result_a = get_task(a)
     assert result_a is not None
     assert result_a.success is True
     assert result(a) == 1506
+    # task b
     result_b = get_task(b)
     assert result_b is not None
     assert result_b.success is True
     assert result(b) == 1506
+    # task c
     result_c = get_task(c)
     assert result_c is not None
     assert result_c.success is False
+    # task d
     result_d = get_task(d)
     assert result_d is not None
     assert result_d.success is False
+    # task e
     result_e = get_task(e)
     assert result_e is not None
     assert result_e.success is True
-    assert result(b) is None
+    assert result(e) is None
+    # task f
+    result_f = get_task(f)
+    assert result_f is not None
+    assert result_f.success is True
+    assert result(f) == 1506
 
-
+# not sure if this actually asserts, but it is called
 @pytest.mark.django_db
 def assert_result(task):
     assert task is not None

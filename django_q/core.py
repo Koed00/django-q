@@ -132,7 +132,8 @@ class Cluster(object):
 
 
 class Sentinel(object):
-    def __init__(self, stop_event, start_event, list_key=Q_LIST):
+    def __init__(self, stop_event, start_event, list_key=Q_LIST, start=True):
+        # Make sure we catch signals for the pool
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         signal.signal(signal.SIGTERM, signal.SIG_DFL)
         self.pid = current_process().pid
@@ -151,8 +152,9 @@ class Sentinel(object):
         self.event_out = Event()
         self.monitor_pid = None
         self.pusher_pid = None
-        self.spawn_cluster()
-        self.guard()
+        if start:
+            self.spawn_cluster()
+            self.guard()
 
     def spawn_process(self, target, *args):
         # This is just for PyCharm to not crash. Ignore it.
@@ -210,8 +212,9 @@ class Sentinel(object):
             Stat(self).save()
             if self.stop_event.is_set():
                 break
+            # Call scheduler once a minute (or so)
             counter += 1
-            if counter > 15:
+            if counter > 30:
                 counter = 0
                 scheduler()
             sleep(2)
@@ -269,6 +272,14 @@ def monitor(done_queue):
 def worker(task_queue, done_queue):
     name = current_process().name
     logger.info('{} ready for work at {}'.format(name, current_process().pid))
+    task = {}
+
+    def return_pack(res, success):
+        task['result'] = res
+        task['stopped'] = timezone.now()
+        task['success'] = success
+        done_queue.put(task)
+
     for pack in iter(task_queue.get, 'STOP'):
         # unpickle the task
         try:
@@ -278,30 +289,33 @@ def worker(task_queue, done_queue):
             continue
         except signing.BadSignature as e:
             task['name'] = task['name'].rsplit(":", 1)[0]
-            task['stopped'] = timezone.now()
-            task['result'] = e
-            task['success'] = False
-            done_queue.put(task)
+            return_pack(e, False)
             continue
-        module, func = task['func'].rsplit('.', 1)
         logger.info('{} processing [{}]'.format(name, task['name']))
+        f = task['func']
+        # if it's not an instance try to get it from the string
+        if not callable(task['func']):
+            try:
+                module, func = f.rsplit('.', 1)
+                m = importlib.import_module(module)
+                f = getattr(m, func)
+            except (ValueError, ImportError, AttributeError) as e:
+                logger.error(e)
+                return_pack(e, False)
+                continue
+        # execute the payload
         try:
-            m = importlib.import_module(module)
-            f = getattr(m, func)
-            task['result'] = f(*task['args'], **task['kwargs'])
-            task['stopped'] = timezone.now()
-            task['success'] = True
-            done_queue.put(task)
-            gc.collect()
+            result = f(*task['args'], **task['kwargs'])
+            return_pack(result, True)
         except Exception as e:
-            task['result'] = e
-            task['stopped'] = timezone.now()
-            task['success'] = False
-            done_queue.put(task)
+            return_pack(e, False)
     logger.info('{} stopped doing work'.format(name))
 
 
 def save_task(task):
+    """
+    Saves the task package to Django
+    """
     if task['success'] and 0 < SAVE_LIMIT < Success.objects.count():
         Success.objects.first().delete()
     Task.objects.create(name=task['name'],
@@ -451,19 +465,22 @@ class Stat(Status):
 def scheduler():
     for schedule in Schedule.objects.exclude(repeats=0).filter(next_run__lt=timezone.now()):
         args = ()
-        kwargs= {}
+        kwargs = {}
+        # get args, kwargs and hook
         if schedule.kwargs:
             try:
+                # eval should be safe here cause dict()
                 kwargs = eval('dict({})'.format(schedule.kwargs))
             except SyntaxError:
-                kwargs={}
+                kwargs = {}
         if schedule.args:
             args = ast.literal_eval(schedule.args)
+            # single value won't eval to tuple, so:
             if type(args) != tuple:
                 args = (args,)
         if schedule.hook:
             kwargs['hook'] = schedule.hook
-        schedule.task = async(schedule.func, *args, **kwargs)
+        # set up the next run time
         if not schedule.schedule_type == schedule.ONCE:
             next_run = arrow.get(schedule.next_run)
             if schedule.schedule_type == schedule.HOURLY:
@@ -482,6 +499,8 @@ def scheduler():
             schedule.repeats += -1
         else:
             schedule.repeats = 0
+        # send it to the cluster
+        schedule.task = async(schedule.func, *args, **kwargs)
         if not schedule.task:
             logger.error('{} failed to create task from  schedule {}').format(current_process().name, schedule.id)
         else:

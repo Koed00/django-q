@@ -25,8 +25,43 @@ from within your Django project.
 
     async(func,*args,hook=None,**kwargs)
 
-The optional hook function gets the finished task object as its first
-argument after execution
+Basic example
+^^^^^^^^^^^^^
+
+.. code:: python
+
+    from django_q import async
+
+    # math.copysign(2,-2)
+    async('math.copysign', 2, -2)
+
+    # also
+    from math import copysign
+
+    async(copysign, 2, -2)
+
+Result example
+^^^^^^^^^^^^^^
+
+.. code:: python
+
+    from django_q import async, result
+
+    # create the task
+    task_id = async('math.copysign', 2, -2)
+
+    # get the result
+    task_result = result(task_id)
+
+    # result returns None if the task has not been executed yet
+    # so it makes more sense to use a hook:
+    from hooks import print_result
+
+    async('math.modf', 2.5, hook='hooks.print_result')
+
+    # hooks.py
+    def print_result(task):
+        print(task.result)
 
 Management commands
 ~~~~~~~~~~~~~~~~~~~

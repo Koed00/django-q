@@ -1,4 +1,4 @@
-arrow
+arrow==0.5.4
 blessed==1.9.5
 coloredlogs==1.0.1
 django-picklefield==0.3.1
