@@ -55,7 +55,6 @@ Result example
 
     # result returns None if the task has not been executed yet
     # so it makes more sense to use a hook:
-    from hooks import print_result
 
     async('math.modf', 2.5, hook='hooks.print_result')
 
