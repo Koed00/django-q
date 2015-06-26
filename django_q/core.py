@@ -27,7 +27,6 @@ except ImportError:
     import pickle
 
 # External
-import coloredlogs
 import redis
 import arrow
 
@@ -43,7 +42,25 @@ from .models import Task, Success, Schedule
 SIGNAL_NAMES = dict((getattr(signal, n), n) for n in dir(signal) if n.startswith('SIG') and '_' not in n)
 
 logger = logging.getLogger('django-q')
-coloredlogs.install(level=getattr(logging, LOG_LEVEL))
+
+
+# Optional coloredlogs support
+try:
+    import coloredlogs
+
+    coloredlogs.install(level=getattr(logging, LOG_LEVEL))
+except ImportError:
+    coloredlogs = None
+
+# Set up standard logging handler
+if not logger.handlers:
+    logger.setLevel(level=getattr(logging, LOG_LEVEL))
+
+    formatter = logging.Formatter(fmt='%(asctime)s [django_q] %(message)s',
+                                  datefmt='%H:%M:%S')
+    handler = logging.StreamHandler()
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
 Q_LIST = '{}:q'.format(PREFIX)
 STARTING = 'Starting'
