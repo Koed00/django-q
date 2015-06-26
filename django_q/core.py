@@ -169,8 +169,11 @@ class Sentinel(object):
         self.monitor_pid = None
         self.pusher_pid = None
         if start:
-            self.spawn_cluster()
-            self.guard()
+            self.start()
+
+    def start(self):
+        self.spawn_cluster()
+        self.guard()
 
     def spawn_process(self, target, *args):
         # This is just for PyCharm to not crash. Ignore it.
