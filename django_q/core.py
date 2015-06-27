@@ -4,7 +4,6 @@ from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
 import ast
-from builtins import dict
 from builtins import range
 
 from future import standard_library
@@ -35,11 +34,10 @@ from django.core import signing
 from django.utils import timezone
 
 # Local
-from .conf import LOG_LEVEL, SECRET_KEY, SAVE_LIMIT, WORKERS, COMPRESSED, PREFIX
+from .conf import LOG_LEVEL, SECRET_KEY, SAVE_LIMIT, WORKERS, COMPRESSED, PREFIX, REDIS, Q_LIST, SIGNAL_NAMES, STARTING, \
+    RUNNING, STOPPING, STOPPED
 from .humanhash import uuid
 from .models import Task, Success, Schedule
-
-SIGNAL_NAMES = dict((getattr(signal, n), n) for n in dir(signal) if n.startswith('SIG') and '_' not in n)
 
 logger = logging.getLogger('django-q')
 
@@ -55,20 +53,14 @@ except ImportError:
 # Set up standard logging handler
 if not logger.handlers:
     logger.setLevel(level=getattr(logging, LOG_LEVEL))
-
     formatter = logging.Formatter(fmt='%(asctime)s [django_q] %(message)s',
                                   datefmt='%H:%M:%S')
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
-Q_LIST = '{}:q'.format(PREFIX)
-STARTING = 'Starting'
-RUNNING = 'Running'
-STOPPED = 'Stopped'
-STOPPING = 'Stopping'
-
-r = redis.StrictRedis()
+# Redis
+r = redis.StrictRedis(**REDIS)
 
 
 class Cluster(object):
@@ -264,6 +256,12 @@ class Sentinel(object):
 
 
 def pusher(task_queue, e, list_key=Q_LIST):
+    """
+    Pulls tasks of the Redis List and puts them in the task queue
+    :type task_queue: multiprocessing.Queue
+    :type e: multiprocessing.Event
+    :type list_key: str
+    """
     logger.info('{} pushing tasks at {}'.format(current_process().name, current_process().pid))
     while True:
         task = r.blpop(list_key, 1)
@@ -277,6 +275,10 @@ def pusher(task_queue, e, list_key=Q_LIST):
 
 
 def monitor(done_queue):
+    """
+    Gets finished tasks from the result queue and saves them to Django
+    :type done_queue: multiprocessing.Queue
+    """
     name = current_process().name
     logger.info("{} monitoring at {}".format(name, current_process().pid))
     for task in iter(done_queue.get, 'STOP'):
@@ -289,6 +291,11 @@ def monitor(done_queue):
 
 
 def worker(task_queue, done_queue):
+    """
+    Takes a task from the task queue, tries to execute it and puts the result back in the result queue
+    :type task_queue: multiprocessing.Queue
+    :type done_queue: multiprocessing.Queue
+    """
     name = current_process().name
     logger.info('{} ready for work at {}'.format(name, current_process().pid))
     task = {}
@@ -408,6 +415,10 @@ class PickleSerializer(object):
 
 
 class Status(object):
+    """
+    Cluster status base object
+    """
+
     def __init__(self, pid):
         self.workers = []
         self.tob = None
@@ -424,6 +435,10 @@ class Status(object):
 
 
 class Stat(Status):
+    """
+    Status object for Cluster monitoring
+    """
+
     def __init__(self, sentinel, message=None):
         super(Stat, self).__init__(sentinel.parent_pid)
         if message:
@@ -444,10 +459,17 @@ class Stat(Status):
 
     @property
     def key(self):
+        """
+        :return: redis key for this cluster statistic
+        """
         return self.get_key(self.cluster_id)
 
     @staticmethod
     def get_key(cluster_id):
+        """
+        :param cluster_id: cluster ID
+        :return: redis key for the cluster statistic
+        """
         return '{}:cluster:{}'.format(PREFIX, cluster_id)
 
     def save(self):
@@ -458,6 +480,11 @@ class Stat(Status):
 
     @staticmethod
     def get(cluster_id):
+        """
+        gets the current status for the cluster
+        :param cluster_id: id of the cluster
+        :return: Stat or Status
+        """
         key = Stat.get_key(cluster_id)
         if r.exists(key):
             pack = r.get(key)
@@ -469,6 +496,10 @@ class Stat(Status):
 
     @staticmethod
     def get_all():
+        """
+        Gets status for all currently running clusters with the same prefix and secret key
+        :return: Stat list
+        """
         stats = []
         keys = r.keys(pattern='{}:cluster:*'.format(PREFIX))
         if keys:
@@ -482,6 +513,9 @@ class Stat(Status):
 
 
 def scheduler():
+    """
+    Creates a task from a schedule at the scheduled time and schedules next run
+    """
     for schedule in Schedule.objects.exclude(repeats=0).filter(next_run__lt=timezone.now()):
         args = ()
         kwargs = {}

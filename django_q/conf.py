@@ -1,8 +1,17 @@
-from django.conf import settings
+from signal import signal
 from multiprocessing import cpu_count
+
+from django.conf import settings
 
 VERSION = '0.1.0'
 
+"""
+Redis server connection
+"""
+try:
+    REDIS = settings.Q_REDIS
+except AttributeError:
+    REDIS = {}
 """
 Prefixes the Redis keys. Defaults to django_q
 """
@@ -54,3 +63,21 @@ try:
     USE_TZ = settings.USE_TZ
 except AttributeError:
     USE_TZ = False
+
+"""
+Getting the SIGNAL names
+"""
+SIGNAL_NAMES = dict((getattr(signal, n), n) for n in dir(signal) if n.startswith('SIG') and '_' not in n)
+
+"""
+Redis List name
+"""
+Q_LIST = '{}:q'.format(PREFIX)
+
+"""
+Cluster status
+"""
+STARTING = 'Starting'
+RUNNING = 'Running'
+STOPPED = 'Stopped'
+STOPPING = 'Stopping'

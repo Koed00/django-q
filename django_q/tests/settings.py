@@ -104,3 +104,12 @@ STATIC_URL = '/static/'
 
 # Django Q specific
 Q_PREFIX = 'test_django_q'
+
+Q_REDIS = {
+    #'host': 'localhost',
+    #'port': 6379,
+    # 'db': 1,
+    # 'socket_timeout': 3,
+    # 'password': '...',
+    # 'unix_socket_path': ''
+}
