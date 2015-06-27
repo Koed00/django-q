@@ -109,7 +109,7 @@ class Schedule(models.Model):
     next_run = models.DateTimeField(verbose_name=_('Next Run'), default=timezone.now, null=True)
     task = models.CharField(max_length=100, editable=False, null=True)
 
-    def result(self):
+    def last_run(self):
         if Task.objects.filter(name=self.task).exists():
             task = Task.objects.get(name=self.task)
             if task.success:
@@ -125,7 +125,7 @@ class Schedule(models.Model):
             return Task.objects.get(name=self.task).success
 
     success.boolean = True
-    result.allow_tags = True
+    last_run.allow_tags = True
 
     class Meta:
         app_label = 'django_q'

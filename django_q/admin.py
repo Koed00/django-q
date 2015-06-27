@@ -66,7 +66,7 @@ class ScheduleAdmin(admin.ModelAdmin):
         'schedule_type',
         'repeats',
         'next_run',
-        'result',
+        'last_run',
         'success'
     )
 
