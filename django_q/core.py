@@ -41,19 +41,10 @@ from .models import Task, Success, Schedule
 
 logger = logging.getLogger('django-q')
 
-
-# Optional coloredlogs support
-try:
-    import coloredlogs
-
-    coloredlogs.install(level=getattr(logging, LOG_LEVEL))
-except ImportError:
-    coloredlogs = None
-
-# Set up standard logging handler
+# Set up standard logging handler in case there is none
 if not logger.handlers:
     logger.setLevel(level=getattr(logging, LOG_LEVEL))
-    formatter = logging.Formatter(fmt='%(asctime)s [django_q] %(message)s',
+    formatter = logging.Formatter(fmt='%(asctime)s [Q] %(levelname)s %(message)s',
                                   datefmt='%H:%M:%S')
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
@@ -326,7 +317,6 @@ def worker(task_queue, done_queue):
                 m = importlib.import_module(module)
                 f = getattr(m, func)
             except (ValueError, ImportError, AttributeError) as e:
-                logger.error(e)
                 return_pack(e, False)
                 continue
         # execute the payload
@@ -344,15 +334,18 @@ def save_task(task):
     """
     if task['success'] and 0 < SAVE_LIMIT < Success.objects.count():
         Success.objects.first().delete()
-    Task.objects.create(name=task['name'],
-                        func=task['func'],
-                        hook=task['hook'],
-                        args=task['args'],
-                        kwargs=task['kwargs'],
-                        started=task['started'],
-                        stopped=task['stopped'],
-                        result=task['result'],
-                        success=task['success'])
+    try:
+        Task.objects.create(name=task['name'],
+                            func=task['func'],
+                            hook=task['hook'],
+                            args=task['args'],
+                            kwargs=task['kwargs'],
+                            started=task['started'],
+                            stopped=task['stopped'],
+                            result=task['result'],
+                            success=task['success'])
+    except Exception as e:
+        logger.exception(e)
 
 
 def async(func, *args, **kwargs):
