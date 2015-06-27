@@ -6,7 +6,7 @@ from django.utils import timezone
 from blessed import Terminal
 
 # Local
-from django_q.core import Stat, RUNNING, STOPPED
+from django_q.core import Stat, RUNNING, STOPPED, redis_client
 
 
 class Command(BaseCommand):
@@ -15,8 +15,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         monitor()
 
+
 def monitor(run_once=False):
     term = Terminal()
+    r = redis_client
     with term.fullscreen(), term.hidden_cursor(), term.cbreak():
         val = None
         start_width = int(term.width / 8)
@@ -35,7 +37,7 @@ def monitor(run_once=False):
             print(term.move(0, 6 * col_width) + term.black_on_green(term.center('Deaths', width=col_width - 1)))
             print(term.move(0, 7 * col_width) + term.black_on_green(term.center('Uptime', width=col_width - 1)))
             i = 2
-            stats = Stat.get_all()
+            stats = Stat.get_all(r=r)
             print(term.clear_eos())
             for stat in stats:
                 # color status
@@ -63,6 +65,6 @@ def monitor(run_once=False):
                 i += 1
             # for testing
             if run_once:
-                return Stat.get_all()
+                return Stat.get_all(r=r)
             print(term.move(i + 2, 0) + term.center('[Press q to quit]'))
             val = term.inkey(timeout=1)

@@ -3,11 +3,12 @@ import os
 from multiprocessing import Queue, Event
 
 import pytest
+from conf import REDIS
 
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
-from django_q.core import Cluster, r, async, pusher, worker, monitor, Sentinel
+from django_q.core import Cluster, async, pusher, worker, monitor, Sentinel
 from django_q.humanhash import DEFAULT_WORDLIST
 from django_q import result, get_task, Task
 from django_q.tests.tasks import multiply
@@ -20,8 +21,12 @@ class WordClass(object):
     def get_words(self):
         return self.word_list
 
+@pytest.fixture
+def r():
+    import redis
+    return redis.StrictRedis(**REDIS)
 
-def test_redis_connection():
+def test_redis_connection(r):
     assert r.ping() is True
 
 
@@ -46,7 +51,7 @@ def test_sentinel():
 
 
 @pytest.mark.django_db
-def test_cluster():
+def test_cluster(r):
     list_key = 'cluster_test:q'
     r.delete(list_key)
     task = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, list_key=list_key)
@@ -58,7 +63,7 @@ def test_cluster():
     event = Event()
     event.set()
     # Test push
-    pusher(task_queue, event, list_key=list_key)
+    pusher(task_queue, event, list_key=list_key, r=r)
     assert task_queue.qsize() == 1
     assert r.llen(list_key) == 0
     # Test work
@@ -76,7 +81,7 @@ def test_cluster():
 
 
 @pytest.mark.django_db
-def test_async():
+def test_async(r):
     list_key = 'cluster_test:q'
     r.delete(list_key)
     a = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, hook='django_q.tests.test_cluster.assert_result',
@@ -111,7 +116,7 @@ def test_async():
     stop_event.set()
     # push the tasks
     for i in range(task_count):
-        pusher(task_queue, stop_event, list_key=list_key)
+        pusher(task_queue, stop_event, list_key=list_key, r=r)
     assert r.llen(list_key) == 0
     assert task_queue.qsize() == task_count
     task_queue.put('STOP')

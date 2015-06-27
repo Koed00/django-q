@@ -50,17 +50,11 @@ if not logger.handlers:
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
-# Redis
-r = redis.StrictRedis(**REDIS)
+redis_client = redis.StrictRedis(**REDIS)
 
 
 class Cluster(object):
     def __init__(self, list_key=Q_LIST):
-        try:
-            r.ping()
-        except ():
-            logger.error('Can not connect to Redis server')
-            return
         self.sentinel = None
         self.stop_event = None
         self.start_event = None
@@ -139,6 +133,7 @@ class Sentinel(object):
         self.parent_pid = os.getppid()
         self.name = current_process().name
         self.list_key = list_key
+        self.r = redis_client
         self.status = None
         self.reincarnations = 0
         self.tob = timezone.now()
@@ -172,7 +167,7 @@ class Sentinel(object):
         return p.pid
 
     def spawn_pusher(self):
-        return self.spawn_process(pusher, self.task_queue, self.event_out, self.list_key)
+        return self.spawn_process(pusher, self.task_queue, self.event_out, self.list_key, self.r)
 
     def spawn_worker(self):
         self.spawn_process(worker, self.task_queue, self.done_queue)
@@ -246,7 +241,7 @@ class Sentinel(object):
         Stat(self, message).save()
 
 
-def pusher(task_queue, e, list_key=Q_LIST):
+def pusher(task_queue, e, list_key=Q_LIST, r=None):
     """
     Pulls tasks of the Redis List and puts them in the task queue
     :type task_queue: multiprocessing.Queue
@@ -254,6 +249,8 @@ def pusher(task_queue, e, list_key=Q_LIST):
     :type list_key: str
     """
     logger.info('{} pushing tasks at {}'.format(current_process().name, current_process().pid))
+    if not r:
+        r = redis_client
     while True:
         task = r.blpop(list_key, 1)
         if task:
@@ -364,6 +361,11 @@ def async(func, *args, **kwargs):
         del kwargs['list_key']
     else:
         list_key = Q_LIST
+    if 'redis' in kwargs:
+        r = kwargs['redis']
+        del kwargs['redis']
+    else:
+        r = redis_client
     task = {'name': uuid()[0], 'func': func, 'hook': hook, 'args': args, 'kwargs': kwargs, 'started': timezone.now()}
     pack = SignedPackage.dumps(task)
     r.rpush(list_key, pack)
@@ -436,6 +438,7 @@ class Stat(Status):
         super(Stat, self).__init__(sentinel.parent_pid)
         if message:
             sentinel.status = message
+        self.r = sentinel.r
         self.tob = sentinel.tob
         self.reincarnations = sentinel.reincarnations
         self.sentinel = sentinel.pid
@@ -466,18 +469,20 @@ class Stat(Status):
         return '{}:cluster:{}'.format(PREFIX, cluster_id)
 
     def save(self):
-        r.set(self.key, SignedPackage.dumps(self, True), 3)
+        self.r.set(self.key, SignedPackage.dumps(self, True), 3)
 
     def empty_queues(self):
         return self.done_q_size + self.task_q_size == 0
 
     @staticmethod
-    def get(cluster_id):
+    def get(cluster_id, r=None):
         """
         gets the current status for the cluster
         :param cluster_id: id of the cluster
         :return: Stat or Status
         """
+        if not r:
+            r = redis_client
         key = Stat.get_key(cluster_id)
         if r.exists(key):
             pack = r.get(key)
@@ -488,11 +493,13 @@ class Stat(Status):
         return Status(cluster_id)
 
     @staticmethod
-    def get_all():
+    def get_all(r=None):
         """
         Gets status for all currently running clusters with the same prefix and secret key
         :return: Stat list
         """
+        if not r:
+            r = redis_client
         stats = []
         keys = r.keys(pattern='{}:cluster:*'.format(PREFIX))
         if keys:
@@ -503,6 +510,12 @@ class Stat(Status):
                 except signing.BadSignature:
                     continue
         return stats
+
+    def __getstate__(self):
+        # Don't pickle the redis connection
+        state = dict(self.__dict__)
+        del state['r']
+        return state
 
 
 def scheduler():
