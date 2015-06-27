@@ -3,12 +3,11 @@ import os
 from multiprocessing import Queue, Event
 
 import pytest
-from conf import REDIS
 
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
-from django_q.core import Cluster, async, pusher, worker, monitor, Sentinel
+from django_q.core import Cluster, async, pusher, worker, monitor, redis_client, Sentinel
 from django_q.humanhash import DEFAULT_WORDLIST
 from django_q import result, get_task, Task
 from django_q.tests.tasks import multiply
@@ -21,10 +20,11 @@ class WordClass(object):
     def get_words(self):
         return self.word_list
 
+
 @pytest.fixture
 def r():
-    import redis
-    return redis.StrictRedis(**REDIS)
+    return redis_client
+
 
 def test_redis_connection(r):
     assert r.ping() is True
