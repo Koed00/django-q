@@ -5,78 +5,51 @@ from django.conf import settings
 
 VERSION = '0.1.0'
 
-"""
-Redis server connection
-"""
 try:
-    REDIS = settings.Q_REDIS
+    conf = settings.Q_CLUSTER
 except AttributeError:
-    REDIS = {}
-"""
-Prefixes the Redis keys. Defaults to django_q
-"""
-try:
-    PREFIX = settings.Q_PREFIX
-except AttributeError:
-    PREFIX = 'django_q'
+    conf = {}
 
-"""
-Sets the logging level for the app
-"""
-try:
-    LOG_LEVEL = settings.Q_LOG_LEVEL
-except AttributeError:
-    LOG_LEVEL = "INFO"
+# Redis server configuration . Follows standard redis keywords
+REDIS = conf.get('redis', {})
 
-"""
-Using Django's secret key to sign task packages
-"""
+# Name of the cluster or site. For when you run multiple sites on one redis server
+PREFIX = conf.get('name', 'default')
+
+# Log output level
+LOG_LEVEL = conf.get('log_level', 'INFO')
+
+# Maximum number of successful tasks kept in the database. 0 saves everything. -1 saves none
+# Failures are always saved
+SAVE_LIMIT = conf.get('save_limit', 250)
+
+# Number of workers in the pool. Default is cpu count. +2 for monitor and pusher
+WORKERS = conf.get('workers', cpu_count())
+
+# Sets compression of redis packages
+COMPRESSED = conf.get('compress', False)
+
+# Number of tasks each worker can handle before it gets recycled. Useful for releasing memory
+RECYCLE = conf.get('recycle', 1000)
+
+# The Django Admin label for this app
+LABEL = conf.get('label', 'Django Q')
+
+# Use the secret key for package signing
 try:
     SECRET_KEY = settings.SECRET_KEY
 except AttributeError:
-    SECRET_KEY = 'omgicantbelieveyoudonthaveasecretkey'
+    SECRET_KEY = 'omgicantbelieveudonthaveasecretkey'
 
-"""
-SAVE_LIMIT limits the amount of successful task executions saved to the database.
-Set this to 0 for no limits.
-Failures are not limited.
-"""
-try:
-    SAVE_LIMIT = settings.Q_SAVE_LIMIT
-except AttributeError:
-    SAVE_LIMIT = 100
-
-try:
-    WORKERS = settings.Q_WORKERS
-except AttributeError:
-    WORKERS = cpu_count()
-
-"""
-Turns compression on/off for task packages
-"""
-try:
-    COMPRESSED = settings.Q_COMPRESSED
-except AttributeError:
-    COMPRESSED = False
-
-try:
-    USE_TZ = settings.USE_TZ
-except AttributeError:
-    USE_TZ = False
-
-"""
-Getting the SIGNAL names
-"""
+# Getting the signal names
 SIGNAL_NAMES = dict((getattr(signal, n), n) for n in dir(signal) if n.startswith('SIG') and '_' not in n)
 
-"""
-Redis List name
-"""
-Q_LIST = '{}:q'.format(PREFIX)
+# The redis list key
+Q_LIST = 'django_q:{}:q'.format(PREFIX)
+# The redis stats key
+Q_STAT = 'django_q:{}:cluster'.format(PREFIX)
 
-"""
-Cluster status
-"""
+# Cluster status
 STARTING = 'Starting'
 RUNNING = 'Running'
 STOPPED = 'Stopped'
