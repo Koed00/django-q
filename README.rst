@@ -13,9 +13,10 @@ Features
 -  Encrypted and compressed task packages
 -  Scheduled tasks
 -  Result hooks
--  Result and Failure database
--  PaaS compatible with multiple pools
--  Django Admin
+-  Failure and result database
+-  PaaS compatible with multiple instances
+-  Django Admin integration
+-  Multi cluster monitor
 
 Requirements
 ~~~~~~~~~~~~
@@ -28,14 +29,14 @@ Requirements
 
 Tested with: Python 2.7, 3.4. Django 1.7.8, 1.8.2\*
 
-\*\ *Django Q is currently in Alpha and as such not safe for production,
+\*\ *Django Q is currently  in Alpha and as such not safe for production,
 yet.*
 
 Installation
 ~~~~~~~~~~~~
 
 -  Install the latest version with pip: ``pip install django-q``
--  Add ``django_q`` to ``INSTALLED_APPS`` in your settings.py:
+-  Add `django_q` to `INSTALLED_APPS` in your settings.py:
 
    .. code:: python
 
@@ -57,8 +58,8 @@ All configuration settings are optional. e.g:
 
     # settings.py
     Q_CLUSTER = {
-        'name': 'myproject', 
-        'workers': 8, 
+        'name': 'myproject',
+        'workers': 8,
         'recycle': 500,
         'compress': True,
         'save_limit': 250,
@@ -69,27 +70,25 @@ All configuration settings are optional. e.g:
             'db': 0, }
     }
 
--  **name** Used to differentiatie between projects using the same Redis
-   server\* *default*: 'default'
+-  **name** Used to differentiate between projects using the same Redis
+   server\* [*default*: 'default']
 
--  **workers** The number of workers to use in the cluster *default*:
-   CPU count of host
+-  **workers** The number of workers to use in the cluster [*default*: CPU count of host]
 
 -  **recycle** The number of tasks a worker will process before
-   respawing. Used to release resources. *default*: 500
+   respawning. Used to release resources. [*default*: 500]
 
 -  **compress** Compress task packages to Redis. Useful for large
-   payloads. *default*: False
+   payloads. [*default*: False]
 
 -  **save\_limit** Limits the amount of successful tasks saved to
    Django. Set to 0 for unlimited. Set to -1 for no success storage at
-   all. Failures are always saved. *default*: 250
+   all. Failures are always saved. [*default*: 250]
 
--  **label** The label used for the Django Admin page *default*: 'Django
-   Q'
+-  **label** The label used for the Django Admin page [*default*: 'Django Q']
 
 -  **redis** Connection settings for Redis. Follows standard Redis-Py
-   syntax. *default*: localhost
+   syntax. [*default*: localhost]
 
 \*\ *Django Q uses your SECRET\_KEY to encrypt task packages and prevent
 task crossover*
@@ -100,14 +99,20 @@ Managment Commands
 qcluster
 ^^^^^^^^
 
-Start a cluster with: ``python manage.py qcluster`` ####qmonitor Monitor
-your clusters with ``python manage.py qmonitor``
+Start a cluster with: ``python manage.py qcluster``
+
+qmonitor
+^^^^^^^^
+
+Monitor your clusters with ``python manage.py qmonitor``
 
 Creating Tasks
 ~~~~~~~~~~~~~~
 
 Async
 ^^^^^
+
+Use async from your code to quickly offload tasks
 
 .. code:: python
 
@@ -148,9 +153,9 @@ Admin page or in your code:
     from django_q import Schedule
     from django.utils import timezone
 
-    Schedule.create(func='math.copysign', 
-                    hook='hooks.print_result', 
-                    args='2,-2', 
+    Schedule.create(func='math.copysign',
+                    hook='hooks.print_result',
+                    args='2,-2',
                     schedule_type=Schedule.DAILY,
                     next_run=timezone.now())
 
@@ -161,6 +166,15 @@ Todo
 -  Better tests and coverage
 -  Get out of Alpha
 -  Less dependencies?
+
+Acknowledgements
+----------------
+
+-  Django Q was inspired by working with
+   `Django-RQ <https://github.com/ui/django-rq>`__ and
+   `RQ <https://github.com/ui/django-rq>`__
+-  Human readable hashes by
+   `HumanHash <https://github.com/zacharyvoase/humanhash>`__
 
 .. |image0| image:: https://travis-ci.org/Koed00/django-q.svg?branch=master
    :target: https://travis-ci.org/Koed00/django-q
