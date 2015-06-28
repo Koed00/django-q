@@ -5,7 +5,7 @@ with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
 
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 from setuptools import setup, Command
-# you can also import from setuptools
+
 
 class PyTest(Command):
     user_options = []
