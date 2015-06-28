@@ -34,8 +34,8 @@ from django.core import signing
 from django.utils import timezone
 
 # Local
-from .conf import LOG_LEVEL, SECRET_KEY, SAVE_LIMIT, WORKERS, COMPRESSED, PREFIX, REDIS, Q_LIST, SIGNAL_NAMES, STARTING, \
-    RUNNING, STOPPING, STOPPED
+from .conf import LOG_LEVEL, SECRET_KEY, SAVE_LIMIT, WORKERS, COMPRESSED, REDIS, Q_LIST, SIGNAL_NAMES, STARTING, \
+    RUNNING, STOPPING, STOPPED, RECYCLE, Q_STAT
 from .humanhash import uuid
 from .models import Task, Success, Schedule
 
@@ -287,41 +287,45 @@ def worker(task_queue, done_queue):
     name = current_process().name
     logger.info('{} ready for work at {}'.format(name, current_process().pid))
     task = {}
-
-    def return_pack(res, success):
-        task['result'] = res
-        task['stopped'] = timezone.now()
-        task['success'] = success
-        done_queue.put(task)
-
+    task_count = 0
+    f = None
+    # Start reading the task queue
     for pack in iter(task_queue.get, 'STOP'):
+        result = None
+        task_count += 1
         # unpickle the task
         try:
             task = SignedPackage.loads(pack)
-        except TypeError as e:
-            logger.error(e)
-            continue
-        except signing.BadSignature as e:
-            task['name'] = task['name'].rsplit(":", 1)[0]
-            return_pack(e, False)
-            continue
-        logger.info('{} processing [{}]'.format(name, task['name']))
-        f = task['func']
-        # if it's not an instance try to get it from the string
-        if not callable(task['func']):
+        except (TypeError, signing.BadSignature) as e:
+            result = (e, False)
+        # Get the function from the task
+        if not result:
+            logger.info('{} processing [{}]'.format(name, task['name']))
+            f = task['func']
+            # if it's not an instance try to get it from the string
+            if not callable(task['func']):
+                try:
+                    module, func = f.rsplit('.', 1)
+                    m = importlib.import_module(module)
+                    f = getattr(m, func)
+                except (ValueError, ImportError, AttributeError) as e:
+                    result = (e, False)
+        # We're still going
+        if not result:
+            # execute the payload
             try:
-                module, func = f.rsplit('.', 1)
-                m = importlib.import_module(module)
-                f = getattr(m, func)
-            except (ValueError, ImportError, AttributeError) as e:
-                return_pack(e, False)
-                continue
-        # execute the payload
-        try:
-            result = f(*task['args'], **task['kwargs'])
-            return_pack(result, True)
-        except Exception as e:
-            return_pack(e, False)
+                res = f(*task['args'], **task['kwargs'])
+                result = (res, True)
+            except Exception as e:
+                result = (e, False)
+        # Process result
+        task['result'] = result[0]
+        task['success'] = result[1]
+        task['stopped'] = timezone.now()
+        done_queue.put(task)
+        # Recycle
+        if task_count == RECYCLE:
+            break
     logger.info('{} stopped doing work'.format(name))
 
 
@@ -329,8 +333,13 @@ def save_task(task):
     """
     Saves the task package to Django
     """
+    # SAVE LIMIT < 0 : Don't save success
+    if SAVE_LIMIT < 0 and task['success']:
+        return
+    # SAVE LIMIT > 0: Prune database, SAVE_LIMIT 0: No pruning
     if task['success'] and 0 < SAVE_LIMIT < Success.objects.count():
         Success.objects.first().delete()
+
     try:
         Task.objects.create(name=task['name'],
                             func=task['func'],
@@ -347,7 +356,7 @@ def save_task(task):
 
 def async(func, *args, **kwargs):
     """
-    Schedules a task with optional hook
+    Sends a task to the cluster
     """
     # Check for hook
     if 'hook' in kwargs:
@@ -361,6 +370,7 @@ def async(func, *args, **kwargs):
         del kwargs['list_key']
     else:
         list_key = Q_LIST
+    # Check for redis connection override
     if 'redis' in kwargs:
         r = kwargs['redis']
         del kwargs['redis']
@@ -466,7 +476,7 @@ class Stat(Status):
         :param cluster_id: cluster ID
         :return: redis key for the cluster statistic
         """
-        return '{}:cluster:{}'.format(PREFIX, cluster_id)
+        return '{}:{}'.format(Q_STAT, cluster_id)
 
     def save(self):
         self.r.set(self.key, SignedPackage.dumps(self, True), 3)
@@ -501,7 +511,7 @@ class Stat(Status):
         if not r:
             r = redis_client
         stats = []
-        keys = r.keys(pattern='{}:cluster:*'.format(PREFIX))
+        keys = r.keys(pattern='{}:*'.format(Q_STAT))
         if keys:
             packs = r.mget(keys)
             for pack in packs:

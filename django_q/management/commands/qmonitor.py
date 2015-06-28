@@ -8,6 +8,7 @@ from blessed import Terminal
 # Local
 from django_q.core import Stat, RUNNING, STOPPED, redis_client
 
+# TODO add name argument to monitor different clusters
 
 class Command(BaseCommand):
     help = "Monitors cluster activity"
@@ -34,8 +35,8 @@ def monitor(run_once=False):
             print(term.move(0, 3 * col_width) + term.black_on_green(term.center('Pool', width=col_width - 1)))
             print(term.move(0, 4 * col_width) + term.black_on_green(term.center('TQ', width=col_width - 1)))
             print(term.move(0, 5 * col_width) + term.black_on_green(term.center('RQ', width=col_width - 1)))
-            print(term.move(0, 6 * col_width) + term.black_on_green(term.center('Deaths', width=col_width - 1)))
-            print(term.move(0, 7 * col_width) + term.black_on_green(term.center('Uptime', width=col_width - 1)))
+            print(term.move(0, 6 * col_width) + term.black_on_green(term.center('RC', width=col_width - 1)))
+            print(term.move(0, 7 * col_width) + term.black_on_green(term.center('Up', width=col_width - 1)))
             i = 2
             stats = Stat.get_all(r=r)
             print(term.clear_eos())
