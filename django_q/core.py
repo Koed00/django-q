@@ -55,6 +55,11 @@ redis_client = redis.StrictRedis(**REDIS)
 
 class Cluster(object):
     def __init__(self, list_key=Q_LIST):
+        try:
+            redis_client.ping()
+        except Exception as e:
+            logger.exception(e)
+            return
         self.sentinel = None
         self.stop_event = None
         self.start_event = None
@@ -297,19 +302,19 @@ def worker(task_queue, done_queue):
         try:
             task = SignedPackage.loads(pack)
         except (TypeError, signing.BadSignature) as e:
-            result = (e, False)
+            logger.error(e)
+            continue
         # Get the function from the task
-        if not result:
-            logger.info('{} processing [{}]'.format(name, task['name']))
-            f = task['func']
-            # if it's not an instance try to get it from the string
-            if not callable(task['func']):
-                try:
-                    module, func = f.rsplit('.', 1)
-                    m = importlib.import_module(module)
-                    f = getattr(m, func)
-                except (ValueError, ImportError, AttributeError) as e:
-                    result = (e, False)
+        logger.info('{} processing [{}]'.format(name, task['name']))
+        f = task['func']
+        # if it's not an instance try to get it from the string
+        if not callable(task['func']):
+            try:
+                module, func = f.rsplit('.', 1)
+                m = importlib.import_module(module)
+                f = getattr(m, func)
+            except (ValueError, ImportError, AttributeError) as e:
+                result = (e, False)
         # We're still going
         if not result:
             # execute the payload
