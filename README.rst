@@ -28,7 +28,7 @@ Requirements
 
 Tested with: Python 2.7, 3.4. Django 1.7.8, 1.8.2\*
 
-*\*Django Q is currently in Alpha and as such not safe for production,
+\*\ *Django Q is currently in Alpha and as such not safe for production,
 yet.*
 
 Installation
