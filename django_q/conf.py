@@ -30,7 +30,7 @@ WORKERS = conf.get('workers', cpu_count())
 COMPRESSED = conf.get('compress', False)
 
 # Number of tasks each worker can handle before it gets recycled. Useful for releasing memory
-RECYCLE = conf.get('recycle', 1000)
+RECYCLE = conf.get('recycle', 500)
 
 # The Django Admin label for this app
 LABEL = conf.get('label', 'Django Q')
