@@ -153,11 +153,11 @@ Admin page or directly from your code:
     from django_q import Schedule
     from django.utils import timezone
 
-    Schedule.create(func='math.copysign',
-                    hook='hooks.print_result',
-                    args='2,-2',
-                    schedule_type=Schedule.DAILY,
-                    next_run=timezone.now())
+    Schedule.objects.create(func='math.copysign',
+                            hook='hooks.print_result',
+                            args='2,-2',
+                            schedule_type=Schedule.DAILY,
+                            next_run=timezone.now())
 
 Todo
 ----
