@@ -246,7 +246,7 @@ class Sentinel(object):
         Stat(self, message).save()
 
 
-def pusher(task_queue, e, list_key=Q_LIST, r=None):
+def pusher(task_queue, e, list_key=Q_LIST, r=redis_client):
     """
     Pulls tasks of the Redis List and puts them in the task queue
     :type task_queue: multiprocessing.Queue
@@ -254,8 +254,6 @@ def pusher(task_queue, e, list_key=Q_LIST, r=None):
     :type list_key: str
     """
     logger.info('{} pushing tasks at {}'.format(current_process().name, current_process().pid))
-    if not r:
-        r = redis_client
     while True:
         task = r.blpop(list_key, 1)
         if task:
@@ -291,9 +289,7 @@ def worker(task_queue, done_queue):
     """
     name = current_process().name
     logger.info('{} ready for work at {}'.format(name, current_process().pid))
-    task = {}
     task_count = 0
-    f = None
     # Start reading the task queue
     for pack in iter(task_queue.get, 'STOP'):
         result = None
@@ -490,14 +486,12 @@ class Stat(Status):
         return self.done_q_size + self.task_q_size == 0
 
     @staticmethod
-    def get(cluster_id, r=None):
+    def get(cluster_id, r=redis_client):
         """
         gets the current status for the cluster
         :param cluster_id: id of the cluster
         :return: Stat or Status
         """
-        if not r:
-            r = redis_client
         key = Stat.get_key(cluster_id)
         if r.exists(key):
             pack = r.get(key)
@@ -508,13 +502,11 @@ class Stat(Status):
         return Status(cluster_id)
 
     @staticmethod
-    def get_all(r=None):
+    def get_all(r=redis_client):
         """
         Gets status for all currently running clusters with the same prefix and secret key
         :return: Stat list
         """
-        if not r:
-            r = redis_client
         stats = []
         keys = r.keys(pattern='{}:*'.format(Q_STAT))
         if keys:
