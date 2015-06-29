@@ -71,29 +71,29 @@ All configuration settings are optional. e.g:
     }
 
 -  **name** Used to differentiate between projects using the same Redis
-   server\* [*default*: 'default']
+   server\* *['default']*
 
--  **workers** The number of workers to use in the cluster [*default*: CPU count of host]
+-  **workers** The number of workers to use in the cluster *[CPU count]*
 
 -  **recycle** The number of tasks a worker will process before
-   respawning. Used to release resources. [*default*: 500]
+   respawning. Used to release resources. *[500]*
 
 -  **compress** Compress task packages to Redis. Useful for large
-   payloads. [*default*: False]
+   payloads. *[False]*
 
 -  **save\_limit** Limits the amount of successful tasks saved to
    Django. Set to 0 for unlimited. Set to -1 for no success storage at
-   all. Failures are always saved. [*default*: 250]
+   all. Failures are always saved. *[250]*
 
--  **label** The label used for the Django Admin page [*default*: 'Django Q']
+-  **label** The label used for the Django Admin page *['Django Q']*
 
--  **redis** Connection settings for Redis. Follows standard Redis-Py
-   syntax. [*default*: localhost]
+-  **redis** Connection settings for Redis. Follows standard Redis-Py syntax. *[localhost]*
+*[defaults]*
 
 \*\ *Django Q uses your SECRET\_KEY to encrypt task packages and prevent
 task crossover*
 
-Managment Commands
+Management Commands
 ~~~~~~~~~~~~~~~~~~
 
 qcluster
@@ -112,7 +112,7 @@ Creating Tasks
 Async
 ^^^^^
 
-Use async from your code to quickly offload tasks
+Use async from your code to quickly offload tasks:
 
 .. code:: python
 
@@ -146,7 +146,7 @@ Schedule
 ^^^^^^^^
 
 Schedules are regular Django models. You can manage them through the
-Admin page or in your code:
+Admin page or directly from your code:
 
 .. code:: python
 
