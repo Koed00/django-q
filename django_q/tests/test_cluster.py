@@ -4,15 +4,14 @@ from multiprocessing import Queue, Event
 
 import pytest
 
-from conf import Conf
-
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
-from django_q.core import Cluster, async, pusher, worker, monitor, redis_client, Sentinel, scheduler
+from django_q.core import Cluster, async, pusher, worker, monitor, redis_client, Sentinel
 from django_q.humanhash import DEFAULT_WORDLIST
-from django_q import result, get_task, Task, Schedule
+from django_q import result, get_task, Task
 from django_q.tests.tasks import multiply
+from django_q.conf import Conf
 
 
 class WordClass(object):
