@@ -4,7 +4,7 @@ Django Q
 A multiprocessing task queue for Django
 ---------------------------------------
 
-|image0|
+|image0| |image1|
 
 Features
 ~~~~~~~~
@@ -177,3 +177,5 @@ Acknowledgements
 
 .. |image0| image:: https://travis-ci.org/Koed00/django-q.svg?branch=master
    :target: https://travis-ci.org/Koed00/django-q
+.. |image1| image:: https://coveralls.io/repos/Koed00/django-q/badge.svg?branch=master
+  :target: https://coveralls.io/r/Koed00/django-q?branch=master
