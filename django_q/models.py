@@ -30,6 +30,9 @@ class Task(models.Model):
     def time_taken(self):
         return (self.stopped - self.started).total_seconds()
 
+    def __unicode__(self):
+        return self.name
+
     class Meta:
         app_label = 'django_q'
 
@@ -123,6 +126,9 @@ class Schedule(models.Model):
     def success(self):
         if Task.objects.filter(name=self.task).exists():
             return Task.objects.get(name=self.task).success
+
+    def __unicode__(self):
+        return self.func
 
     success.boolean = True
     last_run.allow_tags = True
