@@ -385,24 +385,11 @@ def async(func, *args, **kwargs):
     """
     Sends a task to the cluster
     """
-    # Check for hook
-    if 'hook' in kwargs:
-        hook = kwargs['hook']
-        del kwargs['hook']
-    else:
-        hook = None
-    # Check for list_key override
-    if 'list_key' in kwargs:
-        list_key = kwargs['list_key']
-        del kwargs['list_key']
-    else:
-        list_key = Conf.Q_LIST
-    # Check for redis connection override
-    if 'redis' in kwargs:
-        r = kwargs['redis']
-        del kwargs['redis']
-    else:
-        r = redis_client
+
+    hook = kwargs.pop('hook', None)
+    list_key = kwargs.pop('list_key', Conf.Q_LIST)
+    r = kwargs.pop('redis', redis_client)
+
     task = {'name': uuid()[0], 'func': func, 'hook': hook, 'args': args, 'kwargs': kwargs, 'started': timezone.now()}
     pack = SignedPackage.dumps(task)
     r.rpush(list_key, pack)
@@ -551,7 +538,7 @@ class Stat(Status):
         return state
 
 
-def schedule(func, *args, hook=None, schedule_type=Schedule.ONCE, repeats=-1, next_run=timezone.now(), **kwargs):
+def schedule(func, *args, **kwargs):
     """
     :param func: function to schedule
     :param args: function arguments
@@ -564,6 +551,11 @@ def schedule(func, *args, hook=None, schedule_type=Schedule.ONCE, repeats=-1, ne
     :return: the schedule object
     :rtype: Schedule
     """
+
+    hook = kwargs.pop('hook', None)
+    schedule_type = kwargs.pop('schedule_type', Schedule.ONCE)
+    repeats = kwargs.pop('repeats', -1)
+    next_run = kwargs.pop('next_run', timezone.now())
 
     return Schedule.objects.create(func=func,
                                    hook=hook,
@@ -623,4 +615,3 @@ def scheduler(list_key=Conf.Q_LIST):
         else:
             logger.info('{} created [{}] from schedule {}'.format(current_process().name, s.task, s.id))
         s.save()
-
