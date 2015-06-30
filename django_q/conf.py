@@ -5,52 +5,55 @@ from django.conf import settings
 
 VERSION = '0.1.0'
 
-try:
-    conf = settings.Q_CLUSTER
-except AttributeError:
-    conf = {}
 
-# Redis server configuration . Follows standard redis keywords
-REDIS = conf.get('redis', {})
+class Conf(object):
+    try:
+        conf = settings.Q_CLUSTER
+    except AttributeError:
+        conf = {}
 
-# Name of the cluster or site. For when you run multiple sites on one redis server
-PREFIX = conf.get('name', 'default')
+    # Redis server configuration . Follows standard redis keywords
+    REDIS = conf.get('redis', {})
 
-# Log output level
-LOG_LEVEL = conf.get('log_level', 'INFO')
+    # Name of the cluster or site. For when you run multiple sites on one redis server
+    PREFIX = conf.get('name', 'default')
 
-# Maximum number of successful tasks kept in the database. 0 saves everything. -1 saves none
-# Failures are always saved
-SAVE_LIMIT = conf.get('save_limit', 250)
+    # Log output level
+    LOG_LEVEL = conf.get('log_level', 'INFO')
 
-# Number of workers in the pool. Default is cpu count. +2 for monitor and pusher
-WORKERS = conf.get('workers', cpu_count())
+    # Maximum number of successful tasks kept in the database. 0 saves everything. -1 saves none
+    # Failures are always saved
+    SAVE_LIMIT = conf.get('save_limit', 250)
 
-# Sets compression of redis packages
-COMPRESSED = conf.get('compress', False)
+    # Number of workers in the pool. Default is cpu count. +2 for monitor and pusher
+    WORKERS = conf.get('workers', cpu_count())
 
-# Number of tasks each worker can handle before it gets recycled. Useful for releasing memory
-RECYCLE = conf.get('recycle', 500)
+    # Sets compression of redis packages
+    COMPRESSED = conf.get('compress', False)
 
-# The Django Admin label for this app
-LABEL = conf.get('label', 'Django Q')
+    # Number of tasks each worker can handle before it gets recycled. Useful for releasing memory
+    RECYCLE = conf.get('recycle', 500)
 
-# Use the secret key for package signing
-try:
-    SECRET_KEY = settings.SECRET_KEY
-except AttributeError:
-    SECRET_KEY = 'omgicantbelieveudonthaveasecretkey'
+    # The Django Admin label for this app
+    LABEL = conf.get('label', 'Django Q')
 
-# Getting the signal names
-SIGNAL_NAMES = dict((getattr(signal, n), n) for n in dir(signal) if n.startswith('SIG') and '_' not in n)
+    # Use the secret key for package signing
+    try:
+        SECRET_KEY = settings.SECRET_KEY
+    except AttributeError:
+        SECRET_KEY = 'omgicantbelieveudonthaveasecretkey'
 
-# The redis list key
-Q_LIST = 'django_q:{}:q'.format(PREFIX)
-# The redis stats key
-Q_STAT = 'django_q:{}:cluster'.format(PREFIX)
+    # The redis list key
+    Q_LIST = 'django_q:{}:q'.format(PREFIX)
+    # The redis stats key
+    Q_STAT = 'django_q:{}:cluster'.format(PREFIX)
 
-# Cluster status
-STARTING = 'Starting'
-RUNNING = 'Running'
-STOPPED = 'Stopped'
-STOPPING = 'Stopping'
+    # Getting the signal names
+    SIGNAL_NAMES = dict((getattr(signal, n), n) for n in dir(signal) if n.startswith('SIG') and '_' not in n)
+
+    # Cluster status descriptions
+    STARTING = 'Starting'
+    WORKING = 'Working'
+    IDLE = "Idle"
+    STOPPED = 'Stopped'
+    STOPPING = 'Stopping'

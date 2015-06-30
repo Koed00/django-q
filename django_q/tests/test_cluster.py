@@ -4,12 +4,14 @@ from multiprocessing import Queue, Event
 
 import pytest
 
+from conf import Conf
+
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
-from django_q.core import Cluster, async, pusher, worker, monitor, redis_client, Sentinel
+from django_q.core import Cluster, async, pusher, worker, monitor, redis_client, Sentinel, scheduler
 from django_q.humanhash import DEFAULT_WORDLIST
-from django_q import result, get_task, Task
+from django_q import result, get_task, Task, Schedule
 from django_q.tests.tasks import multiply
 
 
@@ -30,6 +32,7 @@ def test_redis_connection(r):
     assert r.ping() is True
 
 
+@pytest.mark.django_db
 def test_cluster_initial():
     c = Cluster()
     assert c.sentinel is None
@@ -37,17 +40,21 @@ def test_cluster_initial():
     assert c.start() > 0
     assert c.sentinel.is_alive() is True
     assert c.is_running
+    stat = c.stat
+    assert stat.status == Conf.IDLE
     assert c.stop() is True
     assert c.sentinel.is_alive() is False
     assert c.has_stopped
 
 
+@pytest.mark.django_db
 def test_sentinel():
     start_event = Event()
     stop_event = Event()
     stop_event.set()
-    Sentinel(stop_event, start_event, list_key='sentinel_test:q')
+    s = Sentinel(stop_event, start_event, list_key='sentinel_test:q')
     assert start_event.is_set()
+    assert s.status() == Conf.STOPPED
 
 
 @pytest.mark.django_db
@@ -165,7 +172,6 @@ def test_async(r):
     r.delete(list_key)
 
 
-# not sure if this actually asserts, but it is called
 @pytest.mark.django_db
 def assert_result(task):
     assert task is not None
