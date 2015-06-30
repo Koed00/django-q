@@ -116,10 +116,6 @@ Use async from your code to quickly offload tasks:
 
 .. code:: python
 
-    async(func,*args,hook=None,**kwargs)
-
-.. code:: python
-
     from django_q import async, result
 
     # create the task
@@ -141,6 +137,15 @@ Use async from your code to quickly offload tasks:
     # hooks.py
     def print_result(task):
         print(task.result)
+
+.. code:: python
+
+    async(func,*args,**kwargs)
+
+- **func**: Function to execute. Dotted string or reference.
+- **args**: Optional arguments for the function.
+- **hook**: Optional function to call after execution. Dotted string or reference.
+- **kwargs**: Optional keyword arguments for the function.
 
 Schedule
 ^^^^^^^^
@@ -166,6 +171,19 @@ Admin page or directly from your code:
                             args='2,-2',
                             schedule_type=Schedule.DAILY
                             )
+
+.. code:: python
+
+    schedule(func,*args,**kwargs)
+
+- **func**: the function to schedule. Dotted strings only.
+- **args**: arguments for the scheduled function.
+- **hook**: optional result hook function. Dotted strings only.
+- **schedule_type**: (O)nce, (H)ourly, (D)aily, (W)eekly, M(onthly), Q(uarterly), Y(early) 
+- **repeats**: Number of times to repeat schedule. -1=Always, 0=Never, n=n.
+- **next_run**: Next or first scheduled execution datetime.
+- **kwargs**: optional keyword arguments for the scheduled function.
+
 
 Models
 ~~~~~~
