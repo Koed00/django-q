@@ -551,51 +551,76 @@ class Stat(Status):
         return state
 
 
+def schedule(func, *args, hook=None, schedule_type=Schedule.ONCE, repeats=-1, next_run=timezone.now(), **kwargs):
+    """
+    :param func: function to schedule
+    :param args: function arguments
+    :param hook: optional result hook function
+    :type schedule_type: Schedule.TYPE
+    :param repeats: how many times to repeat. 0=never, -1=always
+    :param next_run: Next scheduled run
+    :type next_run: datetime.datetime
+    :param kwargs: function keyword arguments
+    :return: the schedule object
+    :rtype: Schedule
+    """
+
+    return Schedule.objects.create(func=func,
+                                   hook=hook,
+                                   args=args,
+                                   kwargs=kwargs,
+                                   schedule_type=schedule_type,
+                                   repeats=repeats,
+                                   next_run=next_run
+                                   )
+
+
 def scheduler(list_key=Conf.Q_LIST):
     """
     Creates a task from a schedule at the scheduled time and schedules next run
     """
-    for schedule in Schedule.objects.exclude(repeats=0).filter(next_run__lt=timezone.now()):
+    for s in Schedule.objects.exclude(repeats=0).filter(next_run__lt=timezone.now()):
         args = ()
         kwargs = {}
         # get args, kwargs and hook
-        if schedule.kwargs:
+        if s.kwargs:
             try:
                 # eval should be safe here cause dict()
-                kwargs = eval('dict({})'.format(schedule.kwargs))
+                kwargs = eval('dict({})'.format(s.kwargs))
             except SyntaxError:
                 kwargs = {}
-        if schedule.args:
-            args = ast.literal_eval(schedule.args)
+        if s.args:
+            args = ast.literal_eval(s.args)
             # single value won't eval to tuple, so:
             if type(args) != tuple:
                 args = (args,)
-        if schedule.hook:
-            kwargs['hook'] = schedule.hook
+        if s.hook:
+            kwargs['hook'] = s.hook
         # set up the next run time
-        if not schedule.schedule_type == schedule.ONCE:
-            next_run = arrow.get(schedule.next_run)
-            if schedule.schedule_type == schedule.HOURLY:
+        if not s.schedule_type == s.ONCE:
+            next_run = arrow.get(s.next_run)
+            if s.schedule_type == s.HOURLY:
                 next_run = next_run.replace(hours=+1)
-            elif schedule.schedule_type == schedule.DAILY:
+            elif s.schedule_type == s.DAILY:
                 next_run = next_run.replace(days=+1)
-            elif schedule.schedule_type == schedule.WEEKLY:
+            elif s.schedule_type == s.WEEKLY:
                 next_run = next_run.replace(weeks=+1)
-            elif schedule.schedule_type == schedule.MONTHLY:
+            elif s.schedule_type == s.MONTHLY:
                 next_run = next_run.replace(months=+1)
-            elif schedule.schedule_type == schedule.QUARTERLY:
+            elif s.schedule_type == s.QUARTERLY:
                 next_run = next_run.replace(months=+3)
-            elif schedule.schedule_type == schedule.YEARLY:
+            elif s.schedule_type == s.YEARLY:
                 next_run = next_run.replace(years=+1)
-            schedule.next_run = next_run.datetime
-            schedule.repeats += -1
+            s.next_run = next_run.datetime
+            s.repeats += -1
         else:
-            schedule.repeats = 0
+            s.repeats = 0
         # send it to the cluster
         kwargs['list_key'] = list_key
-        schedule.task = async(schedule.func, *args, **kwargs)
-        if not schedule.task:
-            logger.error('{} failed to create task from  schedule {}').format(current_process().name, schedule.id)
+        s.task = async(s.func, *args, **kwargs)
+        if not s.task:
+            logger.error('{} failed to create task from  schedule {}').format(current_process().name, s.id)
         else:
-            logger.info('{} created [{}] from schedule {}'.format(current_process().name, schedule.task, schedule.id))
-        schedule.save()
+            logger.info('{} created [{}] from schedule {}'.format(current_process().name, s.task, s.id))
+        s.save()
+

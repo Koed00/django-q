@@ -106,6 +106,8 @@ def test_async(r):
     f = async(multiply, 753, 2, hook=assert_result, list_key=list_key)
     # model as argument
     g = async('django_q.tests.tasks.get_task_name', Task(name='John'), list_key=list_key)
+    # args and kwargs
+    h = async('django_q.tests.tasks.word_multiply', 2, word='django', list_key=list_key, redis=r)
     # check if everything has a task name
     assert isinstance(a, str)
     assert isinstance(b, str)
@@ -114,8 +116,9 @@ def test_async(r):
     assert isinstance(e, str)
     assert isinstance(f, str)
     assert isinstance(g, str)
+    assert isinstance(h, str)
     # run the cluster to execute the tasks
-    task_count = 7
+    task_count = 8
     assert r.llen(list_key) == task_count
     task_queue = Queue()
     stop_event = Event()
@@ -168,6 +171,11 @@ def test_async(r):
     assert result_g is not None
     assert result_g.success is True
     assert result(g) == 'John'
+    # task h
+    result_h = get_task(h)
+    assert result_h is not None
+    assert result_h.success is True
+    assert result(h) == 12
     r.delete(list_key)
 
 

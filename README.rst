@@ -88,13 +88,13 @@ All configuration settings are optional. e.g:
 -  **label** The label used for the Django Admin page *['Django Q']*
 
 -  **redis** Connection settings for Redis. Follows standard Redis-Py syntax. *[localhost]*
-*[defaults]*
+
 
 \*\ *Django Q uses your SECRET\_KEY to encrypt task packages and prevent
 task crossover*
 
 Management Commands
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 qcluster
 ^^^^^^^^
@@ -150,13 +150,36 @@ Admin page or directly from your code:
 
 .. code:: python
 
-    from django_q import Schedule
+    from django_q import Schedule, schedule
+
+    # Use the schedule wrapper
+
+    schedule('math.copysign',
+             2, -2,
+             hook='hooks.print_result',
+             schedule_type=Schedule.DAILY)
+
+    # Or create the object directly
 
     Schedule.objects.create(func='math.copysign',
                             hook='hooks.print_result',
                             args='2,-2',
                             schedule_type=Schedule.DAILY
                             )
+
+Models
+~~~~~~
+- `Task` and `Schedule` are Django Models and can therefore be managed by your own code.
+- `Task` objects are only created after an async package has been executed.
+-  A `Schedule` creates a new async package for every execution and thus an unique `Task`
+- `Success` and `Failure` are convenient proxy models of `Task`
+
+
+Testing
+-------
+
+To run the tests you will need `py.test <http://pytest.org/latest/>`__ and `pytest-django <https://github.com/pytest-dev/pytest-django>`__
+
 
 Todo
 ----

@@ -1,7 +1,7 @@
 from django_q.models import Task, Schedule
-from django_q.core import async
+from django_q.core import async, schedule
 
-VERSION = (0, 1, 2)
+VERSION = (0, 1, 3)
 
 default_app_config = 'django_q.apps.DjangoQConfig'
 
