@@ -89,8 +89,8 @@ class Failure(Task):
 class Schedule(models.Model):
     func = models.CharField(max_length=256, help_text='e.g. module.tasks.function')
     hook = models.CharField(max_length=256, null=True, blank=True, help_text='e.g. module.tasks.result_function')
-    args = models.CharField(max_length=256, null=True, blank=True, help_text=_("e.g. 1, 2, 'John'"))
-    kwargs = models.CharField(max_length=256, null=True, blank=True, help_text=_("e.g. x=1, y=2, name='John'"))
+    args = models.TextField(null=True, blank=True, help_text=_("e.g. 1, 2, 'John'"))
+    kwargs = models.TextField(null=True, blank=True, help_text=_("e.g. x=1, y=2, name='John'"))
     ONCE = 'O'
     HOURLY = 'H'
     DAILY = 'D'
