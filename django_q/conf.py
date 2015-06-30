@@ -3,8 +3,6 @@ from multiprocessing import cpu_count
 
 from django.conf import settings
 
-VERSION = '0.1.0'
-
 
 class Conf(object):
     try:
