@@ -4,7 +4,7 @@ Django Q
 A multiprocessing task queue for Django
 ---------------------------------------
 
-|image0| |image1|
+|image0| |image1| |image2|
 
 Features
 ~~~~~~~~
@@ -61,6 +61,7 @@ All configuration settings are optional. e.g:
         'name': 'myproject',
         'workers': 8,
         'recycle': 500,
+        'timeout': 60,
         'compress': True,
         'save_limit': 250,
         'label': 'Django Q',
@@ -70,24 +71,26 @@ All configuration settings are optional. e.g:
             'db': 0, }
     }
 
--  **name** Used to differentiate between projects using the same Redis
-   server\* *['default']*
+-  **name**: Used to differentiate between projects using the same Redis
+   server\*. Defaults to 'default'.
 
--  **workers** The number of workers to use in the cluster *[CPU count]*
+-  **workers**: The number of workers to use in the cluster. Defaults to CPU count.
 
--  **recycle** The number of tasks a worker will process before
-   respawning. Used to release resources. *[500]*
+-  **recycle**: The number of tasks a worker will process before
+   respawning. Used to release resources. Defaults to 500
 
--  **compress** Compress task packages to Redis. Useful for large
-   payloads. *[False]*
+-  **timeout**: The number of seconds a worker is allowed to spend on a task before it's terminated. Defaults to None.
 
--  **save\_limit** Limits the amount of successful tasks saved to
+-  **compress**: Compress task packages to Redis. Useful for large
+   payloads. Defaults to False
+
+-  **save\_limit**: Limits the amount of successful tasks saved to
    Django. Set to 0 for unlimited. Set to -1 for no success storage at
-   all. Failures are always saved. *[250]*
+   all. Failures are always saved. Defaults to 250
 
--  **label** The label used for the Django Admin page *['Django Q']*
+-  **label**: The label used for the Django Admin page. Defaults to 'Django Q'
 
--  **redis** Connection settings for Redis. Follows standard Redis-Py syntax. *[localhost]*
+-  **redis**: Connection settings for Redis. Follows standard Redis-Py syntax. Defaults to standard localhost.
 
 
 \*\ *Django Q uses your SECRET\_KEY to encrypt task packages and prevent
@@ -179,7 +182,7 @@ Admin page or directly from your code:
 - **func**: the function to schedule. Dotted strings only.
 - **args**: arguments for the scheduled function.
 - **hook**: optional result hook function. Dotted strings only.
-- **schedule_type**: (O)nce, (H)ourly, (D)aily, (W)eekly, M(onthly), Q(uarterly), Y(early) 
+- **schedule_type**: (O)nce, (H)ourly, (D)aily, (W)eekly, M(onthly), Q(uarterly), Y(early)
 - **repeats**: Number of times to repeat schedule. -1=Always, 0=Never, n=n.
 - **next_run**: Next or first scheduled execution datetime.
 - **kwargs**: optional keyword arguments for the scheduled function.
@@ -187,20 +190,20 @@ Admin page or directly from your code:
 
 Models
 ~~~~~~
-- `Task` and `Schedule` are Django Models and can therefore be managed by your own code.
+- `Task` and `Schedule` are Django Models and can therefore be managed by your own code.----------------
 - `Task` objects are only created after an async package has been executed.
 -  A `Schedule` creates a new async package for every execution and thus an unique `Task`
 - `Success` and `Failure` are convenient proxy models of `Task`
 
 
 Testing
--------
+~~~~~~~
 
 To run the tests you will need `py.test <http://pytest.org/latest/>`__ and `pytest-django <https://github.com/pytest-dev/pytest-django>`__
 
 
 Todo
-----
+~~~~
 
 -  Write sphinx documentation
 -  Better tests and coverage
@@ -208,7 +211,7 @@ Todo
 -  Less dependencies?
 
 Acknowledgements
-----------------
+~~~~~~~~~~~~~~~~
 
 -  Django Q was inspired by working with
    `Django-RQ <https://github.com/ui/django-rq>`__ and
@@ -219,4 +222,6 @@ Acknowledgements
 .. |image0| image:: https://travis-ci.org/Koed00/django-q.svg?branch=master
    :target: https://travis-ci.org/Koed00/django-q
 .. |image1| image:: https://coveralls.io/repos/Koed00/django-q/badge.svg?branch=master
-  :target: https://coveralls.io/r/Koed00/django-q?branch=master
+   :target: https://coveralls.io/r/Koed00/django-q?branch=master
+.. |image2| image:: http://badges.gitter.im/Join%20Chat.svg
+   :target: https://gitter.im/Koed00/django-q
