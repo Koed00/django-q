@@ -22,3 +22,11 @@ script:
 
 after_success:
   - coveralls
+
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/cbcff78c4be241602332
+    on_success: change
+    on_failure: always
+    on_start: false
