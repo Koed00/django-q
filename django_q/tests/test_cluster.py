@@ -32,8 +32,10 @@ def test_redis_connection(r):
 
 
 @pytest.mark.django_db
-def test_cluster_initial():
-    c = Cluster()
+def test_cluster_initial(r):
+    list_key = 'initial_test:q'
+    r.delete(list_key)
+    c = Cluster(list_key=list_key)
     assert c.sentinel is None
     assert c.is_idle
     assert c.start() > 0
@@ -44,6 +46,7 @@ def test_cluster_initial():
     assert c.stop() is True
     assert c.sentinel.is_alive() is False
     assert c.has_stopped
+    r.delete(list_key)
 
 
 @pytest.mark.django_db
