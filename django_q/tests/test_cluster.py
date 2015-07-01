@@ -106,8 +106,8 @@ def test_async(r):
     f = async(multiply, 753, 2, hook=assert_result, list_key=list_key)
     # model as argument
     g = async('django_q.tests.tasks.get_task_name', Task(name='John'), list_key=list_key)
-    # args and kwargs
-    h = async('django_q.tests.tasks.word_multiply', 2, word='django', list_key=list_key, redis=r)
+    # args and kwargs and broken hook
+    h = async('django_q.tests.tasks.word_multiply', 2, word='django', hook='fail.me', list_key=list_key, redis=r)
     # check if everything has a task name
     assert isinstance(a, str)
     assert isinstance(b, str)

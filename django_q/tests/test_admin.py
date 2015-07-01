@@ -1,6 +1,6 @@
 from django.core.urlresolvers import reverse
+
 from django.utils import timezone
-from future.types.newstr import unicode
 
 import pytest
 
