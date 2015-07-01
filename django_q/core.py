@@ -233,6 +233,7 @@ class Sentinel(object):
                 # Are you alive?
                 if not p.is_alive() or (Conf.TIMEOUT and int(p.timer.value) >= Conf.TIMEOUT):
                     self.reincarnate(p)
+                    continue
                 # Increment timer if work is being done
                 if p.timer.value >= 0:
                     p.timer.value += 1
