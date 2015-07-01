@@ -1,6 +1,10 @@
 Django Q
 ========
 
+.. image:: https://badges.gitter.im/Join%20Chat.svg
+   :alt: Join the chat at https://gitter.im/Koed00/django-q
+   :target: https://gitter.im/Koed00/django-q?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+
 A multiprocessing task queue for Django
 ---------------------------------------
 
