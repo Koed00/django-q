@@ -1,7 +1,6 @@
 from django.contrib import admin
 
 from django_q.core import async
-
 from .models import Success, Failure, Schedule
 
 
@@ -32,7 +31,7 @@ class TaskAdmin(admin.ModelAdmin):
 
 def retry_failed(FailAdmin, request, queryset):
     for task in queryset:
-        async(task.func, *task.args, hook=task.hook, **task.kwargs)
+        async(task.func, *task.args or (), hook=task.hook, **task.kwargs or {})
         task.delete()
 
 
@@ -59,6 +58,7 @@ class FailAdmin(admin.ModelAdmin):
         return list(self.readonly_fields) + \
                [field.name for field in obj._meta.fields]
 
+
 class ScheduleAdmin(admin.ModelAdmin):
     list_display = (
         u'id',
@@ -71,6 +71,7 @@ class ScheduleAdmin(admin.ModelAdmin):
     )
 
     list_filter = ('next_run', 'schedule_type')
+
 
 admin.site.register(Schedule, ScheduleAdmin)
 admin.site.register(Success, TaskAdmin)
