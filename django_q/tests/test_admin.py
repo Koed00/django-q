@@ -1,13 +1,15 @@
 from django.core.urlresolvers import reverse
 from django.utils import timezone
+from future.types.newstr import unicode
 
 import pytest
 
 from django_q import Task, schedule
+from django_q.models import Failure
 
 
 @pytest.mark.django_db
-def test_admin_view(admin_client):
+def test_admin_views(admin_client):
     s = schedule('sched.test')
     f = Task.objects.create(name='alfa-pappa-bravo-fail',
                             func='test.fail',
@@ -42,4 +44,10 @@ def test_admin_view(admin_client):
         response = admin_client.get(url)
         assert response.status_code == 200
 
-    # TODO resubmit the failure
+    # resubmit the failure
+    url = reverse('admin:django_q_failure_changelist')
+    data = {'action': 'retry_failed',
+            '_selected_action': [f.pk]}
+    response = admin_client.post(url, data)
+    assert response.status_code == 302
+    assert Failure.objects.filter(name=f.id).exists() is False
