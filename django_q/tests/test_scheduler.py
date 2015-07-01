@@ -1,4 +1,4 @@
-from multiprocessing import Queue, Event
+from multiprocessing import Queue, Event, Value
 
 import pytest
 
@@ -34,7 +34,7 @@ def test_scheduler(r):
     task_queue.put('STOP')
     # let a worker handle them
     result_queue = Queue()
-    worker(task_queue, result_queue)
+    worker(task_queue, result_queue, Value('b', -1))
     assert result_queue.qsize() == 1
     result_queue.put('STOP')
     # store the results

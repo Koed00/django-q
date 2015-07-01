@@ -1,6 +1,6 @@
 import sys
 import os
-from multiprocessing import Queue, Event
+from multiprocessing import Queue, Event, Value
 
 import pytest
 
@@ -74,7 +74,7 @@ def test_cluster(r):
     assert r.llen(list_key) == 0
     # Test work
     task_queue.put('STOP')
-    worker(task_queue, result_queue)
+    worker(task_queue, result_queue, Value('b', -1))
     assert task_queue.qsize() == 0
     assert result_queue.qsize() == 1
     # Test monitor
@@ -131,7 +131,7 @@ def test_async(r):
     task_queue.put('STOP')
     # let a worker handle them
     result_queue = Queue()
-    worker(task_queue, result_queue)
+    worker(task_queue, result_queue, Value('b', -1))
     assert result_queue.qsize() == task_count
     result_queue.put('STOP')
     # store the results

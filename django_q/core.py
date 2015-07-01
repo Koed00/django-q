@@ -15,7 +15,7 @@ import importlib
 import logging
 import os
 import signal
-from multiprocessing import Queue, Event, Process, current_process
+from multiprocessing import Queue, Event, Process, Value, current_process
 import socket
 import sys
 from time import sleep
@@ -181,6 +181,7 @@ class Sentinel(object):
         p = Process(target=target, args=args)
         p.daemon = True
         if target == worker:
+            p.timer = args[2]
             self.pool.append(p)
         p.start()
         return p
@@ -189,7 +190,7 @@ class Sentinel(object):
         return self.spawn_process(pusher, self.task_queue, self.event_out, self.list_key, self.r)
 
     def spawn_worker(self):
-        self.spawn_process(worker, self.task_queue, self.done_queue)
+        self.spawn_process(worker, self.task_queue, self.done_queue, Value('b', -1))
 
     def spawn_monitor(self):
         return self.spawn_process(monitor, self.done_queue)
@@ -203,7 +204,7 @@ class Sentinel(object):
             logger.warn("reincarnated pusher after death of {}".format(pid))
         else:
             self.spawn_worker()
-            logger.warn("reincarnated work worker after death of {}".format(pid))
+            logger.warn("reincarnated worker after death of {}".format(pid))
         self.reincarnations += 1
 
     def spawn_cluster(self):
@@ -223,11 +224,15 @@ class Sentinel(object):
         # Guard loop. Runs at least once
         while not self.stop_event.is_set() or not counter:
             # Check Workers
-            for p in list(self.pool):
-                if not p.is_alive():
+            for p in self.pool:
+                # Are you alive?
+                if not p.is_alive() or (Conf.TIMEOUT and int(p.timer.value) >= Conf.TIMEOUT):
                     p.terminate()
                     self.pool.remove(p)
                     self.reincarnate(p.pid)
+                # Increment timer if work is being done
+                if p.timer.value >= 0:
+                    p.timer.value += 1
             # Check Monitor
             if not self.monitor.is_alive():
                 self.reincarnate(self.monitor.pid)
@@ -307,11 +312,12 @@ def monitor(done_queue):
     logger.info("{} stopped monitoring results".format(name))
 
 
-def worker(task_queue, done_queue):
+def worker(task_queue, done_queue, timer):
     """
     Takes a task from the task queue, tries to execute it and puts the result back in the result queue
     :type task_queue: multiprocessing.Queue
     :type done_queue: multiprocessing.Queue
+    :type timer: multiprocessing.Value
     """
     name = current_process().name
     logger.info('{} ready for work at {}'.format(name, current_process().pid))
@@ -319,6 +325,7 @@ def worker(task_queue, done_queue):
     # Start reading the task queue
     for pack in iter(task_queue.get, 'STOP'):
         result = None
+        timer.value = -1  # Idle
         task_count += 1
         # unpickle the task
         try:
@@ -340,6 +347,7 @@ def worker(task_queue, done_queue):
         # We're still going
         if not result:
             # execute the payload
+            timer.value = 0  # Busy
             try:
                 res = f(*task['args'], **task['kwargs'])
                 result = (res, True)
@@ -350,6 +358,7 @@ def worker(task_queue, done_queue):
         task['success'] = result[1]
         task['stopped'] = timezone.now()
         done_queue.put(task)
+        timer.value = -1  # Idle
         # Recycle
         if task_count == Conf.RECYCLE and task_queue.qsize() == 0:
             break

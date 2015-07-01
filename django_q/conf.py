@@ -32,6 +32,9 @@ class Conf(object):
     # Number of tasks each worker can handle before it gets recycled. Useful for releasing memory
     RECYCLE = conf.get('recycle', 500)
 
+    # Number of seconds to wait for a worker to finish.
+    TIMEOUT = conf.get('timeout', None)
+
     # The Django Admin label for this app
     LABEL = conf.get('label', 'Django Q')
 
