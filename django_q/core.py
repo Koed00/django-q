@@ -195,16 +195,21 @@ class Sentinel(object):
     def spawn_monitor(self):
         return self.spawn_process(monitor, self.done_queue)
 
-    def reincarnate(self, pid):
-        if pid == self.monitor.pid:
+    def reincarnate(self, process):
+        process.terminate()
+        if process == self.monitor:
             self.monitor = self.spawn_monitor()
-            logger.warn("reincarnated monitor after death of {}".format(pid))
-        elif pid == self.pusher.pid:
+            logger.error("reincarnated monitor {} after sudden.".format(process.pid))
+        elif process == self.pusher:
             self.pusher = self.spawn_pusher()
-            logger.warn("reincarnated pusher after death of {}".format(pid))
+            logger.error("reincarnated pusher {} after sudden death".format(process.pid))
         else:
+            self.pool.remove(process)
             self.spawn_worker()
-            logger.warn("reincarnated worker after death of {}".format(pid))
+            if int(process.timer.value) >= Conf.TIMEOUT:
+                logger.warn("reincarnated worker {} after timeout.".format(process.pid))
+            else:
+                logger.error("reincarnated worker {} after sudden death.".format(process.pid))
         self.reincarnations += 1
 
     def spawn_cluster(self):
@@ -227,9 +232,7 @@ class Sentinel(object):
             for p in self.pool:
                 # Are you alive?
                 if not p.is_alive() or (Conf.TIMEOUT and int(p.timer.value) >= Conf.TIMEOUT):
-                    p.terminate()
-                    self.pool.remove(p)
-                    self.reincarnate(p.pid)
+                    self.reincarnate(p)
                 # Increment timer if work is being done
                 if p.timer.value >= 0:
                     p.timer.value += 1
