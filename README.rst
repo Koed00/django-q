@@ -190,7 +190,7 @@ Admin page or directly from your code:
 
 Models
 ~~~~~~
-- `Task` and `Schedule` are Django Models and can therefore be managed by your own code.----------------
+- `Task` and `Schedule` are Django Models and can therefore be managed by your own code.
 - `Task` objects are only created after an async package has been executed.
 -  A `Schedule` creates a new async package for every execution and thus an unique `Task`
 - `Success` and `Failure` are convenient proxy models of `Task`
