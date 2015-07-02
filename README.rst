@@ -10,12 +10,13 @@ Features
 ~~~~~~~~
 
 -  Multiprocessing worker pool
--  Encrypted and compressed task packages
--  Scheduled tasks
+-  Asynchronous tasks
+-  Scheduled and repeated tasks
+-  Encrypted and compressed packages
+-  Failure and success database
 -  Result hooks
--  Failure and result database
--  PaaS compatible with multiple instances
 -  Django Admin integration
+-  PaaS compatible with multiple instances
 -  Multi cluster monitor
 
 Requirements
