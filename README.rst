@@ -12,7 +12,7 @@ Features
 -  Multiprocessing worker pool
 -  Asynchronous tasks
 -  Scheduled and repeated tasks
--  Encrypted and compressed packages
+-  Encrypted and compressed packages
 -  Failure and success database
 -  Result hooks
 -  Django Admin integration
