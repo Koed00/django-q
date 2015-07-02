@@ -2,7 +2,6 @@ import sys
 import os
 from multiprocessing import Queue, Event, Value
 import threading
-from time import sleep
 
 import pytest
 
@@ -182,6 +181,7 @@ def test_async(r):
     assert result_h.success is True
     assert result(h) == 12
     r.delete(list_key)
+
 
 @pytest.mark.django_db
 def test_timeout(r):
