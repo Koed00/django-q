@@ -11,12 +11,15 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+  Introduction
+  Installation <install>
+  Usage <usage>
+  Management <management>
+  Admin <admin>
+  Architecture <architecture>
 
 
-Indices and tables
-==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
 
