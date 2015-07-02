@@ -66,6 +66,7 @@ class Cluster(object):
         self.pid = current_process().pid
         self.host = socket.gethostname()
         self.list_key = list_key
+        self.timeout = Conf.TIMEOUT
         signal.signal(signal.SIGTERM, self.sig_handler)
         signal.signal(signal.SIGINT, self.sig_handler)
 
@@ -79,7 +80,7 @@ class Cluster(object):
         # Start Sentinel
         self.stop_event = Event()
         self.start_event = Event()
-        self.sentinel = Process(target=Sentinel, args=(self.stop_event, self.start_event, self.list_key))
+        self.sentinel = Process(target=Sentinel, args=(self.stop_event, self.start_event, self.list_key, self.timeout))
         self.sentinel.start()
         logger.info('Q Cluster-{} starting.'.format(self.pid))
         while not self.start_event.is_set():
@@ -129,7 +130,7 @@ class Cluster(object):
 
 
 class Sentinel(object):
-    def __init__(self, stop_event, start_event, list_key=Conf.Q_LIST, start=True):
+    def __init__(self, stop_event, start_event, list_key=Conf.Q_LIST, timeout=Conf.TIMEOUT, start=True):
         # Make sure we catch signals for the pool
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         signal.signal(signal.SIGTERM, signal.SIG_DFL)
@@ -144,6 +145,7 @@ class Sentinel(object):
         self.start_event = start_event
         self.pool_size = Conf.WORKERS
         self.pool = []
+        self.timeout = timeout
         self.task_queue = Queue()
         self.done_queue = Queue()
         self.event_out = Event()
@@ -206,7 +208,7 @@ class Sentinel(object):
         else:
             self.pool.remove(process)
             self.spawn_worker()
-            if int(process.timer.value) >= Conf.TIMEOUT:
+            if int(process.timer.value) >= self.timeout:
                 logger.warn("reincarnated worker {} after timeout.".format(process.pid))
             else:
                 logger.error("reincarnated worker {} after sudden death.".format(process.pid))
@@ -231,7 +233,7 @@ class Sentinel(object):
             # Check Workers
             for p in self.pool:
                 # Are you alive?
-                if not p.is_alive() or (Conf.TIMEOUT and int(p.timer.value) >= Conf.TIMEOUT):
+                if not p.is_alive() or (self.timeout and int(p.timer.value) >= self.timeout):
                     self.reincarnate(p)
                     continue
                 # Increment timer if work is being done
@@ -239,10 +241,10 @@ class Sentinel(object):
                     p.timer.value += 1
             # Check Monitor
             if not self.monitor.is_alive():
-                self.reincarnate(self.monitor.pid)
+                self.reincarnate(p)
             # Check Pusher
             if not self.pusher.is_alive():
-                self.reincarnate(self.monitor.pid)
+                self.reincarnate(p)
             # Call scheduler once a minute (or so)
             counter += 1
             if counter > 60:
