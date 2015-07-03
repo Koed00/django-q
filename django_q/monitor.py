@@ -19,9 +19,9 @@ def monitor(run_once=False):
     try:
         redis_client.ping()
     except Exception as e:
-            print(term.red('Can not connect to Redis server.'))
-            logger.exception(e)
-            return
+        print(term.red('Can not connect to Redis server.'))
+        logger.exception(e)
+        return
     with term.fullscreen(), term.hidden_cursor(), term.cbreak():
         val = None
         start_width = int(term.width / 8)
@@ -45,13 +45,15 @@ def monitor(run_once=False):
             for stat in stats:
                 # color status
                 if stat.status == Conf.WORKING:
-                    status = term.green(Conf.WORKING)
+                    status = term.green(str(Conf.WORKING))
+                elif stat.status == Conf.STOPPING:
+                    status = term.yellow(str(Conf.STOPPING))
                 elif stat.status == Conf.STOPPED:
-                    status = term.red(Conf.STOPPED)
+                    status = term.red(str(Conf.STOPPED))
                 elif stat.status == Conf.IDLE:
-                    status = Conf.IDLE
+                    status = str(Conf.IDLE)
                 else:
-                    status = term.yellow(stat.status)
+                    status = term.yellow(str(stat.status))
                 # color q's
                 tasks = stat.task_q_size
                 if tasks > 0:
