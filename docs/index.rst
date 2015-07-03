@@ -23,6 +23,8 @@ Features
 -  Redis
 -  Python 2 and 3
 
+Tested with: Python 2.7 & 3.4. Django 1.7.8 & 1.8.2
+
 Contents:
 
 .. toctree::
