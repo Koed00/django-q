@@ -51,7 +51,7 @@ Used to differentiate between projects using the same Redis server. Defaults to 
 This can be useful if you have several projects using the same Redis server.
 
 .. note::
-    Tasks are encrypted. When a worker encounters a task it can not decrypt, it will be discarded
+    Tasks are encrypted. When a worker encounters a task it can not decrypt, it will be discarded.
 
 workers
 ~~~~~~~
@@ -61,7 +61,7 @@ The number of workers to use in the cluster. Defaults to CPU count of the curren
 recycle
 ~~~~~~~
 
-The number of tasks a worker will process before respawning. Useful to release resources on a regular basis. Defaults to ``500``.
+The number of tasks a worker will process before recycling . Useful to release memory resources on a regular basis. Defaults to ``500``.
 
 timeout
 ~~~~~~~
@@ -79,8 +79,10 @@ save_limit
 ~~~~~~~~~~
 
 Limits the amount of successful tasks saved to Django.
-Set to ``0`` for unlimited. Set to ``-1`` for no success storage at all.
-Failures are always saved. Defaults to ``250``
+Set to ``0`` for unlimited.
+Set to ``-1`` for no success storage at all.
+Defaults to ``250``
+Failures are always saved.
 
 label
 ~~~~~
@@ -106,6 +108,34 @@ Connection settings for Redis. Defaults::
 For more information on these settings please refer to the `Redis-py <https://github.com/andymccurdy/redis-py>`__ documentation
 
 
-.. note::
+.. tip::
     Django Q uses your :const:`SECRET_KEY` to encrypt task packages and prevent task crossover. So make sure you have it set up in your Django settings.
 
+Requirements
+------------
+
+Django Q is tested for Python 2.7 and 3.4
+
+-  `Django <https://www.djangoproject.com>`__
+    The web framework for perfectionists with deadlines.
+    Django Q aims to use as much of Django's standard offerings as possible
+    The code is tested against Django version `1.7.8` and `1.8.2`.
+-  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
+    Used to store args, kwargs and result objects in the database.
+
+-  `Redis-py <https://github.com/andymccurdy/redis-py>`__
+    Redis python client.
+
+-  `Arrow <https://github.com/crsmithdev/arrow>`__
+    Used by the scheduler to determine correct dates.
+
+-  `Blessed <https://github.com/jquast/blessed>`__
+    This feature-filled fork of Erik Rose's blessings project provides the terminal layout of the monitor.
+
+
+.. tip::
+    Install the `Hiredis <https://github.com/redis/hiredis>`__ parser::
+
+    $ pip install hiredis
+
+    This C library maintained by the core Redis team is faster than the standard PythonParser during high loads.
