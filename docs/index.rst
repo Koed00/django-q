@@ -9,17 +9,15 @@ Welcome to Django Q's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-  Introduction
   Installation <install>
-  Usage <usage>
-  Management <management>
+  Tasks <tasks>
+  Schedules <schedules>
+  Cluster <cluster>
+  Monitor <monitor>
   Admin <admin>
-  Architecture <architecture>
 
-
-
-* :ref:`genindex`
+   * :ref:`genindex`
 * :ref:`search`
 

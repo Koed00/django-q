@@ -1,7 +1,7 @@
-Usage
+Tasks
 =====
 
-Use  :py:func:`async` from your code to quickly offload tasks:
+Use  :py:func:`async` from your code to quickly offload tasks to the py:module:`cluster`:
 
 .. code:: python
 
