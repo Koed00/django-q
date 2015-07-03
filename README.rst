@@ -4,7 +4,7 @@ Django Q
 A multiprocessing task queue for Django
 ---------------------------------------
 
-|image0| |image1| |image2|
+|image0| |image1| |docs| |image2|
 
 Features
 ~~~~~~~~
@@ -18,6 +18,8 @@ Features
 -  Django Admin integration
 -  PaaS compatible with multiple instances
 -  Multi cluster monitor
+-  Redis
+-  Python 2 and 3
 
 Requirements
 ~~~~~~~~~~~~
@@ -28,27 +30,33 @@ Requirements
 -  `Arrow <https://github.com/crsmithdev/arrow>`__
 -  `Blessed <https://github.com/jquast/blessed>`__
 
-Tested with: Python 2.7, 3.4. Django 1.7.8, 1.8.2\*
+Tested with: Python 2.7 & 3.4. Django 1.7.8 & 1.8.2
 
-\*\ *Django Q is currently  in Alpha and as such not safe for production,
-yet.*
 
 Installation
 ~~~~~~~~~~~~
 
--  Install the latest version with pip: ``pip install django-q``
--  Add `django_q` to `INSTALLED_APPS` in your settings.py:
+-  Install the latest version with pip::
 
-   .. code:: python
+    $ pip install django-q
+
+
+-  Add :mod:`django_q` to your :const:`INSTALLED_APPS` in your projects :file:`settings.py`::
 
        INSTALLED_APPS = (
            # other apps
            'django_q',
        )
 
--  Run ``python manage.py migrate`` to create the database tables
+-  Run Django migrations to create the database tables::
+
+    $ python manage.py migrate
+
 -  Make sure you have a `Redis <http://redis.io/>`__ server running
    somewhere
+
+Read more complete documentation on `http://django-q.readthedocs.org <http://django-q.readthedocs.org>`__
+
 
 Configuration
 ~~~~~~~~~~~~~
@@ -72,49 +80,19 @@ All configuration settings are optional. e.g:
             'db': 0, }
     }
 
--  **name**: Used to differentiate between projects using the same Redis
-   server\*. Defaults to 'default'.
-
--  **workers**: The number of workers to use in the cluster. Defaults to CPU count.
-
--  **recycle**: The number of tasks a worker will process before
-   respawning. Used to release resources. Defaults to 500
-
--  **timeout**: The number of seconds a worker is allowed to spend on a task before it's terminated. Defaults to None.
-
--  **compress**: Compress task packages to Redis. Useful for large
-   payloads. Defaults to False
-
--  **save\_limit**: Limits the amount of successful tasks saved to
-   Django. Set to 0 for unlimited. Set to -1 for no success storage at
-   all. Failures are always saved. Defaults to 250
-
--  **label**: The label used for the Django Admin page. Defaults to 'Django Q'
-
--  **redis**: Connection settings for Redis. Follows standard Redis-Py syntax. Defaults to standard localhost.
-
-
-\*\ *Django Q uses your SECRET\_KEY to encrypt task packages and prevent
-task crossover*
-
 Management Commands
 ~~~~~~~~~~~~~~~~~~~
 
-qcluster
-^^^^^^^^
+Start a cluster with::
 
-Start a cluster with: ``python manage.py qcluster``
+    $ python manage.py qcluster
 
-qmonitor
-^^^^^^^^
+Monitor your clusters with::
 
-Monitor your clusters with ``python manage.py qmonitor``
+    $ python manage.py qmonitor
 
 Creating Tasks
 ~~~~~~~~~~~~~~
-
-Async
-^^^^^
 
 Use async from your code to quickly offload tasks:
 
@@ -125,7 +103,7 @@ Use async from your code to quickly offload tasks:
     # create the task
     async('math.copysign', 2, -2)
 
-    # or with import and storing the id
+    # or with a reference
     import math.copysign
 
     task_id = async(copysign, 2, -2)
@@ -144,13 +122,6 @@ Use async from your code to quickly offload tasks:
 
 .. code:: python
 
-    async(func,*args,**kwargs)
-
-- **func**: Function to execute. Dotted string or reference.
-- **args**: Optional arguments for the function.
-- **hook**: Optional function to call after execution. Dotted string or reference.
-- **kwargs**: Optional keyword arguments for the function.
-
 Schedule
 ^^^^^^^^
 
@@ -161,7 +132,7 @@ Admin page or directly from your code:
 
     from django_q import Schedule, schedule
 
-    # Use the schedule wrapper
+    # Use the schedule function
 
     schedule('math.copysign',
              2, -2,
@@ -175,26 +146,6 @@ Admin page or directly from your code:
                             args='2,-2',
                             schedule_type=Schedule.DAILY
                             )
-
-.. code:: python
-
-    schedule(func,*args,**kwargs)
-
-- **func**: the function to schedule. Dotted strings only.
-- **args**: arguments for the scheduled function.
-- **hook**: optional result hook function. Dotted strings only.
-- **schedule_type**: (O)nce, (H)ourly, (D)aily, (W)eekly, (M)onthly, (Q)uarterly, (Y)early
-- **repeats**: Number of times to repeat schedule. -1=Always, 0=Never, n=n.
-- **next_run**: Next or first scheduled execution datetime.
-- **kwargs**: optional keyword arguments for the scheduled function.
-
-
-Models
-~~~~~~
-- `Task` and `Schedule` are Django Models and can therefore be managed by your own code.
-- `Task` objects are only created after an async package has been executed.
--  A `Schedule` creates a new async package for every execution and thus an unique `Task`
-- `Success` and `Failure` are convenient proxy models of `Task`
 
 
 Testing
@@ -226,3 +177,7 @@ Acknowledgements
    :target: https://coveralls.io/r/Koed00/django-q?branch=master
 .. |image2| image:: http://badges.gitter.im/Join%20Chat.svg
    :target: https://gitter.im/Koed00/django-q
+.. |docs| image:: https://readthedocs.org/projects/docs/badge/?version=latest
+    :alt: Documentation Status
+    :scale: 100
+    :target: https://django-q.readthedocs.org/
