@@ -55,6 +55,8 @@ Use  :py:func:`async` from your code to quickly offload tasks to the py:module:`
     :returns: The task
     :rtype: Task
 
+    .. versionchanged:: 0.2.0
+        Renamed from get_task
 
 .. py:class:: Task
 

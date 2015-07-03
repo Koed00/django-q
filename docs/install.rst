@@ -20,6 +20,8 @@ Installation
 -  Make sure you have a `Redis <http://redis.io/>`__ server running
    somewhere
 
+.. _configuration:
+
 Configuration
 -------------
 

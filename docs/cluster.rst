@@ -40,6 +40,14 @@ Stopping the cluster with ctrl-c or either the `SIGTERM` and `SIGKILL` signals, 
     16:44:14 [Q] INFO Process-1:9 stopped monitoring results
     16:44:15 [Q] INFO Q Cluster-31781 has stopped.
 
+Multiple Clusters
+-----------------
+You can have as many clusters, on as many machines as you want, working on the same queue as long as:
+
+- They connect to the same Redis server.
+- They use the same cluster name. See :ref:`configuration`
+- They share the same :const:`SECRET_KEY`
+
 Using a Procfile
 ----------------
 If you host on `Heroku <https://heroku.com>`__ or you are using `Honcho <https://github.com/nickstenning/honcho>`__ you can start the cluster from a :file:`Procfile` like this::

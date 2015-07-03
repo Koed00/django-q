@@ -20,6 +20,8 @@ Features
 -  Django Admin integration
 -  PaaS compatible with multiple instances
 -  Multi cluster monitor
+-  Redis
+-  Python 2 and 3
 
 Contents:
 
