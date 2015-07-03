@@ -4,8 +4,8 @@ from django.utils import timezone
 
 import pytest
 
-from django_q import Task, schedule
-from django_q.models import Failure
+from django_q.tasks import schedule
+from django_q.models import Task, Failure
 
 
 @pytest.mark.django_db

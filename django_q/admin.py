@@ -1,6 +1,6 @@
 from django.contrib import admin
-
-from django_q.core import async
+from django.utils.translation import ugettext_lazy as _
+from .tasks import async
 from .models import Success, Failure, Schedule
 
 
@@ -35,12 +35,12 @@ def retry_failed(FailAdmin, request, queryset):
         task.delete()
 
 
-retry_failed.short_description = "Resubmit selected tasks to Q"
+retry_failed.short_description = _("Resubmit selected tasks to queue")
 
 
 class FailAdmin(admin.ModelAdmin):
     list_display = (
-        u'name',
+        'name',
         'func',
         'started',
         'result'
@@ -61,7 +61,7 @@ class FailAdmin(admin.ModelAdmin):
 
 class ScheduleAdmin(admin.ModelAdmin):
     list_display = (
-        u'id',
+        'id',
         'func',
         'schedule_type',
         'repeats',

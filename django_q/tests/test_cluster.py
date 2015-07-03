@@ -8,11 +8,12 @@ import pytest
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
-from django_q.core import Cluster, async, pusher, worker, monitor, redis_client, Sentinel
+from django_q.cluster import Cluster, Sentinel, pusher, worker, monitor
 from django_q.humanhash import DEFAULT_WORDLIST
-from django_q import result, get_task, Task
-from django_q.tests.tasks import multiply
-from django_q.conf import Conf
+from django_q.tasks import fetch, async, result
+from django_q.models import Task
+from django_q.conf import Conf, redis_client
+from .tasks import multiply
 
 
 class WordClass(object):
@@ -143,40 +144,40 @@ def test_async(r):
     assert result_queue.qsize() == 0
     # Check the results
     # task a
-    result_a = get_task(a)
+    result_a = fetch(a)
     assert result_a is not None
     assert result_a.success is True
     assert result(a) == 1506
     # task b
-    result_b = get_task(b)
+    result_b = fetch(b)
     assert result_b is not None
     assert result_b.success is True
     assert result(b) == 1506
     # task c
-    result_c = get_task(c)
+    result_c = fetch(c)
     assert result_c is not None
     assert result_c.success is False
     # task d
-    result_d = get_task(d)
+    result_d = fetch(d)
     assert result_d is not None
     assert result_d.success is False
     # task e
-    result_e = get_task(e)
+    result_e = fetch(e)
     assert result_e is not None
     assert result_e.success is True
     assert result(e) is None
     # task f
-    result_f = get_task(f)
+    result_f = fetch(f)
     assert result_f is not None
     assert result_f.success is True
     assert result(f) == 1506
     # task g
-    result_g = get_task(g)
+    result_g = fetch(g)
     assert result_g is not None
     assert result_g.success is True
     assert result(g) == 'John'
     # task h
-    result_h = get_task(h)
+    result_h = fetch(h)
     assert result_h is not None
     assert result_h.success is True
     assert result(h) == 12

@@ -67,6 +67,7 @@ class Success(Task):
     class Meta:
         app_label = 'django_q'
         verbose_name = _('Successful task')
+        verbose_name_plural = _('Successful tasks')
         proxy = True
 
 
@@ -82,6 +83,7 @@ class Failure(Task):
     class Meta:
         app_label = 'django_q'
         verbose_name = _('Failed task')
+        verbose_name_plural = _('Failed tasks')
         proxy = True
 
 
@@ -135,4 +137,5 @@ class Schedule(models.Model):
     class Meta:
         app_label = 'django_q'
         verbose_name = _('Scheduled task')
+        verbose_name_plural = _('Scheduled tasks')
         ordering = ['next_run']

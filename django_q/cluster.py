@@ -3,53 +3,39 @@ from __future__ import unicode_literals
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
-import ast
 from builtins import range
-
 from future import standard_library
 
 standard_library.install_aliases()
 
 # Standard
 import importlib
-import logging
 import os
 import signal
-from multiprocessing import Queue, Event, Process, Value, current_process
 import socket
 import sys
+import ast
 from time import sleep
+from multiprocessing import Queue, Event, Process, Value, current_process
 
 try:
     import cPickle as pickle
 except ImportError:
     import pickle
 
-# External
-import redis
+# external
 import arrow
 
 # Django
 from django.core import signing
 from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 
 # Local
-from .conf import Conf
-from .humanhash import uuid
+from .conf import Conf, redis_client, logger
 from .models import Task, Success, Schedule
-
-logger = logging.getLogger('django-q')
-
-# Set up standard logging handler in case there is none
-if not logger.handlers:
-    logger.setLevel(level=getattr(logging, Conf.LOG_LEVEL))
-    formatter = logging.Formatter(fmt='%(asctime)s [Q] %(levelname)s %(message)s',
-                                  datefmt='%H:%M:%S')
-    handler = logging.StreamHandler()
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-
-redis_client = redis.StrictRedis(**Conf.REDIS)
+from .monitor import Status, Stat
+from .tasks import SignedPackage, async
 
 
 class Cluster(object):
@@ -82,7 +68,7 @@ class Cluster(object):
         self.start_event = Event()
         self.sentinel = Process(target=Sentinel, args=(self.stop_event, self.start_event, self.list_key, self.timeout))
         self.sentinel.start()
-        logger.info('Q Cluster-{} starting.'.format(self.pid))
+        logger.info(_('Q Cluster-{} starting.').format(self.pid))
         while not self.start_event.is_set():
             sleep(0.2)
         return self.pid
@@ -90,16 +76,16 @@ class Cluster(object):
     def stop(self):
         if not self.sentinel.is_alive():
             return False
-        logger.info('Q Cluster-{} stopping.'.format(self.pid))
+        logger.info(_('Q Cluster-{} stopping.').format(self.pid))
         self.stop_event.set()
         self.sentinel.join()
-        logger.info('Q Cluster-{} has stopped.'.format(self.pid))
+        logger.info(_('Q Cluster-{} has stopped.').format(self.pid))
         self.start_event = None
         self.stop_event = None
         return True
 
     def sig_handler(self, signum, frame):
-        logger.debug('{} got signal {}'.format(current_process().name, Conf.SIGNAL_NAMES.get(signum, 'UNKNOWN')))
+        logger.debug(_('{} got signal {}').format(current_process().name, Conf.SIGNAL_NAMES.get(signum, 'UNKNOWN')))
         self.stop()
 
     @property
@@ -201,17 +187,17 @@ class Sentinel(object):
         process.terminate()
         if process == self.monitor:
             self.monitor = self.spawn_monitor()
-            logger.error("reincarnated monitor {} after sudden.".format(process.pid))
+            logger.error(_("reincarnated monitor {} after sudden.").format(process.pid))
         elif process == self.pusher:
             self.pusher = self.spawn_pusher()
-            logger.error("reincarnated pusher {} after sudden death".format(process.pid))
+            logger.error(_("reincarnated pusher {} after sudden death.").format(process.pid))
         else:
             self.pool.remove(process)
             self.spawn_worker()
             if int(process.timer.value) >= self.timeout:
-                logger.warn("reincarnated worker {} after timeout.".format(process.pid))
+                logger.warn(_("reincarnated worker {} after timeout.").format(process.pid))
             else:
-                logger.error("reincarnated worker {} after sudden death.".format(process.pid))
+                logger.error(_("reincarnated worker {} after sudden death.").format(process.pid))
         self.reincarnations += 1
 
     def spawn_cluster(self):
@@ -222,10 +208,10 @@ class Sentinel(object):
         self.pusher = self.spawn_pusher()
 
     def guard(self):
-        logger.info('{} guarding cluster at {}'.format(current_process().name, self.pid))
+        logger.info(_('{} guarding cluster at {}').format(current_process().name, self.pid))
         self.start_event.set()
         Stat(self).save()
-        logger.info('Q Cluster-{} running.'.format(self.parent_pid))
+        logger.info(_('Q Cluster-{} running.').format(self.parent_pid))
         scheduler(list_key=self.list_key)
         counter = 0
         # Guard loop. Runs at least once
@@ -258,13 +244,14 @@ class Sentinel(object):
     def stop(self):
         Stat(self).save()
         name = current_process().name
-        logger.info('{} stopping pool processes'.format(name))
+        logger.info('{} stopping cluster processes'.format(name))
         # Stopping pusher
         self.event_out.set()
+        # Wait for it to stop
         while self.pusher.is_alive():
             sleep(0.2)
             Stat(self).save()
-        # Putting poison pills in the queue
+        # Put poison pills in the queue
         for _ in range(self.pool_size):
             self.task_queue.put('STOP')
         # Wait for all the workers to exit
@@ -290,16 +277,16 @@ def pusher(task_queue, e, list_key=Conf.Q_LIST, r=redis_client):
     :type e: multiprocessing.Event
     :type list_key: str
     """
-    logger.info('{} pushing tasks at {}'.format(current_process().name, current_process().pid))
+    logger.info(_('{} pushing tasks at {}').format(current_process().name, current_process().pid))
     while True:
         task = r.blpop(list_key, 1)
         if task:
             task = task[1]
             task_queue.put(task)
-            logger.debug('queueing {}'.format(task))
+            logger.debug(_('queueing {}').format(task))
         if e.is_set():
             break
-    logger.info("{} stopped pushing tasks".format(current_process().name))
+    logger.info(_("{} stopped pushing tasks.").format(current_process().name))
 
 
 def monitor(done_queue):
@@ -308,14 +295,14 @@ def monitor(done_queue):
     :type done_queue: multiprocessing.Queue
     """
     name = current_process().name
-    logger.info("{} monitoring at {}".format(name, current_process().pid))
+    logger.info(_("{} monitoring at {}").format(name, current_process().pid))
     for task in iter(done_queue.get, 'STOP'):
         if task['success']:
-            logger.info("Processed [{}]".format(task['name']))
+            logger.info(_("Processed [{}]").format(task['name']))
         else:
-            logger.error("Failed [{}] - {}".format(task['name'], task['result']))
+            logger.error(_("Failed [{}] - {}").format(task['name'], task['result']))
         save_task(task)
-    logger.info("{} stopped monitoring results".format(name))
+    logger.info(_("{} stopped monitoring results").format(name))
 
 
 def worker(task_queue, done_queue, timer):
@@ -326,7 +313,7 @@ def worker(task_queue, done_queue, timer):
     :type timer: multiprocessing.Value
     """
     name = current_process().name
-    logger.info('{} ready for work at {}'.format(name, current_process().pid))
+    logger.info(_('{} ready for work at {}').format(name, current_process().pid))
     task_count = 0
     # Start reading the task queue
     for pack in iter(task_queue.get, 'STOP'):
@@ -340,7 +327,7 @@ def worker(task_queue, done_queue, timer):
             logger.error(e)
             continue
         # Get the function from the task
-        logger.info('{} processing [{}]'.format(name, task['name']))
+        logger.info(_('{} processing [{}]').format(name, task['name']))
         f = task['func']
         # if it's not an instance try to get it from the string
         if not callable(task['func']):
@@ -368,7 +355,7 @@ def worker(task_queue, done_queue, timer):
         # Recycle
         if task_count == Conf.RECYCLE and task_queue.qsize() == 0:
             break
-    logger.info('{} stopped doing work'.format(name))
+    logger.info(_('{} stopped doing work').format(name))
 
 
 def save_task(task):
@@ -394,192 +381,6 @@ def save_task(task):
                             success=task['success'])
     except Exception as e:
         logger.exception(e)
-
-
-def async(func, *args, **kwargs):
-    """
-    Sends a task to the cluster
-    """
-
-    hook = kwargs.pop('hook', None)
-    list_key = kwargs.pop('list_key', Conf.Q_LIST)
-    r = kwargs.pop('redis', redis_client)
-
-    task = {'name': uuid()[0], 'func': func, 'hook': hook, 'args': args, 'kwargs': kwargs, 'started': timezone.now()}
-    pack = SignedPackage.dumps(task)
-    r.rpush(list_key, pack)
-    logger.debug('Pushed {}'.format(pack))
-    return task['name']
-
-
-class SignedPackage(object):
-    """
-    Wraps Django's signing module with custom Pickle serializer
-    """
-
-    @staticmethod
-    def dumps(obj, compressed=Conf.COMPRESSED):
-        return signing.dumps(obj,
-                             key=Conf.SECRET_KEY,
-                             salt='django_q.q',
-                             compress=compressed,
-                             serializer=PickleSerializer)
-
-    @staticmethod
-    def loads(obj):
-        return signing.loads(obj,
-                             key=Conf.SECRET_KEY,
-                             salt='django_q.q',
-                             serializer=PickleSerializer)
-
-
-class PickleSerializer(object):
-    """
-    Simple wrapper around Pickle for signing.dumps and
-    signing.loads.
-    """
-
-    @staticmethod
-    def dumps(obj):
-        return pickle.dumps(obj)
-
-    @staticmethod
-    def loads(data):
-        return pickle.loads(data)
-
-
-class Status(object):
-    """
-    Cluster status base object
-    """
-
-    def __init__(self, pid):
-        self.workers = []
-        self.tob = None
-        self.reincarnations = 0
-        self.cluster_id = pid
-        self.sentinel = 0
-        self.status = 'Idle'
-        self.done_q_size = 0
-        self.host = socket.gethostname()
-        self.monitor = 0
-        self.task_q_size = 0
-        self.pusher = 0
-        self.timestamp = timezone.now()
-
-
-class Stat(Status):
-    """
-    Status object for Cluster monitoring
-    """
-
-    def __init__(self, sentinel):
-        super(Stat, self).__init__(sentinel.parent_pid)
-        self.r = sentinel.r
-        self.tob = sentinel.tob
-        self.reincarnations = sentinel.reincarnations
-        self.sentinel = sentinel.pid
-        self.status = sentinel.status()
-        self.done_q_size = sentinel.done_queue.qsize()
-        if sentinel.monitor:
-            self.monitor = sentinel.monitor.pid
-        self.task_q_size = sentinel.task_queue.qsize()
-        if sentinel.pusher:
-            self.pusher = sentinel.pusher.pid
-        for w in sentinel.pool:
-            self.workers.append(w.pid)
-
-    def uptime(self):
-        return (timezone.now() - self.tob).total_seconds()
-
-    @property
-    def key(self):
-        """
-        :return: redis key for this cluster statistic
-        """
-        return self.get_key(self.cluster_id)
-
-    @staticmethod
-    def get_key(cluster_id):
-        """
-        :param cluster_id: cluster ID
-        :return: redis key for the cluster statistic
-        """
-        return '{}:{}'.format(Conf.Q_STAT, cluster_id)
-
-    def save(self):
-        self.r.set(self.key, SignedPackage.dumps(self, True), 3)
-
-    def empty_queues(self):
-        return self.done_q_size + self.task_q_size == 0
-
-    @staticmethod
-    def get(cluster_id, r=redis_client):
-        """
-        gets the current status for the cluster
-        :param cluster_id: id of the cluster
-        :return: Stat or Status
-        """
-        key = Stat.get_key(cluster_id)
-        if r.exists(key):
-            pack = r.get(key)
-            try:
-                return SignedPackage.loads(pack)
-            except signing.BadSignature:
-                return None
-        return Status(cluster_id)
-
-    @staticmethod
-    def get_all(r=redis_client):
-        """
-        Gets status for all currently running clusters with the same prefix and secret key
-        :return: Stat list
-        """
-        stats = []
-        keys = r.keys(pattern='{}:*'.format(Conf.Q_STAT))
-        if keys:
-            packs = r.mget(keys)
-            for pack in packs:
-                try:
-                    stats.append(SignedPackage.loads(pack))
-                except signing.BadSignature:
-                    continue
-        return stats
-
-    def __getstate__(self):
-        # Don't pickle the redis connection
-        state = dict(self.__dict__)
-        del state['r']
-        return state
-
-
-def schedule(func, *args, **kwargs):
-    """
-    :param func: function to schedule
-    :param args: function arguments
-    :param hook: optional result hook function
-    :type schedule_type: Schedule.TYPE
-    :param repeats: how many times to repeat. 0=never, -1=always
-    :param next_run: Next scheduled run
-    :type next_run: datetime.datetime
-    :param kwargs: function keyword arguments
-    :return: the schedule object
-    :rtype: Schedule
-    """
-
-    hook = kwargs.pop('hook', None)
-    schedule_type = kwargs.pop('schedule_type', Schedule.ONCE)
-    repeats = kwargs.pop('repeats', -1)
-    next_run = kwargs.pop('next_run', timezone.now())
-
-    return Schedule.objects.create(func=func,
-                                   hook=hook,
-                                   args=args,
-                                   kwargs=kwargs,
-                                   schedule_type=schedule_type,
-                                   repeats=repeats,
-                                   next_run=next_run
-                                   )
 
 
 def scheduler(list_key=Conf.Q_LIST):
@@ -626,7 +427,7 @@ def scheduler(list_key=Conf.Q_LIST):
         kwargs['list_key'] = list_key
         s.task = async(s.func, *args, **kwargs)
         if not s.task:
-            logger.error('{} failed to create task from  schedule {}').format(current_process().name, s.id)
+            logger.error(_('{} failed to create task from  schedule {}').format(current_process().name, s.id))
         else:
-            logger.info('{} created [{}] from schedule {}'.format(current_process().name, s.task, s.id))
+            logger.info(_('{} created [{}] from schedule {}').format(current_process().name, s.task, s.id))
         s.save()

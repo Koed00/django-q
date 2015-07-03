@@ -2,8 +2,9 @@ from multiprocessing import Queue, Event, Value
 
 import pytest
 
-from django_q.core import scheduler, pusher, worker, monitor, redis_client, schedule as create_schedule
-from django_q import Schedule, get_task
+from django_q.conf import redis_client
+from django_q.cluster import pusher, worker, monitor, scheduler
+from django_q.tasks import Schedule, fetch, schedule as create_schedule
 
 
 @pytest.fixture
@@ -44,7 +45,7 @@ def test_scheduler(r):
     assert schedule.repeats == 0
     assert schedule.last_run() is not None
     assert schedule.success() is True
-    task = get_task(schedule.task)
+    task = fetch(schedule.task)
     assert task is not None
     assert task.success is True
     assert task.result < 0

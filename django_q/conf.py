@@ -1,7 +1,10 @@
+import logging
 from signal import signal
 from multiprocessing import cpu_count
 
+from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
+import redis
 
 
 class Conf(object):
@@ -52,9 +55,24 @@ class Conf(object):
     # Getting the signal names
     SIGNAL_NAMES = dict((getattr(signal, n), n) for n in dir(signal) if n.startswith('SIG') and '_' not in n)
 
-    # Cluster status descriptions
-    STARTING = 'Starting'
-    WORKING = 'Working'
-    IDLE = "Idle"
-    STOPPED = 'Stopped'
-    STOPPING = 'Stopping'
+    # Translators: Cluster status descriptions
+    STARTING = _('Starting')
+    WORKING = _('Working')
+    IDLE = _("Idle")
+    STOPPED = _('Stopped')
+    STOPPING = _('Stopping')
+
+# logger
+logger = logging.getLogger('django-q')
+
+# Set up standard logging handler in case there is none
+if not logger.handlers:
+    logger.setLevel(level=getattr(logging, Conf.LOG_LEVEL))
+    formatter = logging.Formatter(fmt='%(asctime)s [Q] %(levelname)s %(message)s',
+                                  datefmt='%H:%M:%S')
+    handler = logging.StreamHandler()
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+# redis client
+redis_client = redis.StrictRedis(**Conf.REDIS)

@@ -1,5 +1,5 @@
-from django_q.core import Cluster
-from django_q.management.commands.qmonitor import monitor
+from django_q.cluster import Cluster
+from django_q.monitor import monitor
 
 
 def test_monitor():
