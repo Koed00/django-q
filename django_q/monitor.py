@@ -21,7 +21,7 @@ def monitor(run_once=False):
     except Exception as e:
         print(term.red('Can not connect to Redis server.'))
         logger.exception(e)
-        return
+        raise e
     with term.fullscreen(), term.hidden_cursor(), term.cbreak():
         val = None
         start_width = int(term.width / 8)
