@@ -9,13 +9,19 @@ from django.utils import timezone
 from django.utils.translation import ugettext as _
 
 # local
-from .conf import Conf, redis_client
+from .conf import Conf, redis_client, logger
 from .tasks import SignedPackage
 
 
 def monitor(run_once=False):
     term = Terminal()
     r = redis_client
+    try:
+        redis_client.ping()
+    except Exception as e:
+            print(term.red('Can not connect to Redis server.'))
+            logger.exception(e)
+            return
     with term.fullscreen(), term.hidden_cursor(), term.cbreak():
         val = None
         start_width = int(term.width / 8)
