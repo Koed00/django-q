@@ -44,7 +44,7 @@ class Cluster(object):
             redis_client.ping()
         except Exception as e:
             logger.exception(e)
-            return
+            raise e
         self.sentinel = None
         self.stop_event = None
         self.start_event = None
