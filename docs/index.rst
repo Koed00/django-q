@@ -5,19 +5,34 @@
 
 Welcome to Django Q's documentation!
 ====================================
+Django Q is a native Django task queue and worker application using Python multiprocessing.
+
+
+Features
+--------
+
+-  Multiprocessing worker pool
+-  Asynchronous tasks
+-  Scheduled and repeated tasks
+-  Encrypted and compressed packages
+-  Failure and success database
+-  Result hooks
+-  Django Admin integration
+-  PaaS compatible with multiple instances
+-  Multi cluster monitor
 
 Contents:
 
 .. toctree::
    :maxdepth: 1
 
-  Installation <install>
-  Tasks <tasks>
-  Schedules <schedules>
-  Cluster <cluster>
-  Monitor <monitor>
-  Admin <admin>
+    Installation <install>
+    Tasks <tasks>
+    Schedules <schedules>
+    Cluster <cluster>
+    Monitor <monitor>
+    Admin <admin>
 
-   * :ref:`genindex`
+* :ref:`genindex`
 * :ref:`search`
 

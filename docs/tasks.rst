@@ -27,7 +27,7 @@ Use  :py:func:`async` from your code to quickly offload tasks to the py:module:`
     def print_result(task):
         print(task.result)
 
-.. py:function:: async(func, *args, [hook=None,] **kwargs)
+.. py:function:: async(func, *args, hook=None, **kwargs)
 
     Puts a task in the cluster queue
 
@@ -47,7 +47,7 @@ Use  :py:func:`async` from your code to quickly offload tasks to the py:module:`
     :param str name: the name of the task
     :returns: The result of the executed task
 
-.. py:function:: get_task(name)
+.. py:function:: fetch(name)
 
     Returns a previously executed task
 

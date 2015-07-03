@@ -24,7 +24,27 @@ You should  see something like this::
     10:57:40 [Q] INFO Q Cluster-31781 running.
 
 
-Stopping the cluster with ctrl-c or either the `SIGTERM` and `SIGKILL` signals, will initiate the :ref:`stop_procedure`.
+Stopping the cluster with ctrl-c or either the `SIGTERM` and `SIGKILL` signals, will initiate the :ref:`stop_procedure`::
+
+    16:44:12 [Q] INFO Q Cluster-31781 stopping.
+    16:44:12 [Q] INFO Process-1 stopping cluster processes
+    16:44:13 [Q] INFO Process-1:10 stopped pushing tasks
+    16:44:13 [Q] INFO Process-1:6 stopped doing work
+    16:44:13 [Q] INFO Process-1:4 stopped doing work
+    16:44:13 [Q] INFO Process-1:1 stopped doing work
+    16:44:13 [Q] INFO Process-1:5 stopped doing work
+    16:44:13 [Q] INFO Process-1:7 stopped doing work
+    16:44:13 [Q] INFO Process-1:3 stopped doing work
+    16:44:13 [Q] INFO Process-1:8 stopped doing work
+    16:44:13 [Q] INFO Process-1:2 stopped doing work
+    16:44:14 [Q] INFO Process-1:9 stopped monitoring results
+    16:44:15 [Q] INFO Q Cluster-31781 has stopped.
+
+Using a Procfile
+----------------
+If you host on `Heroku <https://heroku.com>`__ or you are using `Honcho <https://github.com/nickstenning/honcho>`__ you can start the cluster from a :file:`Procfile` like this::
+
+    worker: python manage.py qcluster
 
 Architecture
 ------------
@@ -99,5 +119,5 @@ Afterwards the sentinel waits for the monitor to empty the result queue before t
 - Put a poison pill on the Result Queue
 - Wait for monitor to stop
 
-.. :warning::
+.. warning::
     If you force the cluster to terminate before the stop procedure has completed, you can lose tasks and their results.
