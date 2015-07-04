@@ -56,8 +56,63 @@ Use  :py:func:`async` from your code to quickly offload tasks to the py:module:`
     :rtype: Task
 
     .. versionchanged:: 0.2.0
-        Renamed from get_task
+
+    Renamed from get_task
 
 .. py:class:: Task
 
     Database model describing an executed task
+
+    .. py:attribute:: name
+
+    The name of the task
+
+    .. py:attribute:: func
+
+    The function or reference that was executed
+
+    .. py:attribute:: hook
+
+
+    The function to call after execution.
+
+    .. py:attribute:: args
+
+    Positional arguments for the function.
+
+    .. py:attribute:: kwargs
+
+
+    Keyword arguments for the function.
+
+    .. py:attribute:: result
+
+    The result object. Contains the error if any occur.
+
+    .. py:attribute:: started
+
+    The moment the task was picked up by a worker
+
+    .. py:attribute:: stopped
+
+    The moment a worker finished this task
+
+    .. py:attribute:: success
+
+    Was the task executed without problems?
+
+    .. py:method:: time_taken
+
+    Calculates the difference in seconds between started and stopped
+
+    .. py:classmethod:: get_result(task_name)
+
+     Get a result directly by task name
+
+.. py:class:: Success
+
+    A proxy model of :class:`Task` with the queryset filtered on :attr:`Task.success` is True.
+
+.. py:class:: Failure
+
+     A proxy model of :class:`Task` with the queryset filtered on :attr:`Task.success` is False.
