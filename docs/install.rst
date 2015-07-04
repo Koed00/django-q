@@ -133,7 +133,7 @@ Django Q is tested for Python 2.7 and 3.4
 
 -  `Arrow <https://github.com/crsmithdev/arrow>`__
 
-    Used by the scheduler to determine correct dates.
+    The scheduler uses Chris Smith's wonderful project to determine correct dates in the future.
 
 -  `Blessed <https://github.com/jquast/blessed>`__
 

@@ -29,7 +29,7 @@ Django Q is tested with: Python 2.7 & 3.4. Django 1.7.8 & 1.8.2
 Contents:
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
     Installation <install>
     Tasks <tasks>

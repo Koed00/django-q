@@ -7,7 +7,7 @@ Start your cluster using Django's `manage.py` command::
     $ python manage.py qcluster
 
 
-You should  see something like this::
+You should see the cluster starting ::
 
     10:57:40 [Q] INFO Q Cluster-31781 starting.
     10:57:40 [Q] INFO Process-1:1 ready for work at 31784
@@ -42,7 +42,7 @@ Stopping the cluster with ctrl-c or either the `SIGTERM` and `SIGKILL` signals, 
 
 Multiple Clusters
 -----------------
-You can have as many clusters, on as many machines as you want, working on the same queue as long as:
+You can have multiple clusters on multiple machines, working on the same queue as long as:
 
 - They connect to the same Redis server.
 - They use the same cluster name. See :ref:`configuration`
@@ -50,7 +50,7 @@ You can have as many clusters, on as many machines as you want, working on the s
 
 Using a Procfile
 ----------------
-If you host on `Heroku <https://heroku.com>`__ or you are using `Honcho <https://github.com/nickstenning/honcho>`__ you can start the cluster from a :file:`Procfile` like this::
+If you host on `Heroku <https://heroku.com>`__ or you are using `Honcho <https://github.com/nickstenning/honcho>`__ you can start the cluster from a :file:`Procfile` with an entry like this::
 
     worker: python manage.py qcluster
 
@@ -79,9 +79,10 @@ packages and pushes them on the Task Queue.
 Worker
 """"""
 
-A worker process checks the package signing, unpacks the task, executes
-it and saves the return value. Irrespective of the failure or success of
-any of these steps, the package is then pushed onto the Result Queue.
+A worker process pulls a package of the Task Queue and checks the signing and unpacks the task.
+Before executing the task it set a timer on the :ref:`sentinel` indicating its about to start work.
+Afterwards it the timer is reset and any results (including errors) are saved to the pacjage.
+Irrespective of the failure or success of any of these steps, the package is then pushed onto the Result Queue.
 
 
 Monitor
@@ -90,15 +91,15 @@ Monitor
 The result monitor checks the Result Queue for processed packages and
 saves both failed and successful packages to the Django database.
 
+.. _sentinel:
 
 Sentinel
 """"""""
 
 The sentinel spawns all process and then checks the health of all
-workers, including the pusher and the monitor. Reincarnating processes
-if any may fail. In case of a stop signal, the sentinel will halt the
-pusher and instruct the workers and monitor to finish the remaining
-items. See :ref:`stop_procedure`
+workers, including the pusher and the monitor. This includes checking timers on each worker for timeouts.
+In case of a sudden death or timeout, it will reincarnate the failing processes. When a stop signal, the sentinel will halt the
+pusher and instruct the workers and monitor to finish the remaining items. See :ref:`stop_procedure`
 
 Timeouts
 """"""""
@@ -110,8 +111,8 @@ Scheduler
 Once a minute the scheduler checks for any scheduled task that should be starting.
 
 - Creates a task from the schedule
-- Subtracts 1 from the :ref:`repeats` setting
-- Sets the next run time if there are repeats left
+- Subtracts 1 from :attr:`Schedule.repeats`
+- Sets the next run time if there are repeats left or if its negative.
 
 .. _stop_procedure:
 
