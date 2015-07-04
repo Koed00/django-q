@@ -124,6 +124,7 @@ html_theme = 'alabaster'
 # documentation.None
 html_theme_options = {
     'description': "A multiprocessing task queue for Django",
+    'logo': 'logo.png',
     'github_user': 'Koed00',
     'github_repo': 'django-q',
     'gittip_user': 'koed00',
@@ -134,6 +135,7 @@ html_sidebars = {
     '**': [
         'about.html',
         'navigation.html',
+	'relations.html',
         'searchbox.html',
         'donate.html',
     ]
@@ -156,7 +158,7 @@ html_theme_path = [alabaster.get_path()]
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-#html_favicon = None
+html_favicon = 'favicon.ico'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -252,7 +254,7 @@ latex_documents = [
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
-#latex_logo = None
+latex_logo = 'logo.png'
 
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.
