@@ -31,7 +31,7 @@ Schedules are regular Django models. You can manage them through the :ref:`admin
     :param args: arguments for the scheduled function.
     :param str hook: optional result hook function. Dotted strings only.
     :param str schedule_type: (O)nce, (H)ourly, (D)aily, (W)eekly, (M)onthly, (Q)uarterly, (Y)early or :attr:`Schedule.TYPE`
-    :param int repeats: Number of times to repeat schedule. `-1`=Always, `0`=Never, `n` =n.
+    :param int repeats: Number of times to repeat schedule. -1=Always, 0=Never, n =n.
     :param datetime next_run: Next or first scheduled execution datetime.
     :param kwargs: optional keyword arguments for the scheduled function.
 
@@ -65,8 +65,8 @@ Schedules are regular Django models. You can manage them through the :ref:`admin
 
     .. py:attribute:: repeats
 
-    Number of times to repeat schedule. `-1`=Always, `0`=Never, `n` =n.
-
+    Number of times to repeat the schedule. -1=Always, 0=Never, n =n.
+    When set to -1, this will keep counting down.
 
     .. py:attribute:: next_run
 

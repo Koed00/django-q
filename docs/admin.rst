@@ -16,7 +16,7 @@ Uses the :class:`Success` proxy model.
 
 .. tip::
 
-    The maximum number of succesful tasks can be set using the `save_limit` :ref:`configuration` option.
+    The maximum number of successful tasks can be set using the `save_limit` :ref:`configuration` option.
 
 
 
