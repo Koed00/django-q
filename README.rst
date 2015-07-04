@@ -1,5 +1,4 @@
-Django Q
-========
+.. image:: docs/_static/logo.png
 
 A multiprocessing task queue for Django
 ---------------------------------------
