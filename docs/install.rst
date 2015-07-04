@@ -119,23 +119,30 @@ Requirements
 Django Q is tested for Python 2.7 and 3.4
 
 -  `Django <https://www.djangoproject.com>`__
+
     The web framework for perfectionists with deadlines.
     Django Q aims to use as much of Django's standard offerings as possible
     The code is tested against Django version `1.7.8` and `1.8.2`.
+
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
+
     Used to store args, kwargs and result objects in the database.
 
 -  `Redis-py <https://github.com/andymccurdy/redis-py>`__
+
     Redis python client.
 
 -  `Arrow <https://github.com/crsmithdev/arrow>`__
+
     Used by the scheduler to determine correct dates.
 
 -  `Blessed <https://github.com/jquast/blessed>`__
+
     This feature-filled fork of Erik Rose's blessings project provides the terminal layout of the monitor.
 
 
 .. tip::
+
     Install the `Hiredis <https://github.com/redis/hiredis>`__ parser::
 
     $ pip install hiredis
