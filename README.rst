@@ -1,5 +1,5 @@
-Django Q
-========
+.. image:: docs/_static/logo.png
+    :target: https://django-q.readthedocs.org/
 
 A multiprocessing task queue for Django
 ---------------------------------------
