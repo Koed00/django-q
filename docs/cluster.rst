@@ -108,7 +108,10 @@ Meanwhile the the sentinel checks if the timers don't exceed the timeout amount,
 Scheduler
 """""""""
 Once a minute the scheduler checks for any scheduled task that should be starting.
-It creates and queues a new task from the schedule and sets the next run date.
+
+- Creates a task from the schedule
+- Subtracts 1 from the :ref:`repeats` setting
+- Sets the next run time if there are repeats left
 
 .. _stop_procedure:
 

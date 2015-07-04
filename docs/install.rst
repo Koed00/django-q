@@ -6,7 +6,7 @@ Installation
     $ pip install django-q
 
 
--  Add :mod:`django_q` to your :const:`INSTALLED_APPS` in your projects :file:`settings.py`::
+-  Add :mod:`django_q` to :const:`INSTALLED_APPS` in your projects :file:`settings.py`::
 
        INSTALLED_APPS = (
            # other apps
@@ -69,22 +69,22 @@ timeout
 ~~~~~~~
 
 The number of seconds a worker is allowed to spend on a task before it's terminated. Defaults to ``None``, meaning it will never time out.
-Set this to something that makes sense for your use
+Set this to something that makes sense for your project.
 
 compress
 ~~~~~~~~
 
-Compress task packages to Redis. Useful for large payloads, but can add overhead when used with many small packages.
+Compresses task packages to Redis. Useful for large payloads, but can add overhead when used with many small packages.
 Defaults to ``False``
 
 save_limit
 ~~~~~~~~~~
 
 Limits the amount of successful tasks saved to Django.
-Set to ``0`` for unlimited.
-Set to ``-1`` for no success storage at all.
-Defaults to ``250``
-Failures are always saved.
+- Set to ``0`` for unlimited.
+- Set to ``-1`` for no success storage at all.
+- Defaults to ``250``
+- Failures are always saved.
 
 label
 ~~~~~
@@ -120,7 +120,6 @@ Django Q is tested for Python 2.7 and 3.4
 
 -  `Django <https://www.djangoproject.com>`__
 
-    The web framework for perfectionists with deadlines.
     Django Q aims to use as much of Django's standard offerings as possible
     The code is tested against Django version `1.7.8` and `1.8.2`.
 
@@ -130,7 +129,7 @@ Django Q is tested for Python 2.7 and 3.4
 
 -  `Redis-py <https://github.com/andymccurdy/redis-py>`__
 
-    Redis python client.
+    Andy McCurdy's excellent Redis python client.
 
 -  `Arrow <https://github.com/crsmithdev/arrow>`__
 

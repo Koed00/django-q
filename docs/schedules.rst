@@ -63,6 +63,8 @@ Schedules are regular Django models. You can manage them through the :ref:`admin
 
     `ONCE`, `HOURLY`, `DAILY`, `WEEKLY`, `MONTHLY`. `QUARTERLY`, `YEARLY`
 
+    .. _repeats:
+
     .. py:attribute:: repeats
 
     Number of times to repeat the schedule. -1=Always, 0=Never, n =n.
