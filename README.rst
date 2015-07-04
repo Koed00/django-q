@@ -41,7 +41,7 @@ Installation
     $ pip install django-q
 
 
--  Add :mod:`django_q` to your :const:`INSTALLED_APPS` in your projects :file:`settings.py`::
+-  Add `django_q` to your `INSTALLED_APPS` in your projects `settings.py`::
 
        INSTALLED_APPS = (
            # other apps
@@ -80,6 +80,8 @@ All configuration settings are optional. e.g:
             'db': 0, }
     }
 
+For full configuration options, see the `documentation <http://django-q.readthedocs.org>`__.
+
 Management Commands
 ~~~~~~~~~~~~~~~~~~~
 
@@ -94,7 +96,7 @@ Monitor your clusters with::
 Creating Tasks
 ~~~~~~~~~~~~~~
 
-Use async from your code to quickly offload tasks:
+Use `async` from your code to quickly offload tasks:
 
 .. code:: python
 
@@ -120,7 +122,6 @@ Use async from your code to quickly offload tasks:
     def print_result(task):
         print(task.result)
 
-.. code:: python
 
 Schedule
 ^^^^^^^^
@@ -157,7 +158,7 @@ To run the tests you will need `py.test <http://pytest.org/latest/>`__ and `pyte
 Todo
 ~~~~
 
--  Write sphinx documentation
+-  Write more sphinx `documentation <https://django-q.readthedocs.org>`__
 -  Better tests and coverage
 -  Get out of Alpha
 -  Less dependencies?
