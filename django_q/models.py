@@ -48,11 +48,11 @@ def call_hook(sender, instance, **kwargs):
                 f = getattr(m, func)
             except (ValueError, ImportError, AttributeError):
                 logger.error(_('malformed return hook \'{}\' for {}').format(instance.hook, instance.name))
+                return
         try:
             f(instance)
         except Exception as e:
-            logger.error(_('return hook {} failed on {}').format(instance.hook, instance.name))
-            logger.exception(e)
+            logger.error(_('return hook {} failed on {} because {}').format(instance.hook, instance.name, e))
 
 
 class SuccessManager(models.Manager):
