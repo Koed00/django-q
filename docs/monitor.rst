@@ -67,3 +67,85 @@ Up
 
 
 .. centered:: Press `q` to quit the monitor and return to your terminal.
+
+
+Status
+------
+
+You can check the status of your clusters straight from your code with :class:`Stat`:
+
+.. code:: python
+
+    from django_q.monitor import Stat
+
+    for stat in Stat.get_all():
+        print(stat.cluster_id, stat.status)
+
+    # or if you know the cluster id
+    cluster_id = 1234
+    stat = Stat.get(cluster_id)
+    print(stat.status, stat.workers)
+
+Reference
+---------
+
+.. py:class:: Stat
+
+   Cluster status object.
+
+    .. py:attribute:: cluster_id
+
+    Id of this cluster. Corresponds with the process id.
+
+    .. py:attribute:: tob
+
+    Time Of Birth
+
+    .. py:method:: uptime
+
+    Shows the number of seconds passed since the time of birth
+
+    .. py:attribute:: reincarnations
+
+    The number of times the sentinel had to start a new worker process.
+
+    .. py:attribute:: status
+
+    String representing the current cluster status.
+
+    .. py:attribute:: task_q_size
+
+    The number of tasks currently in the task queue.
+
+    .. py:attribute:: done_q_size
+
+    The number of tasks currently in the result queue.
+
+    .. py:attribute:: pusher
+
+    The pid of the pushes process
+
+    .. py:attribute:: monitor
+
+    The pid of the monitor process
+
+    .. py:attribute:: sentinel
+
+    The pid of the sentinel process
+
+    .. py:attribute:: workers
+
+    A list of process ids of the workers currently in the cluster pool.
+
+    .. py:method:: empty_queues
+
+    Returns true or false depending on any tasks still present in the task or result queue.
+
+    .. py:classmethod:: get(cluster_id, r=redis_client)
+
+    Gets the current :class:`Stat` for the cluster id. Takes an optional redis connection.
+
+    .. py:classmethod:: get_all(r=redis_client)
+
+    Returns a list of :class:`Stat` objects for all active clusters. Takes an optional redis connection.
+
