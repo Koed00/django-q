@@ -8,7 +8,7 @@ Start the monitor with Django's `manage.py` command::
     $ python manage.py qmonitor
 
 
-.. image:: monitor.png
+.. image:: _static/monitor.png
 
 Legend
 ------

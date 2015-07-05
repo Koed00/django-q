@@ -57,7 +57,7 @@ If you host on `Heroku <https://heroku.com>`__ or you are using `Honcho <https:/
 Architecture
 ------------
 
-.. image:: cluster.png
+.. image:: _static/cluster.png
    :alt: Django Q schema
 
 
