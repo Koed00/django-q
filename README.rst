@@ -82,7 +82,7 @@ All configuration settings are optional. e.g:
             'db': 0, }
     }
 
-For full configuration options, see the `condfiguration documentation <http://django-q.readthedocs.org/en/latest/install.html#configuration>`__.
+For full configuration options, see the `configuration documentation <http://django-q.readthedocs.org/en/latest/install.html#configuration>`__.
 
 Management Commands
 ~~~~~~~~~~~~~~~~~~~
