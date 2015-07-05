@@ -27,7 +27,25 @@ Use  :py:func:`async` from your code to quickly offload tasks to the :mod:`clust
     def print_result(task):
         print(task.result)
 
-.. py:function:: async(func, *args, hook=None, **kwargs)
+Connection pooling
+------------------
+
+Django Q tries to pass redis connections around its parts as much as possible to save you from running out of connections.
+When you are making individual calls to :func:`async` a lot though, it can help to set up a redis connection to pass to :func:`async`:
+
+.. code:: python
+
+    # redis connection economy example
+    from django_q import async
+    from django_q.conf import redis_client
+
+    for i in range(50):
+        async('math.modf', 2.5, redis=redis_client)
+
+Reference
+---------
+
+.. py:function:: async(func, *args, hook=None, redis=None, **kwargs)
 
     Puts a task in the cluster queue
 
@@ -36,6 +54,7 @@ Use  :py:func:`async` from your code to quickly offload tasks to the :mod:`clust
    :type func: str or object
    :param hook: Optional function to call after execution
    :type hook: str or object
+   :param redis: Optional redis connection
    :param kwargs: Keyword arguments for the task function
    :returns: The name of the task
    :rtype: str

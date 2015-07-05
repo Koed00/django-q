@@ -22,6 +22,8 @@ Schedules are regular Django models. You can manage them through the :ref:`admin
                             schedule_type=Schedule.DAILY
                             )
 
+Reference
+---------
 
 .. py:function:: schedule(func, *args, hook=None, schedule_type='O', repeats=-1, next_run=now() , **kwargs)
 
