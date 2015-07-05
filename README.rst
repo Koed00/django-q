@@ -1,4 +1,6 @@
 .. image:: docs/_static/logo.png
+    :align: center
+    :alt: Q logo
     :target: https://django-q.readthedocs.org/
 
 A multiprocessing task queue for Django
@@ -55,7 +57,7 @@ Installation
 -  Make sure you have a `Redis <http://redis.io/>`__ server running
    somewhere
 
-Read more complete documentation on `http://django-q.readthedocs.org <http://django-q.readthedocs.org>`__
+Read the more complete documentation at `http://django-q.readthedocs.org <http://django-q.readthedocs.org>`__
 
 
 Configuration
@@ -80,7 +82,7 @@ All configuration settings are optional. e.g:
             'db': 0, }
     }
 
-For full configuration options, see the `documentation <http://django-q.readthedocs.org>`__.
+For full configuration options, see the `condfiguration documentation <http://django-q.readthedocs.org/en/latest/install.html#configuration>`__.
 
 Management Commands
 ~~~~~~~~~~~~~~~~~~~
@@ -124,7 +126,7 @@ Use `async` from your code to quickly offload tasks:
 
 
 Schedule
-^^^^^^^^
+~~~~~~~~
 
 Schedules are regular Django models. You can manage them through the
 Admin page or directly from your code:
