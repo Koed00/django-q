@@ -1,5 +1,7 @@
 from django.contrib import admin
+
 from django.utils.translation import ugettext_lazy as _
+
 from .tasks import async
 from .models import Success, Failure, Schedule
 
@@ -21,7 +23,7 @@ class TaskAdmin(admin.ModelAdmin):
         qs = super(TaskAdmin, self).get_queryset(request)
         return qs.filter(success=True)
 
-    search_fields = ['name']
+    search_fields = ('name', 'func')
     readonly_fields = []
 
     def get_readonly_fields(self, request, obj=None):
@@ -51,7 +53,7 @@ class FailAdmin(admin.ModelAdmin):
         return False
 
     actions = [retry_failed]
-    search_fields = ['name']
+    search_fields = ('name', 'func')
     readonly_fields = []
 
     def get_readonly_fields(self, request, obj=None):
@@ -71,6 +73,7 @@ class ScheduleAdmin(admin.ModelAdmin):
     )
 
     list_filter = ('next_run', 'schedule_type')
+    search_fields = ('func',)
 
 
 admin.site.register(Schedule, ScheduleAdmin)
