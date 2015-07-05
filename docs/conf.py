@@ -131,6 +131,7 @@ html_theme_options = {
     'gratipay_user': 'koed00',
     'github_banner': True,
     'travis_button': True,
+    'analytics_id': 'UA-64807059-1'
 }
 html_sidebars = {
     '**': [
