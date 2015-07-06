@@ -39,7 +39,6 @@ def test_cluster_initial(r):
     r.delete(list_key)
     c = Cluster(list_key=list_key)
     assert c.sentinel is None
-    assert c.is_idle
     assert c.start() > 0
     assert c.sentinel.is_alive() is True
     assert c.is_running

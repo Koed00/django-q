@@ -49,7 +49,6 @@ class Cluster(object):
         self.sentinel = None
         self.stop_event = None
         self.start_event = None
-        self.stopped_event = None
         self.pid = current_process().pid
         self.host = socket.gethostname()
         self.list_key = list_key
@@ -110,10 +109,6 @@ class Cluster(object):
     @property
     def has_stopped(self):
         return self.start_event is None and self.stop_event is None and self.sentinel
-
-    @property
-    def is_idle(self):
-        return self.sentinel is None
 
 
 class Sentinel(object):
