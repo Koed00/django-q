@@ -121,15 +121,16 @@ Stop procedure
 
 When a stop signal is given, the sentinel exits the guard loop and instructs the pusher to stop pushing.
 Once this is confirmed, the sentinel pushes poison pills onto the task queue and will wait for all the workers to die.
-This ensure that the queue is emptied before the workers exit.
-Afterwards the sentinel waits for the monitor to empty the result queue before the stop procedure is complete.
+This ensures that the queue is emptied before the workers exit.
+Afterwards the sentinel waits for the monitor to empty the result and then the stop procedure is complete.
 
 - Send stop event to pusher
 - Wait for pusher to exit
 - Put poison pills in the Task Queue
 - Wait for all the workers to clear the queue and stop
 - Put a poison pill on the Result Queue
-- Wait for monitor to stop
+- Wait for monitor to process remaining results
+- Signal that we have stopped
 
 .. warning::
     If you force the cluster to terminate before the stop procedure has completed, you can lose tasks and their results.
