@@ -26,7 +26,7 @@ class PyTest(Command):
 
 setup(
     name='django-q',
-    version='0.2.1',
+    version='0.2.1.1',
     author='Ilan Steemers',
     author_email='koed00@gmail.com',
     packages=['django_q'],
