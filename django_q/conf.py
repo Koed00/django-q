@@ -16,6 +16,10 @@ class Conf(object):
     # Redis server configuration . Follows standard redis keywords
     REDIS = conf.get('redis', {})
 
+    # Support for Django-Redis connections
+
+    DJANGO_REDIS = conf.get('django_redis', None)
+
     # Name of the cluster or site. For when you run multiple sites on one redis server
     PREFIX = conf.get('name', 'default')
 
@@ -74,5 +78,19 @@ if not logger.handlers:
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
+
+# Django-redis support
+if Conf.DJANGO_REDIS:
+    try:
+        import django_redis
+    except ImportError:
+        django_redis = None
+
+
+def get_redis_client():
+    if Conf.DJANGO_REDIS and django_redis:
+        return django_redis.get_redis_connection(Conf.DJANGO_REDIS)
+    return redis.StrictRedis(**Conf.REDIS)
+
 # redis client
-redis_client = redis.StrictRedis(**Conf.REDIS)
+redis_client = get_redis_client()

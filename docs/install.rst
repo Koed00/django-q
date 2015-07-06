@@ -109,6 +109,21 @@ Connection settings for Redis. Defaults::
 
 For more information on these settings please refer to the `Redis-py <https://github.com/andymccurdy/redis-py>`__ documentation
 
+django_redis
+~~~~~~~~~~~~
+
+If you are already using `django-redis <https://github.com/niwinz/django-redis>`__ for your caching, you can take advantage of its excellent connection backend by supplying the name
+of the cache connection you want to use::
+
+    # example django-redis connection
+    Q_CLUSTER = {
+        'name': 'DJRedis',
+        'workers': 4,
+        'timeout': 90,
+        'django_redis: 'default'
+    }
+
+
 
 .. tip::
     Django Q uses your :const:`SECRET_KEY` to encrypt task packages and prevent task crossover. So make sure you have it set up in your Django settings.
