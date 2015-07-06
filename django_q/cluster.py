@@ -180,6 +180,10 @@ class Sentinel(object):
         return self.spawn_process(monitor, self.done_queue)
 
     def reincarnate(self, process):
+        """
+        :param process: the process to reincarnate
+        :type process: Process or None
+        """
         process.terminate()
         if process == self.monitor:
             self.monitor = self.spawn_monitor()
@@ -225,10 +229,10 @@ class Sentinel(object):
                     p.timer.value += 1
             # Check Monitor
             if not self.monitor.is_alive():
-                self.reincarnate(p)
+                self.reincarnate(self.monitor)
             # Check Pusher
             if not self.pusher.is_alive():
-                self.reincarnate(p)
+                self.reincarnate(self.pusher)
             # Call scheduler once a minute (or so)
             counter += 1
             if counter > 60:
