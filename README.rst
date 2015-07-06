@@ -85,7 +85,7 @@ All configuration settings are optional. e.g:
 For full configuration options, see the `configuration documentation <http://django-q.readthedocs.org/en/latest/install.html#configuration>`__.
 
 
-If you are using `django-redis <https://github.com/niwinz/django-redis>`__ , you can `configure Django Q <https://django-q.readthedocs.org/en/latest/install.html#django_redis>`__ to use its connection pool.
+If you are using `django-redis <https://github.com/niwinz/django-redis>`__ , you can `configure <https://django-q.readthedocs.org/en/latest/install.html#django-redis>`__ Django Q to use its connection pool.
 
 Management Commands
 ~~~~~~~~~~~~~~~~~~~
