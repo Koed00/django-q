@@ -109,6 +109,8 @@ Connection settings for Redis. Defaults::
 
 For more information on these settings please refer to the `Redis-py <https://github.com/andymccurdy/redis-py>`__ documentation
 
+.. _django_redis:
+
 django_redis
 ~~~~~~~~~~~~
 

@@ -42,6 +42,11 @@ When you are making individual calls to :func:`async` a lot though, it can help 
     for i in range(50):
         async('math.modf', 2.5, redis=redis_client)
 
+.. tip::
+
+    If you are using `django-redis <https://github.com/niwinz/django-redis>`__ , you can :ref:`configure <django_redis>` Django Q to use its connection pool.
+
+
 Reference
 ---------
 
