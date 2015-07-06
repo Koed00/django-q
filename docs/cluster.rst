@@ -133,3 +133,63 @@ Afterwards the sentinel waits for the monitor to empty the result queue before t
 
 .. warning::
     If you force the cluster to terminate before the stop procedure has completed, you can lose tasks and their results.
+
+Reference
+---------
+
+.. py:class:: Cluster
+
+    .. py:method:: start
+
+    Spawns a cluster and then returns
+
+    .. py:method:: stop
+
+    Initiates :ref:`stop_procedure` and waits for it to finish.
+
+    .. py:method:: stat
+
+    returns a :class:`Stat` object with the current cluster status.
+
+    .. py:attribute:: pid
+
+    The cluster process id.
+
+    .. py:attribute:: host
+
+    The current hostname
+
+    .. py:attribute:: sentinel
+
+    returns the :class:`multiprocessing.Process` containing the :class:`Sentinel`.
+
+    .. py:attribute:: timeout
+
+    The clusters timeout setting in seconds
+
+    .. py:attribute:: start_event
+
+    A :class:`multiprocessing.Event` indicating if the :class:`Sentinel` has finished starting the cluster
+
+    .. py:attribute:: stop_event
+
+    A :class:`multiprocessing.Event` used to instruct the :class:`Sentinel` to initiate the :ref:`stop_procedure`
+
+    .. py:attribute:: is_starting
+
+    Bool indicating if the cluster is busy starting up
+
+    .. py:attribute:: is_running
+
+    Bool. Tells you if the cluster is up and running.
+
+    .. py:attribute:: is_stopping
+
+    Bool. Shows that the stop procedure has been started.
+
+    .. py:attribute:: has_stopped
+
+    Bool. Tells you if the cluster finished the stop procedure
+
+
+

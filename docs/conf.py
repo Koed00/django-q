@@ -38,8 +38,12 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'django_q.tests.settings'
 extensions = [
     'alabaster',
     'sphinx.ext.todo',
+    'sphinx.ext.intersphinx',
     # 'sphinx.ext.autodoc'
 ]
+
+intersphinx_mapping = {'python': ('https://docs.python.org/3.4', None)}
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
