@@ -4,6 +4,7 @@ from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
 from builtins import range
+
 from future import standard_library
 
 standard_library.install_aliases()
@@ -187,17 +188,19 @@ class Sentinel(object):
         process.terminate()
         if process == self.monitor:
             self.monitor = self.spawn_monitor()
-            logger.error(_("reincarnated monitor {} after sudden.").format(process.pid))
+            logger.error(_("reincarnated monitor {} after sudden death").format(process.name))
         elif process == self.pusher:
             self.pusher = self.spawn_pusher()
-            logger.error(_("reincarnated pusher {} after sudden death.").format(process.pid))
+            logger.error(_("reincarnated pusher {} after sudden death").format(process.name))
         else:
             self.pool.remove(process)
             self.spawn_worker()
             if int(process.timer.value) >= self.timeout:
-                logger.warn(_("reincarnated worker {} after timeout.").format(process.pid))
+                logger.warn(_("reincarnated worker {} after timeout").format(process.name))
+            elif int(process.timer.value) == -2:
+                logger.info(_("recycled worker {}").format(process.name))
             else:
-                logger.error(_("reincarnated worker {} after sudden death.").format(process.pid))
+                logger.error(_("reincarnated worker {} after death").format(process.name))
         self.reincarnations += 1
 
     def spawn_cluster(self):
@@ -353,7 +356,8 @@ def worker(task_queue, done_queue, timer):
         done_queue.put(task)
         timer.value = -1  # Idle
         # Recycle
-        if task_count == Conf.RECYCLE and task_queue.qsize() == 0:
+        if task_count == Conf.RECYCLE:
+            timer.value = -2
             break
     logger.info(_('{} stopped doing work').format(name))
 
