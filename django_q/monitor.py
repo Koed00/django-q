@@ -9,8 +9,8 @@ from django.utils import timezone
 from django.utils.translation import ugettext as _
 
 # local
-from .conf import Conf, redis_client, logger
-from .tasks import SignedPackage
+from django_q.conf import Conf, redis_client, logger
+from django_q.tasks import SignedPackage
 
 
 def monitor(run_once=False):
@@ -52,8 +52,6 @@ def monitor(run_once=False):
                     status = term.red(str(Conf.STOPPED))
                 elif stat.status == Conf.IDLE:
                     status = str(Conf.IDLE)
-                else:
-                    status = term.yellow(str(stat.status))
                 # color q's
                 tasks = stat.task_q_size
                 if tasks > 0:
@@ -98,7 +96,7 @@ class Status(object):
         self.reincarnations = 0
         self.cluster_id = pid
         self.sentinel = 0
-        self.status = 'Idle'
+        self.status = Conf.STOPPED
         self.done_q_size = 0
         self.host = socket.gethostname()
         self.monitor = 0
@@ -113,13 +111,13 @@ class Stat(Status):
     """
 
     def __init__(self, sentinel):
-        super(Stat, self).__init__(sentinel.parent_pid)
+        super(Stat, self).__init__(sentinel.parent_pid or sentinel.pid)
         self.r = sentinel.r
         self.tob = sentinel.tob
         self.reincarnations = sentinel.reincarnations
         self.sentinel = sentinel.pid
         self.status = sentinel.status()
-        self.done_q_size = sentinel.done_queue.qsize()
+        self.done_q_size = sentinel.result_queue.qsize()
         if sentinel.monitor:
             self.monitor = sentinel.monitor.pid
         self.task_q_size = sentinel.task_queue.qsize()
@@ -147,7 +145,10 @@ class Stat(Status):
         return '{}:{}'.format(Conf.Q_STAT, cluster_id)
 
     def save(self):
-        self.r.set(self.key, SignedPackage.dumps(self, True), 3)
+        try:
+            self.r.set(self.key, SignedPackage.dumps(self, True), 3)
+        except Exception as e:
+            logger.error(e)
 
     def empty_queues(self):
         return self.done_q_size + self.task_q_size == 0

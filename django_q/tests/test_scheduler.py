@@ -59,3 +59,4 @@ def test_scheduler(r):
                                    )
         assert schedule is not None
         assert schedule.last_run() is None
+    scheduler()
