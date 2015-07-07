@@ -275,8 +275,10 @@ class Sentinel(object):
         # Wait for the result queue to empty
         self.result_queue.join_thread()
         logger.info('{} waiting for the monitor.'.format(name))
-        count = 0
         # Wait for everything to close or time out
+        count = 0
+        if not self.timeout:
+            self.timeout = 30
         while self.status() == Conf.STOPPING and count < self.timeout * 5:
             sleep(0.2)
             Stat(self).save()
