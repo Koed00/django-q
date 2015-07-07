@@ -294,7 +294,13 @@ def pusher(task_queue, e, list_key=Conf.Q_LIST, r=redis_client):
     """
     logger.info(_('{} pushing tasks at {}').format(current_process().name, current_process().pid))
     while True:
-        task = r.blpop(list_key, 1)
+        try:
+            task = r.blpop(list_key, 1)
+        except Exception as e:
+            logger.error(e)
+            # redis probably crashed. Let the sentinel handle it.
+            sleep(10)
+            break
         if task:
             task = task[1]
             task_queue.put(task)

@@ -147,7 +147,10 @@ class Stat(Status):
         return '{}:{}'.format(Conf.Q_STAT, cluster_id)
 
     def save(self):
-        self.r.set(self.key, SignedPackage.dumps(self, True), 3)
+        try:
+            self.r.set(self.key, SignedPackage.dumps(self, True), 3)
+        except Exception as e:
+            logger.error(e)
 
     def empty_queues(self):
         return self.done_q_size + self.task_q_size == 0
