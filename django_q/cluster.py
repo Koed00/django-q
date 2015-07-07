@@ -193,7 +193,7 @@ class Sentinel(object):
         else:
             self.pool.remove(process)
             self.spawn_worker()
-            if int(process.timer.value) >= self.timeout:
+            if self.timeout and int(process.timer.value) >= self.timeout:
                 # only need to terminate on timeout, otherwise we risk destabilizing the queues
                 process.terminate()
                 logger.warn(_("reincarnated worker {} after timeout").format(process.name))
@@ -205,6 +205,7 @@ class Sentinel(object):
         self.reincarnations += 1
 
     def spawn_cluster(self):
+        self.pool = []
         Stat(self).save()
         for i in range(self.pool_size):
             self.spawn_worker()
@@ -282,7 +283,6 @@ class Sentinel(object):
             count += 1
         # Final status
         Stat(self).save()
-        self.pool = []
 
 
 def pusher(task_queue, e, list_key=Conf.Q_LIST, r=redis_client):
