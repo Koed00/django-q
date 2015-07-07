@@ -402,7 +402,7 @@ def save_task(task):
                             result=task['result'],
                             success=task['success'])
     except Exception as e:
-        logger.exception(e)
+        logger.error(e)
 
 
 def scheduler(list_key=Conf.Q_LIST):
