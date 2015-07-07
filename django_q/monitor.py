@@ -52,8 +52,6 @@ def monitor(run_once=False):
                     status = term.red(str(Conf.STOPPED))
                 elif stat.status == Conf.IDLE:
                     status = str(Conf.IDLE)
-                else:
-                    status = term.yellow(str(stat.status))
                 # color q's
                 tasks = stat.task_q_size
                 if tasks > 0:
@@ -98,7 +96,7 @@ class Status(object):
         self.reincarnations = 0
         self.cluster_id = pid
         self.sentinel = 0
-        self.status = 'Idle'
+        self.status = Conf.STOPPED
         self.done_q_size = 0
         self.host = socket.gethostname()
         self.monitor = 0

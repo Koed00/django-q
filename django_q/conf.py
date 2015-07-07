@@ -46,10 +46,8 @@ class Conf(object):
     LABEL = conf.get('label', 'Django Q')
 
     # Use the secret key for package signing
-    try:
-        SECRET_KEY = settings.SECRET_KEY
-    except AttributeError:
-        SECRET_KEY = 'omgicantbelieveudonthaveasecretkey'
+    # Django itself should raise an error if it's not configured
+    SECRET_KEY = settings.SECRET_KEY
 
     # The redis list key
     Q_LIST = 'django_q:{}:q'.format(PREFIX)
