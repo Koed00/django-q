@@ -9,8 +9,8 @@ from django.utils import timezone
 from django.utils.translation import ugettext as _
 
 # local
-from .conf import Conf, redis_client, logger
-from .tasks import SignedPackage
+from django_q.conf import Conf, redis_client, logger
+from django_q.tasks import SignedPackage
 
 
 def monitor(run_once=False):
@@ -113,13 +113,13 @@ class Stat(Status):
     """
 
     def __init__(self, sentinel):
-        super(Stat, self).__init__(sentinel.parent_pid)
+        super(Stat, self).__init__(sentinel.parent_pid or sentinel.pid)
         self.r = sentinel.r
         self.tob = sentinel.tob
         self.reincarnations = sentinel.reincarnations
         self.sentinel = sentinel.pid
         self.status = sentinel.status()
-        self.done_q_size = sentinel.done_queue.qsize()
+        self.done_q_size = sentinel.result_queue.qsize()
         if sentinel.monitor:
             self.monitor = sentinel.monitor.pid
         self.task_q_size = sentinel.task_queue.qsize()
