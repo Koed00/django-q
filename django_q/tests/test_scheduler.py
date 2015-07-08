@@ -41,7 +41,7 @@ def test_scheduler(r):
     # store the results
     monitor(result_queue)
     assert result_queue.qsize() == 0
-    schedule.refresh_from_db()
+    schedule = Schedule.objects.get(pk=schedule.pk)
     assert schedule.repeats == 0
     assert schedule.last_run() is not None
     assert schedule.success() is True
