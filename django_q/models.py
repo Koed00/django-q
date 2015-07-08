@@ -11,6 +11,7 @@ from picklefield import PickledObjectField
 
 
 class Task(models.Model):
+    id = models.CharField(max_length=32, primary_key=True, editable=False)
     name = models.CharField(max_length=100, editable=False)
     func = models.CharField(max_length=256)
     hook = models.CharField(max_length=256, null=True)
@@ -22,9 +23,18 @@ class Task(models.Model):
     success = models.BooleanField(default=True, editable=False)
 
     @staticmethod
-    def get_result(name):
-        if Task.objects.filter(name=name).exists():
-            return Task.objects.get(name=name).result
+    def get_result(task_id):
+        if len(task_id) == 32 and Task.objects.filter(id=task_id).exists():
+            return Task.objects.get(id=task_id).result
+        elif Task.objects.filter(name=task_id).exists():
+            return Task.objects.get(name=task_id).result
+
+    @staticmethod
+    def get_task(task_id):
+        if len(task_id) == 32 and Task.objects.filter(id=task_id).exists():
+            return Task.objects.get(id=task_id)
+        elif Task.objects.filter(name=task_id).exists():
+            return Task.objects.get(name=task_id)
 
     def time_taken(self):
         return (self.stopped - self.started).total_seconds()
@@ -47,12 +57,12 @@ def call_hook(sender, instance, **kwargs):
                 m = importlib.import_module(module)
                 f = getattr(m, func)
             except (ValueError, ImportError, AttributeError):
-                logger.error(_('malformed return hook \'{}\' for {}').format(instance.hook, instance.name))
+                logger.error(_('malformed return hook \'{}\' for [{}]').format(instance.hook, instance.name))
                 return
         try:
             f(instance)
         except Exception as e:
-            logger.error(_('return hook {} failed on {} because {}').format(instance.hook, instance.name, e))
+            logger.error(_('return hook {} failed on [{}] because {}').format(instance.hook, instance.name, e))
 
 
 class SuccessManager(models.Manager):
@@ -111,28 +121,26 @@ class Schedule(models.Model):
     schedule_type = models.CharField(max_length=1, choices=TYPE, default=TYPE[0][0], verbose_name=_('Schedule Type'))
     repeats = models.SmallIntegerField(default=-1, verbose_name=_('Repeats'), help_text=_('n = n times, -1 = forever'))
     next_run = models.DateTimeField(verbose_name=_('Next Run'), default=timezone.now, null=True)
-    task = models.CharField(max_length=100, editable=False, null=True)
+    task = models.CharField(max_length=100, null=True, editable=False)
+
+    def success(self):
+        if self.task and Task.objects.filter(id=self.task):
+            return Task.objects.get(id=self.task).success
 
     def last_run(self):
-        if Task.objects.filter(name=self.task).exists():
-            task = Task.objects.get(name=self.task)
+        if self.task and Task.objects.filter(id=self.task):
+            task = Task.objects.get(id=self.task)
             if task.success:
                 url = reverse('admin:django_q_success_change', args=(task.id,))
             else:
                 url = reverse('admin:django_q_failure_change', args=(task.id,))
             return '<a href="{}">[{}]</a>'.format(url, self.task)
-
         return None
-
-    def success(self):
-        if Task.objects.filter(name=self.task).exists():
-            return Task.objects.get(name=self.task).success
 
     def __unicode__(self):
         return self.func
 
     success.boolean = True
-    last_run.allow_tags = True
 
     class Meta:
         app_label = 'django_q'

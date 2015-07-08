@@ -43,6 +43,7 @@ def monitor(run_once=False):
             stats = Stat.get_all(r=r)
             print(term.clear_eos())
             for stat in stats:
+                status = stat.status
                 # color status
                 if stat.status == Conf.WORKING:
                     status = term.green(str(Conf.WORKING))
