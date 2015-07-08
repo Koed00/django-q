@@ -93,7 +93,12 @@ Reference
 
     .. py:attribute:: name
 
-    The name of the task
+    The name of the task as a humanized version of the :attr:`id`
+
+        .. note::
+
+            This is for convenience and can be used as a parameter for most functions that take a `task_id`.
+            Keep in mind however that it is not guaranteed to be unique if you store very large amounts of tasks in the database.
 
     .. py:attribute:: func
 
@@ -119,7 +124,7 @@ Reference
 
     .. py:attribute:: started
 
-    The moment the task was picked up by a worker
+    The moment the task was created by an async command
 
     .. py:attribute:: stopped
 
@@ -131,11 +136,15 @@ Reference
 
     .. py:method:: time_taken
 
-    Calculates the difference in seconds between started and stopped
+    Calculates the difference in seconds between started and stopped.
 
-    .. py:classmethod:: get_result(task_name)
+        .. note::
 
-     Get a result directly by task name
+            Time taken represents the time a task spends in the cluster, this includes any time it may have waited in the queue.
+
+    .. py:classmethod:: get_result(task_id)
+
+     Get a result directly by task uuid or name
 
 .. py:class:: Success
 
