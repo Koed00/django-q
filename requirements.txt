@@ -1,7 +1,7 @@
 arrow==0.5.4
 blessed==1.9.5
 django-picklefield==0.3.1
-Django==1.8.2
+Django>=1.7.8
 future==0.14.3
 hiredis==0.2.0
 redis==2.10.3
