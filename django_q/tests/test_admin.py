@@ -5,7 +5,7 @@ import pytest
 
 from django_q.tasks import schedule
 from django_q.models import Task, Failure
-from humanhash import uuid
+from django_q.humanhash import uuid
 
 
 @pytest.mark.django_db
