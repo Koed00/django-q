@@ -1,26 +1,32 @@
 from django.core.urlresolvers import reverse
 
 from django.utils import timezone
-
 import pytest
 
 from django_q.tasks import schedule
 from django_q.models import Task, Failure
+from humanhash import uuid
 
 
 @pytest.mark.django_db
 def test_admin_views(admin_client):
     s = schedule('sched.test')
-    f = Task.objects.create(name='alfa-pappa-bravo-fail',
-                            func='test.fail',
-                            started=timezone.now(),
-                            stopped=timezone.now(),
-                            success=False)
-    t = Task.objects.create(name='alfa-pappa-bravo-success',
-                            func='test.succes',
-                            started=timezone.now(),
-                            stopped=timezone.now(),
-                            success=True)
+    tag = uuid()
+    f = Task.objects.create(
+        id=tag[1],
+        name=tag[0],
+        func='test.fail',
+        started=timezone.now(),
+        stopped=timezone.now(),
+        success=False)
+    tag = uuid()
+    t = Task.objects.create(
+        id=tag[1],
+        name=tag[0],
+        func='test.succes',
+        started=timezone.now(),
+        stopped=timezone.now(),
+        success=True)
     admin_urls = (
         # schedule
         reverse('admin:django_q_schedule_changelist'),

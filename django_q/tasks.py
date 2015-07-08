@@ -13,8 +13,6 @@ from .models import Schedule, Task
 from .humanhash import uuid
 
 
-
-
 def async(func, *args, **kwargs):
     """
     Sends a task to the cluster
@@ -23,12 +21,13 @@ def async(func, *args, **kwargs):
     hook = kwargs.pop('hook', None)
     list_key = kwargs.pop('list_key', Conf.Q_LIST)
     r = kwargs.pop('redis', redis_client)
-
-    task = {'name': uuid()[0], 'func': func, 'hook': hook, 'args': args, 'kwargs': kwargs, 'started': timezone.now()}
+    tag = uuid()
+    task = {'id': tag[1], 'name': tag[0], 'func': func, 'hook': hook, 'args': args, 'kwargs': kwargs,
+            'started': timezone.now()}
     pack = SignedPackage.dumps(task)
     r.rpush(list_key, pack)
-    logger.debug('Pushed {}'.format(pack))
-    return task['name']
+    logger.debug('Pushed {}'.format(tag))
+    return task['id']
 
 
 def schedule(func, *args, **kwargs):
@@ -60,27 +59,26 @@ def schedule(func, *args, **kwargs):
                                    )
 
 
-def result(name):
+def result(task_id):
     """
     Returns the result of the named task
-    :type name: str or unicode
-    :param name: the task name
+    :type task_id: str or uuid
+    :param task_id: the task name or uuid
     :return: the result object of this task
-    :rtype: object or str
+    :rtype: object
     """
-    return Task.get_result(name)
+    return Task.get_result(task_id)
 
 
-def fetch(name):
+def fetch(task_id):
     """
     Returns the processed task
-    :param name: the task name
-    :type name: str or unicode
+    :param task_id: the task name or uuid
+    :type task_id: str or uuid
     :return: the full task object
     :rtype: Task
     """
-    if Task.objects.filter(name=name).exists():
-        return Task.objects.get(name=name)
+    return Task.get_task(task_id)
 
 
 class SignedPackage(object):

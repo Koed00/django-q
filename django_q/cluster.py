@@ -394,7 +394,8 @@ def save_task(task):
         Success.objects.first().delete()
 
     try:
-        Task.objects.create(name=task['name'],
+        Task.objects.create(id=task['id'],
+                            name=task['name'],
                             func=task['func'],
                             hook=task['hook'],
                             args=task['args'],
@@ -451,7 +452,7 @@ def scheduler(list_key=Conf.Q_LIST):
         kwargs['list_key'] = list_key
         s.task = async(s.func, *args, **kwargs)
         if not s.task:
-            logger.error(_('{} failed to create task from  schedule {}').format(current_process().name, s.id))
+            logger.error(_('{} failed to create a task from schedule {} [{}]').format(current_process().name, s.id), s.func)
         else:
-            logger.info(_('{} created [{}] from schedule {}').format(current_process().name, s.task, s.id))
+            logger.info(_('{} created a task from schedule {} [{}]').format(current_process().name, s.id, s.func))
         s.save()

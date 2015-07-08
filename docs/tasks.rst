@@ -61,21 +61,21 @@ Reference
    :type hook: str or object
    :param redis: Optional redis connection
    :param kwargs: Keyword arguments for the task function
-   :returns: The name of the task
+   :returns: The uuid of the task
    :rtype: str
 
-.. py:function:: result(name)
+.. py:function:: result(task_id)
 
     Gets the result of a previously executed task
 
-    :param str name: the name of the task
+    :param str task_id: the uuid or name of the task
     :returns: The result of the executed task
 
-.. py:function:: fetch(name)
+.. py:function:: fetch(task_id)
 
     Returns a previously executed task
 
-    :param str name: the name of the task
+    :param str name: the uuid or name of the task
     :returns: The task
     :rtype: Task
 
@@ -86,6 +86,10 @@ Reference
 .. py:class:: Task
 
     Database model describing an executed task
+
+    .. py:attribute:: id
+
+    An  :func:`uuid.uuid4()` identifier
 
     .. py:attribute:: name
 
