@@ -32,7 +32,7 @@ Requirements
 -  `Arrow <https://github.com/crsmithdev/arrow>`__
 -  `Blessed <https://github.com/jquast/blessed>`__
 
-Tested with: Python 2.7 & 3.4. Django 1.7.8 & 1.8.2
+Tested with: Python 2.7 & 3.4. Django 1.7.9 & 1.8.3
 
 
 Installation
