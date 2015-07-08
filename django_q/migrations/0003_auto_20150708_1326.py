@@ -17,10 +17,15 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterModelOptions(
             name='schedule',
-            options={'ordering': ['next_run'], 'verbose_name_plural': 'Scheduled tasks', 'verbose_name': 'Scheduled task'},
+            options={'verbose_name_plural': 'Scheduled tasks', 'ordering': ['next_run'], 'verbose_name': 'Scheduled task'},
         ),
         migrations.AlterModelOptions(
             name='success',
             options={'verbose_name_plural': 'Successful tasks', 'verbose_name': 'Successful task'},
+        ),
+        migrations.AlterField(
+            model_name='task',
+            name='id',
+            field=models.CharField(max_length=32, primary_key=True, editable=False, serialize=False),
         ),
     ]
