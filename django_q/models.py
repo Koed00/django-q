@@ -141,6 +141,7 @@ class Schedule(models.Model):
         return self.func
 
     success.boolean = True
+    last_run.allow_tags = True
 
     class Meta:
         app_label = 'django_q'
