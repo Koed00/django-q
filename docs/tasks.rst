@@ -48,7 +48,11 @@ The task will then be injected straight into a worker and the result saved by a 
     if not task.success:
         print('An error occurred: {}'.format(task.result))
 
-Note that :func:`async` will block until the task is executed and saved. This feature is intended for debugging and development.
+.. code:: bash
+
+    An error occurred: ImportError("No module named 'my'",)
+
+Note that :func:`async` will block until the task is executed and saved. This feature bypasses the Redis server and is intended for debugging and development.
 
 Connection pooling
 ------------------
