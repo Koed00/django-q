@@ -1,30 +1,43 @@
+from multiprocessing import Queue, Value
+
 try:
     import cPickle as pickle
 except ImportError:
     import pickle
 
 # django
-from django.core import signing
 from django.utils import timezone
 
 # local
-from .conf import Conf, redis_client, logger
-from .models import Schedule, Task
-from .humanhash import uuid
+import signing
+import cluster
+from django_q.conf import Conf, redis_client, logger
+from django_q.models import Schedule, Task
+from django_q.humanhash import uuid
 
 
 def async(func, *args, **kwargs):
     """
     Sends a task to the cluster
     """
-
+    # optional hook
     hook = kwargs.pop('hook', None)
+    # optional list_key
     list_key = kwargs.pop('list_key', Conf.Q_LIST)
+    # optional redis connection
     r = kwargs.pop('redis', redis_client)
+    # optional sync mode
+    s = kwargs.pop('sync', False)
+    # get an id
     tag = uuid()
+    # build the task package
     task = {'id': tag[1], 'name': tag[0], 'func': func, 'hook': hook, 'args': args, 'kwargs': kwargs,
             'started': timezone.now()}
-    pack = SignedPackage.dumps(task)
+    # sign it
+    pack = signing.SignedPackage.dumps(task)
+    if s:
+        return _sync(task['id'], pack)
+    # push it
     r.rpush(list_key, pack)
     logger.debug('Pushed {}'.format(tag))
     return task['id']
@@ -81,37 +94,17 @@ def fetch(task_id):
     return Task.get_task(task_id)
 
 
-class SignedPackage(object):
+def _sync(task_id, pack):
     """
-    Wraps Django's signing module with custom Pickle serializer
+    Simulates a package travelling through the cluster.
+
     """
+    task_queue = Queue()
+    result_queue = Queue()
+    task_queue.put(pack)
+    task_queue.put('STOP')
+    cluster.worker(task_queue, result_queue, Value('b', -1))
+    result_queue.put('STOP')
+    cluster.monitor(result_queue)
+    return task_id
 
-    @staticmethod
-    def dumps(obj, compressed=Conf.COMPRESSED):
-        return signing.dumps(obj,
-                             key=Conf.SECRET_KEY,
-                             salt='django_q.q',
-                             compress=compressed,
-                             serializer=PickleSerializer)
-
-    @staticmethod
-    def loads(obj):
-        return signing.loads(obj,
-                             key=Conf.SECRET_KEY,
-                             salt='django_q.q',
-                             serializer=PickleSerializer)
-
-
-class PickleSerializer(object):
-    """
-    Simple wrapper around Pickle for signing.dumps and
-    signing.loads.
-    """
-
-    @staticmethod
-    def dumps(obj):
-        return pickle.dumps(obj)
-
-    @staticmethod
-    def loads(data):
-        return pickle.loads(data)

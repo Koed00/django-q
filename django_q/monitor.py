@@ -4,13 +4,12 @@ import socket
 from blessed import Terminal
 
 # django
-from django.core import signing
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 
 # local
+import signing
 from django_q.conf import Conf, redis_client, logger
-from django_q.tasks import SignedPackage
 
 
 def monitor(run_once=False):
@@ -147,7 +146,7 @@ class Stat(Status):
 
     def save(self):
         try:
-            self.r.set(self.key, SignedPackage.dumps(self, True), 3)
+            self.r.set(self.key, signing.SignedPackage.dumps(self, True), 3)
         except Exception as e:
             logger.error(e)
 
@@ -165,7 +164,7 @@ class Stat(Status):
         if r.exists(key):
             pack = r.get(key)
             try:
-                return SignedPackage.loads(pack)
+                return signing.SignedPackage.loads(pack)
             except signing.BadSignature:
                 return None
         return Status(cluster_id)
@@ -182,7 +181,7 @@ class Stat(Status):
             packs = r.mget(keys)
             for pack in packs:
                 try:
-                    stats.append(SignedPackage.loads(pack))
+                    stats.append(signing.SignedPackage.loads(pack))
                 except signing.BadSignature:
                     continue
         return stats

@@ -1,7 +1,10 @@
 Tasks
 =====
 
-Use  :py:func:`async` from your code to quickly offload tasks to the :mod:`cluster`:
+Async
+-----
+
+Use :func:`async` from your code to quickly offload tasks to the :mod:`cluster`:
 
 .. code:: python
 
@@ -27,6 +30,26 @@ Use  :py:func:`async` from your code to quickly offload tasks to the :mod:`clust
     def print_result(task):
         print(task.result)
 
+Synchronous testing
+-------------------
+
+:func:`async` can be instructed to execute a task immediately by setting the optional keyword `sync=True`.
+The task will then be injected straight into a worker and the result saved by a monitor instance::
+
+    from django_q import async, fetch
+
+    # create a synchronous task
+    task_id = async('my.buggy.code', sync=True)
+
+    # the task will then be available immediately
+    task = fetch(task_id)
+
+    # and can be examined
+    if not task.success:
+        print('An error occurred: {}'.format(task.result))
+
+Note that :func:`async` will block until the task is executed and saved. This feature is intended for debugging and development.
+
 Connection pooling
 ------------------
 
@@ -50,7 +73,7 @@ When you are making individual calls to :func:`async` a lot though, it can help 
 Reference
 ---------
 
-.. py:function:: async(func, *args, hook=None, redis=None, **kwargs)
+.. py:function:: async(func, *args, hook=None, sync=False, redis=None, **kwargs)
 
     Puts a task in the cluster queue
 
@@ -59,6 +82,7 @@ Reference
    :type func: str or object
    :param hook: Optional function to call after execution
    :type hook: str or object
+   :param bool sync: If set to True, async will simulate a task execution
    :param redis: Optional redis connection
    :param kwargs: Keyword arguments for the task function
    :returns: The uuid of the task

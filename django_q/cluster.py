@@ -19,24 +19,22 @@ import ast
 from time import sleep
 from multiprocessing import Queue, Event, Process, Value, current_process
 
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
-
 # external
 import arrow
 
 # Django
-from django.core import signing
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 # Local
-from .conf import Conf, redis_client, logger
-from .models import Task, Success, Schedule
-from .monitor import Status, Stat
-from .tasks import SignedPackage, async
+import signing
+import tasks
+
+from django_q.conf import Conf, redis_client, logger
+from django_q.models import Task, Success, Schedule
+from django_q.monitor import Status, Stat
+
+
 
 
 class Cluster(object):
@@ -345,7 +343,7 @@ def worker(task_queue, result_queue, timer):
         task_count += 1
         # unpickle the task
         try:
-            task = SignedPackage.loads(pack)
+            task = signing.SignedPackage.loads(pack)
         except (TypeError, signing.BadSignature) as e:
             logger.error(e)
             continue
@@ -450,7 +448,7 @@ def scheduler(list_key=Conf.Q_LIST):
             s.repeats = 0
         # send it to the cluster
         kwargs['list_key'] = list_key
-        s.task = async(s.func, *args, **kwargs)
+        s.task = tasks.async(s.func, *args, **kwargs)
         if not s.task:
             logger.error(_('{} failed to create a task from schedule {} [{}]').format(current_process().name, s.id), s.func)
         else:

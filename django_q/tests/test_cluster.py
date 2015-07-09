@@ -32,6 +32,10 @@ def r():
 def test_redis_connection(r):
     assert r.ping() is True
 
+@pytest.mark.django_db
+def test_sync(r):
+    task = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, redis=r, sync=True)
+    assert result(task) == 1506
 
 @pytest.mark.django_db
 def test_cluster_initial(r):
