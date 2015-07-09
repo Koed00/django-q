@@ -64,8 +64,8 @@ Architecture
 Signed Tasks
 """"""""""""
 
-Tasks are first pickled and then signed using Django's own
-signing module before being sent to a Redis list. This ensures that task
+
+Tasks are first pickled and then signed using Django's own :mod:`django.core.signing` module before being sent to a Redis list. This ensures that task
 packages on the Redis server can only be executed and read by clusters
 and django servers who share the same secret key.
 Optionally the packages can be compressed before transport
@@ -178,7 +178,7 @@ Reference
 
     .. py:attribute:: is_starting
 
-    Bool indicating if the cluster is busy starting up
+    Bool. Indicating if the cluster is busy starting up
 
     .. py:attribute:: is_running
 

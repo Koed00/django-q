@@ -30,16 +30,20 @@ Reference
     Creates a schedule
 
     :param str func: the function to schedule. Dotted strings only.
-    :param args: arguments for the scheduled function.
-    :param str hook: optional result hook function. Dotted strings only.
-    :param str schedule_type: (O)nce, (H)ourly, (D)aily, (W)eekly, (M)onthly, (Q)uarterly, (Y)early or :attr:`Schedule.TYPE`
+        :param args: arguments for the scheduled function.
+        :param str hook: optional result hook function. Dotted strings only.
+        :param str schedule_type: (O)nce, (H)ourly, (D)aily, (W)eekly, (M)onthly, (Q)uarterly, (Y)early or :attr:`Schedule.TYPE`
     :param int repeats: Number of times to repeat schedule. -1=Always, 0=Never, n =n.
-    :param datetime next_run: Next or first scheduled execution datetime.
-    :param kwargs: optional keyword arguments for the scheduled function.
+        :param datetime next_run: Next or first scheduled execution datetime.
+        :param kwargs: optional keyword arguments for the scheduled function.
 
 .. class:: Schedule
 
     A database model for task schedules.
+
+    .. py:attribute:: id
+
+    Primary key
 
     .. py:attribute:: func
 
@@ -63,7 +67,7 @@ Reference
 
     .. py:attribute:: TYPE
 
-    `ONCE`, `HOURLY`, `DAILY`, `WEEKLY`, `MONTHLY`. `QUARTERLY`, `YEARLY`
+    :attr:`ONCE`, :attr:`HOURLY`, :attr:`DAILY`, :attr:`WEEKLY`, :attr:`MONTHLY`, :attr:`QUARTERLY`, :attr:`YEARLY`
 
 
     .. py:attribute:: repeats
@@ -87,3 +91,36 @@ Reference
 
     Returns the success status of the last executed task.
 
+    .. py:attribute:: ONCE
+
+    `'O'` the schedule will only run once. Repeats are ignored and set to `0` after execution.
+
+    .. py:attribute:: HOURLY
+
+    `'H'` the scheduled task will run every hour after its first run.
+
+    .. py:attribute:: DAILY
+
+    `'D'` the scheduled task will run every day at the time of its first run.
+
+    .. py:attribute:: WEEKLY
+
+    `'W'` the task will run every week on they day and time of the first run.
+
+    .. py:attribute:: MONTHLY
+
+    `'M'` the tasks runs every month on they day and time of the last run.
+
+    .. note::
+
+        Months are tricky. If you schedule something on the 31st of the month and the next month has only 30 days or less, the task will run on the last day of the next month.
+        It will however continue to run on that day, e.g. the 28th, in subsequent months.
+
+    .. py:attribute:: QUARTERLY
+
+    `'Q'` this task runs once every 3 months on the day and time of the last run.
+
+    .. py:attribute:: YEARLY
+
+    `'Y'` only runs once a year. The same caution as with months apply;
+    If you set this to february 29th, it will run on february 28th in the following years.

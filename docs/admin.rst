@@ -32,5 +32,36 @@ Uses the :class:`Failure` proxy model
 Scheduled tasks
 ---------------
 
+Here you can check on the status of your scheduled tasks, create, edit or delete them.
+
+Repeats
+~~~~~~~
+If you want a schedule to only run a finite amount of times, e.g. every hour for the next 24 hours, you can do that using the :attr:`Schedule.repeats` attribute.
+In this case you would set the schedule type to :attr:`Schedule.HOURLY` and the repeats to `24`. Every time the schedule runs the repeats count down until it hits zero and schedule is no longer run.
+
+When you set repeats to `-1` the schedule will continue indefinitely and the repeats will still count down. This can be used as an indicator of how many times the schedule has been executed.
+
+An exception to this are schedules of type :attr:`Schedule.ONCE`. Repeats are ignored by this schedule type and it will always reset it zero after execution.
+
+.. note::
+
+    To run a `Once` schedule again, change the repeats to something other than `0`. Set a new run time before you do this or let it execute immediately.
+
+Next run
+~~~~~~~~
+
+Shows you when this task will be added to the queue next.
+
+
+Last run
+~~~~~~~~
+
+Links to the task result of the last scheduled run. Shows nothing if the schedule hasn't run yet or if task result has been deleted.
+
+Success
+~~~~~~~
+
+Indicates the success status of the last scheduled task, if any.
+
 
 Uses the :class:`Schedule` model
