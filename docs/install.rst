@@ -77,6 +77,8 @@ compress
 Compresses task packages to Redis. Useful for large payloads, but can add overhead when used with many small packages.
 Defaults to ``False``
 
+.. _save_limit:
+
 save_limit
 ~~~~~~~~~~
 

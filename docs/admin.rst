@@ -16,7 +16,7 @@ Uses the :class:`Success` proxy model.
 
 .. tip::
 
-    The maximum number of successful tasks can be set using the `save_limit` :ref:`configuration` option.
+    The maximum number of successful tasks can be set using the :ref:`save_limit` option.
 
 
 
@@ -62,6 +62,10 @@ Success
 ~~~~~~~
 
 Indicates the success status of the last scheduled task, if any.
+
+.. note::
+
+   if you have set the :ref:`save_limit` configuration option to not save successful tasks to the database, you will only see the failed results of your schedules.
 
 
 Uses the :class:`Schedule` model
