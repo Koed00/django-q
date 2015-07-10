@@ -74,6 +74,7 @@ class ScheduleAdmin(admin.ModelAdmin):
 
     list_filter = ('next_run', 'schedule_type')
     search_fields = ('func',)
+    list_display_links = ('id', 'func')
 
 
 admin.site.register(Schedule, ScheduleAdmin)
