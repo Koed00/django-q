@@ -1,6 +1,9 @@
 Schedules
 =========
 
+Schedule
+--------
+
 Schedules are regular Django models. You can manage them through the :ref:`admin_page` or directly from your code with the :func:`schedule` function or the :class:`Schedule` model:
 
 .. code:: python
@@ -21,6 +24,26 @@ Schedules are regular Django models. You can manage them through the :ref:`admin
                             args='2,-2',
                             schedule_type=Schedule.DAILY
                             )
+
+
+Management Commands
+-------------------
+
+If you want to schedule regular Django management commands, you can use the :mod:`django.core.management` module to make a wrapper function which you can schedule in Django Q::
+
+	# tasks.py	
+	from django.core import management
+			
+	# wrapping `manage.py clearsessions`
+	def clear_sessions_command():
+	    return management.call_command('clearsessions')
+
+	# now you can schedule it to run every hour
+	from django_q import schedule
+
+	schedule('tasks.clear_sessions_command', schedule_type='H')
+	
+
 
 Reference
 ---------
