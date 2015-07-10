@@ -53,12 +53,12 @@ Reference
     Creates a schedule
 
     :param str func: the function to schedule. Dotted strings only.
-        :param args: arguments for the scheduled function.
-        :param str hook: optional result hook function. Dotted strings only.
-        :param str schedule_type: (O)nce, (H)ourly, (D)aily, (W)eekly, (M)onthly, (Q)uarterly, (Y)early or :attr:`Schedule.TYPE`
+    :param args: arguments for the scheduled function.
+    :param str hook: optional result hook function. Dotted strings only.
+    :param str schedule_type: (O)nce, (H)ourly, (D)aily, (W)eekly, (M)onthly, (Q)uarterly, (Y)early or :attr:`Schedule.TYPE`
     :param int repeats: Number of times to repeat schedule. -1=Always, 0=Never, n =n.
-        :param datetime next_run: Next or first scheduled execution datetime.
-        :param kwargs: optional keyword arguments for the scheduled function.
+    :param datetime next_run: Next or first scheduled execution datetime.
+    :param kwargs: optional keyword arguments for the scheduled function.
 
 .. class:: Schedule
 
