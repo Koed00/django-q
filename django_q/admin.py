@@ -11,6 +11,7 @@ class TaskAdmin(admin.ModelAdmin):
         u'name',
         'func',
         'started',
+        'stopped',
         'time_taken'
     )
 
@@ -45,6 +46,7 @@ class FailAdmin(admin.ModelAdmin):
         'name',
         'func',
         'started',
+        'stopped',
         'result'
     )
 
