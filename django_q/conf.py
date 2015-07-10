@@ -64,6 +64,7 @@ class Conf(object):
     STOPPED = _('Stopped')
     STOPPING = _('Stopping')
 
+
 # logger
 logger = logging.getLogger('django-q')
 
@@ -89,6 +90,7 @@ def get_redis_client():
     if Conf.DJANGO_REDIS and django_redis:
         return django_redis.get_redis_connection(Conf.DJANGO_REDIS)
     return redis.StrictRedis(**Conf.REDIS)
+
 
 # redis client
 redis_client = get_redis_client()
