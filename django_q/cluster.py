@@ -35,8 +35,6 @@ from django_q.models import Task, Success, Schedule
 from django_q.monitor import Status, Stat
 
 
-
-
 class Cluster(object):
     def __init__(self, list_key=Conf.Q_LIST):
         try:
@@ -389,7 +387,7 @@ def save_task(task):
         return
     # SAVE LIMIT > 0: Prune database, SAVE_LIMIT 0: No pruning
     if task['success'] and 0 < Conf.SAVE_LIMIT < Success.objects.count():
-        Success.objects.first().delete()
+        Success.objects.last().delete()
 
     try:
         Task.objects.create(id=task['id'],
@@ -450,7 +448,8 @@ def scheduler(list_key=Conf.Q_LIST):
         kwargs['list_key'] = list_key
         s.task = tasks.async(s.func, *args, **kwargs)
         if not s.task:
-            logger.error(_('{} failed to create a task from schedule {} [{}]').format(current_process().name, s.id), s.func)
+            logger.error(_('{} failed to create a task from schedule {} [{}]').format(current_process().name, s.id),
+                         s.func)
         else:
             logger.info(_('{} created a task from schedule {} [{}]').format(current_process().name, s.id, s.func))
         s.save()

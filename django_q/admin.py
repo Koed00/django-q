@@ -1,5 +1,4 @@
 from django.contrib import admin
-
 from django.utils.translation import ugettext_lazy as _
 
 from .tasks import async
@@ -11,6 +10,7 @@ class TaskAdmin(admin.ModelAdmin):
         u'name',
         'func',
         'started',
+        'stopped',
         'time_taken'
     )
 
@@ -45,6 +45,7 @@ class FailAdmin(admin.ModelAdmin):
         'name',
         'func',
         'started',
+        'stopped',
         'result'
     )
 
@@ -74,6 +75,7 @@ class ScheduleAdmin(admin.ModelAdmin):
 
     list_filter = ('next_run', 'schedule_type')
     search_fields = ('func',)
+    list_display_links = ('id', 'func')
 
 
 admin.site.register(Schedule, ScheduleAdmin)

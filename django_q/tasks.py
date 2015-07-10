@@ -107,4 +107,3 @@ def _sync(task_id, pack):
     result_queue.put('STOP')
     cluster.monitor(result_queue)
     return task_id
-

@@ -44,6 +44,7 @@ class Task(models.Model):
 
     class Meta:
         app_label = 'django_q'
+        ordering = ['-stopped']
 
 
 @receiver(pre_save, sender=Task)
@@ -78,6 +79,7 @@ class Success(Task):
         app_label = 'django_q'
         verbose_name = _('Successful task')
         verbose_name_plural = _('Successful tasks')
+        ordering = ['-stopped']
         proxy = True
 
 
@@ -94,6 +96,7 @@ class Failure(Task):
         app_label = 'django_q'
         verbose_name = _('Failed task')
         verbose_name_plural = _('Failed tasks')
+        ordering = ['-stopped']
         proxy = True
 
 
