@@ -1,6 +1,8 @@
 from multiprocessing import Queue, Event, Value
 
 import pytest
+import arrow
+from django.utils import timezone
 
 from django_q.conf import redis_client
 from django_q.cluster import pusher, worker, monitor, scheduler
@@ -45,10 +47,30 @@ def test_scheduler(r):
     assert schedule.repeats == 0
     assert schedule.last_run() is not None
     assert schedule.success() is True
+    assert schedule.next_run < arrow.get(timezone.now()).replace(hours=+1)
     task = fetch(schedule.task)
     assert task is not None
     assert task.success is True
     assert task.result < 0
+    # Once schedule with delete
+    once_schedule = create_schedule('django_q.tests.tasks.word_multiply',
+                                    2,
+                                    word='django',
+                                    schedule_type=Schedule.ONCE,
+                                    repeats=-1,
+                                    hook='django_q.tests.tasks.result'
+                                    )
+    assert hasattr(once_schedule, 'pk') is True
+    # negative repeats
+    always_schedule = create_schedule('django_q.tests.tasks.word_multiply',
+                                      2,
+                                      word='django',
+                                      schedule_type=Schedule.DAILY,
+                                      repeats=-1,
+                                      hook='django_q.tests.tasks.result'
+                                      )
+    assert hasattr(always_schedule, 'pk') is True
+    # All other types
     for t in Schedule.TYPE:
         schedule = create_schedule('django_q.tests.tasks.word_multiply',
                                    2,
@@ -59,4 +81,7 @@ def test_scheduler(r):
                                    )
         assert schedule is not None
         assert schedule.last_run() is None
-    scheduler()
+        scheduler(list_key=list_key)
+    scheduler(list_key=list_key)
+    # ONCE schedule should be deleted
+    assert Schedule.objects.filter(pk=once_schedule.pk).exists() is False

@@ -442,14 +442,21 @@ def scheduler(list_key=Conf.Q_LIST):
                 next_run = next_run.replace(years=+1)
             s.next_run = next_run.datetime
             s.repeats += -1
-        else:
-            s.repeats = 0
         # send it to the cluster
         kwargs['list_key'] = list_key
         s.task = tasks.async(s.func, *args, **kwargs)
+        # log it
         if not s.task:
             logger.error(_('{} failed to create a task from schedule {} [{}]').format(current_process().name, s.id),
                          s.func)
         else:
             logger.info(_('{} created a task from schedule {} [{}]').format(current_process().name, s.id, s.func))
+        # default behavior is to delete a ONCE schedule
+        if s.schedule_type == s.ONCE:
+            if s.repeats < 0:
+                s.delete()
+                return
+            # but not if it has a positive repeats
+            s.repeats = 0
+        # save the schedule
         s.save()
