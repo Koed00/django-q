@@ -41,11 +41,13 @@ In this case you would set the schedule type to :attr:`Schedule.HOURLY` and the 
 
 When you set repeats to `-1` the schedule will continue indefinitely and the repeats will still count down. This can be used as an indicator of how many times the schedule has been executed.
 
-An exception to this are schedules of type :attr:`Schedule.ONCE`. Repeats are ignored by this schedule type and it will always reset it zero after execution.
+An exception to this are schedules of type :attr:`Schedule.ONCE`. Negative repeats for this schedule type will cause it to be deleted from the database.
+This behavior is useful if you have many delayed actions which you do not necessarily need a result for. A positive number will keep the ONCE schedule, but it will not run again.
 
 .. note::
 
     To run a `Once` schedule again, change the repeats to something other than `0`. Set a new run time before you do this or let it execute immediately.
+
 
 Next run
 ~~~~~~~~

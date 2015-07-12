@@ -116,7 +116,9 @@ Reference
 
     .. py:attribute:: ONCE
 
-    `'O'` the schedule will only run once. Repeats are ignored and set to `0` after execution.
+    `'O'` the schedule will only run once.
+    If it has a negative :attr:`repeats` it will be deleted after it has run.
+    If you want to keep the result, set :attr:`repeats` to a positive number.
 
     .. py:attribute:: HOURLY
 
