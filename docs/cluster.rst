@@ -1,6 +1,8 @@
 
 Cluster
 =======
+.. py:currentmodule:: django_q
+
 Django Q uses Python's multiprocessing module to manage a pool of workers that will handle your tasks.
 Start your cluster using Django's `manage.py` command::
 
@@ -46,7 +48,7 @@ You can have multiple clusters on multiple machines, working on the same queue a
 
 - They connect to the same Redis server.
 - They use the same cluster name. See :ref:`configuration`
-- They share the same :const:`SECRET_KEY`
+- They share the same `SECRET_KEY`
 
 Using a Procfile
 ----------------
@@ -111,7 +113,7 @@ Scheduler
 Once a minute the scheduler checks for any scheduled task that should be starting.
 
 - Creates a task from the schedule
-- Subtracts 1 from :attr:`Schedule.repeats`
+- Subtracts 1 from :attr:`django_q.Schedule.repeats`
 - Sets the next run time if there are repeats left or if its negative.
 
 .. _stop_procedure:
@@ -162,7 +164,7 @@ Reference
 
     .. py:attribute:: sentinel
 
-    returns the :class:`multiprocessing.Process` containing the :class:`Sentinel`.
+    returns the :class:`multiprocessing.Process` containing the :ref:`sentinel`.
 
     .. py:attribute:: timeout
 
@@ -170,11 +172,11 @@ Reference
 
     .. py:attribute:: start_event
 
-    A :class:`multiprocessing.Event` indicating if the :class:`Sentinel` has finished starting the cluster
+    A :class:`multiprocessing.Event` indicating if the :ref:`sentinel` has finished starting the cluster
 
     .. py:attribute:: stop_event
 
-    A :class:`multiprocessing.Event` used to instruct the :class:`Sentinel` to initiate the :ref:`stop_procedure`
+    A :class:`multiprocessing.Event` used to instruct the :ref:`sentinel` to initiate the :ref:`stop_procedure`
 
     .. py:attribute:: is_starting
 

@@ -14,11 +14,12 @@ env:
 install:
   - pip install -q django==$DJANGO
   - pip install -r requirements.txt
-  - pip install pytest-django pytz coveralls
+  - pip install pytest-django coveralls sphinx
   - python setup.py install
 
 script:
   - coverage run --source=django_q -m py.test
+  - sphinx-build -b html -d docs/_build/doctrees  -nW docs docs/_build/html
 
 after_success:
   - coveralls

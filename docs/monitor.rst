@@ -1,5 +1,6 @@
 Monitor
 =======
+.. py:currentmodule::django_q.monitor
 
 The cluster monitor shows information about all the Q clusters connected to your project.
 

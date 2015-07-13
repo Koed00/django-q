@@ -1,10 +1,11 @@
 Tasks
 =====
+.. py:currentmodule:: django_q
 
 Async
 -----
 
-Use :func:`async` from your code to quickly offload tasks to the :mod:`cluster`:
+Use :func:`async` from your code to quickly offload tasks to the :class:`Cluster`:
 
 .. code:: python
 
@@ -83,9 +84,9 @@ Reference
 
    :param func: The task function to execute
    :param args: The arguments for the task function
-   :type func: str or object
+   :type func: object
    :param hook: Optional function to call after execution
-   :type hook: str or object
+   :type hook: object
    :param bool sync: If set to True, async will simulate a task execution
    :param redis: Optional redis connection
    :param kwargs: Keyword arguments for the task function
