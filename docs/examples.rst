@@ -34,6 +34,8 @@ Sending an email can take a while so why not queue it::
         # this schedule will erase itself after having run
 
 
+Since you're only telling Django Q to take care of the emails, you can quickly move on to serving web pages to your user.
+
 Signals
 =======
 
