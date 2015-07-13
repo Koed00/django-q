@@ -56,6 +56,30 @@ If you host on `Heroku <https://heroku.com>`__ or you are using `Honcho <https:/
 
     worker: python manage.py qcluster
 
+Process managers
+----------------
+While you certainly can run a Django Q with a process manager like `Supervisor <http://supervisord.org/>`__ or `Circus <https://circus.readthedocs.org/en/latest/>`__ it is not strictly necessary.
+The cluster has an internal sentinel that checks the health of all the processes and recycles or reincarnates according to your settings.
+Because of the multiprocessing daemonic nature of the cluster, it is impossible for a process manager to determine the clusters health and resource usage.
+
+An example :file:`circus.ini` ::
+
+    [circus]
+    check_delay = 5
+    endpoint = tcp://127.0.0.1:5555
+    pubsub_endpoint = tcp://127.0.0.1:5556
+    stats_endpoint = tcp://127.0.0.1:5557
+
+    [watcher:django_q]
+    cmd = python manage.py qcluster
+    numprocesses = 1
+    copy_env = True
+
+
+
+Note that we only start one process. It is not advised to run multiple instances of the cluster in the same environment since this does nothing to increase performance and in all likelihood will diminish it.
+Control your cluster using the `workers`, `recycle` and `timeout` settings in your :ref:`configuration`
+
 Architecture
 ------------
 
