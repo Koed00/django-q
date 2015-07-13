@@ -77,7 +77,7 @@ An example :file:`circus.ini` ::
 
 
 
-Note that we only start one process. It is not advised to run multiple instances of the cluster in the same environment since this does nothing to increase performance and in all likelihood will diminish it.
+Note that we only start one process. It is not a good idea to run multiple instances of the cluster in the same environment since this does nothing to increase performance and in all likelihood will diminish it.
 Control your cluster using the `workers`, `recycle` and `timeout` settings in your :ref:`configuration`
 
 Architecture
