@@ -58,7 +58,7 @@ A good place to use async tasks are Django's model signals. You don't want to de
                 # tell everyone
                 async('tasks.inform_everyone', instance)
 
-The task will send a message to everyone else informing them that the users email address has changed. Note that this has adds almost no overhead to the save action::
+The task will send a message to everyone else informing them that the users email address has changed. Note that this adds almost no overhead to the save action::
 
     # tasks.py
     def inform_everyone(user):
