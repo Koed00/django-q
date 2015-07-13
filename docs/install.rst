@@ -83,10 +83,10 @@ save_limit
 ~~~~~~~~~~
 
 Limits the amount of successful tasks saved to Django.
-- Set to ``0`` for unlimited.
-- Set to ``-1`` for no success storage at all.
-- Defaults to ``250``
-- Failures are always saved.
+ - Set to ``0`` for unlimited.
+ - Set to ``-1`` for no success storage at all.
+ - Defaults to ``250``
+ - Failures are always saved.
 
 label
 ~~~~~
