@@ -37,6 +37,7 @@ Contents:
     Cluster <cluster>
     Monitor <monitor>
     Admin <admin>
+    Examples <examples>
 
 * :ref:`genindex`
 * :ref:`search`
