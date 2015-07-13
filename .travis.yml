@@ -19,7 +19,7 @@ install:
 
 script:
   - coverage run --source=django_q -m py.test
-  - sphinx-build -nW -c docs/conf.py
+  - sphinx-build -b html -d docs/_build/doctrees  -nW docs docs/_build/html
 
 after_success:
   - coveralls

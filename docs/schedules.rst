@@ -1,24 +1,24 @@
 Schedules
 =========
+.. py:currentmodule:: django_q
 
 Schedule
 --------
 
-Schedules are regular Django models. You can manage them through the :ref:`admin_page` or directly from your code with the :func:`schedule` function or the :class:`Schedule` model:
+Schedules are regular Django models.
+You can manage them through the :ref:`admin_page` or directly from your code with the :func:`schedule` function or the :class:`Schedule` model:
 
 .. code:: python
 
     from django_q import Schedule, schedule
 
     # Use the schedule wrapper
-
     schedule('math.copysign',
              2, -2,
              hook='hooks.print_result',
              schedule_type=Schedule.DAILY)
 
     # Or create the object directly
-
     Schedule.objects.create(func='math.copysign',
                             hook='hooks.print_result',
                             args='2,-2',
@@ -31,24 +31,24 @@ Management Commands
 
 If you want to schedule regular Django management commands, you can use the :mod:`django.core.management` module to make a wrapper function which you can schedule in Django Q::
 
-	# tasks.py	
-	from django.core import management
-			
-	# wrapping `manage.py clearsessions`
-	def clear_sessions_command():
-	    return management.call_command('clearsessions')
+    # tasks.py
+    from django.core import management
 
-	# now you can schedule it to run every hour
-	from django_q import schedule
+    # wrapping `manage.py clearsessions`
+    def clear_sessions_command():
+        return management.call_command('clearsessions')
 
-	schedule('tasks.clear_sessions_command', schedule_type='H')
-	
+    # now you can schedule it to run every hour
+    from django_q import schedule
+
+    schedule('tasks.clear_sessions_command', schedule_type='H')
+
 
 
 Reference
 ---------
 
-.. py:function:: schedule(func, *args, hook=None, schedule_type='O', repeats=-1, next_run=now() , **kwargs)
+..  py:function:: schedule(func, *args, hook=None, schedule_type='O', repeats=-1, next_run=now() , **kwargs)
 
     Creates a schedule
 

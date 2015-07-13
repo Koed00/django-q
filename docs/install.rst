@@ -6,7 +6,7 @@ Installation
     $ pip install django-q
 
 
--  Add :mod:`django_q` to :const:`INSTALLED_APPS` in your projects :file:`settings.py`::
+-  Add :mod:`django_q` to `INSTALLED_APPS` in your projects :file:`settings.py`::
 
        INSTALLED_APPS = (
            # other apps
@@ -25,7 +25,7 @@ Installation
 Configuration
 -------------
 
-Configuration is handled via the :const:`Q_ClUSTER` dictionary in your :file:`settings.py`
+Configuration is handled via the `Q_ClUSTER` dictionary in your :file:`settings.py`
 
 .. code:: python
 
@@ -130,7 +130,7 @@ of the cache connection you want to use::
 
 
 .. tip::
-    Django Q uses your :const:`SECRET_KEY` to encrypt task packages and prevent task crossover. So make sure you have it set up in your Django settings.
+    Django Q uses your `SECRET_KEY` to encrypt task packages and prevent task crossover. So make sure you have it set up in your Django settings.
 
 Requirements
 ------------
@@ -166,3 +166,5 @@ Django Q is tested for Python 2.7 and 3.4
     $ pip install hiredis
 
     This C library maintained by the core Redis team is faster than the standard PythonParser during high loads.
+
+.. py:module:: django_q

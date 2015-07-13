@@ -1,4 +1,5 @@
 .. _admin_page:
+.. py:currentmodule:: django_q
 
 Admin pages
 ===========
