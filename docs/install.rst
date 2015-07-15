@@ -135,7 +135,7 @@ of the cache connection you want to use::
 cpu_affinity
 ~~~~~~~~~~~~
 
-Sets the number of processor each worker can use. This does not affect auxiliary process like the sentinel or monitor and is only useful for tweaking the performance of very high traffic clusters.
+Sets the number of processor each worker can use. This does not affect auxiliary processes like the sentinel or monitor and is only useful for tweaking the performance of very high traffic clusters.
 The affinity number has to be higher than zero and less than the total number of processors to have any effect. Defaults to using all processors::
 
     # processor affinity example.
@@ -168,13 +168,11 @@ The affinity number has to be higher than zero and less than the total number of
 
 In some cases, setting the cpu affinity for your workers can lead to performance improvements, especially if the load is high and consists of many repeating small tasks.
 Start with an affinity of 1 and work your way up. You will have to experiment with what works best for you.
-As a rule of thumb; cpu_affinity 1 favors repetitive short running tasks,while no affinity benefits longer running tasks.
+As a rule of thumb; cpu_affinity 1 favors repetitive short running tasks, while no affinity benefits longer running tasks.
 
 .. note::
 
-    The `cpu_affinity` setting requires the optional `psutil <https://github.com/giampaolo/psutil>`__ module by Giampaolo Rodola'.
-    You can install it with:
-    ``pip install psutil``
+    The `cpu_affinity` setting requires the optional :ref:`psutil <psutil>` module.
 
 Requirements
 ------------
@@ -202,13 +200,18 @@ Django Q is tested for Python 2.7 and 3.4
 
     This feature-filled fork of Erik Rose's blessings project provides the terminal layout of the monitor.
 
+Optional
+~~~~~~~~
+.. _psutil:
 
-.. tip::
+- `Psutil <https://github.com/giampaolo/psutil>`__   Giampaolo Rodola's python system and process utilities module, is an optional requirement and adds cpu affinity settings to the cluster::
 
-    Install the `Hiredis <https://github.com/redis/hiredis>`__ parser::
+    $ pip install psutil
+
+
+-  `Hiredis <https://github.com/redis/hiredis>`__ parser. This C library maintained by the core Redis team is faster than the standard PythonParser during high loads::
 
     $ pip install hiredis
 
-    This C library maintained by the core Redis team is faster than the standard PythonParser during high loads.
 
 .. py:module:: django_q
