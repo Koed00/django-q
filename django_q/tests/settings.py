@@ -102,4 +102,6 @@ LOGGING = {
 STATIC_URL = '/static/'
 
 # Django Q specific
-Q_CLUSTER = {'name': 'django_q_test'}
+Q_CLUSTER = {'name': 'django_q_test',
+             'cpu_affinity': 1,
+             'testing': True}

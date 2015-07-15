@@ -45,6 +45,9 @@ class Conf(object):
     # The Django Admin label for this app
     LABEL = conf.get('label', 'Django Q')
 
+    # Sets the number of processors for each worker, defaults to all.
+    CPU_AFFINITY = conf.get('cpu_affinity', 0)
+
     # Use the secret key for package signing
     # Django itself should raise an error if it's not configured
     SECRET_KEY = settings.SECRET_KEY
@@ -63,6 +66,9 @@ class Conf(object):
     IDLE = _("Idle")
     STOPPED = _('Stopped')
     STOPPING = _('Stopping')
+
+    # to manage workarounds during testing
+    TESTING = conf.get('testing', False)
 
 
 # logger

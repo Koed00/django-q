@@ -22,6 +22,12 @@ from multiprocessing import Queue, Event, Process, Value, current_process
 # external
 import arrow
 
+# optional
+try:
+    import psutil
+except ImportError:
+    psutil = None
+
 # Django
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -203,10 +209,15 @@ class Sentinel(object):
     def spawn_cluster(self):
         self.pool = []
         Stat(self).save()
+        # spawn worker pool
         for i in range(self.pool_size):
             self.spawn_worker()
+        # spawn auxiliary
         self.monitor = self.spawn_monitor()
         self.pusher = self.spawn_pusher()
+        # set worker cpu affinity if needed
+        if psutil and Conf.CPU_AFFINITY:
+            set_cpu_affinity(Conf.CPU_AFFINITY, [w.pid for w in self.pool])
 
     def guard(self):
         logger.info(_('{} guarding cluster at {}').format(current_process().name, self.pid))
@@ -460,3 +471,35 @@ def scheduler(list_key=Conf.Q_LIST):
             s.repeats = 0
         # save the schedule
         s.save()
+
+
+def set_cpu_affinity(n, process_ids, actual=not Conf.TESTING):
+    """
+    Sets the cpu affinity for the supplied processes.
+    Requires the optional psutil module.
+    :param int n:
+    :param list process_ids: a list of pids
+    :param bool actual: Test workaround for Travis not supporting cpu affinity
+    """
+    # check if we have the psutil module
+    if not psutil:
+        return
+    # get the available processors
+    cpu_list = list(range(psutil.cpu_count()))
+    # affinities of 0 or gte cpu_count, equals to no affinity
+    if not n or n >= len(cpu_list):
+        return
+    # spread the workers over the available processors.
+    index = 0
+    for pid in process_ids:
+        affinity = []
+        for k in range(n):
+            if index == len(cpu_list):
+                index = 0
+            affinity.append(cpu_list[index])
+            index += 1
+        if psutil.pid_exists(pid):
+            p = psutil.Process(pid)
+            if actual:
+                p.cpu_affinity(affinity)
+            logger.info('{} will use cpu {}'.format(pid, affinity))
