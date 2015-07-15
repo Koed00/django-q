@@ -85,3 +85,4 @@ def test_scheduler(r):
     scheduler(list_key=list_key)
     # ONCE schedule should be deleted
     assert Schedule.objects.filter(pk=once_schedule.pk).exists() is False
+    r.delete(list_key)
