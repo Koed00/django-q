@@ -136,7 +136,7 @@ cpu_affinity
 ~~~~~~~~~~~~
 
 Sets the number of processor each worker can use. This does not affect auxiliary process like the sentinel or monitor and is only useful for tweaking the performance of very high traffic clusters.
-The default is to use all available processors for all workers. The affinity number has to be higher than zero and less than the total number of processors to have any effect::
+The affinity number has to be higher than zero and less than the total number of processors to have any effect. Defaults to using all processors::
 
     # processor affinity example.
 
@@ -168,12 +168,13 @@ The default is to use all available processors for all workers. The affinity num
 
 In some cases, setting the cpu affinity for your workers can lead to performance improvements, especially if the load is high and consists of many repeating small tasks.
 Start with an affinity of 1 and work your way up. You will have to experiment with what works best for you.
-Usually a low affinity number has the most effect. Which could be positive or negative depending on your particular project.
+Usually a low affinity number has the most effect. Which could be a positive or negative one, depending on your particular project.
 
 .. note::
 
     The `cpu_affinity` setting requires the optional `psutil <https://github.com/giampaolo/psutil>`__ module by Giampaolo Rodola'.
-    You can install it with `pip install psutil`.
+    You can install it with:
+    ``pip install psutil``
 
 Requirements
 ------------
