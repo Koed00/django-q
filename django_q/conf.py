@@ -68,7 +68,7 @@ class Conf(object):
     STOPPING = _('Stopping')
 
     # to manage workarounds during testing
-    TESTING = conf.get('testings', False)
+    TESTING = conf.get('testing', False)
 
 
 # logger
