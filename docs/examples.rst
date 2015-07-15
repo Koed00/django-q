@@ -1,12 +1,12 @@
 Examples
 --------
 
-Sending mails
-=============
+Async emails
+============
 
 Sending an email can take a while so why not queue it::
 
-    # Welcome mail with follow up
+    # Welcome mail with follow up example
     from datetime import timedelta
     from django.utils import timezone
     from django_q import async, schedule, Schedule
@@ -80,6 +80,8 @@ The task will send a message to everyone else informing them that the users emai
             msg = msg.format(u.username, user.username, user.email)
             async('django.core.mail.send_mail',
                   'New email', msg, 'from@example.com', [u.email])
+
+
 
 
 .. note::
