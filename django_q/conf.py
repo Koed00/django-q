@@ -67,6 +67,9 @@ class Conf(object):
     STOPPED = _('Stopped')
     STOPPING = _('Stopping')
 
+    # to manage workarounds during testing
+    TESTING = conf.get('testings', False)
+
 
 # logger
 logger = logging.getLogger('django-q')

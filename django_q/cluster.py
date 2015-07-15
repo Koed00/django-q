@@ -473,12 +473,13 @@ def scheduler(list_key=Conf.Q_LIST):
         s.save()
 
 
-def set_cpu_affinity(n, process_ids):
+def set_cpu_affinity(n, process_ids, actual=not Conf.TESTING):
     """
     Sets the cpu affinity for the supplied processes.
     Requires the optional psutil module.
     :param int n:
     :param list process_ids: a list of pids
+    :param bool actual: Test workaround for Travis not supporting cpu affinity
     """
     # check if we have the psutil module
     if not psutil:
@@ -499,5 +500,6 @@ def set_cpu_affinity(n, process_ids):
             index += 1
         if psutil.pid_exists(pid):
             p = psutil.Process(pid)
-            p.cpu_affinity(affinity)
+            if actual:
+                p.cpu_affinity(affinity)
             logger.info('{} will use cpu {}'.format(pid, affinity))
