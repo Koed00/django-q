@@ -168,7 +168,7 @@ The affinity number has to be higher than zero and less than the total number of
 
 In some cases, setting the cpu affinity for your workers can lead to performance improvements, especially if the load is high and consists of many repeating small tasks.
 Start with an affinity of 1 and work your way up. You will have to experiment with what works best for you.
-Usually a low affinity number has the most effect. Which could be a positive or negative one, depending on your particular project.
+As a rule of thumb; cpu_affinity 1 favors repetitive short running tasks,while no affinity benefits longer running tasks.
 
 .. note::
 
