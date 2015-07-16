@@ -176,7 +176,7 @@ class Sentinel(object):
         return self.spawn_process(pusher, self.task_queue, self.event_out, self.list_key, self.r)
 
     def spawn_worker(self):
-        self.spawn_process(worker, self.task_queue, self.result_queue, Value('b', -1))
+        self.spawn_process(worker, self.task_queue, self.result_queue, Value('b', -1), self.timeout)
 
     def spawn_monitor(self):
         return self.spawn_process(monitor, self.result_queue)
@@ -195,7 +195,7 @@ class Sentinel(object):
         else:
             self.pool.remove(process)
             self.spawn_worker()
-            if self.timeout and int(process.timer.value) >= self.timeout:
+            if self.timeout and int(process.timer.value) == 0:
                 # only need to terminate on timeout, otherwise we risk destabilizing the queues
                 process.terminate()
                 logger.warn(_("reincarnated worker {} after timeout").format(process.name))
@@ -231,12 +231,12 @@ class Sentinel(object):
             # Check Workers
             for p in self.pool:
                 # Are you alive?
-                if not p.is_alive() or (self.timeout and int(p.timer.value) >= self.timeout):
+                if not p.is_alive() or (self.timeout and int(p.timer.value) == 0):
                     self.reincarnate(p)
                     continue
-                # Increment timer if work is being done
-                if p.timer.value >= 0:
-                    p.timer.value += 1
+                # Decrement timer if work is being done
+                if p.timer.value > 0:
+                    p.timer.value -= 1
             # Check Monitor
             if not self.monitor.is_alive():
                 self.reincarnate(self.monitor)
@@ -335,7 +335,7 @@ def monitor(result_queue):
     logger.info(_("{} stopped monitoring results").format(name))
 
 
-def worker(task_queue, result_queue, timer):
+def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
     """
     Takes a task from the task queue, tries to execute it and puts the result back in the result queue
     :type task_queue: multiprocessing.Queue
@@ -359,7 +359,7 @@ def worker(task_queue, result_queue, timer):
         # Get the function from the task
         logger.info(_('{} processing [{}]').format(name, task['name']))
         f = task['func']
-        # if it's not an instance try to get it from the string
+        # if it's not an instance try to get it from the stringIncrement
         if not callable(task['func']):
             try:
                 module, func = f.rsplit('.', 1)
@@ -370,7 +370,7 @@ def worker(task_queue, result_queue, timer):
         # We're still going
         if not result:
             # execute the payload
-            timer.value = 0  # Busy
+            timer.value = task['kwargs'].pop('timeout', timeout or 0)  # Busy
             try:
                 res = f(*task['args'], **task['kwargs'])
                 result = (res, True)
@@ -384,7 +384,7 @@ def worker(task_queue, result_queue, timer):
         timer.value = -1  # Idle
         # Recycle
         if task_count == Conf.RECYCLE:
-            timer.value = -2
+            timer.value = -2  # Recycled
             break
     logger.info(_('{} stopped doing work').format(name))
 

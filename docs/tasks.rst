@@ -78,7 +78,7 @@ When you are making individual calls to :func:`async` a lot though, it can help 
 Reference
 ---------
 
-.. py:function:: async(func, *args, hook=None, sync=False, redis=None, **kwargs)
+.. py:function:: async(func, *args, hook=None, timeout=None, sync=False, redis=None, **kwargs)
 
     Puts a task in the cluster queue
 
@@ -87,6 +87,7 @@ Reference
    :type func: object
    :param hook: Optional function to call after execution
    :type hook: object
+   :param int timeout: timeout in seconds. Overrides the cluster setting.
    :param bool sync: If set to True, async will simulate a task execution
    :param redis: Optional redis connection
    :param kwargs: Keyword arguments for the task function

@@ -1,8 +1,8 @@
 import sys
-import os
 from multiprocessing import Queue, Event, Value
 import threading
 
+import os
 import pytest
 
 myPath = os.path.dirname(os.path.abspath(__file__))
@@ -32,10 +32,12 @@ def r():
 def test_redis_connection(r):
     assert r.ping() is True
 
+
 @pytest.mark.django_db
 def test_sync(r):
     task = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, redis=r, sync=True)
     assert result(task) == 1506
+
 
 @pytest.mark.django_db
 def test_cluster_initial(r):
@@ -203,6 +205,60 @@ def test_timeout(r):
     assert start_event.is_set()
     assert s.status() == Conf.STOPPED
     assert s.reincarnations == 1
+    r.delete(list_key)
+
+
+@pytest.mark.django_db
+def test_timeout(r):
+    # set up the Sentinel
+    list_key = 'timeout_test:q'
+    async('django_q.tests.tasks.count_forever', list_key=list_key)
+    start_event = Event()
+    stop_event = Event()
+    # Set a timer to stop the Sentinel
+    threading.Timer(3, stop_event.set).start()
+    s = Sentinel(stop_event, start_event, list_key=list_key, timeout=1)
+    assert start_event.is_set()
+    assert s.status() == Conf.STOPPED
+    assert s.reincarnations == 1
+    r.delete(list_key)
+
+
+@pytest.mark.django_db
+def test_timeout_override(r):
+    # set up the Sentinel
+    list_key = 'timeout_override_test:q'
+    async('django_q.tests.tasks.count_forever', list_key=list_key, timeout=1)
+    start_event = Event()
+    stop_event = Event()
+    # Set a timer to stop the Sentinel
+    threading.Timer(3, stop_event.set).start()
+    s = Sentinel(stop_event, start_event, list_key=list_key, timeout=10)
+    assert start_event.is_set()
+    assert s.status() == Conf.STOPPED
+    assert s.reincarnations == 1
+    r.delete(list_key)
+
+
+@pytest.mark.django_db
+def test_recycle(r):
+    # set up the Sentinel
+    list_key = 'test_recycle_test:q'
+    async('django_q.tests.tasks.multiply', 2, 2, list_key=list_key)
+    async('django_q.tests.tasks.multiply', 2, 2, list_key=list_key)
+    async('django_q.tests.tasks.multiply', 2, 2, list_key=list_key)
+    start_event = Event()
+    stop_event = Event()
+    # override settings
+    Conf.RECYCLE = 2
+    Conf.WORKERS = 1
+    # Set a timer to stop the Sentinel
+    threading.Timer(3, stop_event.set).start()
+    s = Sentinel(stop_event, start_event, list_key=list_key)
+    assert start_event.is_set()
+    assert s.status() == Conf.STOPPED
+    assert s.reincarnations == 1
+    r.delete(list_key)
 
 
 @pytest.mark.django_db
