@@ -25,7 +25,7 @@ Installation
 Configuration
 -------------
 
-Configuration is handled via the `Q_ClUSTER` dictionary in your :file:`settings.py`
+Configuration is handled via the `Q_CLUSTER` dictionary in your :file:`settings.py`
 
 .. code:: python
 
@@ -37,6 +37,7 @@ Configuration is handled via the `Q_ClUSTER` dictionary in your :file:`settings.
         'timeout': 60,
         'compress': True,
         'save_limit': 250,
+        'cpu_affinity': 1,
         'label': 'Django Q',
         'redis': {
             'host': '127.0.0.1',
@@ -204,7 +205,7 @@ Optional
 ~~~~~~~~
 .. _psutil:
 
-- `Psutil <https://github.com/giampaolo/psutil>`__   Giampaolo Rodola's python system and process utilities module, is an optional requirement and adds cpu affinity settings to the cluster::
+- `Psutil <https://github.com/giampaolo/psutil>`__  python system and process utilities module by Giampaolo Rodola', is an optional requirement and adds cpu affinity settings to the cluster::
 
     $ pip install psutil
 
