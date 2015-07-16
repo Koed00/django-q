@@ -35,5 +35,9 @@ def get_task_name(task):
     return task.name
 
 
+def get_user_id(user):
+    return user.id
+
+
 def result(obj):
     print('RESULT HOOK {} : {}'.format(obj.name, obj.result))

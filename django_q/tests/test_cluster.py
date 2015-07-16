@@ -1,8 +1,9 @@
 import sys
-import os
 from multiprocessing import Queue, Event, Value
 import threading
 
+from django.contrib.auth.models import User
+import os
 import pytest
 
 myPath = os.path.dirname(os.path.abspath(__file__))
@@ -32,10 +33,12 @@ def r():
 def test_redis_connection(r):
     assert r.ping() is True
 
+
 @pytest.mark.django_db
 def test_sync(r):
     task = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, redis=r, sync=True)
     assert result(task) == 1506
+
 
 @pytest.mark.django_db
 def test_cluster_initial(r):
@@ -98,28 +101,30 @@ def test_cluster(r):
 
 
 @pytest.mark.django_db
-def test_async(r):
+def test_async(r, admin_user):
     list_key = 'cluster_test:q'
     r.delete(list_key)
     a = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, hook='django_q.tests.test_cluster.assert_result',
-              list_key=list_key)
+              list_key=list_key, redis=r)
     b = async('django_q.tests.tasks.count_letters2', WordClass(), hook='django_q.tests.test_cluster.assert_result',
-              list_key=list_key)
+              list_key=list_key, redis=r)
     # unknown argument
     c = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, 'oneargumentoomany',
-              hook='django_q.tests.test_cluster.assert_bad_result', list_key=list_key)
+              hook='django_q.tests.test_cluster.assert_bad_result', list_key=list_key, redis=r)
     # unknown function
     d = async('django_q.tests.tasks.does_not_exist', WordClass(), hook='django_q.tests.test_cluster.assert_bad_result',
-              list_key=list_key)
+              list_key=list_key, redis=r)
     # function without result
-    e = async('django_q.tests.tasks.countdown', 100000, list_key=list_key)
+    e = async('django_q.tests.tasks.countdown', 100000, list_key=list_key, redis=r)
     # function as instance
-    f = async(multiply, 753, 2, hook=assert_result, list_key=list_key)
+    f = async(multiply, 753, 2, hook=assert_result, list_key=list_key, redis=r)
     # model as argument
-    g = async('django_q.tests.tasks.get_task_name', Task(name='John'), list_key=list_key)
+    g = async('django_q.tests.tasks.get_task_name', Task(name='John'), list_key=list_key, redis=r)
     # args and kwargs and broken hook
     h = async('django_q.tests.tasks.word_multiply', 2, word='django', hook='fail.me', list_key=list_key, redis=r)
-    # check if everything has a task name
+    # args unpickle test
+    j = async('django_q.tests.tasks.get_user_id', admin_user, list_key=list_key, redis=r)
+    # check if everything has a task id
     assert isinstance(a, str)
     assert isinstance(b, str)
     assert isinstance(c, str)
@@ -128,8 +133,9 @@ def test_async(r):
     assert isinstance(f, str)
     assert isinstance(g, str)
     assert isinstance(h, str)
+    assert isinstance(j, str)
     # run the cluster to execute the tasks
-    task_count = 8
+    task_count = 9
     assert r.llen(list_key) == task_count
     task_queue = Queue()
     stop_event = Event()
@@ -187,6 +193,11 @@ def test_async(r):
     assert result_h is not None
     assert result_h.success is True
     assert result(h) == 12
+    # task j
+    result_j = fetch(j)
+    assert result_j is not None
+    assert result_j.success is True
+    assert result_j.result == result_j.args[0].id
     r.delete(list_key)
 
 
