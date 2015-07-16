@@ -18,9 +18,6 @@ class Command(BaseCommand):
                     help='Run once and then stop.'),
     )
 
-    def add_arguments(self, parser):
-        parser.add_argument('poll_id', nargs='+', type=int)
-
     def handle(self, *args, **options):
         q = Cluster()
         q.start()
