@@ -2,7 +2,6 @@ import sys
 from multiprocessing import Queue, Event, Value
 import threading
 
-from django.contrib.auth.models import User
 import os
 import pytest
 
