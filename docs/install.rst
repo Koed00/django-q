@@ -65,11 +65,13 @@ recycle
 
 The number of tasks a worker will process before recycling . Useful to release memory resources on a regular basis. Defaults to ``500``.
 
+.. _timeout:
+
 timeout
 ~~~~~~~
 
 The number of seconds a worker is allowed to spend on a task before it's terminated. Defaults to ``None``, meaning it will never time out.
-Set this to something that makes sense for your project.
+Set this to something that makes sense for your project. Can be overridden for individual tasks.
 
 compress
 ~~~~~~~~
