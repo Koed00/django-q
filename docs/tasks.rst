@@ -87,7 +87,7 @@ Reference
    :type func: object
    :param hook: Optional function to call after execution
    :type hook: object
-   :param int timeout: timeout in seconds. Overrides the cluster setting.
+   :param int timeout: Overrides global cluster :ref:`timeout`.
    :param bool sync: If set to True, async will simulate a task execution
    :param redis: Optional redis connection
    :param kwargs: Keyword arguments for the task function
