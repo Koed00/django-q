@@ -127,6 +127,8 @@ Use `async` from your code to quickly offload tasks:
     def print_result(task):
         print(task.result)
 
+For more info see `Tasks <http://django-q.readthedocs.org/en/latest/tasks.html>`__
+
 
 Schedule
 ~~~~~~~~
@@ -152,6 +154,8 @@ Admin page or directly from your code:
                             args='2,-2',
                             schedule_type=Schedule.DAILY
                             )
+
+For more info check `Schedules <http://django-q.readthedocs.org/en/latest/schedules.html>`__
 
 
 Testing
