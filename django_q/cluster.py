@@ -313,7 +313,7 @@ def pusher(task_queue, e, list_key=Conf.Q_LIST, r=redis_client):
         if task:
             task = task[1]
             task_queue.put(task)
-            logger.debug(_('queueing {}').format(task))
+            logger.debug(_('queueing from {}').format(list_key))
         if e.is_set():
             break
     logger.info(_("{} stopped pushing tasks").format(current_process().name))
