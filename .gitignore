@@ -61,3 +61,5 @@ manage.py
 testq
 db.sqlite3
 .venv
+.idea
+djq
