@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='schedule',
             name='name',
-            field=models.CharField(max_length=256, null=True),
+            field=models.CharField(max_length=100, null=True),
         ),
         migrations.AddField(
             model_name='task',
