@@ -31,7 +31,7 @@ class Task(models.Model):
             return Task.objects.get(name=task_id).result
 
     @staticmethod
-    def get_group_result(group_id):
+    def get_result_group(group_id):
         # values_list() doesn't work here cause it returns encoded fields
         return [t.result for t in Task.get_task_group(group_id)]
 
