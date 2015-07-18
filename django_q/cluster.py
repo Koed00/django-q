@@ -404,12 +404,13 @@ def save_task(task):
         Task.objects.create(id=task['id'],
                             name=task['name'],
                             func=task['func'],
-                            hook=task['hook'],
+                            hook=task.get('hook'),
                             args=task['args'],
                             kwargs=task['kwargs'],
                             started=task['started'],
                             stopped=task['stopped'],
                             result=task['result'],
+                            group=task.get('group'),
                             success=task['success'])
     except Exception as e:
         logger.error(e)
@@ -455,13 +456,15 @@ def scheduler(list_key=Conf.Q_LIST):
             s.repeats += -1
         # send it to the cluster
         kwargs['list_key'] = list_key
+        kwargs['group'] = s.name or s.id
         s.task = tasks.async(s.func, *args, **kwargs)
         # log it
         if not s.task:
-            logger.error(_('{} failed to create a task from schedule {} [{}]').format(current_process().name, s.id),
-                         s.func)
+            logger.error(
+                _('{} failed to create a task from schedule [{}]').format(current_process().name, s.name or s.id))
         else:
-            logger.info(_('{} created a task from schedule {} [{}]').format(current_process().name, s.id, s.func))
+            logger.info(
+                _('{} created a task from schedule [{}]').format(current_process().name, s.name or s.id))
         # default behavior is to delete a ONCE schedule
         if s.schedule_type == s.ONCE:
             if s.repeats < 0:
