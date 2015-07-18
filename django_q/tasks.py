@@ -96,7 +96,7 @@ def result_group(group_id):
     :param str group_id: the group id
     :return: list or results
     """
-    return Task.get_group_result(group_id)
+    return Task.get_result_group(group_id)
 
 
 def fetch(task_id):
