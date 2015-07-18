@@ -51,7 +51,7 @@ Reference
 ..  py:function:: schedule(func, *args, hook=None, schedule_type='O', repeats=-1, next_run=now() , **kwargs)
 
     Creates a schedule
-
+    :param str name: A sensible name for your schedule
     :param str func: the function to schedule. Dotted strings only.
     :param args: arguments for the scheduled function.
     :param str hook: optional result hook function. Dotted strings only.
@@ -67,6 +67,10 @@ Reference
     .. py:attribute:: id
 
     Primary key
+
+    .. py:attribute:: name
+
+    A name for your schedule. Tasks created by this schedule will assume this as their group id.
 
     .. py:attribute:: func
 

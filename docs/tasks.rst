@@ -31,6 +31,31 @@ Use :func:`async` from your code to quickly offload tasks to the :class:`Cluster
     def print_result(task):
         print(task.result)
 
+Groups
+------
+You can group together results by passing :func:`async` the optional `group` keyword:
+
+.. code-block:: python
+
+    from django_q import async, result_group
+
+    for i in range(4):
+        async('math.modf', i, group='modf')
+
+    # after the tasks have finished you can get the group results
+    result = result_group('modf')
+    print(result)
+
+.. code-block:: python
+
+    [(0.0, 0.0), (0.0, 1.0), (0.0, 2.0), (0.0, 3.0)]
+
+Take care that you haven't limited your results database too much and that the group identifier is unique for each run.
+Instead of :func:`result_group` you can also use :func:`fetch_group` to return a list of :class:`Task` objects.
+
+.. note::
+    Tasks created by a schedule, will use the schedules name as their group id.
+
 Synchronous testing
 -------------------
 
@@ -78,19 +103,19 @@ When you are making individual calls to :func:`async` a lot though, it can help 
 Reference
 ---------
 
-.. py:function:: async(func, *args, hook=None, timeout=None, sync=False, redis=None, **kwargs)
+.. py:function:: async(func, *args, hook=None, group=None, timeout=None,\
+    sync=False, redis=None, **kwargs)
 
     Puts a task in the cluster queue
 
-   :param func: The task function to execute
-   :param args: The arguments for the task function
-   :type func: object
-   :param hook: Optional function to call after execution
-   :type hook: object
+   :param object func: The task function to execute
+   :param tuple args: The arguments for the task function
+   :param object hook: Optional function to call after execution
+   :param str group: An optional group identifier
    :param int timeout: Overrides global cluster :ref:`timeout`.
    :param bool sync: If set to True, async will simulate a task execution
    :param redis: Optional redis connection
-   :param kwargs: Keyword arguments for the task function
+   :param dict kwargs: Keyword arguments for the task function
    :returns: The uuid of the task
    :rtype: str
 
@@ -106,12 +131,28 @@ Reference
     Returns a previously executed task
 
     :param str name: the uuid or name of the task
-    :returns: The task
+    :returns: The task if any
     :rtype: Task
 
     .. versionchanged:: 0.2.0
 
     Renamed from get_task
+
+.. py:function:: result_group(group_id)
+
+    Returns the results of a task group
+
+    :param str group_id: the group identifier
+    :returns: a list of results
+    :rtype: list
+
+.. py:function:: fetch_group(group_id)
+
+    Returns a list of tasks in a group
+
+    :param str group_id: the group identifier
+    :returns: a list of Tasks
+    :rtype: list
 
 .. py:class:: Task
 
@@ -174,7 +215,19 @@ Reference
 
     .. py:classmethod:: get_result(task_id)
 
-     Get a result directly by task uuid or name
+    Gets a result directly by task uuid or name.
+
+    .. py:classmethod:: get_result_group(group_id)
+
+    Returns a list of results from a task group.
+
+    .. py:classmethod:: get_task(task_id)
+
+    Fetches a single task object by uuid or name.
+
+    .. py:classmethod:: get_task_group(group_id)
+
+    Gets a queryset of tasks with this group id.
 
 .. py:class:: Success
 
