@@ -37,6 +37,7 @@ You can group together results by passing :func:`async` the optional `group` key
 
 .. code-block:: python
 
+    # result group example
     from django_q import async, result_group
 
     for i in range(4):
@@ -50,11 +51,26 @@ You can group together results by passing :func:`async` the optional `group` key
 
     [(0.0, 0.0), (0.0, 1.0), (0.0, 2.0), (0.0, 3.0)]
 
-Take care that you haven't limited your results database too much and that the group identifier is unique for each run.
-Instead of :func:`result_group` you can also use :func:`fetch_group` to return a list of :class:`Task` objects.
+Take care to not limit your results database too much and that the group identifier is unique for each run.
+Instead of :func:`result_group` you can also use :func:`fetch_group` to return a queryset of :class:`Task` objects.:
+
+.. code-block:: python
+
+    # fetch group example
+    from django_q import fetch_group
+
+    # count the number of failures
+    failure_count = fetch_group('modf').filter(success=False).count()
+
+    # or print only the successful results
+    successes = fetch_group('modf').exclude(success=False)
+    results =  [task.result for task in successes]
+    print(results)
 
 .. note::
-    Tasks created by a schedule, will use the schedule name as their group id. This enables you to browse the schedule's history.
+
+   Although :func:`fetch_group` returns a queryset, due to the nature of the PickleField , `Queryset.values` will return a list of encoded results.
+   Use list comprehension or an iterator instead.
 
 Synchronous testing
 -------------------
