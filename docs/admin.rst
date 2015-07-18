@@ -11,7 +11,8 @@ Successful tasks
 ----------------
 
 Shows all successfully executed tasks. Meaning they did not encounter any errors during execution.
-From here you can look at details of each task or delete them.
+From here you can look at details of each task or delete them. Use the group column to sort your results by schedule name or group id.
+The table is searchable by `name`, `func` and `group`
 
 Uses the :class:`Success` proxy model.
 

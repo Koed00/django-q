@@ -54,7 +54,7 @@ Take care that you haven't limited your results database too much and that the g
 Instead of :func:`result_group` you can also use :func:`fetch_group` to return a list of :class:`Task` objects.
 
 .. note::
-    Tasks created by a schedule, will use the schedules name as their group id.
+    Tasks created by a schedule, will use the schedule name as their group id. This enables you to browse the schedule's history.
 
 Synchronous testing
 -------------------

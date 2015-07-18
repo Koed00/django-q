@@ -54,6 +54,7 @@ def schedule(func, *args, **kwargs):
     """
     :param func: function to schedule
     :param args: function arguments
+    :param name: optional name for the schedule
     :param hook: optional result hook function
     :type schedule_type: Schedule.TYPE
     :param repeats: how many times to repeat. 0=never, -1=always
@@ -64,12 +65,14 @@ def schedule(func, *args, **kwargs):
     :rtype: Schedule
     """
 
+    name = kwargs.pop('name', None)
     hook = kwargs.pop('hook', None)
     schedule_type = kwargs.pop('schedule_type', Schedule.ONCE)
     repeats = kwargs.pop('repeats', -1)
     next_run = kwargs.pop('next_run', timezone.now())
 
-    return Schedule.objects.create(func=func,
+    return Schedule.objects.create(name=name,
+                                   func=func,
                                    hook=hook,
                                    args=args,
                                    kwargs=kwargs,

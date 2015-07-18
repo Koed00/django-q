@@ -20,6 +20,7 @@ def test_scheduler(r):
     r.delete(list_key)
     schedule = create_schedule('math.copysign',
                                1, -1,
+                               name='test math',
                                hook='django_q.tests.tasks.result',
                                schedule_type=Schedule.HOURLY,
                                repeats=1)
