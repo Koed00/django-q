@@ -11,7 +11,8 @@ class TaskAdmin(admin.ModelAdmin):
         'func',
         'started',
         'stopped',
-        'time_taken'
+        'time_taken',
+        'group'
     )
 
     def has_add_permission(self, request, obj=None):
@@ -23,7 +24,7 @@ class TaskAdmin(admin.ModelAdmin):
         qs = super(TaskAdmin, self).get_queryset(request)
         return qs.filter(success=True)
 
-    search_fields = ('name', 'func')
+    search_fields = ('name', 'func', 'group')
     readonly_fields = []
 
     def get_readonly_fields(self, request, obj=None):
@@ -65,6 +66,7 @@ class FailAdmin(admin.ModelAdmin):
 class ScheduleAdmin(admin.ModelAdmin):
     list_display = (
         'id',
+        'name',
         'func',
         'schedule_type',
         'repeats',
@@ -75,7 +77,7 @@ class ScheduleAdmin(admin.ModelAdmin):
 
     list_filter = ('next_run', 'schedule_type')
     search_fields = ('func',)
-    list_display_links = ('id', 'func')
+    list_display_links = ('id', 'name')
 
 
 admin.site.register(Schedule, ScheduleAdmin)

@@ -1,6 +1,6 @@
-import importlib
 import logging
 
+import importlib
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
@@ -18,6 +18,7 @@ class Task(models.Model):
     args = PickledObjectField(null=True)
     kwargs = PickledObjectField(null=True)
     result = PickledObjectField(null=True)
+    group = models.CharField(max_length=100, editable=False, null=True)
     started = models.DateTimeField(editable=False)
     stopped = models.DateTimeField(editable=False)
     success = models.BooleanField(default=True, editable=False)
@@ -30,11 +31,20 @@ class Task(models.Model):
             return Task.objects.get(name=task_id).result
 
     @staticmethod
+    def get_result_group(group_id):
+        # values_list() doesn't work here cause it returns encoded fields
+        return [t.result for t in Task.get_task_group(group_id)]
+
+    @staticmethod
     def get_task(task_id):
         if len(task_id) == 32 and Task.objects.filter(id=task_id).exists():
             return Task.objects.get(id=task_id)
         elif Task.objects.filter(name=task_id).exists():
             return Task.objects.get(name=task_id)
+
+    @staticmethod
+    def get_task_group(group_id):
+        return Task.objects.filter(group=group_id)
 
     def time_taken(self):
         return (self.stopped - self.started).total_seconds()
@@ -101,6 +111,7 @@ class Failure(Task):
 
 
 class Schedule(models.Model):
+    name = models.CharField(max_length=100, null=True)
     func = models.CharField(max_length=256, help_text='e.g. module.tasks.function')
     hook = models.CharField(max_length=256, null=True, blank=True, help_text='e.g. module.tasks.result_function')
     args = models.TextField(null=True, blank=True, help_text=_("e.g. 1, 2, 'John'"))

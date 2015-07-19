@@ -25,20 +25,27 @@ def async(func, *args, **kwargs):
     # optional list_key
     list_key = kwargs.pop('list_key', Conf.Q_LIST)
     # optional redis connection
-    r = kwargs.pop('redis', redis_client)
+    redis = kwargs.pop('redis', redis_client)
     # optional sync mode
-    s = kwargs.pop('sync', False)
+    sync = kwargs.pop('sync', False)
+    # optional group
+    group = kwargs.pop('group', None)
     # get an id
     tag = uuid()
     # build the task package
-    task = {'id': tag[1], 'name': tag[0], 'func': func, 'hook': hook, 'args': args, 'kwargs': kwargs,
+    task = {'id': tag[1], 'name': tag[0], 'func': func, 'args': args, 'kwargs': kwargs,
             'started': timezone.now()}
+    # add optionals
+    if hook:
+        task['hook'] = hook
+    if group:
+        task['group'] = group
     # sign it
     pack = signing.SignedPackage.dumps(task)
-    if s:
+    if sync:
         return _sync(task['id'], pack)
     # push it
-    r.rpush(list_key, pack)
+    redis.rpush(list_key, pack)
     logger.debug('Pushed {}'.format(tag))
     return task['id']
 
@@ -47,6 +54,7 @@ def schedule(func, *args, **kwargs):
     """
     :param func: function to schedule
     :param args: function arguments
+    :param name: optional name for the schedule
     :param hook: optional result hook function
     :type schedule_type: Schedule.TYPE
     :param repeats: how many times to repeat. 0=never, -1=always
@@ -57,12 +65,14 @@ def schedule(func, *args, **kwargs):
     :rtype: Schedule
     """
 
+    name = kwargs.pop('name', None)
     hook = kwargs.pop('hook', None)
     schedule_type = kwargs.pop('schedule_type', Schedule.ONCE)
     repeats = kwargs.pop('repeats', -1)
     next_run = kwargs.pop('next_run', timezone.now())
 
-    return Schedule.objects.create(func=func,
+    return Schedule.objects.create(name=name,
+                                   func=func,
                                    hook=hook,
                                    args=args,
                                    kwargs=kwargs,
@@ -83,6 +93,15 @@ def result(task_id):
     return Task.get_result(task_id)
 
 
+def result_group(group_id):
+    """
+    returns a list of results for a task group
+    :param str group_id: the group id
+    :return: list or results
+    """
+    return Task.get_result_group(group_id)
+
+
 def fetch(task_id):
     """
     Returns the processed task
@@ -92,6 +111,16 @@ def fetch(task_id):
     :rtype: Task
     """
     return Task.get_task(task_id)
+
+
+def fetch_group(group_id):
+    """
+    Returns a list of Tasks for a task group
+    :param str group_id: the group id
+    :return: list of Tasks
+    """
+
+    return Task.get_task_group(group_id)
 
 
 def _sync(task_id, pack):

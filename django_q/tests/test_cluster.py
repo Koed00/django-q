@@ -10,7 +10,7 @@ sys.path.insert(0, myPath + '/../')
 
 from django_q.cluster import Cluster, Sentinel, pusher, worker, monitor
 from django_q.humanhash import DEFAULT_WORDLIST
-from django_q.tasks import fetch, async, result
+from django_q.tasks import fetch, fetch_group, async, result, result_group
 from django_q.models import Task
 from django_q.conf import Conf, redis_client
 from .tasks import multiply
@@ -119,10 +119,10 @@ def test_async(r, admin_user):
     f = async(multiply, 753, 2, hook=assert_result, list_key=list_key, redis=r)
     # model as argument
     g = async('django_q.tests.tasks.get_task_name', Task(name='John'), list_key=list_key, redis=r)
-    # args and kwargs and broken hook
+    # args,kwargs, group and broken hook
     h = async('django_q.tests.tasks.word_multiply', 2, word='django', hook='fail.me', list_key=list_key, redis=r)
     # args unpickle test
-    j = async('django_q.tests.tasks.get_user_id', admin_user, list_key=list_key, redis=r)
+    j = async('django_q.tests.tasks.get_user_id', admin_user, list_key=list_key, group='test_j', redis=r)
     # check if everything has a task id
     assert isinstance(a, str)
     assert isinstance(b, str)
@@ -197,6 +197,8 @@ def test_async(r, admin_user):
     assert result_j is not None
     assert result_j.success is True
     assert result_j.result == result_j.args[0].id
+    assert result_group('test_j') == [result_j.result]
+    assert fetch_group('test_j')[0].id == [result_j][0].id
     r.delete(list_key)
 
 

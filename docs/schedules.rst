@@ -48,12 +48,13 @@ If you want to schedule regular Django management commands, you can use the :mod
 Reference
 ---------
 
-..  py:function:: schedule(func, *args, hook=None, schedule_type='O', repeats=-1, next_run=now() , **kwargs)
+..  py:function:: schedule(func, *args, name=None, hook=None, schedule_type='O', repeats=-1, next_run=now() , **kwargs)
 
     Creates a schedule
 
     :param str func: the function to schedule. Dotted strings only.
     :param args: arguments for the scheduled function.
+    :param str name: An optional name for your schedule.
     :param str hook: optional result hook function. Dotted strings only.
     :param str schedule_type: (O)nce, (H)ourly, (D)aily, (W)eekly, (M)onthly, (Q)uarterly, (Y)early or :attr:`Schedule.TYPE`
     :param int repeats: Number of times to repeat schedule. -1=Always, 0=Never, n =n.
@@ -67,6 +68,10 @@ Reference
     .. py:attribute:: id
 
     Primary key
+
+    .. py:attribute:: name
+
+    A name for your schedule. Tasks created by this schedule will assume this or the primary key as their group id.
 
     .. py:attribute:: func
 
