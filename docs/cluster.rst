@@ -42,6 +42,8 @@ Stopping the cluster with ctrl-c or either the `SIGTERM` and `SIGKILL` signals, 
     16:44:14 [Q] INFO Process-1:9 stopped monitoring results
     16:44:15 [Q] INFO Q Cluster-31781 has stopped.
 
+The number of workers, optional timeouts, recycles and cpu_affinity can be controlled via the :ref:`configuration` settings.
+
 Multiple Clusters
 -----------------
 You can have multiple clusters on multiple machines, working on the same queue as long as:

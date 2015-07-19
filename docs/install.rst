@@ -203,6 +203,10 @@ Django Q is tested for Python 2.7 and 3.4
 
     This feature-filled fork of Erik Rose's blessings project provides the terminal layout of the monitor.
 
+-  `Redis server <http://redis.io/>`__
+
+    Django Q uses Redis as a centralized hub between your Django instances and your Q clusters.
+
 Optional
 ~~~~~~~~
 .. _psutil:
