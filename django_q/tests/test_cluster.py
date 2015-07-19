@@ -10,7 +10,7 @@ sys.path.insert(0, myPath + '/../')
 
 from django_q.cluster import Cluster, Sentinel, pusher, worker, monitor
 from django_q.humanhash import DEFAULT_WORDLIST
-from django_q.tasks import fetch, fetch_group, async, result, result_group
+from django_q.tasks import fetch, fetch_group, async, result, result_group, count_group, delete_group
 from django_q.models import Task
 from django_q.conf import Conf, redis_client
 from .tasks import multiply
@@ -197,8 +197,17 @@ def test_async(r, admin_user):
     assert result_j is not None
     assert result_j.success is True
     assert result_j.result == result_j.args[0].id
+    # check fetch, result by name
+    assert fetch(result_j.name) == result_j
+    assert result(result_j.name) == result_j.result
+    # groups
     assert result_group('test_j') == [result_j.result]
     assert fetch_group('test_j')[0].id == [result_j][0].id
+    assert count_group('test_j') == 1
+    assert count_group('test_j', failures=True) == 0
+    assert delete_group('test_j') == 1
+    assert delete_group('test_j', tasks=True) is None
+
     r.delete(list_key)
 
 

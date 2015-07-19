@@ -123,6 +123,26 @@ def fetch_group(group_id):
     return Task.get_task_group(group_id)
 
 
+def count_group(group_id, failures=False):
+    """
+    :param str group_id: the group id
+    :param bool failures: Returns failure count if True
+    :return: the number of tasks/results in a group
+    :rtype: int
+    """
+    return Task.get_group_count(group_id, failures)
+
+
+def delete_group(group_id, tasks=False):
+    """
+    :param str group_id: the group id
+    :param bool tasks: If set to True this will also delete the group tasks.
+    Otherwise just the group label is removed.
+    :return:
+    """
+    return Task.delete_group(group_id, tasks)
+
+
 def _sync(task_id, pack):
     """
     Simulates a package travelling through the cluster.

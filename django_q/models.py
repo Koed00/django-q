@@ -38,6 +38,19 @@ class Task(models.Model):
         return [dbsafe_decode(t) for t in values]
 
     @staticmethod
+    def get_group_count(group_id, failures=False):
+        if failures:
+            return Failure.objects.filter(group=group_id).count()
+        return Task.objects.filter(group=group_id).count()
+
+    @staticmethod
+    def delete_group(group_id, objects=False):
+        group = Task.objects.filter(group=group_id)
+        if objects:
+            return group.delete()
+        return group.update(group=None)
+
+    @staticmethod
     def get_task(task_id):
         if len(task_id) == 32 and Task.objects.filter(id=task_id).exists():
             return Task.objects.get(id=task_id)
