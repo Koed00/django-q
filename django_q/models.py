@@ -4,7 +4,7 @@ import importlib
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
-from django.db.models.signals import pre_save
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from picklefield import PickledObjectField
@@ -32,9 +32,12 @@ class Task(models.Model):
             return Task.objects.get(name=task_id).result
 
     @staticmethod
-    def get_result_group(group_id):
+    def get_result_group(group_id, failures=False):
         # values + decode is 10 times faster than just list comprehension
-        values = Task.objects.filter(group=group_id).values_list('result', flat=True)
+        if failures:
+            values = Task.objects.filter(group=group_id).values_list('result', flat=True)
+        else:
+            values = Task.objects.filter(group=group_id).exclude(success=False).values_list('result', flat=True)
         return [dbsafe_decode(t) for t in values]
 
     @staticmethod
@@ -58,8 +61,10 @@ class Task(models.Model):
             return Task.objects.get(name=task_id)
 
     @staticmethod
-    def get_task_group(group_id):
-        return Task.objects.filter(group=group_id)
+    def get_task_group(group_id, failures=True):
+        if failures:
+            return Task.objects.filter(group=group_id)
+        return Task.objects.filter(group=group_id).exclude(success=False)
 
     def time_taken(self):
         return (self.stopped - self.started).total_seconds()
@@ -72,7 +77,7 @@ class Task(models.Model):
         ordering = ['-stopped']
 
 
-@receiver(pre_save, sender=Task)
+@receiver(post_save, sender=Task)
 def call_hook(sender, instance, **kwargs):
     if instance.hook:
         logger = logging.getLogger('django-q')

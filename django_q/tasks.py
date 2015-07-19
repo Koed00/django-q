@@ -93,13 +93,14 @@ def result(task_id):
     return Task.get_result(task_id)
 
 
-def result_group(group_id):
+def result_group(group_id, failures=False):
     """
     returns a list of results for a task group
     :param str group_id: the group id
+    :param bool failures: set to True to include failures
     :return: list or results
     """
-    return Task.get_result_group(group_id)
+    return Task.get_result_group(group_id, failures)
 
 
 def fetch(task_id):
@@ -113,14 +114,15 @@ def fetch(task_id):
     return Task.get_task(task_id)
 
 
-def fetch_group(group_id):
+def fetch_group(group_id, failures=True):
     """
     Returns a list of Tasks for a task group
     :param str group_id: the group id
+    :param bool failures: set to False to exclude failures
     :return: list of Tasks
     """
 
-    return Task.get_task_group(group_id)
+    return Task.get_task_group(group_id, failures)
 
 
 def count_group(group_id, failures=False):
