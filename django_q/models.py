@@ -48,7 +48,7 @@ class Task(models.Model):
         group = Task.objects.filter(group=group_id)
         if objects:
             return group.delete()
-        return group.update(group_id=None)
+        return group.update(group=None)
 
     @staticmethod
     def get_task(task_id):
