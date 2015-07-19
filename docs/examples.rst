@@ -135,6 +135,56 @@ In this example the user requests a report and we let the cluster do the generat
 
 The hook is practical here, cause it allows us to detach the sending task from the report generation function and to report on possible failures.
 
+
+Groups
+======
+A group example with Kernel density estimation for probability density functions using the Parzen-window technique.
+Adapted from `Sebastian Raschka's blog <http://sebastianraschka.com/Articles/2014_multiprocessing_intro.html>`__
+
+.. code-block:: python
+
+    # Group example with Parzen-window estimation
+    import numpy
+
+    from django_q import async, result_group,\
+        count_group, delete_group
+
+    # the estimation function
+    def parzen_estimation(x_samples, point_x, h):
+        k_n = 0
+        for row in x_samples:
+            x_i = (point_x - row[:, numpy.newaxis]) / h
+            for row in x_i:
+                if numpy.abs(row) > (1 / 2):
+                    break
+            else:
+                k_n += 1
+        return h, (k_n / len(x_samples)) / (h ** point_x.shape[1])
+
+
+    # create 100 calculations and send them to the cluster
+    def parzen_async():
+        # clear the previous results
+        delete_group('parzen', tasks=True)
+        mu_vec = numpy.array([0, 0])
+        cov_mat = numpy.array([[1, 0], [0, 1]])
+        sample = numpy.random.\
+            multivariate_normal(mu_vec, cov_mat, 10000)
+        widths = numpy.linspace(1.0, 1.2, 100)
+        x = numpy.array([[0], [0]])
+        # async them with a group label and a hook
+        for w in widths:
+            async(parzen_estimation, sample, x, w,
+             group='parzen', hook=parzen_hook)
+
+    # wait for 100 results to return and print it.
+    def parzen_hook(task):
+        if count_group('parzen') == 100:
+            print(result_group('parzen'))
+
+
+Django Q is not optimized for distributed computing, but this example will give you an idea of what you can do with task :ref:`groups`.
+
 .. note::
 
     If you have an example you want to share, please submit a pull request on `github <https://github.com/Koed00/django-q/>`__.

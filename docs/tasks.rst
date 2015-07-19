@@ -31,6 +31,8 @@ Use :func:`async` from your code to quickly offload tasks to the :class:`Cluster
     def print_result(task):
         print(task.result)
 
+.. _groups:
+
 Groups
 ------
 You can group together results by passing :func:`async` the optional `group` keyword:
