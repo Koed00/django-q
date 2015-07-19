@@ -4,7 +4,7 @@ import importlib
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
-from django.db.models.signals import pre_save
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from picklefield import PickledObjectField
@@ -72,7 +72,7 @@ class Task(models.Model):
         ordering = ['-stopped']
 
 
-@receiver(pre_save, sender=Task)
+@receiver(post_save, sender=Task)
 def call_hook(sender, instance, **kwargs):
     if instance.hook:
         logger = logging.getLogger('django-q')
