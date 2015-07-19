@@ -64,7 +64,7 @@ class Task(models.Model):
     def get_task_group(group_id, failures=True):
         if failures:
             return Task.objects.filter(group=group_id)
-        return Task.objects.filter(group_id=group_id).exclude(success=False)
+        return Task.objects.filter(group=group_id).exclude(success=False)
 
     def time_taken(self):
         return (self.stopped - self.started).total_seconds()
