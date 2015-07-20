@@ -2,6 +2,8 @@ Tasks
 =====
 .. py:currentmodule:: django_q
 
+.. _async:
+
 Async
 -----
 
@@ -30,6 +32,48 @@ Use :func:`async` from your code to quickly offload tasks to the :class:`Cluster
     # hooks.py
     def print_result(task):
         print(task.result)
+
+:func:`async` can take the following optional keyword arguments:
+
+hook
+""""
+The function to call after the task has been executed. This function gets passed the complete :class:`Task` object as its argument.
+
+group
+"""""
+A group label. Check :ref:`groups` for group functions
+
+save
+""""
+Overrides the result backend's save setting.
+
+timeout
+"""""""
+Overrides the cluster's timeout setting.
+
+sync
+""""
+Simulates a task execution synchronously. Useful for testing.
+
+redis
+"""""
+A redis connection. In case you want to control your own connections.
+
+q_options
+"""""""""
+None of the option keywords get passed on to the function.
+As an alternative you can also put them in
+a single keyword dict named ``q_options``. This enables you to use these keywords for your function call::
+
+    # Async options in a dict
+
+    opts = {'hook': 'hooks.print_result',
+            'group': 'math',
+            'timeout': 30}
+
+    async('math.modf', 2.5, q_options=opts)
+
+Please not that this will override any other option keywords.
 
 .. _groups:
 
@@ -133,7 +177,7 @@ Reference
 ---------
 
 .. py:function:: async(func, *args, hook=None, group=None, timeout=None,\
-    sync=False, redis=None, **kwargs)
+    sync=False, redis=None, q_options=None, **kwargs)
 
     Puts a task in the cluster queue
 
@@ -144,6 +188,7 @@ Reference
    :param int timeout: Overrides global cluster :ref:`timeout`.
    :param bool sync: If set to True, async will simulate a task execution
    :param redis: Optional redis connection
+   :param dict q_options: Options dict, overrides option keywords
    :param dict kwargs: Keyword arguments for the task function
    :returns: The uuid of the task
    :rtype: str

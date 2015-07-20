@@ -25,6 +25,13 @@ You can manage them through the :ref:`admin_page` or directly from your code wit
                             schedule_type=Schedule.DAILY
                             )
 
+    # In case you want to use async options
+    schedule('math.sqrt',
+             9,
+             hook='hooks.print_result',
+             q_options={'timeout': 30},
+             schedule_type=Schedule.HOURLY)
+
 
 Management Commands
 -------------------
@@ -59,6 +66,7 @@ Reference
     :param str schedule_type: (O)nce, (H)ourly, (D)aily, (W)eekly, (M)onthly, (Q)uarterly, (Y)early or :attr:`Schedule.TYPE`
     :param int repeats: Number of times to repeat schedule. -1=Always, 0=Never, n =n.
     :param datetime next_run: Next or first scheduled execution datetime.
+    :param dict q_options: async options to use for this schedule
     :param kwargs: optional keyword arguments for the scheduled function.
 
 .. class:: Schedule
