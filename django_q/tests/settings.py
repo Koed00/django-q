@@ -24,7 +24,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_q'
+    'django_q',
+    'django_redis'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -101,8 +102,21 @@ LOGGING = {
 
 STATIC_URL = '/static/'
 
+# Django Redis
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/0",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "PARSER_CLASS": "redis.connection.HiredisParser",
+        }
+    }
+}
+
 # Django Q specific
 Q_CLUSTER = {'name': 'django_q_test',
              'cpu_affinity': 1,
              'testing': True,
-             'log_level': 'DEBUG'}
+             'log_level': 'DEBUG',
+             'django_redis': 'default'}
