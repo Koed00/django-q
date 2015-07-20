@@ -124,6 +124,9 @@ def test_async(r, admin_user):
     h = async('django_q.tests.tasks.word_multiply', 2, word='django', hook='fail.me', list_key=list_key, redis=r)
     # args unpickle test
     j = async('django_q.tests.tasks.get_user_id', admin_user, list_key=list_key, group='test_j', redis=r)
+    # q_options and save opt_out test
+    k = async('django_q.tests.tasks.get_user_id', admin_user,
+              q_options={'list_key': list_key, 'group': 'test_k', 'redis': r, 'save': False, 'timeout': 90})
     # check if everything has a task id
     assert isinstance(a, str)
     assert isinstance(b, str)
@@ -134,8 +137,9 @@ def test_async(r, admin_user):
     assert isinstance(g, str)
     assert isinstance(h, str)
     assert isinstance(j, str)
+    assert isinstance(k, str)
     # run the cluster to execute the tasks
-    task_count = 9
+    task_count = 10
     assert r.llen(list_key) == task_count
     task_queue = Queue()
     stop_event = Event()
@@ -210,7 +214,8 @@ def test_async(r, admin_user):
     assert count_group('test_j', failures=True) == 0
     assert delete_group('test_j') == 1
     assert delete_group('test_j', tasks=True) is None
-
+    # task k should not have been saved
+    assert fetch(k) is None
     r.delete(list_key)
 
 

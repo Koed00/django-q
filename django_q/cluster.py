@@ -394,12 +394,11 @@ def save_task(task):
     Saves the task package to Django
     """
     # SAVE LIMIT < 0 : Don't save success
-    if Conf.SAVE_LIMIT < 0 and task['success']:
+    if not task.get('save', Conf.SAVE_LIMIT > 0) and task['success']:
         return
     # SAVE LIMIT > 0: Prune database, SAVE_LIMIT 0: No pruning
     if task['success'] and 0 < Conf.SAVE_LIMIT < Success.objects.count():
         Success.objects.last().delete()
-
     try:
         Task.objects.create(id=task['id'],
                             name=task['name'],
@@ -435,8 +434,9 @@ def scheduler(list_key=Conf.Q_LIST):
             # single value won't eval to tuple, so:
             if type(args) != tuple:
                 args = (args,)
+        q_options = kwargs.get('q_options', {})
         if s.hook:
-            kwargs['hook'] = s.hook
+            q_options['hook'] = s.hook
         # set up the next run time
         if not s.schedule_type == s.ONCE:
             next_run = arrow.get(s.next_run)
@@ -455,8 +455,9 @@ def scheduler(list_key=Conf.Q_LIST):
             s.next_run = next_run.datetime
             s.repeats += -1
         # send it to the cluster
-        kwargs['list_key'] = list_key
-        kwargs['group'] = s.name or s.id
+        q_options['list_key'] = list_key
+        q_options['group'] = s.name or s.id
+        kwargs['q_options'] = q_options
         s.task = tasks.async(s.func, *args, **kwargs)
         # log it
         if not s.task:
