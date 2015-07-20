@@ -13,6 +13,7 @@ from django_q.humanhash import DEFAULT_WORDLIST
 from django_q.tasks import fetch, fetch_group, async, result, result_group, count_group, delete_group
 from django_q.models import Task
 from django_q.conf import Conf, redis_client
+from django_q.monitor import Stat
 from .tasks import multiply
 
 
@@ -279,6 +280,29 @@ def test_recycle(r):
     assert start_event.is_set()
     assert s.status() == Conf.STOPPED
     assert s.reincarnations == 1
+    r.delete(list_key)
+
+
+@pytest.mark.django_db
+def test_bad_secret(r, monkeypatch):
+    list_key = 'test_bad_secret'
+    async('math.copysign', 1, -1, list_key=list_key)
+    stop_event = Event()
+    stop_event.set()
+    start_event = Event()
+    s = Sentinel(stop_event, start_event, list_key=list_key, start=False)
+    Stat(s).save()
+    # change the SECRET
+    monkeypatch.setattr(Conf, "SECRET_KEY", "OOPS")
+    stat = Stat.get_all(r)
+    assert len(stat) == 0
+    assert Stat.get(s.parent_pid, r) is None
+    task_queue = Queue()
+    pusher(task_queue, stop_event, list_key=list_key, r=r)
+    result_queue = Queue()
+    task_queue.put('STOP')
+    worker(task_queue, result_queue, Value('b', -1), )
+    assert result_queue.qsize() == 0
     r.delete(list_key)
 
 
