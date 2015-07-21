@@ -55,7 +55,7 @@ If you want to schedule regular Django management commands, you can use the :mod
 Reference
 ---------
 
-..  py:function:: schedule(func, *args, name=None, hook=None, schedule_type='O', repeats=-1, next_run=now() , **kwargs)
+..  py:function:: schedule(func, *args, name=None, hook=None, schedule_type='O', repeats=-1, next_run=now() , q_options=None, **kwargs)
 
     Creates a schedule
 

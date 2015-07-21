@@ -177,7 +177,7 @@ Reference
 ---------
 
 .. py:function:: async(func, *args, hook=None, group=None, timeout=None,\
-    sync=False, redis=None, q_options=None, **kwargs)
+    save=None, sync=False, redis=None, q_options=None, **kwargs)
 
     Puts a task in the cluster queue
 
@@ -186,6 +186,7 @@ Reference
    :param object hook: Optional function to call after execution
    :param str group: An optional group identifier
    :param int timeout: Overrides global cluster :ref:`timeout`.
+   :param bool save: Overrides global save setting for this task.
    :param bool sync: If set to True, async will simulate a task execution
    :param redis: Optional redis connection
    :param dict q_options: Options dict, overrides option keywords

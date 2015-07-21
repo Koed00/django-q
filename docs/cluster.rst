@@ -136,7 +136,7 @@ Meanwhile the the sentinel checks if the timers don't exceed the timeout amount,
 
 Scheduler
 """""""""
-Once a minute the scheduler checks for any scheduled task that should be starting.
+Once a minute the scheduler checks for any scheduled tasks that should be starting.
 
 - Creates a task from the schedule
 - Subtracts 1 from :attr:`django_q.Schedule.repeats`
