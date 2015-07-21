@@ -4,7 +4,7 @@ Cluster
 .. py:currentmodule:: django_q
 
 Django Q uses Python's multiprocessing module to manage a pool of workers that will handle your tasks.
-Start your cluster using Django's `manage.py` command::
+Start your cluster using Django's ``manage.py`` command::
 
     $ python manage.py qcluster
 
@@ -26,7 +26,7 @@ You should see the cluster starting ::
     10:57:40 [Q] INFO Q Cluster-31781 running.
 
 
-Stopping the cluster with ctrl-c or either the `SIGTERM` and `SIGKILL` signals, will initiate the :ref:`stop_procedure`::
+Stopping the cluster with ctrl-c or either the ``SIGTERM`` and ``SIGKILL`` signals, will initiate the :ref:`stop_procedure`::
 
     16:44:12 [Q] INFO Q Cluster-31781 stopping.
     16:44:12 [Q] INFO Process-1 stopping cluster processes
@@ -50,7 +50,7 @@ You can have multiple clusters on multiple machines, working on the same queue a
 
 - They connect to the same Redis server.
 - They use the same cluster name. See :ref:`configuration`
-- They share the same `SECRET_KEY`
+- They share the same ``SECRET_KEY``
 
 Using a Procfile
 ----------------
@@ -80,7 +80,7 @@ An example :file:`circus.ini` ::
 
 
 Note that we only start one process. It is not a good idea to run multiple instances of the cluster in the same environment since this does nothing to increase performance and in all likelihood will diminish it.
-Control your cluster using the `workers`, `recycle` and `timeout` settings in your :ref:`configuration`
+Control your cluster using the ``workers``, ``recycle`` and ``timeout`` settings in your :ref:`configuration`
 
 Architecture
 ------------

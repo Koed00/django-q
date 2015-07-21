@@ -6,7 +6,7 @@ Installation
     $ pip install django-q
 
 
--  Add :mod:`django_q` to `INSTALLED_APPS` in your projects :file:`settings.py`::
+-  Add :mod:`django_q` to ``INSTALLED_APPS`` in your projects :file:`settings.py`::
 
        INSTALLED_APPS = (
            # other apps
@@ -18,14 +18,14 @@ Installation
     $ python manage.py migrate
 
 -  Make sure you have a `Redis <http://redis.io/>`__ server running
-   somewhere
+   somewhere and know how to connect to it.
 
 .. _configuration:
 
 Configuration
 -------------
 
-Configuration is handled via the `Q_CLUSTER` dictionary in your :file:`settings.py`
+Configuration is handled via the ``Q_CLUSTER`` dictionary in your :file:`settings.py`
 
 .. code:: python
 
@@ -133,7 +133,7 @@ of the cache connection you want to use::
 
 
 .. tip::
-    Django Q uses your `SECRET_KEY` to encrypt task packages and prevent task crossover. So make sure you have it set up in your Django settings.
+    Django Q uses your ``SECRET_KEY`` to encrypt task packages and prevent task crossover. So make sure you have it set up in your Django settings.
 
 cpu_affinity
 ~~~~~~~~~~~~
@@ -175,7 +175,7 @@ As a rule of thumb; cpu_affinity 1 favors repetitive short running tasks, while 
 
 .. note::
 
-    The `cpu_affinity` setting requires the optional :ref:`psutil <psutil>` module.
+    The ``cpu_affinity`` setting requires the optional :ref:`psutil <psutil>` module.
 
 Requirements
 ------------
@@ -185,7 +185,7 @@ Django Q is tested for Python 2.7 and 3.4
 -  `Django <https://www.djangoproject.com>`__
 
     Django Q aims to use as much of Django's standard offerings as possible
-    The code is tested against Django version `1.7.8` and `1.8.2`.
+    The code is tested against Django version `1.7.9` and `1.8.3`.
 
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
 
@@ -206,6 +206,7 @@ Django Q is tested for Python 2.7 and 3.4
 -  `Redis server <http://redis.io/>`__
 
     Django Q uses Redis as a centralized hub between your Django instances and your Q clusters.
+
 
 Optional
 ~~~~~~~~
