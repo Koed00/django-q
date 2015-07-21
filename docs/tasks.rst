@@ -2,6 +2,8 @@ Tasks
 =====
 .. py:currentmodule:: django_q
 
+.. _async:
+
 Async
 -----
 
@@ -31,11 +33,53 @@ Use :func:`async` from your code to quickly offload tasks to the :class:`Cluster
     def print_result(task):
         print(task.result)
 
+:func:`async` can take the following optional keyword arguments:
+
+hook
+""""
+The function to call after the task has been executed. This function gets passed the complete :class:`Task` object as its argument.
+
+group
+"""""
+A group label. Check :ref:`groups` for group functions.
+
+save
+""""
+Overrides the result backend's save setting for this task.
+
+timeout
+"""""""
+Overrides the cluster's timeout setting for this task.
+
+sync
+""""
+Simulates a task execution synchronously. Useful for testing.
+
+redis
+"""""
+A redis connection. In case you want to control your own connections.
+
+q_options
+"""""""""
+None of the option keywords get passed on to the task function.
+As an alternative you can also put them in
+a single keyword dict named ``q_options``. This enables you to use these keywords for your function call::
+
+    # Async options in a dict
+
+    opts = {'hook': 'hooks.print_result',
+            'group': 'math',
+            'timeout': 30}
+
+    async('math.modf', 2.5, q_options=opts)
+
+Please not that this will override any other option keywords.
+
 .. _groups:
 
 Groups
 ------
-You can group together results by passing :func:`async` the optional `group` keyword:
+You can group together results by passing :func:`async` the optional ``group`` keyword:
 
 .. code-block:: python
 
@@ -67,7 +111,7 @@ Instead of :func:`result_group` you can also use :func:`fetch_group` to return a
     # only use the successes
     results = fetch_group('modf')
     if failure_count:
-        results.exclude(success=False)
+        results = results.exclude(success=False)
     results =  [task.result for task in successes]
 
     # this is the same as
@@ -82,13 +126,13 @@ Getting results by using :func:`result_group` is of course much faster than usin
 
 .. note::
 
-   Although :func:`fetch_group` returns a queryset, due to the nature of the PickleField , calling `Queryset.values` on it will return a list of encoded results.
+   Although :func:`fetch_group` returns a queryset, due to the nature of the PickleField , calling ``Queryset.values`` on it will return a list of encoded results.
    Use list comprehension or an iterator instead.
 
 Synchronous testing
 -------------------
 
-:func:`async` can be instructed to execute a task immediately by setting the optional keyword `sync=True`.
+:func:`async` can be instructed to execute a task immediately by setting the optional keyword ``sync=True``.
 The task will then be injected straight into a worker and the result saved by a monitor instance::
 
     from django_q import async, fetch
@@ -113,7 +157,7 @@ Connection pooling
 ------------------
 
 Django Q tries to pass redis connections around its parts as much as possible to save you from running out of connections.
-When you are making individual calls to :func:`async` a lot though, it can help to set up a redis connection to pass to :func:`async`:
+When you are making individual calls to :func:`async` a lot though, it can help to set up a redis connection to reuse for :func:`async`:
 
 .. code:: python
 
@@ -133,7 +177,7 @@ Reference
 ---------
 
 .. py:function:: async(func, *args, hook=None, group=None, timeout=None,\
-    sync=False, redis=None, **kwargs)
+    sync=False, redis=None, q_options=None, **kwargs)
 
     Puts a task in the cluster queue
 
@@ -144,6 +188,7 @@ Reference
    :param int timeout: Overrides global cluster :ref:`timeout`.
    :param bool sync: If set to True, async will simulate a task execution
    :param redis: Optional redis connection
+   :param dict q_options: Options dict, overrides option keywords
    :param dict kwargs: Keyword arguments for the task function
    :returns: The uuid of the task
    :rtype: str
@@ -172,7 +217,7 @@ Reference
     Returns the results of a task group
 
     :param str group_id: the group identifier
-    :param bool failures: set this to `True` to include failed results
+    :param bool failures: set this to ``True`` to include failed results
     :returns: a list of results
     :rtype: list
 
@@ -181,7 +226,7 @@ Reference
     Returns a list of tasks in a group
 
     :param str group_id: the group identifier
-    :param bool failures: set this to `False` to exclude failed tasks
+    :param bool failures: set this to ``False`` to exclude failed tasks
     :returns: a list of Tasks
     :rtype: list
 
@@ -190,7 +235,7 @@ Reference
     Counts the number of task results in a group.
 
     :param str group_id: the group identifier
-    :param bool failures: counts the number of failures if `True`
+    :param bool failures: counts the number of failures if ``True``
     :returns: the number of tasks or failures in a group
     :rtype: int
 
@@ -199,7 +244,7 @@ Reference
     Deletes a group label from the database.
 
     :param str group_id: the group identifier
-    :param bool tasks: also deletes the associated tasks if `True`
+    :param bool tasks: also deletes the associated tasks if ``True``
     :returns: the numbers of tasks affected
     :rtype: int
 
@@ -218,7 +263,7 @@ Reference
         .. note::
 
             This is for convenience and can be used as a parameter for most functions that take a `task_id`.
-            Keep in mind however that it is not guaranteed to be unique if you store very large amounts of tasks in the database.
+            Keep in mind that it is not guaranteed to be unique if you store very large amounts of tasks in the database.
 
     .. py:attribute:: func
 
@@ -269,7 +314,7 @@ Reference
     .. py:classmethod:: get_result_group(group_id, failures=False)
 
     Returns a list of results from a task group.
-    Set failures to `True` to include failed results.
+    Set failures to ``True`` to include failed results.
 
     .. py:classmethod:: get_task(task_id)
 
@@ -278,22 +323,22 @@ Reference
     .. py:classmethod:: get_task_group(group_id, failures=True)
 
     Gets a queryset of tasks with this group id.
-    Set failures to `False` to exclude failed tasks.
+    Set failures to ``False`` to exclude failed tasks.
 
     .. py:classmethod::  get_group_count(group_id, failures=False)
 
     Returns a count of the number of tasks results in a group.
-    Returns the number of failures when `failures=True`
+    Returns the number of failures when ``failures=True``
 
     .. py:classmethod:: delete_group(group_id, objects=False)
 
     Deletes a group label only, by default.
-    If `objects=True` it will also delete the tasks in this group from the database.
+    If ``objects=True`` it will also delete the tasks in this group from the database.
 
 .. py:class:: Success
 
-    A proxy model of :class:`Task` with the queryset filtered on :attr:`Task.success` is True.
+    A proxy model of :class:`Task` with the queryset filtered on :attr:`Task.success` is ``True``.
 
 .. py:class:: Failure
 
-     A proxy model of :class:`Task` with the queryset filtered on :attr:`Task.success` is False.
+     A proxy model of :class:`Task` with the queryset filtered on :attr:`Task.success` is ``False``.

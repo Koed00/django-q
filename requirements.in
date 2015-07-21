@@ -1,0 +1,9 @@
+arrow
+blessed
+django-picklefield
+Django
+future
+hiredis
+redis
+psutil
+django-redis

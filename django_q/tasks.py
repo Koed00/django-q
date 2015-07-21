@@ -20,16 +20,14 @@ def async(func, *args, **kwargs):
     """
     Sends a task to the cluster
     """
-    # optional hook
-    hook = kwargs.pop('hook', None)
-    # optional list_key
-    list_key = kwargs.pop('list_key', Conf.Q_LIST)
-    # optional redis connection
-    redis = kwargs.pop('redis', redis_client)
-    # optional sync mode
-    sync = kwargs.pop('sync', False)
-    # optional group
-    group = kwargs.pop('group', None)
+    # get options from q_options dict or direct from kwargs
+    options = kwargs.pop('q_options', kwargs)
+    hook = options.pop('hook', None)
+    list_key = options.pop('list_key', Conf.Q_LIST)
+    redis = options.pop('redis', redis_client)
+    sync = options.pop('sync', False)
+    group = options.pop('group', None)
+    save = options.pop('save', None)
     # get an id
     tag = uuid()
     # build the task package
@@ -40,6 +38,8 @@ def async(func, *args, **kwargs):
         task['hook'] = hook
     if group:
         task['group'] = group
+    if save is not None:
+        task['save'] = save
     # sign it
     pack = signing.SignedPackage.dumps(task)
     if sync:
