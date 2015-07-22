@@ -68,7 +68,8 @@ class Cluster(object):
         # Start Sentinel
         self.stop_event = Event()
         self.start_event = Event()
-        self.sentinel = Process(target=Sentinel, args=(self.stop_event, self.start_event, self.list_key, self.timeout))
+        self.sentinel = Process(target=Sentinel,
+                                args=(self.stop_event, self.start_event, self.list_key, self.timeout))
         self.sentinel.start()
         logger.info(_('Q Cluster-{} starting.').format(self.pid))
         while not self.start_event.is_set():
@@ -87,7 +88,8 @@ class Cluster(object):
         return True
 
     def sig_handler(self, signum, frame):
-        logger.debug(_('{} got signal {}').format(current_process().name, Conf.SIGNAL_NAMES.get(signum, 'UNKNOWN')))
+        logger.debug(_('{} got signal {}').format(current_process().name,
+                                                  Conf.SIGNAL_NAMES.get(signum, 'UNKNOWN')))
         self.stop()
 
     @property
@@ -210,7 +212,7 @@ class Sentinel(object):
         self.pool = []
         Stat(self).save()
         # spawn worker pool
-        for i in range(self.pool_size):
+        for _ in range(self.pool_size):
             self.spawn_worker()
         # spawn auxiliary
         self.monitor = self.spawn_monitor()
@@ -237,7 +239,7 @@ class Sentinel(object):
                     continue
                 # Decrement timer if work is being done
                 if self.timeout and p.timer.value > 0:
-                        p.timer.value -= cycle
+                    p.timer.value -= cycle
             # Check Monitor
             if not self.monitor.is_alive():
                 self.reincarnate(self.monitor)
@@ -295,11 +297,11 @@ class Sentinel(object):
         Stat(self).save()
 
 
-def pusher(task_queue, e, list_key=Conf.Q_LIST, r=redis_client):
+def pusher(task_queue, event, list_key=Conf.Q_LIST, r=redis_client):
     """
     Pulls tasks of the Redis List and puts them in the task queue
     :type task_queue: multiprocessing.Queue
-    :type e: multiprocessing.Event
+    :type event: multiprocessing.Event
     :type list_key: str
     """
     logger.info(_('{} pushing tasks at {}').format(current_process().name, current_process().pid))
@@ -314,7 +316,7 @@ def pusher(task_queue, e, list_key=Conf.Q_LIST, r=redis_client):
         if task:
             task_queue.put(task[1])
             logger.debug(_('queueing from {}').format(list_key))
-        if e.is_set():
+        if event.is_set():
             break
     logger.info(_("{} stopped pushing tasks").format(current_process().name))
 

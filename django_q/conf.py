@@ -8,6 +8,9 @@ import redis
 
 
 class Conf(object):
+    """
+    Configuration class
+    """
     try:
         conf = settings.Q_CLUSTER
     except AttributeError:
@@ -93,6 +96,10 @@ if Conf.DJANGO_REDIS:
 
 
 def get_redis_client():
+    """
+    Returns a connection from redis-py or django-redis
+    :return: a redis client
+    """
     if Conf.DJANGO_REDIS and django_redis:
         return django_redis.get_redis_connection(Conf.DJANGO_REDIS)
     return redis.StrictRedis(**Conf.REDIS)
