@@ -226,18 +226,18 @@ class Sentinel(object):
         logger.info(_('Q Cluster-{} running.').format(self.parent_pid))
         scheduler(list_key=self.list_key)
         counter = 0
-        cycle = 0.5
+        cycle = 0.5  # guard loop sleep in seconds
         # Guard loop. Runs at least once
         while not self.stop_event.is_set() or not counter:
             # Check Workers
             for p in self.pool:
                 # Are you alive?
-                if not p.is_alive() or (self.timeout and int(p.timer.value) == 0):
+                if not p.is_alive() or (self.timeout and p.timer.value == 0):
                     self.reincarnate(p)
                     continue
                 # Decrement timer if work is being done
-                if p.timer.value > 0:
-                    p.timer.value -= cycle
+                if self.timeout and p.timer.value > 0:
+                        p.timer.value -= cycle
             # Check Monitor
             if not self.monitor.is_alive():
                 self.reincarnate(self.monitor)
