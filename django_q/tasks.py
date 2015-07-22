@@ -1,10 +1,5 @@
 from multiprocessing import Queue, Value
 
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
-
 # django
 from django.utils import timezone
 
