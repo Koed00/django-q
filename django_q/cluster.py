@@ -72,7 +72,7 @@ class Cluster(object):
         self.sentinel.start()
         logger.info(_('Q Cluster-{} starting.').format(self.pid))
         while not self.start_event.is_set():
-            sleep(0.2)
+            sleep(0.1)
         return self.pid
 
     def stop(self):
@@ -176,7 +176,7 @@ class Sentinel(object):
         return self.spawn_process(pusher, self.task_queue, self.event_out, self.list_key, self.r)
 
     def spawn_worker(self):
-        self.spawn_process(worker, self.task_queue, self.result_queue, Value('b', -1), self.timeout)
+        self.spawn_process(worker, self.task_queue, self.result_queue, Value('f', -1), self.timeout)
 
     def spawn_monitor(self):
         return self.spawn_process(monitor, self.result_queue)
@@ -226,6 +226,7 @@ class Sentinel(object):
         logger.info(_('Q Cluster-{} running.').format(self.parent_pid))
         scheduler(list_key=self.list_key)
         counter = 0
+        cycle = 0.5
         # Guard loop. Runs at least once
         while not self.stop_event.is_set() or not counter:
             # Check Workers
@@ -236,7 +237,7 @@ class Sentinel(object):
                     continue
                 # Decrement timer if work is being done
                 if p.timer.value > 0:
-                    p.timer.value -= 1
+                    p.timer.value -= cycle
             # Check Monitor
             if not self.monitor.is_alive():
                 self.reincarnate(self.monitor)
@@ -244,13 +245,13 @@ class Sentinel(object):
             if not self.pusher.is_alive():
                 self.reincarnate(self.pusher)
             # Call scheduler once a minute (or so)
-            counter += 1
-            if counter > 120:
+            counter += cycle
+            if counter == 30:
                 counter = 0
                 scheduler(list_key=self.list_key)
             # Save current status
             Stat(self).save()
-            sleep(0.5)
+            sleep(cycle)
         self.stop()
 
     def stop(self):
@@ -261,7 +262,7 @@ class Sentinel(object):
         self.event_out.set()
         # Wait for it to stop
         while self.pusher.is_alive():
-            sleep(0.2)
+            sleep(0.1)
             Stat(self).save()
         # Put poison pills in the queue
         for _ in range(len(self.pool)):
@@ -274,7 +275,7 @@ class Sentinel(object):
             for p in self.pool:
                 if not p.is_alive():
                     self.pool.remove(p)
-            sleep(0.2)
+            sleep(0.1)
             Stat(self).save()
         # Finally stop the monitor
         self.result_queue.put('STOP')
@@ -286,8 +287,8 @@ class Sentinel(object):
         count = 0
         if not self.timeout:
             self.timeout = 30
-        while self.status() == Conf.STOPPING and count < self.timeout * 5:
-            sleep(0.2)
+        while self.status() == Conf.STOPPING and count < self.timeout * 10:
+            sleep(0.1)
             Stat(self).save()
             count += 1
         # Final status
@@ -311,8 +312,7 @@ def pusher(task_queue, e, list_key=Conf.Q_LIST, r=redis_client):
             sleep(10)
             break
         if task:
-            task = task[1]
-            task_queue.put(task)
+            task_queue.put(task[1])
             logger.debug(_('queueing from {}').format(list_key))
         if e.is_set():
             break
