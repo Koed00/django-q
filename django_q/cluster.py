@@ -132,7 +132,7 @@ class Sentinel(object):
         self.pool_size = Conf.WORKERS
         self.pool = []
         self.timeout = timeout
-        self.task_queue = Queue()
+        self.task_queue = Queue(maxsize=Conf.QUEUE_LIMIT) if Conf.QUEUE_LIMIT else Queue()
         self.result_queue = Queue()
         self.event_out = Event()
         self.monitor = Process()
@@ -314,7 +314,7 @@ def pusher(task_queue, event, list_key=Conf.Q_LIST, r=redis_client):
             sleep(10)
             break
         if task:
-            task_queue.put(task[1])
+            task_queue.put(task[1], block=True)
             logger.debug(_('queueing from {}').format(list_key))
         if event.is_set():
             break
