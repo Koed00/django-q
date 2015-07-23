@@ -19,7 +19,7 @@ class SignedPackage(object):
     def dumps(obj, compressed=Conf.COMPRESSED):
         return signing.dumps(obj,
                              key=Conf.SECRET_KEY,
-                             salt='django_q.q',
+                             salt=Conf.PREFIX,
                              compress=compressed,
                              serializer=PickleSerializer)
 
@@ -27,7 +27,7 @@ class SignedPackage(object):
     def loads(obj):
         return signing.loads(obj,
                              key=Conf.SECRET_KEY,
-                             salt='django_q.q',
+                             salt=Conf.PREFIX,
                              serializer=PickleSerializer)
 
 
