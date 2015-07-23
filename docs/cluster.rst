@@ -48,9 +48,9 @@ Multiple Clusters
 -----------------
 You can have multiple clusters on multiple machines, working on the same queue as long as:
 
-- They connect to the same Redis server.
+- They connect to the same Redis server or Redis cluster.
 - They use the same cluster name. See :ref:`configuration`
-- They share the same ``SECRET_KEY``
+- They share the same ``SECRET_KEY`` for Django.
 
 Using a Procfile
 ----------------
@@ -61,7 +61,7 @@ If you host on `Heroku <https://heroku.com>`__ or you are using `Honcho <https:/
 Process managers
 ----------------
 While you certainly can run a Django Q with a process manager like `Supervisor <http://supervisord.org/>`__ or `Circus <https://circus.readthedocs.org/en/latest/>`__ it is not strictly necessary.
-The cluster has an internal sentinel that checks the health of all the processes and recycles or reincarnates according to your settings.
+The cluster has an internal sentinel that checks the health of all the processes and recycles or reincarnates according to your settings or in case of unexpected crashes.
 Because of the multiprocessing daemonic nature of the cluster, it is impossible for a process manager to determine the clusters health and resource usage.
 
 An example :file:`circus.ini` ::
@@ -92,10 +92,9 @@ Architecture
 Signed Tasks
 """"""""""""
 
-
-Tasks are first pickled and then signed using Django's own :mod:`django.core.signing` module before being sent to a Redis list. This ensures that task
+Tasks are first pickled and then signed using Django's own :mod:`django.core.signing` module using the ``SECRET_KEY`` and cluster name as salt, before being sent to a Redis list. This ensures that task
 packages on the Redis server can only be executed and read by clusters
-and django servers who share the same secret key.
+and django servers who share the same secret key and cluster name.
 Optionally the packages can be compressed before transport
 
 Pusher
@@ -109,7 +108,7 @@ Worker
 
 A worker process pulls a package of the Task Queue and checks the signing and unpacks the task.
 Before executing the task it set a timer on the :ref:`sentinel` indicating its about to start work.
-Afterwards it the timer is reset and any results (including errors) are saved to the pacjage.
+Afterwards it the timer is reset and any results (including errors) are saved to the package.
 Irrespective of the failure or success of any of these steps, the package is then pushed onto the Result Queue.
 
 
@@ -161,7 +160,7 @@ Afterwards the sentinel waits for the monitor to empty the result and then the s
 - Signal that we have stopped
 
 .. warning::
-    If you force the cluster to terminate before the stop procedure has completed, you can lose tasks and their results.
+    If you force the cluster to terminate before the stop procedure has completed, you can lose tasks or results still being held in the queues.
 
 Reference
 ---------
@@ -206,7 +205,7 @@ Reference
 
     .. py:attribute:: is_starting
 
-    Bool. Indicating if the cluster is busy starting up
+    Bool. Indicating that the cluster is busy starting up
 
     .. py:attribute:: is_running
 
@@ -218,7 +217,7 @@ Reference
 
     .. py:attribute:: has_stopped
 
-    Bool. Tells you if the cluster finished the stop procedure
+    Bool. Tells you if the cluster has finished the stop procedure
 
 
 
