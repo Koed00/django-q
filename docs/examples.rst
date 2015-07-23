@@ -111,7 +111,11 @@ In this example the user requests a report and we let the cluster do the generat
               request.user,
               hook='tasks.email_report')
 
+.. code-block:: python
+
     # tasks.py
+    from django_q import async
+
     # report generator
     def create_html_report(user):
         html_report = 'We had a great quarter!'
@@ -135,6 +139,43 @@ In this example the user requests a report and we let the cluster do the generat
 
 The hook is practical here, cause it allows us to detach the sending task from the report generation function and to report on possible failures.
 
+Haystack
+========
+If you use `Haystack <http://haystacksearch.org/>`__ as your projects search engine,
+here's an example of how you can have Django Q take care of your indexes in real time using model signals:
+
+.. code-block:: python
+
+    # Real time Haystack indexing
+    from .models import Document
+    from django.db.models.signals import post_save
+    from django.dispatch import receiver
+    from django_q import async
+
+    # hook up the post save handler
+    @receiver(post_save, sender=Document)
+    def document_changed(sender, instance, **kwargs):
+        async('tasks.index_object', sender, instance, save=False)
+        # turn off result saving to not flood your database
+
+.. code-block:: python
+
+    # tasks.py
+    from haystack import connection_router, connections
+
+    def index_object(sender, instance):
+        # get possible backends
+        backends = connection_router.for_write(instance=instance)
+
+        for backend in backends:
+            # get the index for this model
+            index = connections[backend].get_unified_index()\
+                .get_index(sender)
+            # update it
+            index.update_object(instance, using=backend)
+
+Now every time a Document is saved, your indexes will be updated without causing a delay in your save action.
+You could expand this to dealing with deletes, by adding a ``post_delete`` signal and calling ``index.remove_object`` in the async function.
 
 Groups
 ======
