@@ -1,6 +1,7 @@
 import sys
 from multiprocessing import Queue, Event, Value
 import threading
+from time import sleep
 
 import os
 import pytest
@@ -52,6 +53,7 @@ def test_cluster_initial(r):
     assert c.is_running
     assert c.is_stopping is False
     assert c.is_starting is False
+    sleep(0.5)
     stat = c.stat
     assert stat.status == Conf.IDLE
     assert c.stop() is True
