@@ -53,9 +53,11 @@ def monitor(run_once=False):
                 elif stat.status == Conf.IDLE:
                     status = str(Conf.IDLE)
                 # color q's
-                tasks = stat.task_q_size
-                if tasks > 0:
-                    tasks = term.cyan(str(tasks))
+                tasks = str(stat.task_q_size)
+                if stat.task_q_size > 0:
+                    tasks = term.cyan(str(stat.task_q_size))
+                    if Conf.QUEUE_LIMIT and stat.task_q_size == Conf.QUEUE_LIMIT:
+                        tasks = term.green(str(stat.task_q_size))
                 results = stat.done_q_size
                 if results > 0:
                     results = term.cyan(str(results))
