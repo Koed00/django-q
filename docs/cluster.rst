@@ -160,7 +160,8 @@ Afterwards the sentinel waits for the monitor to empty the result and then the s
 - Signal that we have stopped
 
 .. warning::
-    If you force the cluster to terminate before the stop procedure has completed, you can lose tasks or results still being held in the queues.
+    If you force the cluster to terminate before the stop procedure has completed, you can lose tasks or results still being held in memory.
+    You can manage the amount of tasks in a clusters memory by setting the :ref:`queue_limit`.
 
 Reference
 ---------

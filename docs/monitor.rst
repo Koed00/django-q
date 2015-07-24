@@ -127,7 +127,7 @@ Reference
 
     The pid of the pusher process
 
-    .. py:attribute:: monitormight
+    .. py:attribute:: monitor
 
     The pid of the monitor process
 

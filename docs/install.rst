@@ -37,6 +37,7 @@ Configuration is handled via the ``Q_CLUSTER`` dictionary in your :file:`setting
         'timeout': 60,
         'compress': True,
         'save_limit': 250,
+        'queue_limit: 500,
         'cpu_affinity': 1,
         'label': 'Django Q',
         'redis': {
@@ -44,7 +45,6 @@ Configuration is handled via the ``Q_CLUSTER`` dictionary in your :file:`setting
             'port': 6379,
             'db': 0, }
     }
-
 
 
 name
