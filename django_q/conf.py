@@ -33,6 +33,9 @@ class Conf(object):
     # Failures are always saved
     SAVE_LIMIT = conf.get('save_limit', 250)
 
+    # Maximum number of tasks that each cluster can work on
+    QUEUE_LIMIT = conf.get('queue_limit', None)
+
     # Number of workers in the pool. Default is cpu count. +2 for monitor and pusher
     WORKERS = conf.get('workers', cpu_count())
 

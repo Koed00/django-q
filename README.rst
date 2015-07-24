@@ -57,7 +57,7 @@ Installation
 -  Make sure you have a `Redis <http://redis.io/>`__ server running
    somewhere
 
-Read the more complete documentation at `http://django-q.readthedocs.org <http://django-q.readthedocs.org>`__
+Read the full documentation at `http://django-q.readthedocs.org <http://django-q.readthedocs.org>`__
 
 
 Configuration
@@ -67,7 +67,7 @@ All configuration settings are optional. e.g:
 
 .. code:: python
 
-    # settings.py
+    # settings.py example
     Q_CLUSTER = {
         'name': 'myproject',
         'workers': 8,
@@ -75,6 +75,8 @@ All configuration settings are optional. e.g:
         'timeout': 60,
         'compress': True,
         'save_limit': 250,
+        'queue_limit: 500,
+        'cpu_affinity': 1,
         'label': 'Django Q',
         'redis': {
             'host': '127.0.0.1',

@@ -46,6 +46,7 @@ TQ
 **Task Queue** counts the number of tasks in the queue
 
 If this keeps rising it means you are taking on more tasks than your cluster can handle.
+You can limit this by settings the :ref:`queue_limit` in your cluster configuration.
 
 RQ
 ~~
@@ -58,7 +59,7 @@ It's normal for the result queue to take slightly longer to clear than the task 
 RC
 ~~
 
-**Reincarnations** shows the amount of processes that have been reincarnated after a sudden death or timeout.
+**Reincarnations** shows the amount of processes that have been reincarnated after a recycle, sudden death or timeout.
 If this number is unusually high, you are either suffering from repeated task errors or severe timeouts and you should check your logs for details.
 
 Up
@@ -124,7 +125,7 @@ Reference
 
     .. py:attribute:: pusher
 
-    The pid of the pushes process
+    The pid of the pusher process
 
     .. py:attribute:: monitor
 

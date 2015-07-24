@@ -132,7 +132,7 @@ class Sentinel(object):
         self.pool_size = Conf.WORKERS
         self.pool = []
         self.timeout = timeout
-        self.task_queue = Queue()
+        self.task_queue = Queue(maxsize=Conf.QUEUE_LIMIT) if Conf.QUEUE_LIMIT else Queue()
         self.result_queue = Queue()
         self.event_out = Event()
         self.monitor = Process()

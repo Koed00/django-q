@@ -37,6 +37,7 @@ Configuration is handled via the ``Q_CLUSTER`` dictionary in your :file:`setting
         'timeout': 60,
         'compress': True,
         'save_limit': 250,
+        'queue_limit: 500,
         'cpu_affinity': 1,
         'label': 'Django Q',
         'redis': {
@@ -44,7 +45,6 @@ Configuration is handled via the ``Q_CLUSTER`` dictionary in your :file:`setting
             'port': 6379,
             'db': 0, }
     }
-
 
 
 name
@@ -90,6 +90,16 @@ Limits the amount of successful tasks saved to Django.
  - Set to ``-1`` for no success storage at all.
  - Defaults to ``250``
  - Failures are always saved.
+
+.. _queue_limit:
+
+queue_limit
+~~~~~~~~~~~
+
+This does not limit the amount of tasks that can be queued overall on Redis, but rather how many tasks are kept in memory by a single cluster.
+Setting this to a reasonable number, can help balance the workload and the memory overhead of each individual cluster.
+It can also be used to manage the loss of data in case of a cluster failure.
+Defaults to ``None``, meaning no limit.
 
 label
 ~~~~~
