@@ -314,7 +314,7 @@ def pusher(task_queue, event, list_key=Conf.Q_LIST, r=redis_client):
             sleep(10)
             break
         if task:
-            task_queue.put(task[1], block=True)
+            task_queue.put(task[1])
             logger.debug(_('queueing from {}').format(list_key))
         if event.is_set():
             break
