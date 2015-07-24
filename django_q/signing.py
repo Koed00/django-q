@@ -1,3 +1,4 @@
+"""Package signing."""
 try:
     import cPickle as pickle
 except ImportError:
@@ -11,9 +12,8 @@ BadSignature = signing.BadSignature
 
 
 class SignedPackage(object):
-    """
-    Wraps Django's signing module with custom Pickle serializer
-    """
+
+    """Wraps Django's signing module with custom Pickle serializer."""
 
     @staticmethod
     def dumps(obj, compressed=Conf.COMPRESSED):
@@ -32,10 +32,8 @@ class SignedPackage(object):
 
 
 class PickleSerializer(object):
-    """
-    Simple wrapper around Pickle for signing.dumps and
-    signing.loads.
-    """
+
+    """Simple wrapper around Pickle for signing.dumps and signing.loads."""
 
     @staticmethod
     def dumps(obj):

@@ -86,9 +86,8 @@ def monitor(run_once=False):
 
 
 class Status(object):
-    """
-    Cluster status base class
-    """
+
+    """Cluster status base class."""
 
     def __init__(self, pid):
         self.workers = []
@@ -106,9 +105,8 @@ class Status(object):
 
 
 class Stat(Status):
-    """
-    Status object for Cluster monitoring
-    """
+
+    """Status object for Cluster monitoring."""
 
     def __init__(self, sentinel):
         super(Stat, self).__init__(sentinel.parent_pid or sentinel.pid)
@@ -171,7 +169,8 @@ class Stat(Status):
     @staticmethod
     def get_all(r=redis_client):
         """
-        Gets status for all currently running clusters with the same prefix and secret key
+        Get the status for all currently running clusters with the same prefix
+        and secret key.
         :return: list of type Stat
         """
         stats = []
