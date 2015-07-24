@@ -26,6 +26,7 @@ class TaskAdmin(admin.ModelAdmin):
 
     search_fields = ('name', 'func', 'group')
     readonly_fields = []
+    list_filter = ('group',)
 
     def get_readonly_fields(self, request, obj=None):
         return list(self.readonly_fields) + \
@@ -56,6 +57,7 @@ class FailAdmin(admin.ModelAdmin):
 
     actions = [retry_failed]
     search_fields = ('name', 'func')
+    list_filter = ('group',)
     readonly_fields = []
 
     def get_readonly_fields(self, request, obj=None):
