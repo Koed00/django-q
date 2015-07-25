@@ -8,7 +8,7 @@ arrow==0.6.0
 blessed==1.9.5
 django-picklefield==0.3.1
 django-redis==4.2.0
-future==0.14.3
+future==0.15.0
 hiredis==0.2.0
 msgpack-python==0.4.6     # via django-redis
 psutil==3.1.1
