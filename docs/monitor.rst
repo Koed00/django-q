@@ -118,6 +118,7 @@ Reference
     .. py:attribute:: task_q_size
 
     The number of tasks currently in the task queue.
+    Turns green to indicate that the :ref:`queue_limit` had been reached.
 
     .. py:attribute:: done_q_size
 
