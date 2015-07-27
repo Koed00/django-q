@@ -46,7 +46,8 @@ TQ
 **Task Queue** counts the number of tasks in the queue
 
 If this keeps rising it means you are taking on more tasks than your cluster can handle.
-You can limit this by settings the :ref:`queue_limit` in your cluster configuration.
+You can limit this by settings the :ref:`queue_limit` in your cluster configuration, after which it will turn green when that limit has been reached.
+If your task queue is always hitting its limit and your running out of resources, it may be time to add another cluster.
 
 RQ
 ~~
@@ -118,7 +119,6 @@ Reference
     .. py:attribute:: task_q_size
 
     The number of tasks currently in the task queue.
-    Turns green to indicate that the :ref:`queue_limit` had been reached.
 
     .. py:attribute:: done_q_size
 
@@ -151,4 +151,3 @@ Reference
     .. py:classmethod:: get_all(r=redis_client)
 
     Returns a list of :class:`Stat` objects for all active clusters. Takes an optional redis connection.
-
