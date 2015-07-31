@@ -12,7 +12,7 @@ sys.path.insert(0, myPath + '/../')
 from django_q.cluster import Cluster, Sentinel, pusher, worker, monitor
 from django_q.humanhash import DEFAULT_WORDLIST
 from django_q.tasks import fetch, fetch_group, async, result, result_group, count_group, delete_group
-from django_q.models import Task
+from django_q.models import Task, Success
 from django_q.conf import Conf, redis_client
 from django_q.monitor import Stat
 from .tasks import multiply
@@ -90,7 +90,7 @@ def test_cluster(r):
     assert r.llen(list_key) == 0
     # Test work
     task_queue.put('STOP')
-    worker(task_queue, result_queue, Value('b', -1))
+    worker(task_queue, result_queue, Value('f', -1))
     assert task_queue.qsize() == 0
     assert result_queue.qsize() == 1
     # Test monitor
@@ -154,7 +154,7 @@ def test_async(r, admin_user):
     task_queue.put('STOP')
     # let a worker handle them
     result_queue = Queue()
-    worker(task_queue, result_queue, Value('b', -1))
+    worker(task_queue, result_queue, Value('f', -1))
     assert result_queue.qsize() == task_count
     result_queue.put('STOP')
     # store the results
@@ -273,20 +273,37 @@ def test_timeout_override(r):
 def test_recycle(r):
     # set up the Sentinel
     list_key = 'test_recycle_test:q'
-    async('django_q.tests.tasks.multiply', 2, 2, list_key=list_key)
-    async('django_q.tests.tasks.multiply', 2, 2, list_key=list_key)
-    async('django_q.tests.tasks.multiply', 2, 2, list_key=list_key)
+    async('django_q.tests.tasks.multiply', 2, 2, list_key=list_key, redis=r)
+    async('django_q.tests.tasks.multiply', 2, 2, list_key=list_key, redis=r)
+    async('django_q.tests.tasks.multiply', 2, 2, list_key=list_key, redis=r)
     start_event = Event()
     stop_event = Event()
     # override settings
     Conf.RECYCLE = 2
     Conf.WORKERS = 1
-    # Set a timer to stop the Sentinel
+    # set a timer to stop the Sentinel
     threading.Timer(3, stop_event.set).start()
     s = Sentinel(stop_event, start_event, list_key=list_key)
     assert start_event.is_set()
     assert s.status() == Conf.STOPPED
     assert s.reincarnations == 1
+    async('django_q.tests.tasks.multiply', 2, 2, list_key=list_key, redis=r)
+    async('django_q.tests.tasks.multiply', 2, 2, list_key=list_key, redis=r)
+    task_queue = Queue()
+    result_queue = Queue()
+    # push two tasks
+    pusher(task_queue, stop_event, list_key=list_key, r=r)
+    pusher(task_queue, stop_event, list_key=list_key, r=r)
+    # worker should exit on recycle
+    worker(task_queue, result_queue, Value('f', -1))
+    # check if the work has been done
+    assert result_queue.qsize() == 2
+    # save_limit test
+    Conf.SAVE_LIMIT = 1
+    result_queue.put('STOP')
+    # run monitor
+    monitor(result_queue)
+    assert Success.objects.count() == Conf.SAVE_LIMIT
     r.delete(list_key)
 
 
@@ -308,7 +325,7 @@ def test_bad_secret(r, monkeypatch):
     pusher(task_queue, stop_event, list_key=list_key, r=r)
     result_queue = Queue()
     task_queue.put('STOP')
-    worker(task_queue, result_queue, Value('b', -1), )
+    worker(task_queue, result_queue, Value('f', -1), )
     assert result_queue.qsize() == 0
     r.delete(list_key)
 
