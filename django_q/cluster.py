@@ -315,7 +315,13 @@ def pusher(task_queue, event, list_key=Conf.Q_LIST, r=redis_client):
             sleep(10)
             break
         if task:
-            task_queue.put(task[1])
+            # unpack the task
+            try:
+                task = signing.SignedPackage.loads(task[1])
+            except (TypeError, signing.BadSignature) as e:
+                logger.error(e)
+                continue
+            task_queue.put(task)
             logger.debug(_('queueing from {}').format(list_key))
         if event.is_set():
             break
@@ -351,16 +357,10 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
     db.close_old_connections()
     task_count = 0
     # Start reading the task queue
-    for pack in iter(task_queue.get, 'STOP'):
+    for task in iter(task_queue.get, 'STOP'):
         result = None
         timer.value = -1  # Idle
         task_count += 1
-        # unpickle the task
-        try:
-            task = signing.SignedPackage.loads(pack)
-        except (TypeError, signing.BadSignature) as e:
-            logger.error(e)
-            continue
         # Get the function from the task
         logger.info(_('{} processing [{}]').format(name, task['name']))
         f = task['func']
