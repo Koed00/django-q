@@ -40,7 +40,7 @@ def async(func, *args, **kwargs):
     # sign it
     pack = signing.SignedPackage.dumps(task)
     if sync:
-        return _sync(task['id'], pack)
+        return _sync(pack)
     # push it
     redis.rpush(list_key, pack)
     logger.debug('Pushed {}'.format(tag))
@@ -150,13 +150,14 @@ def delete_group(group_id, tasks=False):
     return Task.delete_group(group_id, tasks)
 
 
-def _sync(task_id, pack):
+def _sync(pack):
     """Simulate a package travelling through the cluster."""
     task_queue = Queue()
     result_queue = Queue()
-    task_queue.put(pack)
+    task = signing.SignedPackage.loads(pack)
+    task_queue.put(task)
     task_queue.put('STOP')
-    cluster.worker(task_queue, result_queue, Value('b', -1))
+    cluster.worker(task_queue, result_queue, Value('f', -1))
     result_queue.put('STOP')
     cluster.monitor(result_queue)
-    return task_id
+    return task['id']
