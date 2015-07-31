@@ -403,7 +403,7 @@ def save_task(task):
         return
     # SAVE LIMIT > 0: Prune database, SAVE_LIMIT 0: No pruning
     try:
-        if task['success'] and 0 < Conf.SAVE_LIMIT < Success.objects.count():
+        if task['success'] and 0 < Conf.SAVE_LIMIT <= Success.objects.count():
             Success.objects.last().delete()
         Task.objects.create(id=task['id'],
                             name=task['name'],
