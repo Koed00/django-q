@@ -37,7 +37,7 @@ class PickleSerializer(object):
 
     @staticmethod
     def dumps(obj):
-        return pickle.dumps(obj)
+        return pickle.dumps(obj, protocol=pickle.HIGHEST_PROTOCOL)
 
     @staticmethod
     def loads(data):
