@@ -30,7 +30,7 @@ State
 Current state of the cluster:
 
 - **Starting** The cluster is spawning workers and getting ready.
-- **Idle** Everything is ok, but there are no tasks to process. [#f1]_
+- **Idle** Everything is ok, but there are no tasks to process.
 - **Working** Processing tasks like a good cluster should.
 - **Stopping** The cluster does not take on any new tasks and is finishing.
 - **Stopped** All tasks have been processed and the cluster is shutting down.
@@ -154,4 +154,4 @@ Reference
 
 .. rubric:: Footnotes
 
-.. [#f1] Uses :meth:`multiprocessing.Queue.qsize()` which is not implemented on OS X.
+.. [#f1] Uses :meth:`multiprocessing.Queue.qsize()` which is not implemented on OS X and always returns 0.
