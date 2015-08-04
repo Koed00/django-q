@@ -149,7 +149,7 @@ class Sentinel(object):
         if not self.start_event.is_set() and not self.stop_event.is_set():
             return Conf.STARTING
         elif self.start_event.is_set() and not self.stop_event.is_set():
-            if self.result_queue.qsize() == 0 and self.task_queue.qsize() == 0:
+            if Conf.QSIZE and self.result_queue.qsize() == 0 and self.task_queue.qsize() == 0:
                 return Conf.IDLE
             return Conf.WORKING
         elif self.stop_event.is_set() and self.start_event.is_set():

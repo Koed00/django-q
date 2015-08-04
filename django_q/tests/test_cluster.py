@@ -55,7 +55,8 @@ def test_cluster_initial(r):
     assert c.is_starting is False
     sleep(0.5)
     stat = c.stat
-    assert stat.status == Conf.IDLE
+    if Conf.QSIZE:
+        assert stat.status == Conf.IDLE
     assert c.stop() is True
     assert c.sentinel.is_alive() is False
     assert c.has_stopped

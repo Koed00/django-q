@@ -1,6 +1,6 @@
 import logging
 from signal import signal
-from multiprocessing import cpu_count
+from multiprocessing import cpu_count, Queue
 
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
@@ -62,6 +62,12 @@ class Conf(object):
     Q_LIST = 'django_q:{}:q'.format(PREFIX)
     # The redis stats key
     Q_STAT = 'django_q:{}:cluster'.format(PREFIX)
+
+    # OSX doesn't implement qsize because of missing sem_getvalue()
+    try:
+        QSIZE = Queue().qsize == 0
+    except NotImplementedError:
+        QSIZE = False
 
     # Getting the signal names
     SIGNAL_NAMES = dict((getattr(signal, n), n) for n in dir(signal) if n.startswith('SIG') and '_' not in n)
