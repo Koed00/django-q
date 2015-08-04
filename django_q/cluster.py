@@ -22,12 +22,6 @@ from multiprocessing import Queue, Event, Process, Value, current_process
 # external
 import arrow
 
-# optional
-try:
-    import psutil
-except ImportError:
-    psutil = None
-
 # Django
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -37,7 +31,7 @@ from django import db
 import signing
 import tasks
 
-from django_q.conf import Conf, redis_client, logger
+from django_q.conf import Conf, redis_client, logger, psutil
 from django_q.models import Task, Success, Schedule
 from django_q.monitor import Status, Stat
 

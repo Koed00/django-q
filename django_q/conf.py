@@ -2,9 +2,18 @@ import logging
 from signal import signal
 from multiprocessing import cpu_count, Queue
 
+# django
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
+
+# external
 import redis
+
+# optional
+try:
+    import psutil
+except ImportError:
+    psutil = None
 
 
 class Conf(object):
@@ -36,8 +45,19 @@ class Conf(object):
     # Maximum number of tasks that each cluster can work on
     QUEUE_LIMIT = conf.get('queue_limit', None)
 
-    # Number of workers in the pool. Default is cpu count. +2 for monitor and pusher
-    WORKERS = conf.get('workers', cpu_count())
+    # Number of workers in the pool. Default is cpu count if implemented, otherwise 4.
+    WORKERS = conf.get('workers', False)
+    if not WORKERS:
+        try:
+            WORKERS = cpu_count()
+            # in rare cases this might fail
+        except NotImplementedError:
+            # try psutil
+            if psutil:
+                WORKERS = psutil.cpu_count() or 4
+            else:
+                # sensible default
+                WORKERS = 4
 
     # Sets compression of redis packages
     COMPRESSED = conf.get('compress', False)
