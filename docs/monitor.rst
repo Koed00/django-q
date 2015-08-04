@@ -30,7 +30,7 @@ State
 Current state of the cluster:
 
 - **Starting** The cluster is spawning workers and getting ready.
-- **Idle** Everything is ok, but there are no tasks to process.
+- **Idle** Everything is ok, but there are no tasks to process. [#f1]_
 - **Working** Processing tasks like a good cluster should.
 - **Stopping** The cluster does not take on any new tasks and is finishing.
 - **Stopped** All tasks have been processed and the cluster is shutting down.
@@ -43,7 +43,7 @@ The current number of workers in the cluster pool.
 TQ
 ~~
 
-**Task Queue** counts the number of tasks in the queue
+**Task Queue** counts the number of tasks in the queue [#f1]_
 
 If this keeps rising it means you are taking on more tasks than your cluster can handle.
 You can limit this by settings the :ref:`queue_limit` in your cluster configuration.
@@ -51,7 +51,7 @@ You can limit this by settings the :ref:`queue_limit` in your cluster configurat
 RQ
 ~~
 
-**Result Queue** shows the number of results in the queue.
+**Result Queue** shows the number of results in the queue. [#f1]_
 
 Since results are only saved by a single process which has to access the database.
 It's normal for the result queue to take slightly longer to clear than the task queue.
@@ -117,11 +117,11 @@ Reference
 
     .. py:attribute:: task_q_size
 
-    The number of tasks currently in the task queue.
+    The number of tasks currently in the task queue. [#f1]_
 
     .. py:attribute:: done_q_size
 
-    The number of tasks currently in the result queue.
+    The number of tasks currently in the result queue. [#f1]_
 
     .. py:attribute:: pusher
 
@@ -143,6 +143,7 @@ Reference
 
     Returns true or false depending on any tasks still present in the task or result queue.
 
+
     .. py:classmethod:: get(cluster_id, r=redis_client)
 
     Gets the current :class:`Stat` for the cluster id. Takes an optional redis connection.
@@ -151,3 +152,5 @@ Reference
 
     Returns a list of :class:`Stat` objects for all active clusters. Takes an optional redis connection.
 
+
+.. [#f1] Uses :meth:`multiprocessing.Queue.qsize()` which is not implemented on OS X.
