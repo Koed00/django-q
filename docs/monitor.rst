@@ -46,7 +46,8 @@ TQ
 **Task Queue** counts the number of tasks in the queue [#f1]_
 
 If this keeps rising it means you are taking on more tasks than your cluster can handle.
-You can limit this by settings the :ref:`queue_limit` in your cluster configuration.
+You can limit this by settings the :ref:`queue_limit` in your cluster configuration, after which it will turn green when that limit has been reached.
+If your task queue is always hitting its limit and your running out of resources, it may be time to add another cluster.
 
 RQ
 ~~
@@ -142,7 +143,6 @@ Reference
     .. py:method:: empty_queues
 
     Returns true or false depending on any tasks still present in the task or result queue.
-
 
     .. py:classmethod:: get(cluster_id, r=redis_client)
 
