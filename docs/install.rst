@@ -59,7 +59,7 @@ This can be useful if you have several projects using the same Redis server.
 workers
 ~~~~~~~
 
-The number of workers to use in the cluster. Defaults to CPU count of the current host, but can be set to a custom number.
+The number of workers to use in the cluster. Defaults to CPU count of the current host, but can be set to a custom number.  [#f1]_
 
 recycle
 ~~~~~~~
@@ -233,3 +233,7 @@ Optional
 
 
 .. py:module:: django_q
+
+.. rubric:: Footnotes
+
+.. [#f1] Uses :func:`multiprocessing.cpu_count()` which can fail on some platforms. If so , please set the worker count in the configuration manually or install :ref:`psutil<psutil>` to provide an alternative cpu count method.
