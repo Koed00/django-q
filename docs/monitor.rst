@@ -152,5 +152,6 @@ Reference
 
     Returns a list of :class:`Stat` objects for all active clusters. Takes an optional redis connection.
 
+.. rubric:: Footnotes
 
 .. [#f1] Uses :meth:`multiprocessing.Queue.qsize()` which is not implemented on OS X.
