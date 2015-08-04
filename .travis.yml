@@ -11,6 +11,10 @@ env:
     - DJANGO=1.8.3
     - DJANGO=1.7.9
 
+os:
+  - linux
+  - osx
+
 install:
   - pip install -q django==$DJANGO
   - pip install -r requirements.txt
