@@ -71,6 +71,13 @@ def test_scheduler(r):
                                       hook='django_q.tests.tasks.result'
                                       )
     assert hasattr(always_schedule, 'pk') is True
+    # Minute schedule
+    minute_schedule = create_schedule('django_q.tests.tasks.word_multiply',
+                                      2,
+                                      word='django',
+                                      schedule_type=Schedule.MINUTES,
+                                      minutes=10)
+    assert hasattr(minute_schedule, 'pk') is True
     # All other types
     for t in Schedule.TYPE:
         schedule = create_schedule('django_q.tests.tasks.word_multiply',
