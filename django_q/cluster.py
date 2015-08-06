@@ -440,7 +440,9 @@ def scheduler(list_key=Conf.Q_LIST):
             # set up the next run time
             if not s.schedule_type == s.ONCE:
                 next_run = arrow.get(s.next_run)
-                if s.schedule_type == s.HOURLY:
+                if s.schedule_type == s.MINUTES:
+                    next_run = next_run.replace(minutes=+(s.minutes or 1))
+                elif s.schedule_type == s.HOURLY:
                     next_run = next_run.replace(hours=+1)
                 elif s.schedule_type == s.DAILY:
                     next_run = next_run.replace(days=+1)

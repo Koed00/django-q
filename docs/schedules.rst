@@ -32,6 +32,14 @@ You can manage them through the :ref:`admin_page` or directly from your code wit
              q_options={'timeout': 30},
              schedule_type=Schedule.HOURLY)
 
+    # Run a schedule every 5 minutes, starting at 6.
+    import arrow
+
+    schedule('math.hypot',
+            3, 4,
+            schedule_type=Schedule.MINUTES,
+            minutes = 5,
+            next_run = arrow.utcnow().replace(hour=18, minute=0))
 
 Management Commands
 -------------------
@@ -55,7 +63,7 @@ If you want to schedule regular Django management commands, you can use the :mod
 Reference
 ---------
 
-..  py:function:: schedule(func, *args, name=None, hook=None, schedule_type='O', repeats=-1, next_run=now() , q_options=None, **kwargs)
+..  py:function:: schedule(func, *args, name=None, hook=None, schedule_type='O', minutes=None, repeats=-1, next_run=now() , q_options=None, **kwargs)
 
     Creates a schedule
 
@@ -63,7 +71,8 @@ Reference
     :param args: arguments for the scheduled function.
     :param str name: An optional name for your schedule.
     :param str hook: optional result hook function. Dotted strings only.
-    :param str schedule_type: (O)nce, (H)ourly, (D)aily, (W)eekly, (M)onthly, (Q)uarterly, (Y)early or :attr:`Schedule.TYPE`
+    :param str schedule_type: (O)nce, M(I)nutes, (H)ourly, (D)aily, (W)eekly, (M)onthly, (Q)uarterly, (Y)early or :attr:`Schedule.TYPE`
+    :param int minutes: Number of minutes for the Minutes type.
     :param int repeats: Number of times to repeat schedule. -1=Always, 0=Never, n =n.
     :param datetime next_run: Next or first scheduled execution datetime.
     :param dict q_options: async options to use for this schedule
@@ -103,8 +112,13 @@ Reference
 
     .. py:attribute:: TYPE
 
-    :attr:`ONCE`, :attr:`HOURLY`, :attr:`DAILY`, :attr:`WEEKLY`, :attr:`MONTHLY`, :attr:`QUARTERLY`, :attr:`YEARLY`
+    :attr:`ONCE`, :attr:`MINUTES`, :attr:`HOURLY`, :attr:`DAILY`, :attr:`WEEKLY`, :attr:`MONTHLY`, :attr:`QUARTERLY`, :attr:`YEARLY`
 
+
+    .. py:attribute:: minutes
+
+    The number of minutes the :attr:`MINUTES` schedule should use.
+    Is ignored for other schedule types.
 
     .. py:attribute:: repeats
 
@@ -132,6 +146,10 @@ Reference
     `'O'` the schedule will only run once.
     If it has a negative :attr:`repeats` it will be deleted after it has run.
     If you want to keep the result, set :attr:`repeats` to a positive number.
+
+    .. py:attribute:: MINUTES
+
+    `'I'` will run every :attr:`minutes` after its first run.
 
     .. py:attribute:: HOURLY
 

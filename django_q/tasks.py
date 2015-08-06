@@ -66,6 +66,7 @@ def schedule(func, *args, **kwargs):
     name = kwargs.pop('name', None)
     hook = kwargs.pop('hook', None)
     schedule_type = kwargs.pop('schedule_type', Schedule.ONCE)
+    minutes = kwargs.pop('minutes', None)
     repeats = kwargs.pop('repeats', -1)
     next_run = kwargs.pop('next_run', timezone.now())
 
@@ -75,6 +76,7 @@ def schedule(func, *args, **kwargs):
                                    args=args,
                                    kwargs=kwargs,
                                    schedule_type=schedule_type,
+                                   minutes=minutes,
                                    repeats=repeats,
                                    next_run=next_run
                                    )
