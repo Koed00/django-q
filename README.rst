@@ -162,11 +162,11 @@ Admin page or directly from your code:
     import arrow
 
     schedule('math.hypot',
-            3, 4,
-            schedule_type=Schedule.MINUTES,
-            minutes = 5,
-            repeats= 24,
-            next_run = arrow.utcnow().replace(hour=18, minute=0))
+             3, 4,
+             schedule_type=Schedule.MINUTES,
+             minutes=5,
+             repeats=24,
+             next_run=arrow.utcnow().replace(hour=18, minute=0))
 
 For more info check the `Schedules <http://django-q.readthedocs.org/en/latest/schedules.html>`__ documentation.
 
