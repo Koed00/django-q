@@ -156,8 +156,19 @@ Admin page or directly from your code:
                             args='2,-2',
                             schedule_type=Schedule.DAILY
                             )
+    
+    # Run a task every 5 minutes, starting at 6 today
+    # for 2 hours
+    import arrow
 
-For more info check `Schedules <http://django-q.readthedocs.org/en/latest/schedules.html>`__
+    schedule('math.hypot',
+            3, 4,
+            schedule_type=Schedule.MINUTES,
+            minutes = 5,
+            repeats= 24,
+            next_run = arrow.utcnow().replace(hour=18, minute=0))
+
+For more info check the `Schedules <http://django-q.readthedocs.org/en/latest/schedules.html>`__ documentation.
 
 
 Testing
