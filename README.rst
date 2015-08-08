@@ -169,7 +169,6 @@ To run the tests you will need `py.test <http://pytest.org/latest/>`__ and `pyte
 Todo
 ~~~~
 
--  Write more sphinx `documentation <https://django-q.readthedocs.org>`__
 -  Better tests and coverage
 -  Get out of Alpha
 -  Less dependencies?
