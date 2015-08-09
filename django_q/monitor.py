@@ -10,17 +10,12 @@ from django.utils.translation import ugettext as _
 # local
 import signing
 from django_q.conf import Conf, redis_client, logger
+from django_q import models
 
 
-def monitor(run_once=False):
+def monitor(run_once=False, r=redis_client):
     term = Terminal()
-    r = redis_client
-    try:
-        redis_client.ping()
-    except Exception as e:
-        print(term.red('Can not connect to Redis server.'))
-        logger.exception(e)
-        raise e
+    ping_redis(r)
     with term.fullscreen(), term.hidden_cursor(), term.cbreak():
         val = None
         start_width = int(term.width / 8)
@@ -88,7 +83,6 @@ def monitor(run_once=False):
 
 
 class Status(object):
-
     """Cluster status base class."""
 
     def __init__(self, pid):
@@ -107,7 +101,6 @@ class Status(object):
 
 
 class Stat(Status):
-
     """Status object for Cluster monitoring."""
 
     def __init__(self, sentinel):
@@ -194,3 +187,54 @@ class Stat(Status):
         state = dict(self.__dict__)
         del state['r']
         return state
+
+
+def info(r=redis_client):
+    term = Terminal()
+    ping_redis(r)
+    stat = Stat.get_all(r)
+    clusters = len(stat)
+    workers = 0
+    reincarnations = 0
+    for cluster in stat:
+        workers += len(cluster.workers)
+        reincarnations += cluster.reincarnations
+    term.clear_eos()
+    col_width = int(term.width / 6)
+    print(term.black_on_green(term.center(_('-- {} clusters summary --').format(Conf.PREFIX))))
+    print(term.cyan(_('Clusters')) +
+          term.move_x(1 * col_width) +
+          term.white(str(clusters)) +
+          term.move_x(2 * col_width) +
+          term.cyan(_('Workers')) +
+          term.move_x(3 * col_width) +
+          term.white(str(workers)) +
+          term.move_x(4 * col_width) +
+          term.cyan(_('Restarts')) +
+          term.move_x(5 * col_width) +
+          term.white(str(reincarnations))
+          )
+    print(term.cyan(_('Queued')) +
+          term.move_x(1 * col_width) +
+          term.white(str(r.llen(Conf.Q_LIST))) +
+          term.move_x(2 * col_width) +
+          term.cyan(_('Successes')) +
+          term.move_x(3 * col_width) +
+          term.white(str(models.Success.objects.count())) +
+          term.move_x(4 * col_width) +
+          term.cyan(_('Failures')) +
+          term.move_x(5 * col_width) +
+          term.white(str(models.Failure.objects.count()))
+          )
+    return True
+
+
+def ping_redis(r):
+    try:
+        r.ping()
+    except Exception as e:
+        term = Terminal()
+        print(term.red('Can not connect to Redis server.'))
+        logger.exception(e)
+        raise e
+

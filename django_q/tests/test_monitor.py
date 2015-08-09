@@ -1,5 +1,8 @@
+import pytest
+import redis
+
 from django_q.cluster import Cluster
-from django_q.monitor import monitor, Stat
+from django_q.monitor import monitor, Stat, info, ping_redis
 
 
 def test_monitor():
@@ -17,3 +20,10 @@ def test_monitor():
             assert stat.empty_queues() is True
             break
     assert found_c is True
+
+
+@pytest.mark.django_db
+def test_ping_redis():
+    r = redis.StrictRedis(port=6388)
+    with pytest.raises(Exception):
+        ping_redis(r)
