@@ -2,7 +2,7 @@ import pytest
 import redis
 
 from django_q.cluster import Cluster
-from django_q.monitor import monitor, Stat, info, ping_redis
+from django_q.monitor import monitor, Stat, ping_redis
 
 
 def test_monitor():

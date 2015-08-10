@@ -201,7 +201,7 @@ def info(r=redis_client):
         reincarnations += cluster.reincarnations
     term.clear_eos()
     col_width = int(term.width / 6)
-    print(term.black_on_green(term.center(_('-- {} clusters summary --').format(Conf.PREFIX))))
+    print(term.black_on_green(term.center(_('-- {} summary --').format(Conf.PREFIX))))
     print(term.cyan(_('Clusters')) +
           term.move_x(1 * col_width) +
           term.white(str(clusters)) +
