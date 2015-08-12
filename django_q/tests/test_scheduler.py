@@ -90,6 +90,12 @@ def test_scheduler(r):
         assert schedule is not None
         assert schedule.last_run() is None
         scheduler(list_key=list_key)
+    # via model
+    Schedule.objects.create(func='django_q.tests.tasks.word_multiply',
+                            args='2',
+                            kwargs='word="django"',
+                            schedule_type=Schedule.DAILY
+                            )
     scheduler(list_key=list_key)
     # ONCE schedule should be deleted
     assert Schedule.objects.filter(pk=once_schedule.pk).exists() is False
