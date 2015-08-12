@@ -2,7 +2,7 @@ Monitor
 =======
 .. py:currentmodule::django_q.monitor
 
-The cluster monitor shows information about all the Q clusters connected to your project.
+The cluster monitor shows live information about all the Q clusters connected to your project.
 
 Start the monitor with Django's `manage.py` command::
 
@@ -71,11 +71,27 @@ Up
 
 .. centered:: Press `q` to quit the monitor and return to your terminal.
 
+Info
+----
+
+If you just want to see a one-off summary of your cluster stats you can use the `qinfo` management command::
+
+    $ python manage.py qinfo
+
+
+.. image:: _static/info.png
+
+All stats are summed over all available clusters.
+
+Task rate is calculated over the last 24 hours and will show the number of tasks per second, minute, hour or day depending on the amount.
+Average execution time (`Avg time`) is calculated in seconds over the last 24 hours.
+
+Since some of these numbers are based on what is available in your tasks database, limiting or disabling the result backend will skew them.
 
 Status
 ------
 
-You can check the status of your clusters straight from your code with :class:`Stat`:
+You can check the status of your clusters straight from your code with the :class:`Stat` class:
 
 .. code:: python
 
