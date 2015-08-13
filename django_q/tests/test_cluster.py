@@ -11,7 +11,7 @@ sys.path.insert(0, myPath + '/../')
 
 from django_q.cluster import Cluster, Sentinel, pusher, worker, monitor
 from django_q.humanhash import DEFAULT_WORDLIST
-from django_q.tasks import fetch, fetch_group, async, result, result_group, count_group, delete_group
+from django_q.tasks import fetch, fetch_group, async, result, result_group, count_group, delete_group, queue_size
 from django_q.models import Task, Success
 from django_q.conf import Conf, redis_client
 from django_q.monitor import Stat
@@ -77,7 +77,7 @@ def test_cluster(r):
     list_key = 'cluster_test:q'
     r.delete(list_key)
     task = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, list_key=list_key)
-    assert r.llen(list_key) == 1
+    assert queue_size(list_key=list_key, r=r) == 1
     task_queue = Queue()
     assert task_queue.qsize() == 0
     result_queue = Queue()
@@ -87,7 +87,7 @@ def test_cluster(r):
     # Test push
     pusher(task_queue, event, list_key=list_key, r=r)
     assert task_queue.qsize() == 1
-    assert r.llen(list_key) == 0
+    assert queue_size(list_key=list_key, r=r) == 0
     # Test work
     task_queue.put('STOP')
     worker(task_queue, result_queue, Value('f', -1))
@@ -142,14 +142,14 @@ def test_async(r, admin_user):
     assert isinstance(k, str)
     # run the cluster to execute the tasks
     task_count = 10
-    assert r.llen(list_key) == task_count
+    assert queue_size(list_key=list_key, r=r) == task_count
     task_queue = Queue()
     stop_event = Event()
     stop_event.set()
     # push the tasks
     for i in range(task_count):
         pusher(task_queue, stop_event, list_key=list_key, r=r)
-    assert r.llen(list_key) == 0
+    assert queue_size(list_key=list_key, r=r) == 0
     assert task_queue.qsize() == task_count
     task_queue.put('STOP')
     # let a worker handle them

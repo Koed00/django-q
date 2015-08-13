@@ -152,6 +152,19 @@ def delete_group(group_id, tasks=False):
     return Task.delete_group(group_id, tasks)
 
 
+def queue_size(list_key=Conf.Q_LIST, r=redis_client):
+    """
+    Returns the current queue size.
+    Note that this doesn't count any tasks currently being processed by workers.
+
+    :param list_key: optional redis key
+    :param r: optional redis connection
+    :return: current queue size
+    :rtype: int
+    """
+    return r.llen(list_key)
+
+
 def _sync(pack):
     """Simulate a package travelling through the cluster."""
     task_queue = Queue()

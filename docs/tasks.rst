@@ -213,6 +213,14 @@ Reference
 
     Renamed from get_task
 
+.. py:function:: queue_size()
+
+    Returns the size of the broker queue.
+    Note that this does not count tasks currently being processed.
+
+    :returns: The amount of task packages in the broker
+    :rtype: int
+
 .. py:function:: result_group(group_id, failures=False)
 
     Returns the results of a task group
