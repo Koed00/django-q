@@ -39,7 +39,7 @@ def async(func, *args, **kwargs):
         task['save'] = save
     # sign it
     pack = signing.SignedPackage.dumps(task)
-    if sync:
+    if sync or Conf.SYNC:
         return _sync(pack)
     # push it
     redis.rpush(list_key, pack)
@@ -150,6 +150,19 @@ def delete_group(group_id, tasks=False):
     :return:
     """
     return Task.delete_group(group_id, tasks)
+
+
+def queue_size(list_key=Conf.Q_LIST, r=redis_client):
+    """
+    Returns the current queue size.
+    Note that this doesn't count any tasks currently being processed by workers.
+
+    :param list_key: optional redis key
+    :param r: optional redis connection
+    :return: current queue size
+    :rtype: int
+    """
+    return r.llen(list_key)
 
 
 def _sync(pack):

@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from django_q.conf import redis_client
 from django_q.cluster import pusher, worker, monitor, scheduler
-from django_q.tasks import Schedule, fetch, schedule as create_schedule
+from django_q.tasks import Schedule, fetch, schedule as create_schedule, queue_size
 
 
 @pytest.fixture
@@ -34,7 +34,7 @@ def test_scheduler(r):
     # push it
     pusher(task_queue, stop_event, list_key=list_key, r=r)
     assert task_queue.qsize() == 1
-    assert r.llen(list_key) == 0
+    assert queue_size(list_key=list_key,r=r) == 0
     task_queue.put('STOP')
     # let a worker handle them
     result_queue = Queue()

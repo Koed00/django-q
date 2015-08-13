@@ -74,6 +74,9 @@ class Conf(object):
     # Sets the number of processors for each worker, defaults to all.
     CPU_AFFINITY = conf.get('cpu_affinity', 0)
 
+    # Global sync option to for debugging
+    SYNC = conf.get('sync', False)
+
     # Use the secret key for package signing
     # Django itself should raise an error if it's not configured
     SECRET_KEY = settings.SECRET_KEY
