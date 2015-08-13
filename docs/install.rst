@@ -92,13 +92,15 @@ Limits the amount of successful tasks saved to Django.
  - Defaults to ``250``
  - Failures are always saved.
 
-.. _queue_limit:
+.. _sync:
 
 sync
 ~~~~
 
 When set to ``True`` this configuration option forces all :func:`async` calls to be run with ``sync=True``.
 Effectively making everything synchronous. Useful for testing. Defaults to ``False``.
+
+.. _queue_limit:
 
 queue_limit
 ~~~~~~~~~~~
@@ -109,7 +111,7 @@ It can also be used to manage the loss of data in case of a cluster failure.
 Defaults to ``None``, meaning no limit.
 
 label
-~~~~~
+~~~~~Dev
 
 The label used for the Django Admin page. Defaults to ``'Django Q'``
 

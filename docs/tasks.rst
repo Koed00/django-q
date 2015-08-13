@@ -54,6 +54,7 @@ Overrides the cluster's timeout setting for this task.
 sync
 """"
 Simulates a task execution synchronously. Useful for testing.
+Can also be forced globally via the :ref:`sync` configuration option.
 
 redis
 """""
