@@ -1,5 +1,6 @@
 Installation
 ============
+.. py:currentmodule:: django_q
 
 -  Install the latest version with pip::
 
@@ -92,6 +93,12 @@ Limits the amount of successful tasks saved to Django.
  - Failures are always saved.
 
 .. _queue_limit:
+
+sync
+~~~~
+
+When set to ``True`` this configuration option forces all :func:`async` calls to be run with ``sync=True``.
+Effectively making everything synchronous. Useful for testing. Defaults to ``False``.
 
 queue_limit
 ~~~~~~~~~~~

@@ -39,7 +39,7 @@ def async(func, *args, **kwargs):
         task['save'] = save
     # sign it
     pack = signing.SignedPackage.dumps(task)
-    if sync:
+    if sync or Conf.SYNC:
         return _sync(pack)
     # push it
     redis.rpush(list_key, pack)
