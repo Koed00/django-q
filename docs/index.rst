@@ -5,7 +5,7 @@
 
 Welcome to Django Q
 ===================
-Django Q is a native Django task queue and worker application using Python multiprocessing.
+Django Q is a native Django task queue, scheduler and worker application using Python multiprocessing.
 
 
 Features

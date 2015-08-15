@@ -4,7 +4,7 @@
 Admin pages
 ===========
 
-Django Q does not use custom HTML pages, but instead uses what is offered by Django's model admin by default.
+Django Q does not use custom pages, but instead leverages what is offered by Django's model admin by default.
 When you open Django Q's admin pages you will see three models:
 
 Successful tasks

@@ -153,6 +153,7 @@ The task will then be injected straight into a worker and the result saved by a 
     An error occurred: ImportError("No module named 'my'",)
 
 Note that :func:`async` will block until the task is executed and saved. This feature bypasses the Redis server and is intended for debugging and development.
+Instead of setting ``sync`` on each individual ``async`` you can also configure :ref:`sync` as a global override.
 
 Connection pooling
 ------------------
