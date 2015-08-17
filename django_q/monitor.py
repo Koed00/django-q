@@ -278,7 +278,5 @@ def ping_redis(r):
     try:
         r.ping()
     except Exception as e:
-        term = Terminal()
-        print(term.red('Can not connect to Redis server.'))
-        logger.exception(e)
+        logger.error('Can not connect to Redis server.')
         raise e

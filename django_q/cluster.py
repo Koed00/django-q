@@ -33,16 +33,11 @@ import tasks
 
 from django_q.conf import Conf, redis_client, logger, psutil
 from django_q.models import Task, Success, Schedule
-from django_q.monitor import Status, Stat
+from django_q.monitor import Status, Stat, ping_redis
 
 
 class Cluster(object):
     def __init__(self, list_key=Conf.Q_LIST):
-        try:
-            redis_client.ping()
-        except Exception as e:
-            logger.exception(e)
-            raise e
         self.sentinel = None
         self.stop_event = None
         self.start_event = None
@@ -136,6 +131,7 @@ class Sentinel(object):
             self.start()
 
     def start(self):
+        ping_redis(self.r)
         self.spawn_cluster()
         self.guard()
 
@@ -207,7 +203,7 @@ class Sentinel(object):
         self.pool = []
         Stat(self).save()
         # spawn worker pool
-        for _ in range(self.pool_size):
+        for __ in range(self.pool_size):
             self.spawn_worker()
         # spawn auxiliary
         self.monitor = self.spawn_monitor()
@@ -254,7 +250,7 @@ class Sentinel(object):
     def stop(self):
         Stat(self).save()
         name = current_process().name
-        logger.info('{} stopping cluster processes'.format(name))
+        logger.info(_('{} stopping cluster processes').format(name))
         # Stopping pusher
         self.event_out.set()
         # Wait for it to stop
@@ -262,7 +258,7 @@ class Sentinel(object):
             sleep(0.1)
             Stat(self).save()
         # Put poison pills in the queue
-        for _ in range(len(self.pool)):
+        for __ in range(len(self.pool)):
             self.task_queue.put('STOP')
         self.task_queue.close()
         # wait for the task queue to empty
@@ -279,7 +275,7 @@ class Sentinel(object):
         self.result_queue.close()
         # Wait for the result queue to empty
         self.result_queue.join_thread()
-        logger.info('{} waiting for the monitor.'.format(name))
+        logger.info(_('{} waiting for the monitor.').format(name))
         # Wait for everything to close or time out
         count = 0
         if not self.timeout:
@@ -510,4 +506,4 @@ def set_cpu_affinity(n, process_ids, actual=not Conf.TESTING):
             p = psutil.Process(pid)
             if actual:
                 p.cpu_affinity(affinity)
-            logger.info('{} will use cpu {}'.format(pid, affinity))
+            logger.info(_('{} will use cpu {}').format(pid, affinity))
