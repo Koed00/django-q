@@ -33,16 +33,11 @@ import tasks
 
 from django_q.conf import Conf, redis_client, logger, psutil
 from django_q.models import Task, Success, Schedule
-from django_q.monitor import Status, Stat
+from django_q.monitor import Status, Stat, ping_redis
 
 
 class Cluster(object):
     def __init__(self, list_key=Conf.Q_LIST):
-        try:
-            redis_client.ping()
-        except Exception as e:
-            logger.exception(e)
-            raise e
         self.sentinel = None
         self.stop_event = None
         self.start_event = None
@@ -136,6 +131,7 @@ class Sentinel(object):
             self.start()
 
     def start(self):
+        ping_redis(self.r)
         self.spawn_cluster()
         self.guard()
 
