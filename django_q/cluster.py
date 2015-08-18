@@ -436,20 +436,23 @@ def scheduler(list_key=Conf.Q_LIST):
             # set up the next run time
             if not s.schedule_type == s.ONCE:
                 next_run = arrow.get(s.next_run)
-                if s.schedule_type == s.MINUTES:
-                    next_run = next_run.replace(minutes=+(s.minutes or 1))
-                elif s.schedule_type == s.HOURLY:
-                    next_run = next_run.replace(hours=+1)
-                elif s.schedule_type == s.DAILY:
-                    next_run = next_run.replace(days=+1)
-                elif s.schedule_type == s.WEEKLY:
-                    next_run = next_run.replace(weeks=+1)
-                elif s.schedule_type == s.MONTHLY:
-                    next_run = next_run.replace(months=+1)
-                elif s.schedule_type == s.QUARTERLY:
-                    next_run = next_run.replace(months=+3)
-                elif s.schedule_type == s.YEARLY:
-                    next_run = next_run.replace(years=+1)
+                while True:
+                    if s.schedule_type == s.MINUTES:
+                        next_run = next_run.replace(minutes=+(s.minutes or 1))
+                    elif s.schedule_type == s.HOURLY:
+                        next_run = next_run.replace(hours=+1)
+                    elif s.schedule_type == s.DAILY:
+                        next_run = next_run.replace(days=+1)
+                    elif s.schedule_type == s.WEEKLY:
+                        next_run = next_run.replace(weeks=+1)
+                    elif s.schedule_type == s.MONTHLY:
+                        next_run = next_run.replace(months=+1)
+                    elif s.schedule_type == s.QUARTERLY:
+                        next_run = next_run.replace(months=+3)
+                    elif s.schedule_type == s.YEARLY:
+                        next_run = next_run.replace(years=+1)
+                    if Conf.CATCH_UP or next_run > arrow.utcnow():
+                        break
                 s.next_run = next_run.datetime
                 s.repeats += -1
             # send it to the cluster
@@ -467,8 +470,7 @@ def scheduler(list_key=Conf.Q_LIST):
             # default behavior is to delete a ONCE schedule
             if s.schedule_type == s.ONCE:
                 if s.repeats < 0:
-                    s.delete()
-                    return
+                    return s.delete()
                 # but not if it has a positive repeats
                 s.repeats = 0
             # save the schedule
