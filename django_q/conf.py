@@ -77,6 +77,10 @@ class Conf(object):
     # Global sync option to for debugging
     SYNC = conf.get('sync', False)
 
+    # If set to False the scheduler won't execute tasks in the past.
+    # Instead it will reschedule the next run in the future. Defaults to True.
+    CATCH_UP = conf.get('catch_up', True)
+
     # Use the secret key for package signing
     # Django itself should raise an error if it's not configured
     SECRET_KEY = settings.SECRET_KEY

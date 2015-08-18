@@ -1,10 +1,12 @@
+from datetime import timedelta
 from multiprocessing import Queue, Event, Value
 
 import pytest
 import arrow
+
 from django.utils import timezone
 
-from django_q.conf import redis_client
+from django_q.conf import redis_client, Conf
 from django_q.cluster import pusher, worker, monitor, scheduler
 from django_q.tasks import Schedule, fetch, schedule as create_schedule, queue_size
 
@@ -34,7 +36,7 @@ def test_scheduler(r):
     # push it
     pusher(task_queue, stop_event, list_key=list_key, r=r)
     assert task_queue.qsize() == 1
-    assert queue_size(list_key=list_key,r=r) == 0
+    assert queue_size(list_key=list_key, r=r) == 0
     task_queue.put('STOP')
     # let a worker handle them
     result_queue = Queue()
@@ -96,7 +98,27 @@ def test_scheduler(r):
                             kwargs='word="django"',
                             schedule_type=Schedule.DAILY
                             )
+    # scheduler
     scheduler(list_key=list_key)
     # ONCE schedule should be deleted
     assert Schedule.objects.filter(pk=once_schedule.pk).exists() is False
+    # Catch up On
+    Conf.CATCH_UP = True
+    now = timezone.now()
+    schedule = create_schedule('django_q.tests.tasks.word_multiply',
+                               2,
+                               word='catch_up',
+                               schedule_type=Schedule.HOURLY,
+                               next_run=timezone.now() - timedelta(hours=12),
+                               repeats=-1
+                               )
+    scheduler(list_key=list_key)
+    schedule = Schedule.objects.get(pk=schedule.pk)
+    assert schedule.next_run < now
+    # Catch up off
+    Conf.CATCH_UP = False
+    scheduler(list_key=list_key)
+    schedule = Schedule.objects.get(pk=schedule.pk)
+    assert schedule.next_run > now
+    # Done
     r.delete(list_key)
