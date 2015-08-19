@@ -29,7 +29,7 @@ Django Q is tested for Python 2.7 and 3.4
 -  `Django <https://www.djangoproject.com>`__
 
     Django Q aims to use as much of Django's standard offerings as possible
-    The code is tested against Django version `1.7.9` and `1.8.3`.
+    The code is tested against Django version `1.7.10` and `1.8.4`.
 
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
 
