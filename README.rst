@@ -181,7 +181,6 @@ Todo
 ~~~~
 
 -  Better tests and coverage
--  Get out of Alpha
 -  Less dependencies?
 
 Acknowledgements
