@@ -26,7 +26,7 @@ class PyTest(Command):
 
 setup(
     name='django-q',
-    version='0.5.2',
+    version='0.5.3',
     author='Ilan Steemers',
     author_email='koed00@gmail.com',
     keywords='django task queue worker redis multiprocessing',
@@ -40,7 +40,7 @@ setup(
     test_requires=['pytest', 'pytest-django', ],
     cmdclass={'test': PyTest},
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Framework :: Django',
         'Intended Audience :: Developers',

@@ -9,6 +9,6 @@ from .models import Task, Schedule, Success, Failure
 from .cluster import Cluster
 from .monitor import Stat
 
-VERSION = (0, 5, 2)
+VERSION = (0, 5, 3)
 
 default_app_config = 'django_q.apps.DjangoQConfig'

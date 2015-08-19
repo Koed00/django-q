@@ -78,7 +78,7 @@ class Conf(object):
     SYNC = conf.get('sync', False)
 
     # If set to False the scheduler won't execute tasks in the past.
-    # Instead it will reschedule the next run in the future. Defaults to True.
+    # Instead it will run once and reschedule the next run in the future. Defaults to True.
     CATCH_UP = conf.get('catch_up', True)
 
     # Use the secret key for package signing
