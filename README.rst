@@ -57,7 +57,7 @@ Installation
 -  Make sure you have a `Redis <http://redis.io/>`__ server running
    somewhere
 
-Read the full documentation at `http://django-q.readthedocs.org <http://django-q.readthedocs.org>`__
+Read the full documentation at `https://django-q.readthedocs.org <https://django-q.readthedocs.org>`__
 
 
 Configuration
@@ -84,7 +84,7 @@ All configuration settings are optional. e.g:
             'db': 0, }
     }
 
-For full configuration options, see the `configuration documentation <http://django-q.readthedocs.org/en/latest/install.html#configuration>`__.
+For full configuration options, see the `configuration documentation <https://django-q.readthedocs.org/en/latest/configure.html>`__.
 
 
 If you are using `django-redis <https://github.com/niwinz/django-redis>`__ , you can `configure <https://django-q.readthedocs.org/en/latest/install.html#django-redis>`__ Django Q to use its connection pool.
@@ -129,7 +129,7 @@ Use `async` from your code to quickly offload tasks:
     def print_result(task):
         print(task.result)
 
-For more info see `Tasks <http://django-q.readthedocs.org/en/latest/tasks.html>`__
+For more info see `Tasks <https://django-q.readthedocs.org/en/latest/tasks.html>`__
 
 
 Schedule
@@ -168,7 +168,7 @@ Admin page or directly from your code:
              repeats=24,
              next_run=arrow.utcnow().replace(hour=18, minute=0))
 
-For more info check the `Schedules <http://django-q.readthedocs.org/en/latest/schedules.html>`__ documentation.
+For more info check the `Schedules <https://django-q.readthedocs.org/en/latest/schedules.html>`__ documentation.
 
 
 Testing
