@@ -40,6 +40,8 @@ Here you can check on the status of your scheduled tasks, create, edit or delete
 
 .. image:: _static/scheduled.png
 
+
+
 Repeats
 ~~~~~~~
 If you want a schedule to only run a finite amount of times, e.g. every hour for the next 24 hours, you can do that using the :attr:`Schedule.repeats` attribute.
@@ -49,6 +51,8 @@ When you set repeats to ``-1`` the schedule will continue indefinitely and the r
 
 An exception to this are schedules of type :attr:`Schedule.ONCE`. Negative repeats for this schedule type will cause it to be deleted from the database.
 This behavior is useful if you have many delayed actions which you do not necessarily need a result for. A positive number will keep the ONCE schedule, but it will not run again.
+
+You can pause a schedule by setting its repeats value to zero.
 
 .. note::
 
