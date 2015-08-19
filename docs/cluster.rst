@@ -42,14 +42,14 @@ Stopping the cluster with ctrl-c or either the ``SIGTERM`` and ``SIGKILL`` signa
     16:44:14 [Q] INFO Process-1:9 stopped monitoring results
     16:44:15 [Q] INFO Q Cluster-31781 has stopped.
 
-The number of workers, optional timeouts, recycles and cpu_affinity can be controlled via the :ref:`configuration` settings.
+The number of workers, optional timeouts, recycles and cpu_affinity can be controlled via the :doc:`configure` settings.
 
 Multiple Clusters
 -----------------
 You can have multiple clusters on multiple machines, working on the same queue as long as:
 
 - They connect to the same Redis server or Redis cluster.
-- They use the same cluster name. See :ref:`configuration`
+- They use the same cluster name. See :doc:`configure`
 - They share the same ``SECRET_KEY`` for Django.
 
 Using a Procfile
@@ -80,7 +80,7 @@ An example :file:`circus.ini` ::
 
 
 Note that we only start one process. It is not a good idea to run multiple instances of the cluster in the same environment since this does nothing to increase performance and in all likelihood will diminish it.
-Control your cluster using the ``workers``, ``recycle`` and ``timeout`` settings in your :ref:`configuration`
+Control your cluster using the ``workers``, ``recycle`` and ``timeout`` settings in your :doc:`configure`
 
 Architecture
 ------------

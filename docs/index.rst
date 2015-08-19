@@ -32,6 +32,7 @@ Contents:
    :maxdepth: 2
 
     Installation <install>
+    Configuration <configure>
     Tasks <tasks>
     Schedules <schedules>
     Cluster <cluster>
