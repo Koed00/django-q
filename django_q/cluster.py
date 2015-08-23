@@ -11,7 +11,6 @@ standard_library.install_aliases()
 
 # Standard
 import importlib
-import os
 import signal
 import socket
 import sys
@@ -31,7 +30,7 @@ from django import db
 import signing
 import tasks
 
-from django_q.conf import Conf, redis_client, logger, psutil
+from django_q.conf import Conf, redis_client, logger, psutil, get_ppid
 from django_q.models import Task, Success, Schedule
 from django_q.monitor import Status, Stat, ping_redis
 
@@ -111,7 +110,7 @@ class Sentinel(object):
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         signal.signal(signal.SIGTERM, signal.SIG_DFL)
         self.pid = current_process().pid
-        self.parent_pid = os.getppid()
+        self.parent_pid = get_ppid()
         self.name = current_process().name
         self.list_key = list_key
         self.r = redis_client
