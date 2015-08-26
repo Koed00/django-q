@@ -14,7 +14,7 @@ from django_q.humanhash import DEFAULT_WORDLIST
 from django_q.tasks import fetch, fetch_group, async, result, result_group, count_group, delete_group, queue_size
 from django_q.models import Task, Success
 from django_q.conf import Conf, redis_client
-from django_q.monitor import Stat
+from django_q.status import Stat
 from .tasks import multiply
 
 

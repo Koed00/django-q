@@ -32,7 +32,7 @@ import tasks
 
 from django_q.conf import Conf, redis_client, logger, psutil, get_ppid
 from django_q.models import Task, Success, Schedule
-from django_q.monitor import Status, Stat, ping_redis
+from django_q.status import Stat, Status, ping_redis
 
 
 class Cluster(object):
