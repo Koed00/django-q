@@ -7,6 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
 # external
+import os
 import redis
 
 # optional
@@ -143,3 +144,13 @@ def get_redis_client():
 
 # redis client
 redis_client = get_redis_client()
+
+
+# get parent pid compatibility
+def get_ppid():
+    if hasattr(os, 'getppid'):
+        return os.getppid()
+    elif psutil:
+        return psutil.Process(os.getpid()).ppid()
+    else:
+        raise OSError('Your OS does not support `os.getppid`. Please install `psutil` as an alternative provider.')

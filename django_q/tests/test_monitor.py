@@ -3,7 +3,8 @@ import redis
 
 from django_q import async
 from django_q.cluster import Cluster
-from django_q.monitor import monitor, Stat, ping_redis, info
+from django_q.monitor import monitor, info
+from django_q.status import Stat, ping_redis
 
 
 @pytest.mark.django_db

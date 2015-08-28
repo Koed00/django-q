@@ -11,7 +11,6 @@ standard_library.install_aliases()
 
 # Standard
 import importlib
-import os
 import signal
 import socket
 import sys
@@ -31,9 +30,9 @@ from django import db
 import signing
 import tasks
 
-from django_q.conf import Conf, redis_client, logger, psutil
+from django_q.conf import Conf, redis_client, logger, psutil, get_ppid
 from django_q.models import Task, Success, Schedule
-from django_q.monitor import Status, Stat, ping_redis
+from django_q.status import Stat, Status, ping_redis
 
 
 class Cluster(object):
@@ -111,7 +110,7 @@ class Sentinel(object):
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         signal.signal(signal.SIGTERM, signal.SIG_DFL)
         self.pid = current_process().pid
-        self.parent_pid = os.getppid()
+        self.parent_pid = get_ppid()
         self.name = current_process().name
         self.list_key = list_key
         self.r = redis_client
@@ -166,7 +165,7 @@ class Sentinel(object):
         return p
 
     def spawn_pusher(self):
-        return self.spawn_process(pusher, self.task_queue, self.event_out, self.list_key, self.r)
+        return self.spawn_process(pusher, self.task_queue, self.event_out, self.list_key)
 
     def spawn_worker(self):
         self.spawn_process(worker, self.task_queue, self.result_queue, Value('f', -1), self.timeout)
@@ -288,7 +287,7 @@ class Sentinel(object):
         Stat(self).save()
 
 
-def pusher(task_queue, event, list_key=Conf.Q_LIST, r=redis_client):
+def pusher(task_queue, event, list_key=Conf.Q_LIST):
     """
     Pulls tasks of the Redis List and puts them in the task queue
     :type task_queue: multiprocessing.Queue
@@ -296,6 +295,7 @@ def pusher(task_queue, event, list_key=Conf.Q_LIST, r=redis_client):
     :type list_key: str
     """
     logger.info(_('{} pushing tasks at {}').format(current_process().name, current_process().pid))
+    r = redis_client
     while True:
         try:
             task = r.blpop(list_key, 1)

@@ -34,7 +34,7 @@ def test_scheduler(r):
     stop_event = Event()
     stop_event.set()
     # push it
-    pusher(task_queue, stop_event, list_key=list_key, r=r)
+    pusher(task_queue, stop_event, list_key=list_key)
     assert task_queue.qsize() == 1
     assert queue_size(list_key=list_key, r=r) == 0
     task_queue.put('STOP')

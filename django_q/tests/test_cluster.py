@@ -14,7 +14,7 @@ from django_q.humanhash import DEFAULT_WORDLIST
 from django_q.tasks import fetch, fetch_group, async, result, result_group, count_group, delete_group, queue_size
 from django_q.models import Task, Success
 from django_q.conf import Conf, redis_client
-from django_q.monitor import Stat
+from django_q.status import Stat
 from .tasks import multiply
 
 
@@ -85,7 +85,7 @@ def test_cluster(r):
     event = Event()
     event.set()
     # Test push
-    pusher(task_queue, event, list_key=list_key, r=r)
+    pusher(task_queue, event, list_key=list_key)
     assert task_queue.qsize() == 1
     assert queue_size(list_key=list_key, r=r) == 0
     # Test work
@@ -148,7 +148,7 @@ def test_async(r, admin_user):
     stop_event.set()
     # push the tasks
     for i in range(task_count):
-        pusher(task_queue, stop_event, list_key=list_key, r=r)
+        pusher(task_queue, stop_event, list_key=list_key)
     assert queue_size(list_key=list_key, r=r) == 0
     assert task_queue.qsize() == task_count
     task_queue.put('STOP')
@@ -292,8 +292,8 @@ def test_recycle(r):
     task_queue = Queue()
     result_queue = Queue()
     # push two tasks
-    pusher(task_queue, stop_event, list_key=list_key, r=r)
-    pusher(task_queue, stop_event, list_key=list_key, r=r)
+    pusher(task_queue, stop_event, list_key=list_key)
+    pusher(task_queue, stop_event, list_key=list_key)
     # worker should exit on recycle
     worker(task_queue, result_queue, Value('f', -1))
     # check if the work has been done
@@ -322,7 +322,7 @@ def test_bad_secret(r, monkeypatch):
     assert len(stat) == 0
     assert Stat.get(s.parent_pid, r) is None
     task_queue = Queue()
-    pusher(task_queue, stop_event, list_key=list_key, r=r)
+    pusher(task_queue, stop_event, list_key=list_key)
     result_queue = Queue()
     task_queue.put('STOP')
     worker(task_queue, result_queue, Value('f', -1), )
