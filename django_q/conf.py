@@ -46,6 +46,7 @@ class Conf(object):
     # Maximum number of tasks that each cluster can work on
     QUEUE_LIMIT = conf.get('queue_limit', None)
 
+
     # Number of workers in the pool. Default is cpu count if implemented, otherwise 4.
     WORKERS = conf.get('workers', False)
     if not WORKERS:

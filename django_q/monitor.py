@@ -11,13 +11,14 @@ from django.utils.translation import ugettext as _
 
 # local
 from django_q.conf import Conf, redis_client
-from django_q.status import Stat, ping_redis
+from django_q.status import Stat
+from django_q.brokers import get_broker
 from django_q import models
 
 
-def monitor(run_once=False, r=redis_client):
+def monitor(run_once=False, broker=get_broker()):
     term = Terminal()
-    ping_redis(r)
+    broker.ping()
     with term.fullscreen(), term.hidden_cursor(), term.cbreak():
         val = None
         start_width = int(term.width / 8)
@@ -36,7 +37,7 @@ def monitor(run_once=False, r=redis_client):
             print(term.move(0, 6 * col_width) + term.black_on_green(term.center(_('RC'), width=col_width - 1)))
             print(term.move(0, 7 * col_width) + term.black_on_green(term.center(_('Up'), width=col_width - 1)))
             i = 2
-            stats = Stat.get_all(r=r)
+            stats = Stat.get_all(broker=broker)
             print(term.clear_eos())
             for stat in stats:
                 status = stat.status
@@ -79,15 +80,15 @@ def monitor(run_once=False, r=redis_client):
                 i += 1
             # for testing
             if run_once:
-                return Stat.get_all(r=r)
+                return Stat.get_all(broker=broker)
             print(term.move(i + 2, 0) + term.center(_('[Press q to quit]')))
             val = term.inkey(timeout=1)
 
 
-def info(r=redis_client):
+def info(broker=get_broker()):
     term = Terminal()
-    ping_redis(r)
-    stat = Stat.get_all(r)
+    broker.ping()
+    stat = Stat.get_all(broker=broker)
     # general stats
     clusters = len(stat)
     workers = 0
@@ -141,7 +142,7 @@ def info(r=redis_client):
           )
     print(term.cyan(_('Queued')) +
           term.move_x(1 * col_width) +
-          term.white(str(r.llen(Conf.Q_LIST))) +
+          term.white(str(broker.queue_size())) +
           term.move_x(2 * col_width) +
           term.cyan(_('Successes')) +
           term.move_x(3 * col_width) +

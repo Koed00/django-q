@@ -13,8 +13,9 @@ from django_q.cluster import Cluster, Sentinel, pusher, worker, monitor
 from django_q.humanhash import DEFAULT_WORDLIST
 from django_q.tasks import fetch, fetch_group, async, result, result_group, count_group, delete_group, queue_size
 from django_q.models import Task, Success
-from django_q.conf import Conf, redis_client
+from django_q.conf import Conf
 from django_q.status import Stat
+from django_q.brokers import get_broker
 from .tasks import multiply
 
 
@@ -27,25 +28,25 @@ class WordClass(object):
 
 
 @pytest.fixture
-def r():
-    return redis_client
+def broker():
+    return get_broker()
 
 
-def test_redis_connection(r):
-    assert r.ping() is True
+def test_redis_connection(broker):
+    assert broker.ping() is True
 
 
 @pytest.mark.django_db
-def test_sync(r):
-    task = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, redis=r, sync=True)
+def test_sync(broker):
+    task = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, broker=broker, sync=True)
     assert result(task) == 1506
 
 
 @pytest.mark.django_db
-def test_cluster_initial(r):
-    list_key = 'initial_test:q'
-    r.delete(list_key)
-    c = Cluster(list_key=list_key)
+def test_cluster_initial(broker):
+    broker.list_key = 'initial_test:q'
+    broker.delete_queue()
+    c = Cluster(broker=broker)
     assert c.sentinel is None
     assert c.stat.status == Conf.STOPPED
     assert c.start() > 0
@@ -59,7 +60,7 @@ def test_cluster_initial(r):
     assert c.stop() is True
     assert c.sentinel.is_alive() is False
     assert c.has_stopped
-    r.delete(list_key)
+    broker.delete_queue()
 
 
 @pytest.mark.django_db
@@ -67,17 +68,17 @@ def test_sentinel():
     start_event = Event()
     stop_event = Event()
     stop_event.set()
-    s = Sentinel(stop_event, start_event, list_key='sentinel_test:q')
+    s = Sentinel(stop_event, start_event, broker=get_broker('sentinel_test:q'))
     assert start_event.is_set()
     assert s.status() == Conf.STOPPED
 
 
 @pytest.mark.django_db
-def test_cluster(r):
-    list_key = 'cluster_test:q'
-    r.delete(list_key)
-    task = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, list_key=list_key)
-    assert queue_size(list_key=list_key, r=r) == 1
+def test_cluster(broker):
+    broker.list_key = 'cluster_test:q'
+    broker.delete_queue()
+    task = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, broker=broker)
+    assert broker.queue_size() == 1
     task_queue = Queue()
     assert task_queue.qsize() == 0
     result_queue = Queue()
@@ -85,9 +86,9 @@ def test_cluster(r):
     event = Event()
     event.set()
     # Test push
-    pusher(task_queue, event, list_key=list_key)
+    pusher(task_queue, event, broker=broker)
     assert task_queue.qsize() == 1
-    assert queue_size(list_key=list_key, r=r) == 0
+    assert queue_size(broker=broker) == 0
     # Test work
     task_queue.put('STOP')
     worker(task_queue, result_queue, Value('f', -1))
@@ -99,36 +100,36 @@ def test_cluster(r):
     assert result_queue.qsize() == 0
     # check result
     assert result(task) == 1506
-    r.delete(list_key)
+    broker.delete_queue()
 
 
 @pytest.mark.django_db
-def test_async(r, admin_user):
-    list_key = 'cluster_test:q'
-    r.delete(list_key)
+def test_async(broker, admin_user):
+    broker.list_key = 'cluster_test:q'
+    broker.delete_queue()
     a = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, hook='django_q.tests.test_cluster.assert_result',
-              list_key=list_key, redis=r)
+              broker=broker)
     b = async('django_q.tests.tasks.count_letters2', WordClass(), hook='django_q.tests.test_cluster.assert_result',
-              list_key=list_key, redis=r)
+              broker=broker)
     # unknown argument
     c = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, 'oneargumentoomany',
-              hook='django_q.tests.test_cluster.assert_bad_result', list_key=list_key, redis=r)
+              hook='django_q.tests.test_cluster.assert_bad_result', broker=broker)
     # unknown function
     d = async('django_q.tests.tasks.does_not_exist', WordClass(), hook='django_q.tests.test_cluster.assert_bad_result',
-              list_key=list_key, redis=r)
+              broker=broker)
     # function without result
-    e = async('django_q.tests.tasks.countdown', 100000, list_key=list_key, redis=r)
+    e = async('django_q.tests.tasks.countdown', 100000, broker=broker)
     # function as instance
-    f = async(multiply, 753, 2, hook=assert_result, list_key=list_key, redis=r)
+    f = async(multiply, 753, 2, hook=assert_result, broker=broker)
     # model as argument
-    g = async('django_q.tests.tasks.get_task_name', Task(name='John'), list_key=list_key, redis=r)
+    g = async('django_q.tests.tasks.get_task_name', Task(name='John'), broker=broker)
     # args,kwargs, group and broken hook
-    h = async('django_q.tests.tasks.word_multiply', 2, word='django', hook='fail.me', list_key=list_key, redis=r)
+    h = async('django_q.tests.tasks.word_multiply', 2, word='django', hook='fail.me', broker=broker)
     # args unpickle test
-    j = async('django_q.tests.tasks.get_user_id', admin_user, list_key=list_key, group='test_j', redis=r)
+    j = async('django_q.tests.tasks.get_user_id', admin_user, broker=broker, group='test_j')
     # q_options and save opt_out test
     k = async('django_q.tests.tasks.get_user_id', admin_user,
-              q_options={'list_key': list_key, 'group': 'test_k', 'redis': r, 'save': False, 'timeout': 90})
+              q_options={'broker': broker, 'group': 'test_k', 'save': False, 'timeout': 90})
     # check if everything has a task id
     assert isinstance(a, str)
     assert isinstance(b, str)
@@ -142,14 +143,14 @@ def test_async(r, admin_user):
     assert isinstance(k, str)
     # run the cluster to execute the tasks
     task_count = 10
-    assert queue_size(list_key=list_key, r=r) == task_count
+    assert broker.queue_size() == task_count
     task_queue = Queue()
     stop_event = Event()
     stop_event.set()
     # push the tasks
     for i in range(task_count):
-        pusher(task_queue, stop_event, list_key=list_key)
-    assert queue_size(list_key=list_key, r=r) == 0
+        pusher(task_queue, stop_event, broker=broker)
+    assert broker.queue_size() == 0
     assert task_queue.qsize() == task_count
     task_queue.put('STOP')
     # let a worker handle them
@@ -218,64 +219,64 @@ def test_async(r, admin_user):
     assert delete_group('test_j', tasks=True) is None
     # task k should not have been saved
     assert fetch(k) is None
-    r.delete(list_key)
+    broker.delete_queue()
 
 
 @pytest.mark.django_db
-def test_timeout(r):
+def test_timeout(broker):
     # set up the Sentinel
-    list_key = 'timeout_test:q'
-    async('django_q.tests.tasks.count_forever', list_key=list_key)
+    broker.list_key = 'timeout_test:q'
+    async('django_q.tests.tasks.count_forever',broker=broker)
     start_event = Event()
     stop_event = Event()
     # Set a timer to stop the Sentinel
     threading.Timer(3, stop_event.set).start()
-    s = Sentinel(stop_event, start_event, list_key=list_key, timeout=1)
+    s = Sentinel(stop_event, start_event, broker=broker, timeout=1)
     assert start_event.is_set()
     assert s.status() == Conf.STOPPED
     assert s.reincarnations == 1
-    r.delete(list_key)
+    broker.delete_queue()
 
 
 @pytest.mark.django_db
-def test_timeout(r):
+def test_timeout(broker):
     # set up the Sentinel
-    list_key = 'timeout_test:q'
-    async('django_q.tests.tasks.count_forever', list_key=list_key)
+    broker.list_key = 'timeout_test:q'
+    async('django_q.tests.tasks.count_forever', broker=broker)
     start_event = Event()
     stop_event = Event()
     # Set a timer to stop the Sentinel
     threading.Timer(3, stop_event.set).start()
-    s = Sentinel(stop_event, start_event, list_key=list_key, timeout=1)
+    s = Sentinel(stop_event, start_event,broker=broker, timeout=1)
     assert start_event.is_set()
     assert s.status() == Conf.STOPPED
     assert s.reincarnations == 1
-    r.delete(list_key)
+    broker.delete_queue()
 
 
 @pytest.mark.django_db
-def test_timeout_override(r):
+def test_timeout_override(broker):
     # set up the Sentinel
-    list_key = 'timeout_override_test:q'
-    async('django_q.tests.tasks.count_forever', list_key=list_key, timeout=1)
+    broker.list_key = 'timeout_override_test:q'
+    async('django_q.tests.tasks.count_forever', broker=broker, timeout=1)
     start_event = Event()
     stop_event = Event()
     # Set a timer to stop the Sentinel
     threading.Timer(3, stop_event.set).start()
-    s = Sentinel(stop_event, start_event, list_key=list_key, timeout=10)
+    s = Sentinel(stop_event, start_event, broker=broker, timeout=10)
     assert start_event.is_set()
     assert s.status() == Conf.STOPPED
     assert s.reincarnations == 1
-    r.delete(list_key)
+    broker.delete_queue()
 
 
 @pytest.mark.django_db
-def test_recycle(r):
+def test_recycle(broker):
     # set up the Sentinel
-    list_key = 'test_recycle_test:q'
-    async('django_q.tests.tasks.multiply', 2, 2, list_key=list_key, redis=r)
-    async('django_q.tests.tasks.multiply', 2, 2, list_key=list_key, redis=r)
-    async('django_q.tests.tasks.multiply', 2, 2, list_key=list_key, redis=r)
+    broker.list_key = 'test_recycle_test:q'
+    async('django_q.tests.tasks.multiply', 2, 2, broker=broker)
+    async('django_q.tests.tasks.multiply', 2, 2, broker=broker)
+    async('django_q.tests.tasks.multiply', 2, 2, broker=broker)
     start_event = Event()
     stop_event = Event()
     # override settings
@@ -283,17 +284,17 @@ def test_recycle(r):
     Conf.WORKERS = 1
     # set a timer to stop the Sentinel
     threading.Timer(3, stop_event.set).start()
-    s = Sentinel(stop_event, start_event, list_key=list_key)
+    s = Sentinel(stop_event, start_event,broker=broker)
     assert start_event.is_set()
     assert s.status() == Conf.STOPPED
     assert s.reincarnations == 1
-    async('django_q.tests.tasks.multiply', 2, 2, list_key=list_key, redis=r)
-    async('django_q.tests.tasks.multiply', 2, 2, list_key=list_key, redis=r)
+    async('django_q.tests.tasks.multiply', 2, 2, broker=broker)
+    async('django_q.tests.tasks.multiply', 2, 2, broker=broker)
     task_queue = Queue()
     result_queue = Queue()
     # push two tasks
-    pusher(task_queue, stop_event, list_key=list_key)
-    pusher(task_queue, stop_event, list_key=list_key)
+    pusher(task_queue, stop_event, broker=broker)
+    pusher(task_queue, stop_event, broker=broker)
     # worker should exit on recycle
     worker(task_queue, result_queue, Value('f', -1))
     # check if the work has been done
@@ -304,30 +305,30 @@ def test_recycle(r):
     # run monitor
     monitor(result_queue)
     assert Success.objects.count() == Conf.SAVE_LIMIT
-    r.delete(list_key)
+    broker.delete_queue()
 
 
 @pytest.mark.django_db
-def test_bad_secret(r, monkeypatch):
-    list_key = 'test_bad_secret'
-    async('math.copysign', 1, -1, list_key=list_key)
+def test_bad_secret(broker, monkeypatch):
+    broker.list_key='test_bad_secret:q'
+    async('math.copysign', 1, -1, broker=broker)
     stop_event = Event()
     stop_event.set()
     start_event = Event()
-    s = Sentinel(stop_event, start_event, list_key=list_key, start=False)
+    s = Sentinel(stop_event, start_event, broker=broker, start=False)
     Stat(s).save()
     # change the SECRET
     monkeypatch.setattr(Conf, "SECRET_KEY", "OOPS")
-    stat = Stat.get_all(r)
+    stat = Stat.get_all()
     assert len(stat) == 0
-    assert Stat.get(s.parent_pid, r) is None
+    assert Stat.get(s.parent_pid) is None
     task_queue = Queue()
-    pusher(task_queue, stop_event, list_key=list_key)
+    pusher(task_queue, stop_event, broker=broker)
     result_queue = Queue()
     task_queue.put('STOP')
     worker(task_queue, result_queue, Value('f', -1), )
     assert result_queue.qsize() == 0
-    r.delete(list_key)
+    broker.delete_queue()
 
 
 @pytest.mark.django_db

@@ -30,19 +30,20 @@ from django import db
 import signing
 import tasks
 
-from django_q.conf import Conf, redis_client, logger, psutil, get_ppid
+from django_q.conf import Conf, logger, psutil, get_ppid
 from django_q.models import Task, Success, Schedule
-from django_q.status import Stat, Status, ping_redis
+from django_q.status import Stat, Status
+from django_q.brokers import get_broker
 
 
 class Cluster(object):
-    def __init__(self, list_key=Conf.Q_LIST):
+    def __init__(self, broker=get_broker()):
+        self.broker = broker
         self.sentinel = None
         self.stop_event = None
         self.start_event = None
         self.pid = current_process().pid
         self.host = socket.gethostname()
-        self.list_key = list_key
         self.timeout = Conf.TIMEOUT
         signal.signal(signal.SIGTERM, self.sig_handler)
         signal.signal(signal.SIGINT, self.sig_handler)
@@ -58,7 +59,7 @@ class Cluster(object):
         self.stop_event = Event()
         self.start_event = Event()
         self.sentinel = Process(target=Sentinel,
-                                args=(self.stop_event, self.start_event, self.list_key, self.timeout))
+                                args=(self.stop_event, self.start_event, self.broker, self.timeout))
         self.sentinel.start()
         logger.info(_('Q Cluster-{} starting.').format(self.pid))
         while not self.start_event.is_set():
@@ -105,15 +106,14 @@ class Cluster(object):
 
 
 class Sentinel(object):
-    def __init__(self, stop_event, start_event, list_key=Conf.Q_LIST, timeout=Conf.TIMEOUT, start=True):
+    def __init__(self, stop_event, start_event, broker=get_broker(), timeout=Conf.TIMEOUT, start=True):
         # Make sure we catch signals for the pool
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         signal.signal(signal.SIGTERM, signal.SIG_DFL)
         self.pid = current_process().pid
         self.parent_pid = get_ppid()
         self.name = current_process().name
-        self.list_key = list_key
-        self.r = redis_client
+        self.broker = broker
         self.reincarnations = 0
         self.tob = timezone.now()
         self.stop_event = stop_event
@@ -130,7 +130,7 @@ class Sentinel(object):
             self.start()
 
     def start(self):
-        ping_redis(self.r)
+        self.broker.ping()
         self.spawn_cluster()
         self.guard()
 
@@ -165,7 +165,7 @@ class Sentinel(object):
         return p
 
     def spawn_pusher(self):
-        return self.spawn_process(pusher, self.task_queue, self.event_out, self.list_key)
+        return self.spawn_process(pusher, self.task_queue, self.event_out, self.broker)
 
     def spawn_worker(self):
         self.spawn_process(worker, self.task_queue, self.result_queue, Value('f', -1), self.timeout)
@@ -216,7 +216,7 @@ class Sentinel(object):
         self.start_event.set()
         Stat(self).save()
         logger.info(_('Q Cluster-{} running.').format(self.parent_pid))
-        scheduler(list_key=self.list_key)
+        scheduler(broker=self.broker)
         counter = 0
         cycle = 0.5  # guard loop sleep in seconds
         # Guard loop. Runs at least once
@@ -240,7 +240,7 @@ class Sentinel(object):
             counter += cycle
             if counter == 30:
                 counter = 0
-                scheduler(list_key=self.list_key)
+                scheduler(broker=self.broker)
             # Save current status
             Stat(self).save()
             sleep(cycle)
@@ -287,38 +287,38 @@ class Sentinel(object):
         Stat(self).save()
 
 
-def pusher(task_queue, event, list_key=Conf.Q_LIST):
+def pusher(task_queue, event, broker=get_broker()):
     """
     Pulls tasks of the Redis List and puts them in the task queue
     :type task_queue: multiprocessing.Queue
     :type event: multiprocessing.Event
-    :type list_key: str
     """
     logger.info(_('{} pushing tasks at {}').format(current_process().name, current_process().pid))
-    r = redis_client
     while True:
         try:
-            task = r.blpop(list_key, 1)
+            task = broker.dequeue()
         except Exception as e:
             logger.error(e)
-            # redis probably crashed. Let the sentinel handle it.
+            # broker probably crashed. Let the sentinel handle it.
             sleep(10)
             break
         if task:
+            ack_id = task[0]
             # unpack the task
             try:
                 task = signing.SignedPackage.loads(task[1])
             except (TypeError, signing.BadSignature) as e:
                 logger.error(e)
                 continue
+            task['ack_id'] = ack_id
             task_queue.put(task)
-            logger.debug(_('queueing from {}').format(list_key))
+            logger.debug(_('queueing from {}').format(broker.list_key))
         if event.is_set():
             break
     logger.info(_("{} stopped pushing tasks").format(current_process().name))
 
 
-def monitor(result_queue):
+def monitor(result_queue, broker=get_broker()):
     """
     Gets finished tasks from the result queue and saves them to Django
     :type result_queue: multiprocessing.Queue
@@ -327,6 +327,9 @@ def monitor(result_queue):
     logger.info(_("{} monitoring at {}").format(name, current_process().pid))
     db.close_old_connections()
     for task in iter(result_queue.get, 'STOP'):
+        ack_id = task.pop('ack_id', False)
+        if ack_id:
+            broker.acknowledge(ack_id)
         save_task(task)
         if task['success']:
             logger.info(_("Processed [{}]").format(task['name']))
@@ -410,7 +413,7 @@ def save_task(task):
         logger.error(e)
 
 
-def scheduler(list_key=Conf.Q_LIST):
+def scheduler(broker=get_broker()):
     """
     Creates a task from a schedule at the scheduled time and schedules next run
     """
@@ -456,7 +459,7 @@ def scheduler(list_key=Conf.Q_LIST):
                 s.next_run = next_run.datetime
                 s.repeats += -1
             # send it to the cluster
-            q_options['list_key'] = list_key
+            q_options['broker'] = broker
             q_options['group'] = s.name or s.id
             kwargs['q_options'] = q_options
             s.task = tasks.async(s.func, *args, **kwargs)

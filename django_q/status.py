@@ -1,6 +1,7 @@
 import socket
 from django.utils import timezone
-from django_q.conf import Conf, logger, redis_client
+from django_q.brokers import get_broker
+from django_q.conf import Conf, logger
 import signing
 
 
@@ -27,7 +28,7 @@ class Stat(Status):
 
     def __init__(self, sentinel):
         super(Stat, self).__init__(sentinel.parent_pid or sentinel.pid)
-        self.r = sentinel.r
+        self.broker = sentinel.broker or get_broker()
         self.tob = sentinel.tob
         self.reincarnations = sentinel.reincarnations
         self.sentinel = sentinel.pid
@@ -63,7 +64,7 @@ class Stat(Status):
 
     def save(self):
         try:
-            self.r.set(self.key, signing.SignedPackage.dumps(self, True), 3)
+            self.broker.set(self.key, signing.SignedPackage.dumps(self, True), 3)
         except Exception as e:
             logger.error(e)
 
@@ -71,15 +72,14 @@ class Stat(Status):
         return self.done_q_size + self.task_q_size == 0
 
     @staticmethod
-    def get(cluster_id, r=redis_client):
+    def get(cluster_id, broker=get_broker()):
         """
         gets the current status for the cluster
         :param cluster_id: id of the cluster
         :return: Stat or Status
         """
-        key = Stat.get_key(cluster_id)
-        if r.exists(key):
-            pack = r.get(key)
+        pack = broker.get(Stat.get_key(cluster_id))
+        if pack:
             try:
                 return signing.SignedPackage.loads(pack)
             except signing.BadSignature:
@@ -87,33 +87,23 @@ class Stat(Status):
         return Status(cluster_id)
 
     @staticmethod
-    def get_all(r=redis_client):
+    def get_all(broker=get_broker()):
         """
         Get the status for all currently running clusters with the same prefix
         and secret key.
         :return: list of type Stat
         """
         stats = []
-        keys = r.keys(pattern='{}:*'.format(Conf.Q_STAT))
-        if keys:
-            packs = r.mget(keys)
-            for pack in packs:
-                try:
-                    stats.append(signing.SignedPackage.loads(pack))
-                except signing.BadSignature:
-                    continue
+        packs = broker.get_pattern('{}:*'.format(Conf.Q_STAT)) or []
+        for pack in packs:
+            try:
+                stats.append(signing.SignedPackage.loads(pack))
+            except signing.BadSignature:
+                continue
         return stats
 
     def __getstate__(self):
         # Don't pickle the redis connection
         state = dict(self.__dict__)
-        del state['r']
+        del state['broker']
         return state
-
-
-def ping_redis(r):
-    try:
-        r.ping()
-    except Exception as e:
-        logger.error('Can not connect to Redis server.')
-        raise e

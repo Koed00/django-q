@@ -6,20 +6,21 @@ import arrow
 
 from django.utils import timezone
 
-from django_q.conf import redis_client, Conf
+from django_q.brokers import get_broker
+from django_q.conf import Conf
 from django_q.cluster import pusher, worker, monitor, scheduler
 from django_q.tasks import Schedule, fetch, schedule as create_schedule, queue_size
 
 
 @pytest.fixture
-def r():
-    return redis_client
+def broker():
+    return get_broker()
 
 
 @pytest.mark.django_db
-def test_scheduler(r):
-    list_key = 'scheduler_test:q'
-    r.delete(list_key)
+def test_scheduler(broker):
+    broker.list_key = 'scheduler_test:q'
+    broker.delete_queue()
     schedule = create_schedule('math.copysign',
                                1, -1,
                                name='test math',
@@ -28,15 +29,15 @@ def test_scheduler(r):
                                repeats=1)
     assert schedule.last_run() is None
     # run scheduler
-    scheduler(list_key=list_key)
+    scheduler(broker=broker)
     # set up the workflow
     task_queue = Queue()
     stop_event = Event()
     stop_event.set()
     # push it
-    pusher(task_queue, stop_event, list_key=list_key)
+    pusher(task_queue, stop_event, broker=broker)
     assert task_queue.qsize() == 1
-    assert queue_size(list_key=list_key, r=r) == 0
+    assert broker.queue_size() == 0
     task_queue.put('STOP')
     # let a worker handle them
     result_queue = Queue()
@@ -91,7 +92,7 @@ def test_scheduler(r):
                                    )
         assert schedule is not None
         assert schedule.last_run() is None
-        scheduler(list_key=list_key)
+        scheduler(broker=broker)
     # via model
     Schedule.objects.create(func='django_q.tests.tasks.word_multiply',
                             args='2',
@@ -99,7 +100,7 @@ def test_scheduler(r):
                             schedule_type=Schedule.DAILY
                             )
     # scheduler
-    scheduler(list_key=list_key)
+    scheduler(broker=broker)
     # ONCE schedule should be deleted
     assert Schedule.objects.filter(pk=once_schedule.pk).exists() is False
     # Catch up On
@@ -112,13 +113,13 @@ def test_scheduler(r):
                                next_run=timezone.now() - timedelta(hours=12),
                                repeats=-1
                                )
-    scheduler(list_key=list_key)
+    scheduler(broker=broker)
     schedule = Schedule.objects.get(pk=schedule.pk)
     assert schedule.next_run < now
     # Catch up off
     Conf.CATCH_UP = False
-    scheduler(list_key=list_key)
+    scheduler(broker=broker)
     schedule = Schedule.objects.get(pk=schedule.pk)
     assert schedule.next_run > now
     # Done
-    r.delete(list_key)
+    broker.delete_queue()
