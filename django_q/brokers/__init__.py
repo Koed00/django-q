@@ -43,5 +43,5 @@ def get_broker(list_key=Conf.Q_LIST):
         from brokers import redis
         return redis.Redis(list_key=list_key)
     elif Conf.DJANGO_REDIS:
-        from brokers import django_redis
-        return django_redis.DjangoRedis(list_key=list_key)
+        from brokers import djangoredis
+        return djangoredis.DjangoRedis(list_key=list_key)
