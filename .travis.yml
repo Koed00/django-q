@@ -20,7 +20,7 @@ install:
   - python setup.py install
 
 script:
-  - coverage run --source=django_q -m py.testsudo: false
+  - coverage run --source=django_q -m py.test
   - sphinx-build -b html -d docs/_build/doctrees  -nW docs docs/_build/html
 
 after_success:
