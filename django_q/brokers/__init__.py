@@ -39,9 +39,13 @@ class Broker(object):
 
 
 def get_broker(list_key=Conf.Q_LIST):
-    if Conf.REDIS:
-        from brokers import redis
-        return redis.Redis(list_key=list_key)
-    elif Conf.DJANGO_REDIS:
+    if Conf.DJANGO_REDIS:
         from brokers import djangoredis
         return djangoredis.DjangoRedis(list_key=list_key)
+    elif Conf.DISQUE:
+        from brokers import disque
+        return disque.Disque(list_key=list_key)
+    # default to redis
+    else:
+        from brokers import redis
+        return redis.Redis(list_key=list_key)

@@ -33,6 +33,9 @@ class Conf(object):
 
     DJANGO_REDIS = conf.get('django_redis', None)
 
+    # Disque broker
+    DISQUE = conf.get('disque', None)
+
     # Name of the cluster or site. For when you run multiple sites on one redis server
     PREFIX = conf.get('name', 'default')
 
@@ -45,7 +48,6 @@ class Conf(object):
 
     # Maximum number of tasks that each cluster can work on
     QUEUE_LIMIT = conf.get('queue_limit', None)
-
 
     # Number of workers in the pool. Default is cpu count if implemented, otherwise 4.
     WORKERS = conf.get('workers', False)
@@ -69,6 +71,10 @@ class Conf(object):
 
     # Number of seconds to wait for a worker to finish.
     TIMEOUT = conf.get('timeout', None)
+
+    # Number of seconds to wait for acknowledgement before retrying a task
+    # Only works with brokers that guarantee delivery. Defaults to 0. Meaning no retries.
+    RETRY = conf.get('retry', 0)
 
     # The Django Admin label for this app
     LABEL = conf.get('label', 'Django Q')
