@@ -11,6 +11,13 @@ env:
     - DJANGO=1.8.4
     - DJANGO=1.7.10
 
+before_script:
+  - sudo apt-get install tcl8.5
+  - git clone https://github.com/antirez/disque.git disque_server
+  - "cd disque_server/src && make && PREFIX=../ make install && cd -"
+  - "./disque_server/bin/disque-server &"
+  - ./disque_server/bin/disque PING
+
 install:
   - pip install -q django==$DJANGO
   - pip install -r requirements.txt
