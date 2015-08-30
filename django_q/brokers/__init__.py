@@ -6,7 +6,7 @@ class Broker(object):
     def __init__(self, list_key=Conf.Q_LIST):
         self.connection = self.get_connection()
         self.list_key = list_key
-        self.cache=self.get_cache()
+        self.cache = self.get_cache()
 
     def enqueue(self, task):
         pass
@@ -27,7 +27,7 @@ class Broker(object):
         pass
 
     def set_stat(self, key, value, timeout):
-        key_list=self.cache.get(Conf.Q_STAT, [])
+        key_list = self.cache.get(Conf.Q_STAT, [])
         if key not in key_list:
             key_list.append(key)
         self.cache.set(Conf.Q_STAT, key_list)
@@ -47,7 +47,7 @@ class Broker(object):
                 stats.append(stat)
             else:
                 key_list.remove(key)
-        self.cache.set(Conf.Q_STAT,key_list)
+        self.cache.set(Conf.Q_STAT, key_list)
         return stats
 
     @staticmethod

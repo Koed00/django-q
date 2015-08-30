@@ -22,6 +22,9 @@ class Disque(Broker):
     def ping(self):
         return self.connection.ping()
 
+    def delete_queue(self, list_key=None):
+        raise NotImplementedError
+
     @staticmethod
     def get_connection():
         for node in Conf.DISQUE:
