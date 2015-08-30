@@ -64,7 +64,7 @@ class Stat(Status):
 
     def save(self):
         try:
-            self.broker.set(self.key, signing.SignedPackage.dumps(self, True), 3)
+            self.broker.set_stat(self.key, signing.SignedPackage.dumps(self, True), 3)
         except Exception as e:
             logger.error(e)
 
@@ -78,7 +78,7 @@ class Stat(Status):
         :param cluster_id: id of the cluster
         :return: Stat or Status
         """
-        pack = broker.get(Stat.get_key(cluster_id))
+        pack = broker.get_stat(Stat.get_key(cluster_id))
         if pack:
             try:
                 return signing.SignedPackage.loads(pack)
@@ -94,7 +94,7 @@ class Stat(Status):
         :return: list of type Stat
         """
         stats = []
-        packs = broker.get_pattern('{}:*'.format(Conf.Q_STAT)) or []
+        packs = broker.get_stats('{}:*'.format(Conf.Q_STAT)) or []
         for pack in packs:
             try:
                 stats.append(signing.SignedPackage.loads(pack))

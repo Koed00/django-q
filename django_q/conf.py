@@ -85,6 +85,9 @@ class Conf(object):
     # Global sync option to for debugging
     SYNC = conf.get('sync', False)
 
+    # The Django cache to use
+    CACHE = conf.get('cache', 'default')
+
     # If set to False the scheduler won't execute tasks in the past.
     # Instead it will run once and reschedule the next run in the future. Defaults to True.
     CATCH_UP = conf.get('catch_up', True)

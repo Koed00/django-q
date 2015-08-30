@@ -26,14 +26,14 @@ class Redis(Broker):
             logger.error('Can not connect to Redis server.')
             raise e
 
-    def set(self, key, value, timeout):
+    def set_stat(self, key, value, timeout):
         self.connection.set(key, value, timeout)
 
-    def get(self, key):
+    def get_stat(self, key):
         if self.connection.exists(key):
             return self.connection.get(key)
 
-    def get_pattern(self, pattern):
+    def get_stats(self, pattern):
         keys = self.connection.keys(pattern=pattern)
         if keys:
             return self.connection.mget(keys)

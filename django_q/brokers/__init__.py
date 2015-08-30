@@ -1,10 +1,12 @@
 from django_q.conf import Conf
+from django.core.cache import caches, InvalidCacheBackendError
 
 
 class Broker(object):
     def __init__(self, list_key=Conf.Q_LIST):
         self.connection = self.get_connection()
         self.list_key = list_key
+        self.cache=self.get_cache()
 
     def enqueue(self, task):
         pass
@@ -24,14 +26,36 @@ class Broker(object):
     def ping(self):
         pass
 
-    def set(self, key, value, timeout):
-        pass
+    def set_stat(self, key, value, timeout):
+        key_list=self.cache.get(Conf.Q_STAT, [])
+        if key not in key_list:
+            key_list.append(key)
+        self.cache.set(Conf.Q_STAT, key_list)
+        return self.cache.set(key, value, timeout)
 
-    def get(self, key):
-        pass
+    def get_stat(self, key):
+        return self.cache.get(key)
 
-    def get_pattern(self, pattern):
-        pass
+    def get_stats(self, pattern):
+        key_list = self.cache.get(Conf.Q_STAT)
+        if not key_list or len(key_list) == 0:
+            return []
+        stats = []
+        for key in key_list:
+            stat = self.cache.get(key)
+            if stat:
+                stats.append(stat)
+            else:
+                key_list.remove(key)
+        self.cache.set(Conf.Q_STAT,key_list)
+        return stats
+
+    @staticmethod
+    def get_cache():
+        try:
+            return caches[Conf.CACHE]
+        except InvalidCacheBackendError:
+            return None
 
     @staticmethod
     def get_connection():
