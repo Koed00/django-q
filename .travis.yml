@@ -12,16 +12,6 @@ env:
     - DJANGO=1.7.10
 
 sudo: false
-addons:
-  apt:
-    packages:
-    - tcl8.5
-
-before_script:
-  - git clone https://github.com/antirez/disque.git disque_server
-  - "cd disque_server/src && make && PREFIX=../ make install && cd -"
-  - "./disque_server/bin/disque-server &"
-  - ./disque_server/bin/disque PING
 
 install:
   - pip install -q django==$DJANGO

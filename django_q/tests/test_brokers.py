@@ -30,7 +30,7 @@ def test_redis():
     Conf.DJANGO_REDIS = 'default'
 
 
-def test_disque():
+def disabled_test_disque():
     Conf.DISQUE = ['127.0.0.1:7711']
     broker = get_broker()
     assert broker.ping() is True
