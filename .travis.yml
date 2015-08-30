@@ -11,8 +11,13 @@ env:
     - DJANGO=1.8.4
     - DJANGO=1.7.10
 
+sudo: false
+addons:
+  apt:
+    packages:
+    - tcl8.5
+
 before_script:
-  - sudo apt-get install tcl8.5
   - git clone https://github.com/antirez/disque.git disque_server
   - "cd disque_server/src && make && PREFIX=../ make install && cd -"
   - "./disque_server/bin/disque-server &"
@@ -25,7 +30,7 @@ install:
   - python setup.py install
 
 script:
-  - coverage run --source=django_q -m py.test
+  - coverage run --source=django_q -m py.testsudo: false
   - sphinx-build -b html -d docs/_build/doctrees  -nW docs docs/_build/html
 
 after_success:

@@ -26,6 +26,8 @@ def test_redis():
     broker = get_broker()
     with pytest.raises(Exception):
         broker.ping()
+    Conf.REDIS = None
+    Conf.DJANGO_REDIS = 'default'
 
 
 def test_disque():
@@ -57,5 +59,6 @@ def test_disque():
     Conf.DISQUE = ['127.0.0.1:7712', '127.0.0.1:7713']
     with pytest.raises(ConnectionError):
         broker.get_connection()
-    # back to djangoredis
+    # back to django-redis
+    Conf.DISQUE = None
     Conf.DJANGO_REDIS = 'default'
