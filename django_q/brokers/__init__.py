@@ -71,5 +71,5 @@ def get_broker(list_key=Conf.Q_LIST):
         return disque.Disque(list_key=list_key)
     # default to redis
     else:
-        from brokers import redis
-        return redis.Redis(list_key=list_key)
+        from brokers import redis_broker
+        return redis_broker.Redis(list_key=list_key)
