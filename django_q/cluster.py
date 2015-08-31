@@ -37,8 +37,8 @@ from django_q.brokers import get_broker
 
 
 class Cluster(object):
-    def __init__(self, broker=get_broker()):
-        self.broker = broker
+    def __init__(self, broker=None):
+        self.broker = broker or get_broker()
         self.sentinel = None
         self.stop_event = None
         self.start_event = None
@@ -106,14 +106,14 @@ class Cluster(object):
 
 
 class Sentinel(object):
-    def __init__(self, stop_event, start_event, broker=get_broker(), timeout=Conf.TIMEOUT, start=True):
+    def __init__(self, stop_event, start_event, broker=None, timeout=Conf.TIMEOUT, start=True):
         # Make sure we catch signals for the pool
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         signal.signal(signal.SIGTERM, signal.SIG_DFL)
         self.pid = current_process().pid
         self.parent_pid = get_ppid()
         self.name = current_process().name
-        self.broker = broker
+        self.broker = broker or get_broker()
         self.reincarnations = 0
         self.tob = timezone.now()
         self.stop_event = stop_event
@@ -287,12 +287,14 @@ class Sentinel(object):
         Stat(self).save()
 
 
-def pusher(task_queue, event, broker=get_broker()):
+def pusher(task_queue, event, broker=None):
     """
     Pulls tasks of the Redis List and puts them in the task queue
     :type task_queue: multiprocessing.Queue
     :type event: multiprocessing.Event
     """
+    if not broker:
+        broker = get_broker()
     logger.info(_('{} pushing tasks at {}').format(current_process().name, current_process().pid))
     while True:
         try:
@@ -318,11 +320,13 @@ def pusher(task_queue, event, broker=get_broker()):
     logger.info(_("{} stopped pushing tasks").format(current_process().name))
 
 
-def monitor(result_queue, broker=get_broker()):
+def monitor(result_queue, broker=None):
     """
     Gets finished tasks from the result queue and saves them to Django
     :type result_queue: multiprocessing.Queue
     """
+    if not broker:
+        broker = get_broker()
     name = current_process().name
     logger.info(_("{} monitoring at {}").format(name, current_process().pid))
     db.close_old_connections()
@@ -413,10 +417,12 @@ def save_task(task):
         logger.error(e)
 
 
-def scheduler(broker=get_broker()):
+def scheduler(broker=None):
     """
     Creates a task from a schedule at the scheduled time and schedules next run
     """
+    if not broker:
+        broker = get_broker()
     try:
         for s in Schedule.objects.exclude(repeats=0).filter(next_run__lt=timezone.now()):
             args = ()

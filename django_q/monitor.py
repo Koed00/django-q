@@ -10,13 +10,15 @@ from django.utils import timezone
 from django.utils.translation import ugettext as _
 
 # local
-from django_q.conf import Conf, redis_client
+from django_q.conf import Conf
 from django_q.status import Stat
 from django_q.brokers import get_broker
 from django_q import models
 
 
-def monitor(run_once=False, broker=get_broker()):
+def monitor(run_once=False, broker=None):
+    if not broker:
+        broker = get_broker()
     term = Terminal()
     broker.ping()
     with term.fullscreen(), term.hidden_cursor(), term.cbreak():
@@ -85,7 +87,9 @@ def monitor(run_once=False, broker=get_broker()):
             val = term.inkey(timeout=1)
 
 
-def info(broker=get_broker()):
+def info(broker=None):
+    if not broker:
+        broker = get_broker()
     term = Terminal()
     broker.ping()
     stat = Stat.get_all(broker=broker)

@@ -72,12 +72,14 @@ class Stat(Status):
         return self.done_q_size + self.task_q_size == 0
 
     @staticmethod
-    def get(cluster_id, broker=get_broker()):
+    def get(cluster_id, broker=None):
         """
         gets the current status for the cluster
         :param cluster_id: id of the cluster
         :return: Stat or Status
         """
+        if not broker:
+            broker = get_broker()
         pack = broker.get_stat(Stat.get_key(cluster_id))
         if pack:
             try:
@@ -87,12 +89,14 @@ class Stat(Status):
         return Status(cluster_id)
 
     @staticmethod
-    def get_all(broker=get_broker()):
+    def get_all(broker=None):
         """
         Get the status for all currently running clusters with the same prefix
         and secret key.
         :return: list of type Stat
         """
+        if not broker:
+            broker = get_broker()
         stats = []
         packs = broker.get_stats('{}:*'.format(Conf.Q_STAT)) or []
         for pack in packs:

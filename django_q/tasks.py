@@ -152,16 +152,17 @@ def delete_group(group_id, tasks=False):
     return Task.delete_group(group_id, tasks)
 
 
-def queue_size(broker=get_broker()):
+def queue_size(broker=None):
     """
     Returns the current queue size.
     Note that this doesn't count any tasks currently being processed by workers.
 
-    :param list_key: optional list key
     :param broker: optional broker
     :return: current queue size
     :rtype: int
     """
+    if not broker:
+        broker = get_broker()
     return broker.queue_size()
 
 
