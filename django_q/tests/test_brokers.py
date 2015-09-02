@@ -1,6 +1,7 @@
 from time import sleep
 import pytest
 import os
+import redis
 from django_q.conf import Conf
 from django_q.brokers import get_broker, Broker
 
@@ -58,7 +59,7 @@ def test_disque():
     sleep(1.5)
     assert broker.queue_size() == 0
     Conf.DISQUE = ['127.0.0.1:7712', '127.0.0.1:7713']
-    with pytest.raises(ConnectionError):
+    with pytest.raises(redis.exceptions.ConnectionError):
         broker.get_connection()
     broker.delete_queue()
     assert broker.queue_size() == 0

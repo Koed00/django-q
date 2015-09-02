@@ -48,4 +48,4 @@ class Disque(Broker):
                 return redis_client
             except redis.exceptions.ConnectionError:
                 continue
-        raise ConnectionError('Could not connect to any Disque nodes')
+        raise redis.exceptions.ConnectionError('Could not connect to any Disque nodes')
