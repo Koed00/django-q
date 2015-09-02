@@ -7,7 +7,7 @@ from boto.sqs.message import Message
 
 class Sqs(Broker):
     def __init__(self, list_key=Conf.PREFIX):
-        super().__init__(list_key)
+        super(Sqs, self).__init__(list_key)
         self.queue = self.get_queue()
 
     def enqueue(self, task):
