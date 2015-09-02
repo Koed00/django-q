@@ -2,8 +2,17 @@ import redis
 from django_q.brokers import Broker
 from django_q.conf import Conf, logger
 
+try:
+    import django_redis
+except ImportError:
+    django_redis = None
+
 
 class Redis(Broker):
+
+    def __init__(self, list_key=Conf.PREFIX):
+        super().__init__(list_key='django_q:{}:q'.format(list_key))
+
     def enqueue(self, task):
         return self.connection.rpush(self.list_key, task)
 
@@ -15,14 +24,13 @@ class Redis(Broker):
     def queue_size(self):
         return self.connection.llen(self.list_key)
 
-    def delete_queue(self, list_key=None):
-        list_key = list_key if list_key else self.list_key
-        return self.connection.delete(list_key)
+    def delete_queue(self):
+        return self.connection.delete(self.list_key)
 
     def ping(self):
         try:
             return self.connection.ping()
-        except Exception as e:
+        except redis.ConnectionError as e:
             logger.error('Can not connect to Redis server.')
             raise e
 
@@ -39,5 +47,7 @@ class Redis(Broker):
             return self.connection.mget(keys)
 
     @staticmethod
-    def get_connection():
+    def get_connection(list_key=Conf.PREFIX):
+        if django_redis and Conf.DJANGO_REDIS:
+            return django_redis.get_redis_connection(Conf.DJANGO_REDIS)
         return redis.StrictRedis(**Conf.REDIS)

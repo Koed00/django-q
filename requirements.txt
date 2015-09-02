@@ -6,13 +6,17 @@
 #
 arrow==0.6.0
 blessed==1.9.5
+boto==2.38.0
 django-picklefield==0.3.1
 django-redis==4.2.0
 future==0.15.0
 hiredis==0.2.0
+iron-core==1.1.9          # via iron-mq
+iron-mq==0.7
 msgpack-python==0.4.6     # via django-redis
-psutil==3.1.1
-python-dateutil==2.4.2    # via arrow
+psutil==3.2.0
+python-dateutil==2.4.2    # via arrow, iron-core
 redis==2.10.3
+requests==2.7.0           # via iron-core
 six==1.9.0                # via django-picklefield, python-dateutil
 wcwidth==0.1.4            # via blessed

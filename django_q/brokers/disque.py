@@ -1,9 +1,11 @@
+import random
 import redis
 from django_q.brokers import Broker
 from django_q.conf import Conf
 
 
 class Disque(Broker):
+
     def enqueue(self, task):
         return self.connection.execute_command(
             'ADDJOB {} {} 500 RETRY {}'.format(self.list_key, task, Conf.RETRY)).decode()
@@ -16,24 +18,34 @@ class Disque(Broker):
     def queue_size(self):
         return self.connection.execute_command('QLEN {}'.format(self.list_key))
 
-    def acknowledge(self, ack_id):
-        return self.connection.execute_command('ACKJOB {}'.format(ack_id))
+    def acknowledge(self, task_id):
+        return self.connection.execute_command('ACKJOB {}'.format(task_id))
 
     def ping(self):
         return self.connection.ping()
 
-    def delete_queue(self, list_key=None):
-        raise NotImplementedError
+    def delete(self, task_id):
+        return self.connection.execute_command('DELJOB {}'.format(task_id))
+
+    def delete_queue(self):
+        jobs = self.connection.execute_command('JSCAN QUEUE {}'.format(self.list_key))[1]
+        if jobs:
+            self.connection.execute_command('DELJOB {}'.format(' '.join(map(str, jobs))))
 
     @staticmethod
-    def get_connection():
+    def get_connection(list_key=Conf.PREFIX):
+        # randomize nodes
+        random.shuffle(Conf.DISQUE)
+        # find one that works
         for node in Conf.DISQUE:
             host, port = node.split(':')
             redis_client = redis.Redis(host, int(port))
             try:
-                redis_client.ping()
+                if Conf.DISQUE_AUTH:
+                    redis_client.execute_command('AUTH {}'.format(Conf.DISQUE_AUTH))
                 redis_client.decode_responses = True
+                redis_client.execute_command('HELLO')
                 return redis_client
             except redis.exceptions.ConnectionError:
-                pass
+                continue
         raise ConnectionError('Could not connect to any Disque nodes')

@@ -35,6 +35,16 @@ class Conf(object):
 
     # Disque broker
     DISQUE = conf.get('disque', None)
+    # Optional Authentication
+    DISQUE_AUTH = conf.get('disque_auth', None)
+
+    # Amazon SQS broker
+    SQS = conf.get('sqs', None)
+
+    # IronMQ broker
+    IRONMQ = conf.get('ironmq', None)
+    if IRONMQ and os.environ.get('IRONMQ_TOKEN'):
+        IRONMQ['token'] = os.environ['IRONMQ_TOKEN']
 
     # Name of the cluster or site. For when you run multiple sites on one redis server
     PREFIX = conf.get('name', 'default')
@@ -45,9 +55,6 @@ class Conf(object):
     # Maximum number of successful tasks kept in the database. 0 saves everything. -1 saves none
     # Failures are always saved
     SAVE_LIMIT = conf.get('save_limit', 250)
-
-    # Maximum number of tasks that each cluster can work on
-    QUEUE_LIMIT = conf.get('queue_limit', None)
 
     # Number of workers in the pool. Default is cpu count if implemented, otherwise 4.
     WORKERS = conf.get('workers', False)
@@ -62,6 +69,9 @@ class Conf(object):
             else:
                 # sensible default
                 WORKERS = 4
+
+    # Maximum number of tasks that each cluster can work on
+    QUEUE_LIMIT = conf.get('queue_limit', None)
 
     # Sets compression of redis packages
     COMPRESSED = conf.get('compress', False)
@@ -96,8 +106,6 @@ class Conf(object):
     # Django itself should raise an error if it's not configured
     SECRET_KEY = settings.SECRET_KEY
 
-    # The redis list key
-    Q_LIST = 'django_q:{}:q'.format(PREFIX)
     # The redis stats key
     Q_STAT = 'django_q:{}:cluster'.format(PREFIX)
 
