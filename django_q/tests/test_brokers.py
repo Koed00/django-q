@@ -31,7 +31,7 @@ def test_redis():
     Conf.DJANGO_REDIS = 'default'
 
 
-@pytest.mark.skipif(Conf.DISQUE_AUTH is None,
+@pytest.mark.skipif(os.getenv('DISQUE', False),
                     reason="No disque server configured")
 def test_disque():
     Conf.DISQUE = ['127.0.0.1:7711']
