@@ -5,7 +5,6 @@ from django_q.conf import Conf
 
 
 class Disque(Broker):
-
     def enqueue(self, task):
         retry = Conf.RETRY if Conf.RETRY > 0 else '{} REPLICATE 1'.format(Conf.RETRY)
         return self.connection.execute_command(
@@ -23,8 +22,6 @@ class Disque(Broker):
         return self.connection.execute_command('ACKJOB {}'.format(task_id))
 
     def ping(self):
-        if Conf.DISQUE_AUTH:
-            self.connection.execute_command('AUTH {}'.format(Conf.DISQUE_AUTH))
         return self.connection.execute_command('HELLO')[0] > 0
 
     def delete(self, task_id):
@@ -46,11 +43,12 @@ class Disque(Broker):
         # find one that works
         for node in Conf.DISQUE_NODES:
             host, port = node.split(':')
-            redis_client = redis.Redis(host, int(port))
+            kwargs = {'host': host, 'port': port}
+            if Conf.DISQUE_AUTH:
+                kwargs['password'] = Conf.DISQUE_AUTH
+            redis_client = redis.Redis(**kwargs)
+            redis_client.decode_responses = True
             try:
-                if Conf.DISQUE_AUTH:
-                    redis_client.execute_command('AUTH {}'.format(Conf.DISQUE_AUTH))
-                redis_client.decode_responses = True
                 redis_client.execute_command('HELLO')
                 return redis_client
             except redis.exceptions.ConnectionError:
