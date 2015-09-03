@@ -34,7 +34,7 @@ class Conf(object):
     DJANGO_REDIS = conf.get('django_redis', None)
 
     # Disque broker
-    DISQUE = conf.get('disque', None)
+    DISQUE_NODES = conf.get('disque_nodes', None)
     # Optional Authentication
     DISQUE_AUTH = conf.get('disque_auth', None)
 

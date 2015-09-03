@@ -35,9 +35,9 @@ class Disque(Broker):
     @staticmethod
     def get_connection(list_key=Conf.PREFIX):
         # randomize nodes
-        random.shuffle(Conf.DISQUE)
+        random.shuffle(Conf.DISQUE_NODES)
         # find one that works
-        for node in Conf.DISQUE:
+        for node in Conf.DISQUE_NODES:
             host, port = node.split(':')
             redis_client = redis.Redis(host, int(port))
             try:

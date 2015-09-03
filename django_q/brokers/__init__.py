@@ -139,7 +139,7 @@ def get_broker(list_key=Conf.PREFIX):
     if Conf.IRONMQ:
         from brokers import iron_mq
         return iron_mq.IronMQBroker(list_key=list_key)
-    elif Conf.DISQUE:
+    elif Conf.DISQUE_NODES:
         from brokers import disque
         return disque.Disque(list_key=list_key)
     elif Conf.SQS:

@@ -35,7 +35,7 @@ def test_redis():
 @pytest.mark.skipif(not os.getenv('DISQUE', None),
                     reason="No disque server configured")
 def test_disque():
-    Conf.DISQUE = ['127.0.0.1:7711']
+    Conf.DISQUE_NODES = ['127.0.0.1:7711']
     broker = get_broker(list_key='disque_test')
     assert broker.ping() is True
     broker.delete_queue()
@@ -58,13 +58,13 @@ def test_disque():
     broker.acknowledge(task[0])
     sleep(1.5)
     assert broker.queue_size() == 0
-    Conf.DISQUE = ['127.0.0.1:7712', '127.0.0.1:7713']
+    Conf.DISQUE_NODES = ['127.0.0.1:7712', '127.0.0.1:7713']
     with pytest.raises(redis.exceptions.ConnectionError):
         broker.get_connection()
     broker.delete_queue()
     assert broker.queue_size() == 0
     # back to django-redis
-    Conf.DISQUE = None
+    Conf.DISQUE_NODES = None
 
 
 @pytest.mark.skipif(not os.getenv('AWS_ACCESS_KEY_ID'),
@@ -120,14 +120,14 @@ def test_ironmq():
     assert broker.queue_size() == 1
     broker.dequeue()
     assert broker.queue_size() == 0
-    sleep(1.5)
+    sleep(2)
     assert broker.queue_size() == 1
     task = broker.dequeue()
     assert broker.queue_size() == 0
     broker.acknowledge(task[0])
-    sleep(1.5)
+    sleep(2)
     assert broker.queue_size() == 0
     broker.delete_queue()
     assert broker.queue_size() == 0
     # back to django-redis
-    Conf.DISQUE = None
+    Conf.IRONMQ = None
