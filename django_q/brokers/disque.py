@@ -7,8 +7,9 @@ from django_q.conf import Conf
 class Disque(Broker):
 
     def enqueue(self, task):
+        retry = Conf.RETRY if Conf.RETRY > 0 else '{} REPLICATE 1'.format(Conf.RETRY)
         return self.connection.execute_command(
-            'ADDJOB {} {} 500 RETRY {}'.format(self.list_key, task, Conf.RETRY)).decode()
+            'ADDJOB {} {} 500 RETRY {}'.format(self.list_key, task, retry)).decode()
 
     def dequeue(self):
         task = self.connection.execute_command('GETJOB TIMEOUT 1000 FROM {}'.format(self.list_key))
