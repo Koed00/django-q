@@ -17,6 +17,9 @@ class IronMQBroker(Broker):
     def ping(self):
         return self.connection.name == self.list_key
 
+    def info(self):
+        return 'IronMQ'
+
     def queue_size(self):
         return self.connection.size()
 

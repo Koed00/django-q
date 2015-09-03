@@ -46,6 +46,9 @@ class Sqs(Broker):
         except Exception as e:
             raise e
 
+    def info(self):
+        return 'AWS SQS'
+
     @staticmethod
     def get_connection(list_key=Conf.PREFIX):
         conn = boto.sqs.connect_to_region(Conf.SQS['region'],

@@ -32,6 +32,10 @@ class Disque(Broker):
         if jobs:
             self.connection.execute_command('DELJOB {}'.format(' '.join(map(str, jobs))))
 
+    def info(self):
+        info = self.connection.info('server')
+        return 'Disque {}'.format(info['disque_version'])
+
     @staticmethod
     def get_connection(list_key=Conf.PREFIX):
         # randomize nodes

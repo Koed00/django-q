@@ -62,6 +62,12 @@ class Broker(object):
         """
         pass
 
+    def info(self):
+        """
+        Shows the broker type
+        """
+        pass
+
     def set_stat(self, key, value, timeout):
         """
         Saves a cluster statistic to the cache provider

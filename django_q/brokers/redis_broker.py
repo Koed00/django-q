@@ -34,6 +34,10 @@ class Redis(Broker):
             logger.error('Can not connect to Redis server.')
             raise e
 
+    def info(self):
+        info = self.connection.info('server')
+        return 'Redis {}'.format(info['redis_version'])
+
     def set_stat(self, key, value, timeout):
         self.connection.set(key, value, timeout)
 
