@@ -55,6 +55,13 @@ class Broker(object):
         """
         pass
 
+    def fail(self, task_id):
+        """
+        Fails a task message
+        :param task_id:
+        :return:
+        """
+
     def ping(self):
         """
         Checks whether the broker connection is available

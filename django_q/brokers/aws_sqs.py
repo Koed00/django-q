@@ -33,6 +33,9 @@ class Sqs(Broker):
         m.receipt_handle = task_id
         return self.queue.delete_message(m)
 
+    def fail(self, task_id):
+        self.delete(task_id)
+
     def delete_queue(self):
         self.connection.delete_queue(self.queue)
 

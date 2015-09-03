@@ -27,6 +27,9 @@ class Disque(Broker):
     def delete(self, task_id):
         return self.connection.execute_command('DELJOB {}'.format(task_id))
 
+    def fail(self, task_id):
+        return self.delete(task_id)
+
     def delete_queue(self):
         jobs = self.connection.execute_command('JSCAN QUEUE {}'.format(self.list_key))[1]
         if jobs:

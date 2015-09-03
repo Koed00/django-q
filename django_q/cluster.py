@@ -311,6 +311,7 @@ def pusher(task_queue, event, broker=None):
                 task = signing.SignedPackage.loads(task[1])
             except (TypeError, signing.BadSignature) as e:
                 logger.error(e)
+                broker.fail(ack_id)
                 continue
             task['ack_id'] = ack_id
             task_queue.put(task)

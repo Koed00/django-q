@@ -32,6 +32,9 @@ class IronMQBroker(Broker):
     def delete(self, task_id):
         return self.connection.delete(task_id)['msg']
 
+    def fail(self, task_id):
+        self.delete(task_id)
+
     def acknowledge(self, task_id):
         return self.delete(task_id)
 
