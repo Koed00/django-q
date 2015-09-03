@@ -23,7 +23,7 @@ class Disque(Broker):
         return self.connection.execute_command('ACKJOB {}'.format(task_id))
 
     def ping(self):
-        return self.connection.execute_command('HELLO')[0] > 0e
+        return self.connection.execute_command('HELLO')[0] > 0
 
     def delete(self, task_id):
         return self.connection.execute_command('DELJOB {}'.format(task_id))
