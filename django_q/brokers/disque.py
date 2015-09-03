@@ -23,6 +23,8 @@ class Disque(Broker):
         return self.connection.execute_command('ACKJOB {}'.format(task_id))
 
     def ping(self):
+        if Conf.DISQUE_AUTH:
+            self.connection.execute_command('AUTH {}'.format(Conf.DISQUE_AUTH))
         return self.connection.execute_command('HELLO')[0] > 0
 
     def delete(self, task_id):
