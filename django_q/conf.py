@@ -84,7 +84,7 @@ class Conf(object):
 
     # Number of seconds to wait for acknowledgement before retrying a task
     # Only works with brokers that guarantee delivery. Defaults to 0. Meaning no retries.
-    RETRY = conf.get('retry', 0)
+    RETRY = conf.get('retry', 60)
 
     # The Django Admin label for this app
     LABEL = conf.get('label', 'Django Q')
