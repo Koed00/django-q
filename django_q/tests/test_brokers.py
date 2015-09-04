@@ -38,7 +38,6 @@ def test_redis():
 
 def test_disque():
     Conf.DISQUE_NODES = ['127.0.0.1:7711']
-    Conf.DISQUE_AUTH = 'foobared'
     broker = get_broker(list_key='disque_test')
     assert broker.ping() is True
     assert broker.info() is not None
