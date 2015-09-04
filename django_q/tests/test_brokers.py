@@ -37,7 +37,11 @@ def test_redis():
 
 
 def test_disque():
-    Conf.DISQUE_NODES = ['127.0.0.1:7711']
+    # Either local disque or Heroku Tynd
+    Conf.DISQUE_NODES = os.getenv('TYND_DISQUE_NODES', ['127.0.0.1:7711'])
+    if os.getenv('TYND_DISQUE_AUTH', False):
+        Conf.DISQUE_AUTH = os.environ['TYND_DISQUE_AUTH']
+    # check broker
     broker = get_broker(list_key='disque_test')
     assert broker.ping() is True
     assert broker.info() is not None
