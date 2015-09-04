@@ -8,7 +8,6 @@ from django.conf import settings
 
 # external
 import os
-import redis
 
 # optional
 try:
@@ -37,14 +36,6 @@ class Conf(object):
     DISQUE_NODES = conf.get('disque_nodes', None)
     # Optional Authentication
     DISQUE_AUTH = conf.get('disque_auth', None)
-
-    # Amazon SQS broker
-    SQS = conf.get('sqs', None)
-
-    # IronMQ broker
-    IRONMQ = conf.get('ironmq', None)
-    if IRONMQ and os.environ.get('IRONMQ_TOKEN'):
-        IRONMQ['token'] = os.environ['IRONMQ_TOKEN']
 
     # Name of the cluster or site. For when you run multiple sites on one redis server
     PREFIX = conf.get('name', 'default')
@@ -140,28 +131,6 @@ if not logger.handlers:
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-
-
-# Django-redis support
-if Conf.DJANGO_REDIS:
-    try:
-        import django_redis
-    except ImportError:
-        django_redis = None
-
-
-def get_redis_client():
-    """
-    Returns a connection from redis-py or django-redis
-    :return: a redis client
-    """
-    if Conf.DJANGO_REDIS and django_redis:
-        return django_redis.get_redis_connection(Conf.DJANGO_REDIS)
-    return redis.StrictRedis(**Conf.REDIS)
-
-
-# redis client
-redis_client = get_redis_client()
 
 
 # get parent pid compatibility

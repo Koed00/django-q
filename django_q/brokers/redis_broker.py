@@ -27,6 +27,9 @@ class Redis(Broker):
     def delete_queue(self):
         return self.connection.delete(self.list_key)
 
+    def purge_queue(self):
+        return self.connection.ltrim(self.list_key, 1, 0)
+
     def ping(self):
         try:
             return self.connection.ping()

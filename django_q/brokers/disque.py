@@ -33,7 +33,9 @@ class Disque(Broker):
     def delete_queue(self):
         jobs = self.connection.execute_command('JSCAN QUEUE {}'.format(self.list_key))[1]
         if jobs:
-            self.connection.execute_command('DELJOB {}'.format(' '.join(map(str, jobs))))
+            job_ids = ' '.join(jid.decode() for jid in jobs)
+            self.connection.execute_command('DELJOB {}'.format(job_ids))
+        return len(jobs)
 
     def info(self):
         info = self.connection.info('server')

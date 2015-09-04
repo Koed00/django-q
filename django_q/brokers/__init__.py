@@ -149,15 +149,10 @@ def get_broker(list_key=Conf.PREFIX):
     :type list_key: str
     :return:
     """
-    if Conf.IRONMQ:
-        from brokers import iron_mq
-        return iron_mq.IronMQBroker(list_key=list_key)
-    elif Conf.DISQUE_NODES:
+    # disque
+    if Conf.DISQUE_NODES:
         from brokers import disque
         return disque.Disque(list_key=list_key)
-    elif Conf.SQS:
-        from brokers import aws_sqs
-        return aws_sqs.Sqs(list_key=list_key)
     # default to redis
     else:
         from brokers import redis_broker

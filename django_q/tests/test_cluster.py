@@ -226,7 +226,8 @@ def test_async(broker, admin_user):
 def test_timeout(broker):
     # set up the Sentinel
     broker.list_key = 'timeout_test:q'
-    async('django_q.tests.tasks.count_forever',broker=broker)
+    broker.purge_queue()
+    async('django_q.tests.tasks.count_forever', broker=broker)
     start_event = Event()
     stop_event = Event()
     # Set a timer to stop the Sentinel
@@ -242,12 +243,13 @@ def test_timeout(broker):
 def test_timeout(broker):
     # set up the Sentinel
     broker.list_key = 'timeout_test:q'
+    broker.purge_queue()
     async('django_q.tests.tasks.count_forever', broker=broker)
     start_event = Event()
     stop_event = Event()
     # Set a timer to stop the Sentinel
     threading.Timer(3, stop_event.set).start()
-    s = Sentinel(stop_event, start_event,broker=broker, timeout=1)
+    s = Sentinel(stop_event, start_event, broker=broker, timeout=1)
     assert start_event.is_set()
     assert s.status() == Conf.STOPPED
     assert s.reincarnations == 1
@@ -284,7 +286,7 @@ def test_recycle(broker):
     Conf.WORKERS = 1
     # set a timer to stop the Sentinel
     threading.Timer(3, stop_event.set).start()
-    s = Sentinel(stop_event, start_event,broker=broker)
+    s = Sentinel(stop_event, start_event, broker=broker)
     assert start_event.is_set()
     assert s.status() == Conf.STOPPED
     assert s.reincarnations == 1
@@ -310,7 +312,7 @@ def test_recycle(broker):
 
 @pytest.mark.django_db
 def test_bad_secret(broker, monkeypatch):
-    broker.list_key='test_bad_secret:q'
+    broker.list_key = 'test_bad_secret:q'
     async('math.copysign', 1, -1, broker=broker)
     stop_event = Event()
     stop_event.set()

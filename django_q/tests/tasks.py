@@ -1,7 +1,3 @@
-# simple countdown, returns nothing
-from time import sleep
-
-
 def countdown(n):
     while n > 0:
         n -= 1
@@ -24,11 +20,6 @@ def count_letters2(obj):
 
 def word_multiply(x, word=''):
     return len(word) * x
-
-
-def count_forever():
-    while True:
-        sleep(0.5)
 
 
 def get_task_name(task):

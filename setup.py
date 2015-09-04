@@ -29,7 +29,7 @@ setup(
     version='0.6.0',
     author='Ilan Steemers',
     author_email='koed00@gmail.com',
-    keywords='django task queue worker redis multiprocessing',
+    keywords='django task queue worker redis disque multiprocessing',
     packages=['django_q'],
     include_package_data=True,
     url='https://django-q.readthedocs.org',
