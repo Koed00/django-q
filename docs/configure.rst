@@ -90,10 +90,9 @@ Effectively making everything synchronous. Useful for testing. Defaults to ``Fal
 queue_limit
 ~~~~~~~~~~~
 
-This does not limit the amount of tasks that can be queued overall on Redis, but rather how many tasks are kept in memory by a single cluster.
+This does not limit the amount of tasks that can be queued on the broker, but rather how many tasks are kept in memory by a single cluster.
 Setting this to a reasonable number, can help balance the workload and the memory overhead of each individual cluster.
-It can also be used to manage the loss of data in case of a cluster failure.
-Defaults to ``None``, meaning no limit.
+Defaults to ``workers**2``.
 
 label
 ~~~~~
