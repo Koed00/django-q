@@ -62,7 +62,7 @@ class Conf(object):
                 WORKERS = 4
 
     # Maximum number of tasks that each cluster can work on
-    QUEUE_LIMIT = conf.get('queue_limit', None)
+    QUEUE_LIMIT = conf.get('queue_limit', int(WORKERS)**2)
 
     # Sets compression of redis packages
     COMPRESSED = conf.get('compress', False)
