@@ -7,9 +7,10 @@ from django.utils import timezone
 # local
 import signing
 import cluster
-from django_q.conf import Conf, redis_client, logger
+from django_q.conf import Conf, logger
 from django_q.models import Schedule, Task
 from django_q.humanhash import uuid
+from django_q.brokers import get_broker
 
 
 def async(func, *args, **kwargs):
@@ -17,8 +18,7 @@ def async(func, *args, **kwargs):
     # get options from q_options dict or direct from kwargs
     options = kwargs.pop('q_options', kwargs)
     hook = options.pop('hook', None)
-    list_key = options.pop('list_key', Conf.Q_LIST)
-    redis = options.pop('redis', redis_client)
+    broker = options.pop('broker', get_broker())
     sync = options.pop('sync', False)
     group = options.pop('group', None)
     save = options.pop('save', None)
@@ -42,7 +42,7 @@ def async(func, *args, **kwargs):
     if sync or Conf.SYNC:
         return _sync(pack)
     # push it
-    redis.rpush(list_key, pack)
+    broker.enqueue(pack)
     logger.debug('Pushed {}'.format(tag))
     return task['id']
 
@@ -152,17 +152,18 @@ def delete_group(group_id, tasks=False):
     return Task.delete_group(group_id, tasks)
 
 
-def queue_size(list_key=Conf.Q_LIST, r=redis_client):
+def queue_size(broker=None):
     """
     Returns the current queue size.
     Note that this doesn't count any tasks currently being processed by workers.
 
-    :param list_key: optional redis key
-    :param r: optional redis connection
+    :param broker: optional broker
     :return: current queue size
     :rtype: int
     """
-    return r.llen(list_key)
+    if not broker:
+        broker = get_broker()
+    return broker.queue_size()
 
 
 def _sync(pack):

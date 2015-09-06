@@ -10,14 +10,17 @@ from django.utils import timezone
 from django.utils.translation import ugettext as _
 
 # local
-from django_q.conf import Conf, redis_client
-from django_q.status import Stat, ping_redis
+from django_q.conf import Conf
+from django_q.status import Stat
+from django_q.brokers import get_broker
 from django_q import models
 
 
-def monitor(run_once=False, r=redis_client):
+def monitor(run_once=False, broker=None):
+    if not broker:
+        broker = get_broker()
     term = Terminal()
-    ping_redis(r)
+    broker.ping()
     with term.fullscreen(), term.hidden_cursor(), term.cbreak():
         val = None
         start_width = int(term.width / 8)
@@ -25,7 +28,7 @@ def monitor(run_once=False, r=redis_client):
             col_width = int(term.width / 8)
             # In case of resize
             if col_width != start_width:
-                print(term.clear)
+                print(term.clear())
                 start_width = col_width
             print(term.move(0, 0) + term.black_on_green(term.center(_('Host'), width=col_width - 1)))
             print(term.move(0, 1 * col_width) + term.black_on_green(term.center(_('Id'), width=col_width - 1)))
@@ -36,7 +39,7 @@ def monitor(run_once=False, r=redis_client):
             print(term.move(0, 6 * col_width) + term.black_on_green(term.center(_('RC'), width=col_width - 1)))
             print(term.move(0, 7 * col_width) + term.black_on_green(term.center(_('Up'), width=col_width - 1)))
             i = 2
-            stats = Stat.get_all(r=r)
+            stats = Stat.get_all(broker=broker)
             print(term.clear_eos())
             for stat in stats:
                 status = stat.status
@@ -77,17 +80,30 @@ def monitor(run_once=False, r=redis_client):
                 print(term.move(i, 6 * col_width) + term.center(stat.reincarnations, width=col_width - 1))
                 print(term.move(i, 7 * col_width) + term.center(uptime, width=col_width - 1))
                 i += 1
+            # bottom bar
+            i += 1
+            print(term.move(i, 0) + term.white_on_cyan(term.center(broker.info(), width=col_width * 2)))
+            print(term.move(i, 2 * col_width) + term.black_on_cyan(term.center(_('Queued'), width=col_width)))
+            print(term.move(i, 3 * col_width) + term.white_on_cyan(term.center(broker.queue_size(), width=col_width)))
+            print(term.move(i, 4 * col_width) + term.black_on_cyan(term.center(_('Success'), width=col_width)))
+            print(term.move(i, 5 * col_width) + term.white_on_cyan(
+                term.center(models.Success.objects.count(), width=col_width)))
+            print(term.move(i, 6 * col_width) + term.black_on_cyan(term.center(_('Failures'), width=col_width)))
+            print(term.move(i, 7 * col_width) + term.white_on_cyan(
+                term.center(models.Failure.objects.count(), width=col_width)))
             # for testing
             if run_once:
-                return Stat.get_all(r=r)
+                return Stat.get_all(broker=broker)
             print(term.move(i + 2, 0) + term.center(_('[Press q to quit]')))
             val = term.inkey(timeout=1)
 
 
-def info(r=redis_client):
+def info(broker=None):
+    if not broker:
+        broker = get_broker()
     term = Terminal()
-    ping_redis(r)
-    stat = Stat.get_all(r)
+    broker.ping()
+    stat = Stat.get_all(broker=broker)
     # general stats
     clusters = len(stat)
     workers = 0
@@ -124,7 +140,7 @@ def info(r=redis_client):
         else:
             tasks_per = tasks_per_day
     # print to terminal
-    term.clear_eos()
+    print(term.clear_eos())
     col_width = int(term.width / 6)
     print(term.black_on_green(term.center(_('-- {} summary --').format(Conf.PREFIX))))
     print(term.cyan(_('Clusters')) +
@@ -141,7 +157,7 @@ def info(r=redis_client):
           )
     print(term.cyan(_('Queued')) +
           term.move_x(1 * col_width) +
-          term.white(str(r.llen(Conf.Q_LIST))) +
+          term.white(str(broker.queue_size())) +
           term.move_x(2 * col_width) +
           term.cyan(_('Successes')) +
           term.move_x(3 * col_width) +
@@ -164,3 +180,4 @@ def info(r=redis_client):
           term.white('{0:.4f}'.format(exec_time))
           )
     return True
+

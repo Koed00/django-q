@@ -8,7 +8,6 @@ from django.conf import settings
 
 # external
 import os
-import redis
 
 # optional
 try:
@@ -33,6 +32,11 @@ class Conf(object):
 
     DJANGO_REDIS = conf.get('django_redis', None)
 
+    # Disque broker
+    DISQUE_NODES = conf.get('disque_nodes', None)
+    # Optional Authentication
+    DISQUE_AUTH = conf.get('disque_auth', None)
+
     # Name of the cluster or site. For when you run multiple sites on one redis server
     PREFIX = conf.get('name', 'default')
 
@@ -42,9 +46,6 @@ class Conf(object):
     # Maximum number of successful tasks kept in the database. 0 saves everything. -1 saves none
     # Failures are always saved
     SAVE_LIMIT = conf.get('save_limit', 250)
-
-    # Maximum number of tasks that each cluster can work on
-    QUEUE_LIMIT = conf.get('queue_limit', None)
 
     # Number of workers in the pool. Default is cpu count if implemented, otherwise 4.
     WORKERS = conf.get('workers', False)
@@ -60,6 +61,9 @@ class Conf(object):
                 # sensible default
                 WORKERS = 4
 
+    # Maximum number of tasks that each cluster can work on
+    QUEUE_LIMIT = conf.get('queue_limit', int(WORKERS)**2)
+
     # Sets compression of redis packages
     COMPRESSED = conf.get('compress', False)
 
@@ -68,6 +72,10 @@ class Conf(object):
 
     # Number of seconds to wait for a worker to finish.
     TIMEOUT = conf.get('timeout', None)
+
+    # Number of seconds to wait for acknowledgement before retrying a task
+    # Only works with brokers that guarantee delivery. Defaults to 60 seconds.
+    RETRY = conf.get('retry', 60)
 
     # The Django Admin label for this app
     LABEL = conf.get('label', 'Django Q')
@@ -78,6 +86,9 @@ class Conf(object):
     # Global sync option to for debugging
     SYNC = conf.get('sync', False)
 
+    # The Django cache to use
+    CACHE = conf.get('cache', 'default')
+
     # If set to False the scheduler won't execute tasks in the past.
     # Instead it will run once and reschedule the next run in the future. Defaults to True.
     CATCH_UP = conf.get('catch_up', True)
@@ -86,8 +97,6 @@ class Conf(object):
     # Django itself should raise an error if it's not configured
     SECRET_KEY = settings.SECRET_KEY
 
-    # The redis list key
-    Q_LIST = 'django_q:{}:q'.format(PREFIX)
     # The redis stats key
     Q_STAT = 'django_q:{}:cluster'.format(PREFIX)
 
@@ -122,28 +131,6 @@ if not logger.handlers:
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-
-
-# Django-redis support
-if Conf.DJANGO_REDIS:
-    try:
-        import django_redis
-    except ImportError:
-        django_redis = None
-
-
-def get_redis_client():
-    """
-    Returns a connection from redis-py or django-redis
-    :return: a redis client
-    """
-    if Conf.DJANGO_REDIS and django_redis:
-        return django_redis.get_redis_connection(Conf.DJANGO_REDIS)
-    return redis.StrictRedis(**Conf.REDIS)
-
-
-# redis client
-redis_client = get_redis_client()
 
 
 # get parent pid compatibility

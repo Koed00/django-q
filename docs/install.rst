@@ -18,8 +18,8 @@ Installation
 
     $ python manage.py migrate
 
--  Make sure you have a `Redis <http://redis.io/>`__ server running
-   somewhere and know how to connect to it.
+-  Choose a message :doc:`broker<brokers>` , configure it and install the appropriate client library.
+
 
 Requirements
 ------------
@@ -35,10 +35,6 @@ Django Q is tested for Python 2.7 and 3.4
 
     Used to store args, kwargs and result objects in the database.
 
--  `Redis-py <https://github.com/andymccurdy/redis-py>`__
-
-    Andy McCurdy's excellent Redis python client.
-
 -  `Arrow <https://github.com/crsmithdev/arrow>`__
 
     The scheduler uses Chris Smith's wonderful project to determine correct dates in the future.
@@ -47,21 +43,25 @@ Django Q is tested for Python 2.7 and 3.4
 
     This feature-filled fork of Erik Rose's blessings project provides the terminal layout of the monitor.
 
--  `Redis server <http://redis.io/>`__
-
-    Django Q uses Redis as a centralized hub between your Django instances and your Q clusters.
-
 
 Optional
 ~~~~~~~~
+-  `Redis-py <https://github.com/andymccurdy/redis-py>`__ client by Andy McCurdy is used  to interface with both the Redis and Disque brokers::
+
+    $ pip install redis
+
 .. _psutil:
 
 - `Psutil <https://github.com/giampaolo/psutil>`__  python system and process utilities module by Giampaolo Rodola', is an optional requirement and adds cpu affinity settings to the cluster::
 
     $ pip install psutil
 
-
 -  `Hiredis <https://github.com/redis/hiredis>`__ parser. This C library maintained by the core Redis team is faster than the standard PythonParser during high loads::
 
     $ pip install hiredis
+
+-  `Redis <http://redis.io/>`__ server is the default broker for Django Q. It provides the best performance and does not require Django's cache framework for monitoring.
+
+- `Disque <https://github.com/antirez/disque>`__ server is based on Redis by the same author, but focuses on reliable queues. Currently in Alpha, but highly recommended. You can either build it from source or use it on Heroku through the `Tynd <https://disque.tynd.co/>`__ beta.
+
 

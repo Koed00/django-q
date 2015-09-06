@@ -1,10 +1,9 @@
 import pytest
-import redis
 
 from django_q import async
 from django_q.cluster import Cluster
 from django_q.monitor import monitor, info
-from django_q.status import Stat, ping_redis
+from django_q.status import Stat
 
 
 @pytest.mark.django_db
@@ -37,10 +36,3 @@ def test_info():
 
 def do_sync():
     async('django_q.tests.tasks.countdown', 1, sync=True, save=True)
-
-
-@pytest.mark.django_db
-def test_ping_redis():
-    r = redis.StrictRedis(port=6388)
-    with pytest.raises(Exception):
-        ping_redis(r)

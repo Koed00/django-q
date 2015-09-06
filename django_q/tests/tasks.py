@@ -1,4 +1,3 @@
-# simple countdown, returns nothing
 from time import sleep
 
 

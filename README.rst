@@ -20,19 +20,25 @@ Features
 -  Django Admin integration
 -  PaaS compatible with multiple instances
 -  Multi cluster monitor
--  Redis broker
+-  Redis broker and Disque broker
 -  Python 2 and 3
 
 Requirements
 ~~~~~~~~~~~~
 
--  `Redis-py <https://github.com/andymccurdy/redis-py>`__
 -  `Django <https://www.djangoproject.com>`__ > = 1.7
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
 -  `Arrow <https://github.com/crsmithdev/arrow>`__
 -  `Blessed <https://github.com/jquast/blessed>`__
 
 Tested with: Python 2.7 & 3.4. Django 1.7.10 & 1.8.4
+
+Brokers
+~~~~~~~
+- `Redis <http://redis.io/>`__
+- `Disque <https://github.com/antirez/disque>`__
+- `Amazon SQS <https://aws.amazon.com/sqs/>`__  (TBA)
+- `IronMQ <http://www.iron.io/mq/>`__  (TBA)
 
 
 Installation
@@ -54,8 +60,7 @@ Installation
 
     $ python manage.py migrate
 
--  Make sure you have a `Redis <http://redis.io/>`__ server running
-   somewhere
+-  Choose a message `broker <https://django-q.readthedocs.org/en/latest/brokers.html>`__ , configure and install the appropriate client library.
 
 Read the full documentation at `https://django-q.readthedocs.org <https://django-q.readthedocs.org>`__
 

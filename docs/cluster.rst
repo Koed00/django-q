@@ -48,7 +48,7 @@ Multiple Clusters
 -----------------
 You can have multiple clusters on multiple machines, working on the same queue as long as:
 
-- They connect to the same Redis server or Redis cluster.
+- They connect to the same :doc:`broker<brokers>`.
 - They use the same cluster name. See :doc:`configure`
 - They share the same ``SECRET_KEY`` for Django.
 
@@ -92,15 +92,16 @@ Architecture
 Signed Tasks
 """"""""""""
 
-Tasks are first pickled and then signed using Django's own :mod:`django.core.signing` module using the ``SECRET_KEY`` and cluster name as salt, before being sent to a Redis list. This ensures that task
-packages on the Redis server can only be executed and read by clusters
+Tasks are first pickled and then signed using Django's own :mod:`django.core.signing` module using the ``SECRET_KEY`` and cluster name as salt, before being sent to a message broker. This ensures that task
+packages on the broker can only be executed and read by clusters
 and django servers who share the same secret key and cluster name.
-Optionally the packages can be compressed before transport
+If a package fails to unpack, it will be marked failed with the broker and discarded.
+Optionally the packages can be compressed before transport.
 
 Pusher
 """"""
 
-The pusher process continuously checks the Redis list for new task
+The pusher process continuously checks the broker for new task
 packages. It checks the signing and unpacks the task to the Task Queue.
 
 Worker
@@ -115,6 +116,7 @@ Monitor
 
 The result monitor checks the Result Queue for processed packages and
 saves both failed and successful packages to the Django database.
+If the broker supports it, a delivery receipt is sent.
 
 .. _sentinel:
 
