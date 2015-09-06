@@ -38,8 +38,8 @@ Brokers
 ~~~~~~~
 - `Redis <http://redis.io/>`__
 - `Disque <https://github.com/antirez/disque>`__
-- `Amazon SQS <https://aws.amazon.com/sqs/>`__  TBA
-- `IronMQ <http://www.iron.io/mq/>`__  TBA
+- `Amazon SQS <https://aws.amazon.com/sqs/>`__  (TBA)
+- `IronMQ <http://www.iron.io/mq/>`__  (TBA)
 
 
 Installation
