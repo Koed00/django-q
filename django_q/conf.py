@@ -74,7 +74,7 @@ class Conf(object):
     TIMEOUT = conf.get('timeout', None)
 
     # Number of seconds to wait for acknowledgement before retrying a task
-    # Only works with brokers that guarantee delivery. Defaults to 0. Meaning no retries.
+    # Only works with brokers that guarantee delivery. Defaults to 60 seconds.
     RETRY = conf.get('retry', 60)
 
     # The Django Admin label for this app

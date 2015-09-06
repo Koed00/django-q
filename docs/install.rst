@@ -18,8 +18,7 @@ Installation
 
     $ python manage.py migrate
 
--  Make sure you have a `Redis <http://redis.io/>`__ server running
-   somewhere and know how to connect to it or configure one of the alternative :doc:`brokers`.
+-  Choose a :doc:`broker<brokers>` and install the appropriate client library.
 
 
 Requirements
@@ -36,10 +35,6 @@ Django Q is tested for Python 2.7 and 3.4
 
     Used to store args, kwargs and result objects in the database.
 
--  `Redis-py <https://github.com/andymccurdy/redis-py>`__
-
-    Andy McCurdy's excellent Redis python client.
-
 -  `Arrow <https://github.com/crsmithdev/arrow>`__
 
     The scheduler uses Chris Smith's wonderful project to determine correct dates in the future.
@@ -51,6 +46,10 @@ Django Q is tested for Python 2.7 and 3.4
 
 Optional
 ~~~~~~~~
+-  `Redis-py <https://github.com/andymccurdy/redis-py>`__
+
+    Andy McCurdy's excellent Redis python client is used  to interface with both the Redis and Disque brokers.
+
 .. _psutil:
 
 - `Psutil <https://github.com/giampaolo/psutil>`__  python system and process utilities module by Giampaolo Rodola', is an optional requirement and adds cpu affinity settings to the cluster::

@@ -34,6 +34,13 @@ Requirements
 
 Tested with: Python 2.7 & 3.4. Django 1.7.10 & 1.8.4
 
+Brokers
+~~~~~~~
+- `Redis <http://redis.io/>`__
+- `Disque <https://github.com/antirez/disque>`__
+- `Amazon SQS <https://aws.amazon.com/sqs/>`__  TBA
+- `IronMQ <http://www.iron.io/mq/>`__  TBA
+
 
 Installation
 ~~~~~~~~~~~~
@@ -54,8 +61,7 @@ Installation
 
     $ python manage.py migrate
 
--  Make sure you have a `Redis <http://redis.io/>`__ server running
-   somewhere or configure one of the other `brokers <https://django-q.readthedocs.org/en/latest/brokers.html>`__.
+-  Choose a `broker <https://django-q.readthedocs.org/en/latest/brokers.html>`__ and install the appropriate client library.
 
 Read the full documentation at `https://django-q.readthedocs.org <https://django-q.readthedocs.org>`__
 
