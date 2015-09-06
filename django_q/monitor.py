@@ -28,7 +28,7 @@ def monitor(run_once=False, broker=None):
             col_width = int(term.width / 8)
             # In case of resize
             if col_width != start_width:
-                print(term.clear)
+                print(term.clear())
                 start_width = col_width
             print(term.move(0, 0) + term.black_on_green(term.center(_('Host'), width=col_width - 1)))
             print(term.move(0, 1 * col_width) + term.black_on_green(term.center(_('Id'), width=col_width - 1)))
@@ -140,7 +140,7 @@ def info(broker=None):
         else:
             tasks_per = tasks_per_day
     # print to terminal
-    term.clear_eos()
+    print(term.clear_eos())
     col_width = int(term.width / 6)
     print(term.black_on_green(term.center(_('-- {} summary --').format(Conf.PREFIX))))
     print(term.cyan(_('Clusters')) +
