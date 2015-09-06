@@ -14,7 +14,7 @@ hiredis==0.2.0
 iron-core==1.1.9          # via iron-mq
 iron-mq==0.7
 msgpack-python==0.4.6     # via django-redis
-psutil==3.2.0
+psutil==3.2.1
 python-dateutil==2.4.2    # via arrow, iron-core
 redis==2.10.3
 requests==2.7.0           # via iron-core
