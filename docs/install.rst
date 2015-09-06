@@ -18,7 +18,7 @@ Installation
 
     $ python manage.py migrate
 
--  Choose a :doc:`broker<brokers>` and install the appropriate client library.
+-  Choose a message :doc:`broker<brokers>` , configure it and install the appropriate client library.
 
 
 Requirements
@@ -46,16 +46,15 @@ Django Q is tested for Python 2.7 and 3.4
 
 Optional
 ~~~~~~~~
--  `Redis-py <https://github.com/andymccurdy/redis-py>`__
+-  `Redis-py <https://github.com/andymccurdy/redis-py>`__ client by Andy McCurdy is used  to interface with both the Redis and Disque brokers::
 
-    Andy McCurdy's excellent Redis python client is used  to interface with both the Redis and Disque brokers.
+    $ pip install redis
 
 .. _psutil:
 
 - `Psutil <https://github.com/giampaolo/psutil>`__  python system and process utilities module by Giampaolo Rodola', is an optional requirement and adds cpu affinity settings to the cluster::
 
     $ pip install psutil
-
 
 -  `Hiredis <https://github.com/redis/hiredis>`__ parser. This C library maintained by the core Redis team is faster than the standard PythonParser during high loads::
 

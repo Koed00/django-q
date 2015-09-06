@@ -26,7 +26,6 @@ Features
 Requirements
 ~~~~~~~~~~~~
 
--  `Redis-py <https://github.com/andymccurdy/redis-py>`__
 -  `Django <https://www.djangoproject.com>`__ > = 1.7
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
 -  `Arrow <https://github.com/crsmithdev/arrow>`__
@@ -61,7 +60,7 @@ Installation
 
     $ python manage.py migrate
 
--  Choose a `broker <https://django-q.readthedocs.org/en/latest/brokers.html>`__ and install the appropriate client library.
+-  Choose a message `broker <https://django-q.readthedocs.org/en/latest/brokers.html>`__ , configure and install the appropriate client library.
 
 Read the full documentation at `https://django-q.readthedocs.org <https://django-q.readthedocs.org>`__
 
