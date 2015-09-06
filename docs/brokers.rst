@@ -3,7 +3,7 @@ Brokers
 
 The broker sits between your Django instances and your Django Q cluster instances, accepting and delivering task packages.
 Currently we only support Redis and Disque, but support for other brokers is being worked on.
-Even though `Disque <https://github.com/antirez/disque>`__ is still considered Alpha software, it's been gathering a lot of support and test results are positive.
+Even though `Disque <https://github.com/antirez/disque>`__ is still considered to be in alpha, it's been gathering a lot of support and test results are positive.
 
 Clients for `Amazon SQS <https://aws.amazon.com/sqs/>`__ and `IronMQ <http://www.iron.io/mq/>`__ are being tested.
 
@@ -15,7 +15,7 @@ The default broker for Django Q clusters is `Redis <http://redis.io/>`__.
 * Atomic
 * Does not need separate cache framework for monitoring
 * Can use existing `Django-Redis <https://github.com/niwinz/django-redis>`__ connections through the :ref:`django_redis` setting
-* Requires `Redis-py <https://github.com/andymccurdy/redis-py>`__ as a client
+* Requires `Redis-py <https://github.com/andymccurdy/redis-py>`__
 * Does not support receipts
 
 Can be configured with :ref:`redis_configuration` configuration settings or :ref:`django_redis`.
@@ -26,23 +26,14 @@ Disque
 Unlike Redis, Disque supports message receipts which make delivery to the cluster workers guaranteed. If a task never produces a failed or successful result, it will automatically be sent to the cluster again for a retry.
 You can control the amount of time Disque should wait for completion of a task by configuring the :ref:`retry` setting.
 
-* Supports receipts
+* Delivery receipts
 * Atomic
 * Needs Django's `Cache framework <https://docs.djangoproject.com/en/1.8/topics/cache/#setting-up-the-cache>`__ configured for monitoring
 * Compatible with `Tynd <https://disque.tynd.co/>`__ Disque addon on `Heroku <https://heroku.com>`__
 * Still considered Alpha software
-* Requires `Redis-py <https://github.com/andymccurdy/redis-py>`__ as a client
+* Requires `Redis-py <https://github.com/andymccurdy/redis-py>`__
 
 See the :ref:`disque_configuration` configuration section for more info.
-
-Amazon SQS
-----------
-*TBA*
-
-
-Iron MQ
--------
-*TBA*
 
 Reference
 ---------
