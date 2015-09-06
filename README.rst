@@ -55,7 +55,7 @@ Installation
     $ python manage.py migrate
 
 -  Make sure you have a `Redis <http://redis.io/>`__ server running
-   somewhere
+   somewhere or configure one of the other `brokers <https://django-q.readthedocs.org/en/latest/brokers.html>`__.
 
 Read the full documentation at `https://django-q.readthedocs.org <https://django-q.readthedocs.org>`__
 
