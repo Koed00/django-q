@@ -26,7 +26,7 @@ class PyTest(Command):
 
 setup(
     name='django-q',
-    version='0.6.0',
+    version='0.6.1',
     author='Ilan Steemers',
     author_email='koed00@gmail.com',
     keywords='django task queue worker redis disque multiprocessing',
@@ -36,7 +36,7 @@ setup(
     license='MIT',
     description='A multiprocessing task queue for Django',
     long_description=README,
-    install_requires=['django>=1.7', 'django-picklefield', 'blessed', 'arrow', 'future'],
+    install_requires=['django>=1.7', 'django-picklefield===0.3.1', 'blessed', 'arrow', 'future'],
     test_requires=['pytest', 'pytest-django', ],
     cmdclass={'test': PyTest},
     classifiers=[
