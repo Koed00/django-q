@@ -209,8 +209,8 @@ def test_async(broker, admin_user):
     assert fetch(result_j.name) == result_j
     assert result(result_j.name) == result_j.result
     # groups
-    assert result_group('test_j') == [result_j.result]
-    assert result_group('test_j', failures=True) == [result_j.result]
+    assert result_group('test_j')[0] == result_j.result
+    assert result_group('test_j', failures=True)[0] == result_j.result
     assert fetch_group('test_j')[0].id == [result_j][0].id
     assert fetch_group('test_j', failures=False)[0].id == [result_j][0].id
     assert count_group('test_j') == 1

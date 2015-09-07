@@ -38,7 +38,7 @@ class Task(models.Model):
             values = Task.objects.filter(group=group_id).values_list('result', flat=True)
         else:
             values = Task.objects.filter(group=group_id).exclude(success=False).values_list('result', flat=True)
-        return [dbsafe_decode(t) for t in values]
+        return decode_results(values)
 
     @staticmethod
     def get_group_count(group_id, failures=False):
@@ -186,3 +186,12 @@ class Schedule(models.Model):
         verbose_name = _('Scheduled task')
         verbose_name_plural = _('Scheduled tasks')
         ordering = ['next_run']
+
+
+# Backwards compatibility for Django 1.7
+if hasattr(PickledObjectField, 'from_db_value'):
+    def decode_results(values):
+        return values
+else:
+    def decode_results(values):
+        return [dbsafe_decode(v) for v in values]
