@@ -189,10 +189,10 @@ class Schedule(models.Model):
 
 
 # Backwards compatibility for Django 1.7
-if get_version().split('.')[1] == '8':
-    def decode_results(values):
-        return values
-else:
-    # decode values in 1.7
-    def decode_results(values):
+def decode_results(values):
+    if get_version().split('.')[1] == '7':
+        # decode values in 1.7
         return [dbsafe_decode(v) for v in values]
+    return values
+
+
