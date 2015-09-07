@@ -1,4 +1,5 @@
 import logging
+from django import get_version
 
 import importlib
 from django.core.urlresolvers import reverse
@@ -33,12 +34,11 @@ class Task(models.Model):
 
     @staticmethod
     def get_result_group(group_id, failures=False):
-        # values + decode is 10 times faster than just list comprehension
         if failures:
             values = Task.objects.filter(group=group_id).values_list('result', flat=True)
         else:
             values = Task.objects.filter(group=group_id).exclude(success=False).values_list('result', flat=True)
-        return [dbsafe_decode(t) for t in values]
+        return decode_results(values)
 
     @staticmethod
     def get_group_count(group_id, failures=False):
@@ -186,3 +186,13 @@ class Schedule(models.Model):
         verbose_name = _('Scheduled task')
         verbose_name_plural = _('Scheduled tasks')
         ordering = ['next_run']
+
+
+# Backwards compatibility for Django 1.7
+def decode_results(values):
+    if get_version().split('.')[1] == '7':
+        # decode values in 1.7
+        return [dbsafe_decode(v) for v in values]
+    return values
+
+
