@@ -28,11 +28,12 @@ All configuration settings are optional:
 name
 ~~~~
 
-Used to differentiate between projects using the same Redis server. Defaults to ``'default'``.
-This can be useful if you have several projects using the same Redis server.
+Used to differentiate between projects using the same broker.
+On most broker types this will be used as the queue name.
+Defaults to ``'default'``.
 
 .. note::
-    Tasks are encrypted. When a worker encounters a task it can not decrypt, it will be discarded.
+    Tasks are encrypted. When a worker encounters a task it can not decrypt, it will be discarded or failed.
 
 workers
 ~~~~~~~
