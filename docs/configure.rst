@@ -222,6 +222,11 @@ Keep in mind however that settings this too high can degrade performance with mu
 Not supported by the default Redis broker.
 Defaults to 1.
 
+cache
+~~~~~
+For some brokers, you will need to set up the Django `cache framework <https://docs.djangoproject.com/en/1.8/topics/cache/#setting-up-the-cache>`__
+to gather statistics for the monitor. You can indicate which cache to use by setting this value. Defaults to ``default``.
+
 cpu_affinity
 ~~~~~~~~~~~~
 
