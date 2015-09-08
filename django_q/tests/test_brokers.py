@@ -107,18 +107,17 @@ def test_ironmq():
     broker.enqueue('test')
     # clear before we start
     broker.purge_queue()
+    assert broker.queue_size() == 0
     # enqueue
     broker.enqueue('test')
-    assert broker.queue_size() == 1
     # dequeue
     task = broker.dequeue()
     assert task[1] == 'test'
     broker.acknowledge(task[0])
-    assert broker.queue_size() == 0
+    assert broker.dequeue() is None
     # Retry test
     Conf.RETRY = 1
     broker.enqueue('test')
-    assert broker.queue_size() == 1
     assert broker.dequeue() is not None
     sleep(1.5)
     task = broker.dequeue()
@@ -128,7 +127,7 @@ def test_ironmq():
     # delete job
     task_id = broker.enqueue('test')
     broker.delete(task_id)
-    assert broker.queue_size() == 0
+    assert broker.dequeue() is None
     # fail
     task_id = broker.enqueue('test')
     broker.fail(task_id)
@@ -144,7 +143,7 @@ def test_ironmq():
     broker.enqueue('test')
     broker.enqueue('test')
     broker.purge_queue()
-    assert broker.queue_size() == 0
+    assert broker.dequeue() is None
     broker.delete_queue()
     # back to django-redis
     Conf.IRON_MQ = None
