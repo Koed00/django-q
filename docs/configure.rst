@@ -187,6 +187,40 @@ disque_auth
 
 Optional Disque password for servers that require authentication.
 
+.. _ironmq_configuration:
+
+iron_mq
+~~~~~~~
+Connection settings for IronMQ::
+
+    # example IronMQ connection
+
+    Q_CLUSTER = {
+        'name': 'IronBroker',
+        'workers': 8,
+        'timeout': 30,
+        'retry': 60,
+        'queue_limit': 50,
+        'bulk': 10,
+        'iron_mq': {
+            'host': 'mq-aws-us-east-1.iron.io',
+            'token': 'Et1En7.....0LuW39Q',
+            'project_id': '500f7b....b0f302e9'
+        }
+    }
+
+
+All connection keywords are supported. See the `iron-mq <https://github.com/iron-io/iron_mq_python#configure>`__ library for more info
+
+bulk
+~~~~
+Sets the number of messages each cluster tries to get from the broker per call. Setting this on supported brokers can improve performance.
+Especially HTTP based or very high latency servers can benefit from bulk dequeue.
+Keep in mind however that settings this too high can degrade performance with multiple clusters or very large task packages.
+
+Not supported by the default Redis broker.
+Defaults to 1.
+
 cpu_affinity
 ~~~~~~~~~~~~
 
