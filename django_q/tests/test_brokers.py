@@ -96,13 +96,14 @@ def test_disque():
 @pytest.mark.skipif(not os.getenv('IRON_MQ_TOKEN'),
                     reason="requires IronMQ credentials")
 def test_ironmq():
-    Conf.IRON_MQ = {'host': os.getenv('IRON_MQ_HOST'),
-                    'token': os.getenv('IRON_MQ_TOKEN'),
+    Conf.IRON_MQ = {'token': os.getenv('IRON_MQ_TOKEN'),
                     'project_id': os.getenv('IRON_MQ_PROJECT_ID')}
     # check broker
     broker = get_broker(list_key='djangoQ')
     assert broker.ping() is True
     assert broker.info() is not None
+    # initialize the queue
+    broker.enqueue('test')
     # clear before we start
     broker.purge_queue()
     # enqueue
