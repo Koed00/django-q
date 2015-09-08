@@ -76,6 +76,14 @@ def test_disque():
     # fail
     task_id = broker.enqueue('test')
     broker.fail(task_id)
+    # bulk test
+    for i in range(5):
+        broker.enqueue('test')
+    Conf.BULK = 5
+    for i in range(5):
+        task = broker.dequeue()
+        assert task is not None
+        broker.acknowledge(task[0])
     # delete queue
     broker.enqueue('test')
     broker.enqueue('test')
@@ -89,8 +97,8 @@ def test_disque():
                     reason="requires IronMQ credentials")
 def test_ironmq():
     Conf.IRON_MQ = {'host': os.getenv('IRON_MQ_HOST'),
-                   'token': os.getenv('IRON_MQ_TOKEN'),
-                   'project_id': os.getenv('IRON_MQ_PROJECT_ID')}
+                    'token': os.getenv('IRON_MQ_TOKEN'),
+                    'project_id': os.getenv('IRON_MQ_PROJECT_ID')}
     # check broker
     broker = get_broker(list_key='djangoQ')
     assert broker.ping() is True
@@ -122,11 +130,20 @@ def test_ironmq():
     # fail
     task_id = broker.enqueue('test')
     broker.fail(task_id)
+    # bulk test
+    for i in range(5):
+        broker.enqueue('test')
+    Conf.BULK = 5
+    for i in range(5):
+        task = broker.dequeue()
+        assert task is not None
+        broker.acknowledge(task[0])
     # delete queue
     broker.enqueue('test')
     broker.enqueue('test')
     broker.purge_queue()
     assert broker.queue_size() == 0
+    broker.delete_queue()
     # back to django-redis
     Conf.IRON_MQ = None
     Conf.DJANGO_REDIS = 'default'
