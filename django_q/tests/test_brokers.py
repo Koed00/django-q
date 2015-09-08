@@ -4,6 +4,7 @@ import os
 import redis
 from django_q.conf import Conf
 from django_q.brokers import get_broker, Broker
+from django_q.humanhash import uuid
 
 
 def test_broker():
@@ -99,7 +100,7 @@ def test_ironmq():
     Conf.IRON_MQ = {'token': os.getenv('IRON_MQ_TOKEN'),
                     'project_id': os.getenv('IRON_MQ_PROJECT_ID')}
     # check broker
-    broker = get_broker(list_key='djangoQ')
+    broker = get_broker(list_key=uuid()[0])
     assert broker.ping() is True
     assert broker.info() is not None
     # initialize the queue
