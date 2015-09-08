@@ -136,7 +136,7 @@ django_redis
 ~~~~~~~~~~~~
 
 If you are already using `django-redis <https://github.com/niwinz/django-redis>`__ for your caching, you can take advantage of its excellent connection backend by supplying the name
-of the cache connection you want to use::
+of the cache connection you want to use instead of a direct Redis connection::
 
     # example django-redis connection
     Q_CLUSTER = {
@@ -167,9 +167,9 @@ If you want to use Disque as your broker, set this to a list of available Disque
     }
 
 
-Django Q is also compatible with the `Tynd <https://disque.tynd.co/>`__  addon on `Heroku <https://heroku.com>`__::
+Django Q is also compatible with the `Tynd Disque <https://disque.tynd.co/>`__  addon on `Heroku <https://heroku.com>`__::
 
-    # example Tynd connection
+    # example Tynd Disque connection
     import os
 
     Q_CLUSTER = {
@@ -177,6 +177,7 @@ Django Q is also compatible with the `Tynd <https://disque.tynd.co/>`__  addon o
         'workers': 8,
         'timeout': 30,
         'retry': 60,
+        'bulk': 10,
         'disque_nodes': os.environ['TYND_DISQUE_NODES'].split(','),
         'disque_auth': os.environ['TYND_DISQUE_AUTH']
     }
