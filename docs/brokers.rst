@@ -2,9 +2,8 @@ Brokers
 =======
 
 The broker sits between your Django instances and your Django Q cluster instances, accepting and delivering task packages.
-Currently we only support `Redis <http://redis.io/>`__ and `Disque <https://github.com/antirez/disque>`__, but support for other brokers is being worked on.
-
-Clients for `Amazon SQS <https://aws.amazon.com/sqs/>`__ and `IronMQ <http://www.iron.io/mq/>`__ are TBA.
+Currently we support `Redis <http://redis.io/>`__ , `Disque <https://github.com/antirez/disque>`__ and `IronMQ <http://www.iron.io/mq/>`__.
+Support for more brokers is being worked on.
 
 
 Redis
@@ -12,9 +11,9 @@ Redis
 The default broker for Django Q clusters.
 
 * Atomic
-* Does not need separate cache framework for monitoring
-* Does not support receipts
 * Requires `Redis-py <https://github.com/andymccurdy/redis-py>`__ client library: ``pip install redis``
+* Does not need cache framework for monitoring
+* Does not support receipts
 * Can use existing :ref:`django_redis` connections.
 * Configure with :ref:`redis_configuration`-py compatible configuration
 
@@ -28,8 +27,19 @@ You can control the amount of time Disque should wait for completion of a task b
 * Needs Django's `Cache framework <https://docs.djangoproject.com/en/1.8/topics/cache/#setting-up-the-cache>`__ configured for monitoring
 * Compatible with `Tynd <https://disque.tynd.co/>`__ Disque addon on `Heroku <https://heroku.com>`__
 * Still considered Alpha software
+* Supports bulk dequeue
 * Requires `Redis-py <https://github.com/andymccurdy/redis-py>`__ client library: ``pip install redis``
 * See the :ref:`disque_configuration` configuration section for more info.
+
+IronMQ
+------
+This HTTP based queue service is both available directly via `Iron.io <http://www.iron.io/mq/>`__ and as an add-on on Heroku.
+
+* Delivery receipts
+* Supports bulk dequeue
+* Needs Django's `Cache framework <https://docs.djangoproject.com/en/1.8/topics/cache/#setting-up-the-cache>`__ configured for monitoring
+* Requires the `iron-mq <https://github.com/iron-io/iron_mq_python>`__ client library: ``pip install iron-mq``
+* See the :ref:`ironmq_configuration` configuration section for options.
 
 Reference
 ---------

@@ -136,7 +136,7 @@ django_redis
 ~~~~~~~~~~~~
 
 If you are already using `django-redis <https://github.com/niwinz/django-redis>`__ for your caching, you can take advantage of its excellent connection backend by supplying the name
-of the cache connection you want to use::
+of the cache connection you want to use instead of a direct Redis connection::
 
     # example django-redis connection
     Q_CLUSTER = {
@@ -167,9 +167,9 @@ If you want to use Disque as your broker, set this to a list of available Disque
     }
 
 
-Django Q is also compatible with the `Tynd <https://disque.tynd.co/>`__  addon on `Heroku <https://heroku.com>`__::
+Django Q is also compatible with the `Tynd Disque <https://disque.tynd.co/>`__  addon on `Heroku <https://heroku.com>`__::
 
-    # example Tynd connection
+    # example Tynd Disque connection
     import os
 
     Q_CLUSTER = {
@@ -177,6 +177,7 @@ Django Q is also compatible with the `Tynd <https://disque.tynd.co/>`__  addon o
         'workers': 8,
         'timeout': 30,
         'retry': 60,
+        'bulk': 10,
         'disque_nodes': os.environ['TYND_DISQUE_NODES'].split(','),
         'disque_auth': os.environ['TYND_DISQUE_AUTH']
     }
@@ -186,6 +187,40 @@ disque_auth
 ~~~~~~~~~~~
 
 Optional Disque password for servers that require authentication.
+
+.. _ironmq_configuration:
+
+iron_mq
+~~~~~~~
+Connection settings for IronMQ::
+
+    # example IronMQ connection
+
+    Q_CLUSTER = {
+        'name': 'IronBroker',
+        'workers': 8,
+        'timeout': 30,
+        'retry': 60,
+        'queue_limit': 50,
+        'bulk': 10,
+        'iron_mq': {
+            'host': 'mq-aws-us-east-1.iron.io',
+            'token': 'Et1En7.....0LuW39Q',
+            'project_id': '500f7b....b0f302e9'
+        }
+    }
+
+
+All connection keywords are supported. See the `iron-mq <https://github.com/iron-io/iron_mq_python#configure>`__ library for more info
+
+bulk
+~~~~
+Sets the number of messages each cluster tries to get from the broker per call. Setting this on supported brokers can improve performance.
+Especially HTTP based or very high latency servers can benefit from bulk dequeue.
+Keep in mind however that settings this too high can degrade performance with multiple clusters or very large task packages.
+
+Not supported by the default Redis broker.
+Defaults to 1.
 
 cpu_affinity
 ~~~~~~~~~~~~

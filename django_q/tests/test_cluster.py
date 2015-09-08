@@ -18,7 +18,6 @@ from django_q.status import Stat
 from django_q.brokers import get_broker
 from .tasks import multiply
 
-
 class WordClass(object):
     def __init__(self):
         self.word_list = DEFAULT_WORDLIST
@@ -29,6 +28,9 @@ class WordClass(object):
 
 @pytest.fixture
 def broker():
+    Conf.DISQUE_NODES = None
+    Conf.IRON_MQ = None
+    Conf.DJANGO_REDIS = 'default'
     return get_broker()
 
 

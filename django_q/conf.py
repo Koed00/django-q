@@ -37,6 +37,9 @@ class Conf(object):
     # Optional Authentication
     DISQUE_AUTH = conf.get('disque_auth', None)
 
+    # IronMQ broker
+    IRON_MQ = conf.get('iron_mq', None)
+
     # Name of the cluster or site. For when you run multiple sites on one redis server
     PREFIX = conf.get('name', 'default')
 
@@ -62,7 +65,7 @@ class Conf(object):
                 WORKERS = 4
 
     # Maximum number of tasks that each cluster can work on
-    QUEUE_LIMIT = conf.get('queue_limit', int(WORKERS)**2)
+    QUEUE_LIMIT = conf.get('queue_limit', int(WORKERS) ** 2)
 
     # Sets compression of redis packages
     COMPRESSED = conf.get('compress', False)
@@ -76,6 +79,10 @@ class Conf(object):
     # Number of seconds to wait for acknowledgement before retrying a task
     # Only works with brokers that guarantee delivery. Defaults to 60 seconds.
     RETRY = conf.get('retry', 60)
+
+    # Sets the amount of tasks the cluster will try to pop off the broker.
+    # If it supports bulk gets.
+    BULK = conf.get('bulk', 1)
 
     # The Django Admin label for this app
     LABEL = conf.get('label', 'Django Q')

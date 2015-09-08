@@ -20,7 +20,7 @@ Features
 -  Django Admin integration
 -  PaaS compatible with multiple instances
 -  Multi cluster monitor
--  Redis or Disque broker
+-  Redis, Disque or IronMQ broker
 -  Python 2 and 3
 
 

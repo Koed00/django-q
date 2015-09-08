@@ -6,3 +6,4 @@ hiredis
 redis
 psutil
 django-redis
+iron-mq

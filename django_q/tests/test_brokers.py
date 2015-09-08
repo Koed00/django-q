@@ -4,6 +4,7 @@ import os
 import redis
 from django_q.conf import Conf
 from django_q.brokers import get_broker, Broker
+from django_q.humanhash import uuid
 
 
 def test_broker():
@@ -72,10 +73,18 @@ def test_disque():
     # delete job
     task_id = broker.enqueue('test')
     broker.delete(task_id)
-    assert broker.queue_size() == 0
+    assert broker.dequeue() is None
     # fail
-    task_id=broker.enqueue('test')
+    task_id = broker.enqueue('test')
     broker.fail(task_id)
+    # bulk test
+    for i in range(5):
+        broker.enqueue('test')
+    Conf.BULK = 5
+    for i in range(5):
+        task = broker.dequeue()
+        assert task is not None
+        broker.acknowledge(task[0])
     # delete queue
     broker.enqueue('test')
     broker.enqueue('test')
@@ -83,3 +92,59 @@ def test_disque():
     assert broker.queue_size() == 0
     # back to django-redis
     Conf.DISQUE_NODES = None
+
+
+@pytest.mark.skipif(not os.getenv('IRON_MQ_TOKEN'),
+                    reason="requires IronMQ credentials")
+def test_ironmq():
+    Conf.IRON_MQ = {'token': os.getenv('IRON_MQ_TOKEN'),
+                    'project_id': os.getenv('IRON_MQ_PROJECT_ID')}
+    # check broker
+    broker = get_broker(list_key=uuid()[0])
+    assert broker.ping() is True
+    assert broker.info() is not None
+    # initialize the queue
+    broker.enqueue('test')
+    # clear before we start
+    broker.purge_queue()
+    assert broker.queue_size() == 0
+    # enqueue
+    broker.enqueue('test')
+    # dequeue
+    task = broker.dequeue()
+    assert task[1] == 'test'
+    broker.acknowledge(task[0])
+    assert broker.dequeue() is None
+    # Retry test
+    Conf.RETRY = 1
+    broker.enqueue('test')
+    assert broker.dequeue() is not None
+    sleep(1.5)
+    task = broker.dequeue()
+    assert len(task) > 0
+    broker.acknowledge(task[0])
+    sleep(1.5)
+    # delete job
+    task_id = broker.enqueue('test')
+    broker.delete(task_id)
+    assert broker.dequeue() is None
+    # fail
+    task_id = broker.enqueue('test')
+    broker.fail(task_id)
+    # bulk test
+    for i in range(5):
+        broker.enqueue('test')
+    Conf.BULK = 5
+    for i in range(5):
+        task = broker.dequeue()
+        assert task is not None
+        broker.acknowledge(task[0])
+    # delete queue
+    broker.enqueue('test')
+    broker.enqueue('test')
+    broker.purge_queue()
+    assert broker.dequeue() is None
+    broker.delete_queue()
+    # back to django-redis
+    Conf.IRON_MQ = None
+    Conf.DJANGO_REDIS = 'default'
