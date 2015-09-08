@@ -13,7 +13,7 @@ class IronMQBroker(Broker):
             t = self.task_cache.pop()
         else:
             timeout = Conf.RETRY or None
-            tasks = self.connection.get(timeout=timeout, wait=1, max=Conf.IRON_MQ_MAX)['messages']
+            tasks = self.connection.get(timeout=timeout, wait=1, max=Conf.BULK)['messages']
             if tasks:
                 t = tasks.pop()
                 if tasks:

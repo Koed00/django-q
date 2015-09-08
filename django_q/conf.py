@@ -39,7 +39,6 @@ class Conf(object):
 
     # IronMQ broker
     IRON_MQ = conf.get('iron_mq', None)
-    IRON_MQ_MAX = conf.get('iron_mq_max', 1)
 
     # Name of the cluster or site. For when you run multiple sites on one redis server
     PREFIX = conf.get('name', 'default')
@@ -80,6 +79,10 @@ class Conf(object):
     # Number of seconds to wait for acknowledgement before retrying a task
     # Only works with brokers that guarantee delivery. Defaults to 60 seconds.
     RETRY = conf.get('retry', 60)
+
+    # Sets the amount of tasks the cluster will try to pop off the broker.
+    # If it supports bulk gets.
+    BULK = conf.get('bulk', 1)
 
     # The Django Admin label for this app
     LABEL = conf.get('label', 'Django Q')
