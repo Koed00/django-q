@@ -153,6 +153,9 @@ def get_broker(list_key=Conf.PREFIX):
     if Conf.DISQUE_NODES:
         from brokers import disque
         return disque.Disque(list_key=list_key)
+    elif Conf.IRON_MQ:
+        from brokers import ironmq
+        return ironmq.IronMQBroker(list_key=list_key)
     # default to redis
     else:
         from brokers import redis_broker

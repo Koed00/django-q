@@ -37,6 +37,9 @@ class Conf(object):
     # Optional Authentication
     DISQUE_AUTH = conf.get('disque_auth', None)
 
+    # IronMQ broker
+    IRON_MQ = conf.get('iron_mq', None)
+
     # Name of the cluster or site. For when you run multiple sites on one redis server
     PREFIX = conf.get('name', 'default')
 
@@ -62,7 +65,7 @@ class Conf(object):
                 WORKERS = 4
 
     # Maximum number of tasks that each cluster can work on
-    QUEUE_LIMIT = conf.get('queue_limit', int(WORKERS)**2)
+    QUEUE_LIMIT = conf.get('queue_limit', int(WORKERS) ** 2)
 
     # Sets compression of redis packages
     COMPRESSED = conf.get('compress', False)
