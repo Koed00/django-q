@@ -39,6 +39,7 @@ class Conf(object):
 
     # IronMQ broker
     IRON_MQ = conf.get('iron_mq', None)
+    IRON_MQ_MAX = conf.get('iron_mq_max', 1)
 
     # Name of the cluster or site. For when you run multiple sites on one redis server
     PREFIX = conf.get('name', 'default')

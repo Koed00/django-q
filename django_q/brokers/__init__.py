@@ -7,6 +7,7 @@ class Broker(object):
         self.connection = self.get_connection(list_key)
         self.list_key = list_key
         self.cache = self.get_cache()
+        self.task_cache = []
 
     def enqueue(self, task):
         """

@@ -129,3 +129,4 @@ def test_ironmq():
     assert broker.queue_size() == 0
     # back to django-redis
     Conf.IRON_MQ = None
+    Conf.DJANGO_REDIS = 'default'

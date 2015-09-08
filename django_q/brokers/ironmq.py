@@ -1,18 +1,25 @@
-from django_q.conf import Conf
+from django_q.conf import Conf, logger
 from django_q.brokers import Broker
 from iron_mq import IronMQ
 
 
 class IronMQBroker(Broker):
-
     def enqueue(self, task):
         return self.connection.post(task)['ids'][0]
 
     def dequeue(self):
-        timeout = Conf.RETRY or None
-        task = self.connection.get(timeout=timeout, wait=1)['messages']
-        if task:
-            return task[0]['id'], task[0]['body']
+        t = None
+        if len(self.task_cache) > 0:
+            t = self.task_cache.pop()
+        else:
+            timeout = Conf.RETRY or None
+            tasks = self.connection.get(timeout=timeout, wait=1, max=Conf.IRON_MQ_MAX)['messages']
+            if tasks:
+                t = tasks.pop()
+                if tasks:
+                    self.task_cache = tasks
+        if t:
+            return t['id'], t['body']
 
     def ping(self):
         return self.connection.name == self.list_key
