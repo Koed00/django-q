@@ -72,7 +72,7 @@ def test_disque():
     # delete job
     task_id = broker.enqueue('test')
     broker.delete(task_id)
-    assert broker.queue_size() == 0
+    assert broker.dequeue() is None
     # fail
     task_id = broker.enqueue('test')
     broker.fail(task_id)
