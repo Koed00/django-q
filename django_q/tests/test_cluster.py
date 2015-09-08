@@ -18,6 +18,10 @@ from django_q.status import Stat
 from django_q.brokers import get_broker
 from .tasks import multiply
 
+Conf.DISQUE_NODES = None
+Conf.IRON_MQ = None
+Conf.DJANGO_REDIS = 'default'
+
 
 class WordClass(object):
     def __init__(self):

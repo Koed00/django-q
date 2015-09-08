@@ -1,4 +1,4 @@
-from django_q.conf import Conf, logger
+from django_q.conf import Conf
 from django_q.brokers import Broker
 from iron_mq import IronMQ
 
