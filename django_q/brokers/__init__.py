@@ -157,6 +157,9 @@ def get_broker(list_key=Conf.PREFIX):
     elif Conf.IRON_MQ:
         from brokers import ironmq
         return ironmq.IronMQBroker(list_key=list_key)
+    elif Conf.SQS:
+        from brokers import aws_sqs
+        return aws_sqs.Sqs(list_key=list_key)
     # default to redis
     else:
         from brokers import redis_broker
