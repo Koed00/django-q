@@ -137,7 +137,7 @@ In this example the user requests a report and we let the cluster do the generat
                   task.result)
 
 
-The hook is practical here, cause it allows us to detach the sending task from the report generation function and to report on possible failures.
+The hook is practical here, because it allows us to detach the sending task from the report generation function and to report on possible failures.
 
 Haystack
 ========

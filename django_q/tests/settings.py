@@ -117,6 +117,5 @@ CACHES = {
 # Django Q specific
 Q_CLUSTER = {'name': 'django_q_test',
              'cpu_affinity': 1,
-             'testing': True,
              'log_level': 'DEBUG',
              'django_redis': 'default'}
