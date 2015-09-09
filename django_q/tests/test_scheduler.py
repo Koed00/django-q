@@ -14,6 +14,10 @@ from django_q.tasks import Schedule, fetch, schedule as create_schedule, queue_s
 
 @pytest.fixture
 def broker():
+    Conf.DISQUE_NODES = None
+    Conf.IRON_MQ = None
+    Conf.SQS = None
+    Conf.DJANGO_REDIS = 'default'
     return get_broker()
 
 
