@@ -270,6 +270,8 @@ As a rule of thumb; cpu_affinity 1 favors repetitive short running tasks, while 
 
     The ``cpu_affinity`` setting requires the optional :ref:`psutil <psutil>` module.
 
+    *Psutil does not support cpu affinity on OS X at this time.*
+
 .. py:module:: django_q
 
 .. rubric:: Footnotes

@@ -431,7 +431,7 @@ def scheduler(broker=None):
             # get args, kwargs and hook
             if s.kwargs:
                 try:
-                    # eval should be safe here cause dict()
+                    # eval should be safe here because dict()
                     kwargs = eval('dict({})'.format(s.kwargs))
                 except SyntaxError:
                     kwargs = {}
@@ -499,7 +499,12 @@ def set_cpu_affinity(n, process_ids, actual=not Conf.TESTING):
     """
     # check if we have the psutil module
     if not psutil:
+        logger.warning('Skipping cpu affinity because psutil was not found.')
         return
+    # check if the platform supports cpu_affinity
+    if actual and not hasattr(psutil.Process(process_ids[0]), 'cpu_affinity'):
+        logger.warning('Faking cpu affinity because it is not supported on this platform')
+        actual = False
     # get the available processors
     cpu_list = list(range(psutil.cpu_count()))
     # affinities of 0 or gte cpu_count, equals to no affinity
