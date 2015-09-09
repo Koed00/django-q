@@ -16,6 +16,9 @@ class Sqs(Broker):
         return m.id
 
     def dequeue(self):
+        # sqs supports max 10 messages in bulk
+        if Conf.BULK > 10:
+            Conf.BULK = 10
         t = None
         if len(self.task_cache) > 0:
             t = self.task_cache.pop()
