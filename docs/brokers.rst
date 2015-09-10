@@ -2,7 +2,25 @@ Brokers
 =======
 
 The broker sits between your Django instances and your Django Q cluster instances, accepting and delivering task packages.
-Currently we support `Redis <http://redis.io/>`__ , `Disque <https://github.com/antirez/disque>`__ and `IronMQ <http://www.iron.io/mq/>`__.
+Currently we support a variety of brokers from the default Redis, bleeding edge Disque to the convenient Amazon SQS.
+
+The default Redis broker does not support message receipts.
+This means that in case of a catastrophic failure of the cluster server or worker timeouts, tasks that were being executed get lost.
+Keep in mind this is not the same as a failing task. If a tasks code crashes, this should only lead to a failed task status.
+
+Even though this might be acceptable in some use cases, you might prefer brokers with message receipts support.
+These guarantee delivery by waiting for the cluster to send a receipt after the task has been processed.
+In case a receipt has not been received after a set time, the task package is put back in the queue.
+Django Q supports this behavior by setting the :ref:`retry` timer on brokers that support message receipts.
+
+Some pointers:
+
+* Don't set the :ref:`retry` timer to a lower or equal number than the task timeout.
+* Retry time includes time the task spends waiting in the clusters internal queue.
+* Don't set the :ref:`queue_limit` so high that tasks time out while waiting to be processed.
+* In case a task is worked on twice, you will see a duplicate key error in the cluster logs.
+* Duplicate tasks do generate additional receipt messages, but the result is discarded in favor of the first result.
+
 Support for more brokers is being worked on.
 
 
@@ -41,6 +59,19 @@ This HTTP based queue service is both available directly via `Iron.io <http://ww
 * Requires the `iron-mq <https://github.com/iron-io/iron_mq_python>`__ client library: ``pip install iron-mq``
 * See the :ref:`ironmq_configuration` configuration section for options.
 
+Amazon SQS
+----------
+Amazon's Simple Queue Service is another HTTP based message queue.
+Although `SQS <https://aws.amazon.com/sqs/>`__ is not the fastest, it is stable, cheap and convenient if you already use AWS.
+
+* Delivery receipts
+* Maximum message size is 256Kb
+* Supports bulk dequeue up to 10 messages with a maximum total size of 256Kb
+* Needs Django's `Cache framework <https://docs.djangoproject.com/en/1.8/topics/cache/#setting-up-the-cache>`__ configured for monitoring
+* Requires the `boto3 <https://github.com/boto/boto3>`__ client library: ``pip install boto3``
+* See the :ref:`sqs_configuration` configuration section for options.
+
+
 Reference
 ---------
 The :class:`Broker` class is used internally to communicate with the different types of brokers.
@@ -54,7 +85,7 @@ You can override this class if you want to contribute and support your own broke
 
    .. py:method:: dequeue()
 
-      Gets a task package from the broker.
+      Gets a task package from the broker and returns a tuple with a tracking id and the package.
 
    .. py:method:: acknowledge(id)
 

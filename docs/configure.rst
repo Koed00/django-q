@@ -213,6 +213,34 @@ Connection settings for IronMQ::
 
 All connection keywords are supported. See the `iron-mq <https://github.com/iron-io/iron_mq_python#configure>`__ library for more info
 
+.. _sqs_configuration:
+
+sqs
+~~~
+To use Amazon SQS as a broker you need to provide the AWS region and credentials::
+
+    # example SQS broker connection
+
+    Q_CLUSTER = {
+        'name': 'SQSExample',
+        'workers': 4,
+        'timeout': 60,
+        'retry': 90,
+        'queue_limit': 100,
+        'bulk': 5,
+        'sqs': {
+            'aws_region': 'us-east-1',
+            'aws_access_key_id': 'ac-Idr.....YwflZBaaxI',
+            'aws_secret_access_key': '500f7b....b0f302e9'
+        }
+    }
+
+
+Please make sure these credentials have proper SQS access.
+
+Amazon SQS only supports a bulk setting between 1 and 10, with the total payload not exceeding 256kb.
+
+
 bulk
 ~~~~
 Sets the number of messages each cluster tries to get from the broker per call. Setting this on supported brokers can improve performance.
