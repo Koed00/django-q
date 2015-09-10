@@ -85,6 +85,13 @@ def test_disque():
         task = broker.dequeue()
         assert task is not None
         broker.acknowledge(task[0])
+    # test duplicate acknowledge
+    # broker.acknowledge(task[0])
+    #
+    # this crashes Disque when followed by a JSCAN
+    # https://github.com/antirez/disque/issues/113
+    # confirmed fix and merge is on the way
+    #
     # delete queue
     broker.enqueue('test')
     broker.enqueue('test')
@@ -139,6 +146,8 @@ def test_ironmq():
         task = broker.dequeue()
         assert task is not None
         broker.acknowledge(task[0])
+    # duplicate acknowledge
+    broker.acknowledge(task[0])
     # delete queue
     broker.enqueue('test')
     broker.enqueue('test')
@@ -195,6 +204,8 @@ def test_sqs():
         task = broker.dequeue()
         assert task is not None
         broker.acknowledge(task[0])
+    # duplicate acknowledge
+    broker.acknowledge(task[0])
     # delete queue
     broker.enqueue('test')
     broker.purge_queue()
