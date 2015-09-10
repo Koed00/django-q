@@ -20,7 +20,7 @@ Features
 -  Django Admin integration
 -  PaaS compatible with multiple instances
 -  Multi cluster monitor
--  Redis, Disque or IronMQ broker
+-  Redis, Disque, IronMQ or SQS
 -  Python 2 and 3
 
 Requirements
@@ -38,6 +38,7 @@ Brokers
 - `Redis <http://redis.io/>`__
 - `Disque <https://github.com/antirez/disque>`__
 - `IronMQ <http://www.iron.io/mq/>`__
+- `Amazon SQS <https://aws.amazon.com/sqs/>`__
 
 
 Installation
@@ -90,9 +91,6 @@ All configuration settings are optional. e.g:
 
 For full configuration options, see the `configuration documentation <https://django-q.readthedocs.org/en/latest/configure.html>`__.
 
-
-If you are using `django-redis <https://github.com/niwinz/django-redis>`__ , you can `configure <https://django-q.readthedocs.org/en/latest/configure.html#django-redis>`__ Django Q to use its connection pool.
-
 Management Commands
 ~~~~~~~~~~~~~~~~~~~
 
@@ -103,6 +101,10 @@ Start a cluster with::
 Monitor your clusters with::
 
     $ python manage.py qmonitor
+
+Check overall statistics with::
+
+    $ python manage.py qinfo
 
 Creating Tasks
 ~~~~~~~~~~~~~~

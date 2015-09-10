@@ -85,6 +85,13 @@ def test_disque():
         task = broker.dequeue()
         assert task is not None
         broker.acknowledge(task[0])
+    # test duplicate acknowledge
+    # broker.acknowledge(task[0])
+    #
+    # this crashes Disque when followed by a JSCAN
+    # https://github.com/antirez/disque/issues/113
+    # confirmed fix and merge is on the way
+    #
     # delete queue
     broker.enqueue('test')
     broker.enqueue('test')
@@ -139,6 +146,8 @@ def test_ironmq():
         task = broker.dequeue()
         assert task is not None
         broker.acknowledge(task[0])
+    # duplicate acknowledge
+    broker.acknowledge(task[0])
     # delete queue
     broker.enqueue('test')
     broker.enqueue('test')
@@ -147,4 +156,61 @@ def test_ironmq():
     broker.delete_queue()
     # back to django-redis
     Conf.IRON_MQ = None
+    Conf.DJANGO_REDIS = 'default'
+
+
+@pytest.mark.skipif(not os.getenv('AWS_ACCESS_KEY_ID'),
+                    reason="requires AWS credentials")
+def test_sqs():
+    Conf.SQS = {'aws_region': os.getenv('AWS_REGION'),
+                'aws_access_key_id': os.getenv('AWS_ACCESS_KEY_ID'),
+                'aws_secret_access_key': os.getenv('AWS_SECRET_ACCESS_KEY')}
+    # check broker
+    broker = get_broker(list_key=uuid()[0])
+    assert broker.ping() is True
+    assert broker.info() is not None
+    assert broker.queue_size() == 0
+    # enqueue
+    broker.enqueue('test')
+    # dequeue
+    task = broker.dequeue()
+    assert task[1] == 'test'
+    broker.acknowledge(task[0])
+    assert broker.dequeue() is None
+    # Retry test
+    Conf.RETRY = 1
+    broker.enqueue('test')
+    assert broker.dequeue() is not None
+    sleep(1.5)
+    task = broker.dequeue()
+    assert len(task) > 0
+    broker.acknowledge(task[0])
+    sleep(1.5)
+    # delete job
+    broker.enqueue('test')
+    task_id = broker.dequeue()[0]
+    broker.delete(task_id)
+    assert broker.dequeue() is None
+    # fail
+    broker.enqueue('test')
+    while task is None:
+        task = broker.dequeue()
+    broker.fail(task[0])
+    # bulk test
+    for i in range(10):
+        broker.enqueue('test')
+    Conf.BULK = 12
+    for i in range(10):
+        task = broker.dequeue()
+        assert task is not None
+        broker.acknowledge(task[0])
+    # duplicate acknowledge
+    broker.acknowledge(task[0])
+    # delete queue
+    broker.enqueue('test')
+    broker.purge_queue()
+    broker.delete_queue()
+    # back to django-redis
+    Conf.SQS = None
+    Conf.BULK = 1
     Conf.DJANGO_REDIS = 'default'

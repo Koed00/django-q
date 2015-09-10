@@ -60,8 +60,14 @@ Optional
 
     $ pip install hiredis
 
--  `Redis <http://redis.io/>`__ server is the default broker for Django Q. It provides the best performance and does not require Django's cache framework for monitoring.
+- `Boto3 <https://github.com/boto/boto3>`__  is used for the Amazon SQS broker in favor of the now deprecating boto library::
+
+    $ pip install boto3
+
+- `Iron-mq <https://github.com/iron-io/iron_mq_python>`_ is the official python binding for the IronMQ broker::
+
+    $ pip install iron-mq
+
+- `Redis <http://redis.io/>`__ server is the default broker for Django Q. It provides the best performance and does not require Django's cache framework for monitoring.
 
 - `Disque <https://github.com/antirez/disque>`__ server is based on Redis by the same author, but focuses on reliable queues. Currently in Alpha, but highly recommended. You can either build it from source or use it on Heroku through the `Tynd <https://disque.tynd.co/>`__ beta.
-
-

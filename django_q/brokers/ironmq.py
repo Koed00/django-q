@@ -1,3 +1,4 @@
+from requests.exceptions import HTTPError
 from django_q.conf import Conf
 from django_q.brokers import Broker
 from iron_mq import IronMQ
@@ -31,13 +32,19 @@ class IronMQBroker(Broker):
         return self.connection.size()
 
     def delete_queue(self):
-        return self.connection.delete_queue()['msg']
+        try:
+            return self.connection.delete_queue()['msg']
+        except HTTPError:
+            return False
 
     def purge_queue(self):
         return self.connection.clear()
 
     def delete(self, task_id):
-        return self.connection.delete(task_id)['msg']
+        try:
+            return self.connection.delete(task_id)['msg']
+        except HTTPError:
+            return False
 
     def fail(self, task_id):
         self.delete(task_id)
