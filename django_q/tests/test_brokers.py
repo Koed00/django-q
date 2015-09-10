@@ -184,8 +184,9 @@ def test_sqs():
     assert broker.dequeue() is None
     # fail
     broker.enqueue('test')
-    task_id = broker.dequeue()[0]
-    broker.fail(task_id)
+    while task is None:
+        task = broker.dequeue()
+    broker.fail(task[0])
     # bulk test
     for i in range(10):
         broker.enqueue('test')
@@ -196,9 +197,7 @@ def test_sqs():
         broker.acknowledge(task[0])
     # delete queue
     broker.enqueue('test')
-    broker.enqueue('test')
     broker.purge_queue()
-    assert broker.dequeue() is None
     broker.delete_queue()
     # back to django-redis
     Conf.SQS = None
