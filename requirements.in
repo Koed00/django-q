@@ -7,4 +7,4 @@ redis
 psutil
 django-redis
 iron-mq
-boto
+boto3
