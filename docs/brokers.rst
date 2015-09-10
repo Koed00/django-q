@@ -1,7 +1,7 @@
 Brokers
 =======
 
-The broker sits between your Django instances and your Django Q cluster instances, accepting and delivering task packages.
+The broker sits between your Django instances and your Django Q cluster instances; accepting, saving and delivering task packages.
 Currently we support a variety of brokers from the default Redis, bleeding edge Disque to the convenient Amazon SQS.
 
 The default Redis broker does not support message receipts.
@@ -37,8 +37,10 @@ The default broker for Django Q clusters.
 
 Disque
 ------
-Unlike Redis, Disque supports message receipts which make delivery to the cluster workers guaranteed. If a task never produces a failed or successful result, it will automatically be sent to the cluster again for a retry.
+Unlike Redis, Disque supports message receipts which make delivery to the cluster workers guaranteed.
+In our tests it is as fast or faster than the Redis broker.
 You can control the amount of time Disque should wait for completion of a task by configuring the :ref:`retry` setting.
+Bulk task retrieval is supported via the :ref:`bulk` option.
 
 * Delivery receipts
 * Atomic

@@ -240,6 +240,7 @@ Please make sure these credentials have proper SQS access.
 
 Amazon SQS only supports a bulk setting between 1 and 10, with the total payload not exceeding 256kb.
 
+.. _bulk:
 
 bulk
 ~~~~
