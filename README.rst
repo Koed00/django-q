@@ -91,9 +91,6 @@ All configuration settings are optional. e.g:
 
 For full configuration options, see the `configuration documentation <https://django-q.readthedocs.org/en/latest/configure.html>`__.
 
-
-If you are using `django-redis <https://github.com/niwinz/django-redis>`__ , you can `configure <https://django-q.readthedocs.org/en/latest/configure.html#django-redis>`__ Django Q to use its connection pool.
-
 Management Commands
 ~~~~~~~~~~~~~~~~~~~
 
@@ -104,6 +101,10 @@ Start a cluster with::
 Monitor your clusters with::
 
     $ python manage.py qmonitor
+
+Check overall statistics with::
+
+    $ python manage.py qinfo
 
 Creating Tasks
 ~~~~~~~~~~~~~~
