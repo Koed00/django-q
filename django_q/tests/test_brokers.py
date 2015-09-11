@@ -86,12 +86,7 @@ def test_disque():
         assert task is not None
         broker.acknowledge(task[0])
     # test duplicate acknowledge
-    # broker.acknowledge(task[0])
-    #
-    # this crashes Disque when followed by a JSCAN
-    # https://github.com/antirez/disque/issues/113
-    # confirmed fix and merge is on the way
-    #
+    broker.acknowledge(task[0])
     # delete queue
     broker.enqueue('test')
     broker.enqueue('test')
