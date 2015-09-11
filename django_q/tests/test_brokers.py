@@ -29,7 +29,7 @@ def test_redis():
     broker = get_broker()
     assert broker.ping() is True
     assert broker.info() is not None
-    Conf.REDIS = {'host': '127.0.0.1', 'port': 7712}
+    Conf.REDIS = {'host': '127.0.0.1', 'port': 7799}
     broker = get_broker()
     with pytest.raises(Exception):
         broker.ping()
@@ -66,10 +66,6 @@ def test_disque():
     broker.acknowledge(task[0])
     sleep(1.5)
     assert broker.queue_size() == 0
-    # connection test
-    Conf.DISQUE_NODES = ['127.0.0.1:7712', '127.0.0.1:7713']
-    with pytest.raises(redis.exceptions.ConnectionError):
-        broker.get_connection()
     # delete job
     task_id = broker.enqueue('test')
     broker.delete(task_id)
@@ -81,6 +77,7 @@ def test_disque():
     for i in range(5):
         broker.enqueue('test')
     Conf.BULK = 5
+    Conf.DISQUE_FASTACK = True
     for i in range(5):
         task = broker.dequeue()
         assert task is not None
@@ -92,13 +89,20 @@ def test_disque():
     broker.enqueue('test')
     broker.delete_queue()
     assert broker.queue_size() == 0
+    # connection test
+    Conf.DISQUE_NODES = ['127.0.0.1:7798', '127.0.0.1:7799']
+    with pytest.raises(redis.exceptions.ConnectionError):
+        broker.get_connection()
     # back to django-redis
     Conf.DISQUE_NODES = None
+    Conf.DISQUE_FASTACK = False
 
 
 @pytest.mark.skipif(not os.getenv('IRON_MQ_TOKEN'),
                     reason="requires IronMQ credentials")
 def test_ironmq():
+    Conf.DISQUE_NODES = None
+    Conf.SQS = None
     Conf.IRON_MQ = {'token': os.getenv('IRON_MQ_TOKEN'),
                     'project_id': os.getenv('IRON_MQ_PROJECT_ID')}
     # check broker
@@ -157,6 +161,8 @@ def test_ironmq():
 @pytest.mark.skipif(not os.getenv('AWS_ACCESS_KEY_ID'),
                     reason="requires AWS credentials")
 def test_sqs():
+    Conf.IRON_MQ = None
+    Conf.DISQUE_NODES = None
     Conf.SQS = {'aws_region': os.getenv('AWS_REGION'),
                 'aws_access_key_id': os.getenv('AWS_ACCESS_KEY_ID'),
                 'aws_secret_access_key': os.getenv('AWS_SECRET_ACCESS_KEY')}

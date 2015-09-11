@@ -28,7 +28,8 @@ class Disque(Broker):
         return self.connection.execute_command('QLEN {}'.format(self.list_key))
 
     def acknowledge(self, task_id):
-        return self.connection.execute_command('ACKJOB {}'.format(task_id))
+        command = 'FASTACK' if Conf.DISQUE_FASTACK else 'ACKJOB'
+        return self.connection.execute_command('{} {}'.format(command,task_id))
 
     def ping(self):
         return self.connection.execute_command('HELLO')[0] > 0
