@@ -109,5 +109,5 @@ admin.site.register(Schedule, ScheduleAdmin)
 admin.site.register(Success, TaskAdmin)
 admin.site.register(Failure, FailAdmin)
 
-if Conf.ORM:
+if Conf.ORM or Conf.TESTING:
     admin.site.register(OrmQ, QueueAdmin)
