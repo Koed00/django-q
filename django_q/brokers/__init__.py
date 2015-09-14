@@ -160,6 +160,9 @@ def get_broker(list_key=Conf.PREFIX):
     elif Conf.SQS:
         from brokers import aws_sqs
         return aws_sqs.Sqs(list_key=list_key)
+    elif Conf.ORM:
+        from brokers import orm
+        return orm.ORM(list_key=list_key)
     # default to redis
     else:
         from brokers import redis_broker

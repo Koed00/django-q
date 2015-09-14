@@ -81,3 +81,9 @@ Indicates the success status of the last scheduled task, if any.
 
 
 Uses the :class:`Schedule` model
+
+Queued tasks
+------------
+This admin view is only enabled when you use the :ref:`orm_broker` broker.
+It shows all tasks packages currently in the broker queue. The ``lock`` column shows the moment at which this package was picked up by the cluster and is used to determine whether it has expired or not.
+For development purposes you can edit and delete queued tasks from here.

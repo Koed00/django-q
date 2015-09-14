@@ -4,12 +4,14 @@ from django.utils import timezone
 import pytest
 
 from django_q.tasks import schedule
-from django_q.models import Task, Failure
+from django_q.models import Task, Failure, OrmQ
 from django_q.humanhash import uuid
+from django_q.conf import Conf
 
 
 @pytest.mark.django_db
 def test_admin_views(admin_client):
+    Conf.ORM='default'
     s = schedule('sched.test')
     tag = uuid()
     f = Task.objects.create(
@@ -27,6 +29,9 @@ def test_admin_views(admin_client):
         started=timezone.now(),
         stopped=timezone.now(),
         success=True)
+    q = OrmQ.objects.create(
+        key='test',
+        payload='test')
     admin_urls = (
         # schedule
         reverse('admin:django_q_schedule_changelist'),
@@ -44,6 +49,11 @@ def test_admin_views(admin_client):
         reverse('admin:django_q_failure_change', args=(f.id,)),
         reverse('admin:django_q_failure_history', args=(f.id,)),
         reverse('admin:django_q_failure_delete', args=(f.id,)),
+        # orm queue
+        reverse('admin:django_q_ormq_changelist'),
+        reverse('admin:django_q_ormq_change', args=(q.id,)),
+        reverse('admin:django_q_ormq_history', args=(q.id,)),
+        reverse('admin:django_q_ormq_delete', args=(q.id,)),
 
     )
     for url in admin_urls:
@@ -57,3 +67,6 @@ def test_admin_views(admin_client):
     response = admin_client.post(url, data)
     assert response.status_code == 302
     assert Failure.objects.filter(name=f.id).exists() is False
+    # cleanup
+    q.delete()
+    Conf.ORM = None

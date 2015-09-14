@@ -47,6 +47,9 @@ class Conf(object):
     # SQS broker
     SQS = conf.get('sqs', None)
 
+    # ORM broker
+    ORM = conf.get('orm', None)
+
     # Name of the cluster or site. For when you run multiple sites on one redis server
     PREFIX = conf.get('name', 'default')
 
@@ -56,6 +59,9 @@ class Conf(object):
     # Maximum number of successful tasks kept in the database. 0 saves everything. -1 saves none
     # Failures are always saved
     SAVE_LIMIT = conf.get('save_limit', 250)
+
+    # Disable the scheduler
+    SCHEDULER = conf.get('scheduler', True)
 
     # Number of workers in the pool. Default is cpu count if implemented, otherwise 4.
     WORKERS = conf.get('workers', False)

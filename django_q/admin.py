@@ -3,11 +3,11 @@ from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
 from .tasks import async
-from .models import Success, Failure, Schedule
+from .models import Success, Failure, Schedule, OrmQ
+from .conf import Conf
 
 
 class TaskAdmin(admin.ModelAdmin):
-
     """model admin for success tasks."""
 
     list_display = (
@@ -34,8 +34,8 @@ class TaskAdmin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         """Set all fields readonly."""
-        return list(self.readonly_fields) +\
-            [field.name for field in obj._meta.fields]
+        return list(self.readonly_fields) + \
+               [field.name for field in obj._meta.fields]
 
 
 def retry_failed(FailAdmin, request, queryset):
@@ -49,7 +49,6 @@ retry_failed.short_description = _("Resubmit selected tasks to queue")
 
 
 class FailAdmin(admin.ModelAdmin):
-
     """model admin for failed tasks."""
 
     list_display = (
@@ -72,11 +71,10 @@ class FailAdmin(admin.ModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         """Set all fields readonly."""
         return list(self.readonly_fields) + \
-            [field.name for field in obj._meta.fields]
+               [field.name for field in obj._meta.fields]
 
 
 class ScheduleAdmin(admin.ModelAdmin):
-
     """ model admin for schedules """
 
     list_display = (
@@ -95,6 +93,21 @@ class ScheduleAdmin(admin.ModelAdmin):
     list_display_links = ('id', 'name')
 
 
+class QueueAdmin(admin.ModelAdmin):
+    """  queue admin for ORM broker """
+    list_display = (
+        'id',
+        'key',
+        'lock'
+    )
+
+    def has_add_permission(self, request, obj=None):
+        """Don't allow adds."""
+        return False
+
 admin.site.register(Schedule, ScheduleAdmin)
 admin.site.register(Success, TaskAdmin)
 admin.site.register(Failure, FailAdmin)
+
+if Conf.ORM or Conf.TESTING:
+    admin.site.register(OrmQ, QueueAdmin)

@@ -20,7 +20,7 @@ Features
 -  Django Admin integration
 -  PaaS compatible with multiple instances
 -  Multi cluster monitor
--  Redis, Disque, IronMQ or SQS
+-  Redis, Disque, IronMQ, SQS or ORM
 -  Python 2 and 3
 
 Requirements
@@ -35,11 +35,11 @@ Tested with: Python 2.7 & 3.4. Django 1.7.10 & 1.8.4
 
 Brokers
 ~~~~~~~
-- `Redis <http://redis.io/>`__
-- `Disque <https://github.com/antirez/disque>`__
-- `IronMQ <http://www.iron.io/mq/>`__
-- `Amazon SQS <https://aws.amazon.com/sqs/>`__
-
+- `Redis <https://django-q.readthedocs.org/en/latest/brokers.html#redis>`__
+- `Disque <https://django-q.readthedocs.org/en/latest/brokers.html#disque>`__
+- `IronMQ <https://django-q.readthedocs.org/en/latest/brokers.html#ironmq>`__
+- `Amazon SQS <https://django-q.readthedocs.org/en/latest/brokers.html#amazon-sqs>`__
+- `Django ORM <https://django-q.readthedocs.org/en/latest/brokers.html#django-orm>`__
 
 Installation
 ~~~~~~~~~~~~

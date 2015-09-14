@@ -241,6 +241,29 @@ Please make sure these credentials have proper SQS access.
 
 Amazon SQS only supports a bulk setting between 1 and 10, with the total payload not exceeding 256kb.
 
+.. _orm_configuration:
+
+orm
+~~~
+If you want to use Django's database backend as a message broker, set the ``orm`` keyword to the database connection you want it to use::
+
+    # example ORM broker connection
+
+    Q_CLUSTER = {
+        'name': 'DjangORM',
+        'workers': 4,
+        'timeout': 90,
+        'retry': 120,
+        'queue_limit': 50,
+        'bulk': 10,
+        'orm': 'default'
+    }
+
+Using the Django ORM backend will also enable the Queued Tasks table in the Admin.
+
+If you need better performance , you should consider using a different database backend than the main project.
+Set ``orm`` to the name of that database connection and make sure you run migrations on it using the ``--database`` option.
+
 .. _bulk:
 
 bulk
@@ -256,6 +279,11 @@ cache
 ~~~~~
 For some brokers, you will need to set up the Django `cache framework <https://docs.djangoproject.com/en/1.8/topics/cache/#setting-up-the-cache>`__
 to gather statistics for the monitor. You can indicate which cache to use by setting this value. Defaults to ``default``.
+
+scheduler
+~~~~~~~~~
+You can disable the scheduler by setting this option to ``False``. This will reduce a little overhead if you're not using schedules, but is most useful if you want to temporarily disable all schedules.
+Defaults to ``True``
 
 cpu_affinity
 ~~~~~~~~~~~~

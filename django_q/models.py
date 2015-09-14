@@ -188,6 +188,17 @@ class Schedule(models.Model):
         ordering = ['next_run']
 
 
+class OrmQ(models.Model):
+        key = models.CharField(max_length=100)
+        payload = models.TextField()
+        lock = models.DateTimeField(null=True)
+
+        class Meta:
+            app_label = 'django_q'
+            verbose_name = _('Queued task')
+            verbose_name_plural = _('Queued tasks')
+
+
 # Backwards compatibility for Django 1.7
 def decode_results(values):
     if get_version().split('.')[1] == '7':

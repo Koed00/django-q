@@ -73,6 +73,19 @@ Although `SQS <https://aws.amazon.com/sqs/>`__ is not the fastest, it is stable,
 * Requires the `boto3 <https://github.com/boto/boto3>`__ client library: ``pip install boto3``
 * See the :ref:`sqs_configuration` configuration section for options.
 
+.. _orm_broker:
+
+Django ORM
+----------
+Select this to use Django's database backend as a message broker.
+Unless you have configured a dedicated database backend for it, this should probably not be your first choice for a high traffic setup.
+However for a medium message rate and scheduled tasks, this is the most convenient guaranteed delivery broker.
+
+* Delivery receipts
+* Supports bulk dequeue
+* Needs Django's `Cache framework <https://docs.djangoproject.com/en/1.8/topics/cache/#setting-up-the-cache>`__ configured for monitoring
+* Queue editable in Django Admin
+* See the :ref:`orm_configuration` configuration on how to set it up.
 
 Reference
 ---------
