@@ -215,3 +215,58 @@ def test_sqs():
     Conf.SQS = None
     Conf.BULK = 1
     Conf.DJANGO_REDIS = 'default'
+
+@pytest.mark.django_db
+def test_orm():
+    Conf.ORM = 'default'
+    # check broker
+    broker = get_broker(list_key='orm_test')
+    assert broker.ping() is True
+    assert broker.info() is not None
+    # clear before we start
+    broker.delete_queue()
+    # enqueue
+    broker.enqueue('test')
+    assert broker.queue_size() == 1
+    # dequeue
+    task = broker.dequeue()
+    assert task[1] == 'test'
+    broker.acknowledge(task[0])
+    assert broker.queue_size() == 0
+    # Retry test
+    Conf.RETRY = 1
+    broker.enqueue('test')
+    assert broker.queue_size() == 1
+    broker.dequeue()
+    assert broker.queue_size() == 0
+    sleep(1.5)
+    assert broker.queue_size() == 1
+    task = broker.dequeue()
+    assert broker.queue_size() == 0
+    broker.acknowledge(task[0])
+    sleep(1.5)
+    assert broker.queue_size() == 0
+    # delete job
+    task_id = broker.enqueue('test')
+    broker.delete(task_id)
+    assert broker.dequeue() is None
+    # fail
+    task_id = broker.enqueue('test')
+    broker.fail(task_id)
+    # bulk test
+    for i in range(5):
+        broker.enqueue('test')
+    Conf.BULK = 5
+    for i in range(5):
+        task = broker.dequeue()
+        assert task is not None
+        broker.acknowledge(task[0])
+    # test duplicate acknowledge
+    broker.acknowledge(task[0])
+    # delete queue
+    broker.enqueue('test')
+    broker.enqueue('test')
+    broker.delete_queue()
+    assert broker.queue_size() == 0
+    # back to django-redis
+    Conf.ORM = None

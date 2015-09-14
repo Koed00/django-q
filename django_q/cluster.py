@@ -238,7 +238,7 @@ class Sentinel(object):
                 self.reincarnate(self.pusher)
             # Call scheduler once a minute (or so)
             counter += cycle
-            if counter == 30:
+            if counter == 30 and Conf.SCHEDULER:
                 counter = 0
                 scheduler(broker=self.broker)
             # Save current status

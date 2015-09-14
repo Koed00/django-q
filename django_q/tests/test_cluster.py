@@ -32,6 +32,7 @@ def broker():
     Conf.DISQUE_NODES = None
     Conf.IRON_MQ = None
     Conf.SQS = None
+    Conf.ORM = None
     Conf.DJANGO_REDIS = 'default'
     return get_broker()
 
