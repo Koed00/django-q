@@ -23,4 +23,4 @@ python-dateutil==2.4.2    # via arrow, botocore, iron-core
 redis==2.10.3
 requests==2.7.0           # via iron-core
 six==1.9.0                # via python-dateutil
-wcwidth==0.1.4            # via blessed
+wcwidth==0.1.5            # via blessed
