@@ -11,6 +11,10 @@ Start the monitor with Django's `manage.py` command::
 
 .. image:: _static/monitor.png
 
+For all broker types except the Redis broker, the monitor utilizes Django's cache framework to store statistics of running clusters.
+This can be any type of cache backend as long as it can be shared among Django instances. For this reason, the local memory backend will not work.
+
+
 Legend
 ------
 
@@ -87,6 +91,8 @@ Task rate is calculated over the last 24 hours and will show the number of tasks
 Average execution time (`Avg time`) is calculated in seconds over the last 24 hours.
 
 Since some of these numbers are based on what is available in your tasks database, limiting or disabling the result backend will skew them.
+
+Like with the monitor, these statistics come from a Redis server or Django's cache framework. So make sure you have either one configured.
 
 Status
 ------
