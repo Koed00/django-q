@@ -98,6 +98,9 @@ class QueueAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'key',
+        'task_id',
+        'name',
+        'func',
         'lock'
     )
 

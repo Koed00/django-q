@@ -10,6 +10,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 from picklefield import PickledObjectField
 from picklefield.fields import dbsafe_decode
+from django_q.signing import SignedPackage
 
 
 class Task(models.Model):
@@ -192,6 +193,18 @@ class OrmQ(models.Model):
         key = models.CharField(max_length=100)
         payload = models.TextField()
         lock = models.DateTimeField(null=True)
+
+        def task(self):
+            return SignedPackage.loads(self.payload)
+
+        def func(self):
+            return self.task()['func']
+
+        def task_id(self):
+            return self.task()['id']
+
+        def name(self):
+            return self.task()['name']
 
         class Meta:
             app_label = 'django_q'
