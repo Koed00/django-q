@@ -171,7 +171,7 @@ class Sentinel(object):
         self.spawn_process(worker, self.task_queue, self.result_queue, Value('f', -1), self.timeout)
 
     def spawn_monitor(self):
-        return self.spawn_process(monitor, self.result_queue)
+        return self.spawn_process(monitor, self.result_queue, self.broker)
 
     def reincarnate(self, process):
         """
@@ -494,7 +494,7 @@ def set_cpu_affinity(n, process_ids, actual=not Conf.TESTING):
     """
     Sets the cpu affinity for the supplied processes.
     Requires the optional psutil module.
-    :param int n:
+    :param int n: affinity
     :param list process_ids: a list of pids
     :param bool actual: Test workaround for Travis not supporting cpu affinity
     """
