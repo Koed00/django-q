@@ -19,7 +19,7 @@ class Redis(Broker):
     def dequeue(self):
         task = self.connection.blpop(self.list_key, 1)
         if task:
-            return None, task[1]
+            return [(None, task[1])]
 
     def queue_size(self):
         return self.connection.llen(self.list_key)

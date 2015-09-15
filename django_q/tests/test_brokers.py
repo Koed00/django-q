@@ -49,7 +49,7 @@ def test_disque():
     broker.enqueue('test')
     assert broker.queue_size() == 1
     # dequeue
-    task = broker.dequeue()
+    task = broker.dequeue()[0]
     assert task[1] == 'test'
     broker.acknowledge(task[0])
     assert broker.queue_size() == 0
@@ -61,7 +61,7 @@ def test_disque():
     assert broker.queue_size() == 0
     sleep(1.5)
     assert broker.queue_size() == 1
-    task = broker.dequeue()
+    task = broker.dequeue()[0]
     assert broker.queue_size() == 0
     broker.acknowledge(task[0])
     sleep(1.5)
@@ -78,8 +78,8 @@ def test_disque():
         broker.enqueue('test')
     Conf.BULK = 5
     Conf.DISQUE_FASTACK = True
-    for i in range(5):
-        task = broker.dequeue()
+    tasks = broker.dequeue()
+    for task in tasks:
         assert task is not None
         broker.acknowledge(task[0])
     # test duplicate acknowledge
@@ -117,7 +117,7 @@ def test_ironmq():
     # enqueue
     broker.enqueue('test')
     # dequeue
-    task = broker.dequeue()
+    task = broker.dequeue()[0]
     assert task[1] == 'test'
     broker.acknowledge(task[0])
     assert broker.dequeue() is None
@@ -126,7 +126,7 @@ def test_ironmq():
     broker.enqueue('test')
     assert broker.dequeue() is not None
     sleep(1.5)
-    task = broker.dequeue()
+    task = broker.dequeue()[0]
     assert len(task) > 0
     broker.acknowledge(task[0])
     sleep(1.5)
@@ -141,8 +141,8 @@ def test_ironmq():
     for i in range(5):
         broker.enqueue('test')
     Conf.BULK = 5
-    for i in range(5):
-        task = broker.dequeue()
+    tasks = broker.dequeue()
+    for task in tasks:
         assert task is not None
         broker.acknowledge(task[0])
     # duplicate acknowledge
@@ -174,7 +174,7 @@ def test_sqs():
     # enqueue
     broker.enqueue('test')
     # dequeue
-    task = broker.dequeue()
+    task = broker.dequeue()[0]
     assert task[1] == 'test'
     broker.acknowledge(task[0])
     assert broker.dequeue() is None
@@ -183,26 +183,26 @@ def test_sqs():
     broker.enqueue('test')
     assert broker.dequeue() is not None
     sleep(1.5)
-    task = broker.dequeue()
+    task = broker.dequeue()[0]
     assert len(task) > 0
     broker.acknowledge(task[0])
     sleep(1.5)
     # delete job
     broker.enqueue('test')
-    task_id = broker.dequeue()[0]
+    task_id = broker.dequeue()[0][0]
     broker.delete(task_id)
     assert broker.dequeue() is None
     # fail
     broker.enqueue('test')
     while task is None:
-        task = broker.dequeue()
+        task = broker.dequeue()[0]
     broker.fail(task[0])
     # bulk test
     for i in range(10):
         broker.enqueue('test')
     Conf.BULK = 12
-    for i in range(10):
-        task = broker.dequeue()
+    tasks = broker.dequeue()
+    for task in tasks:
         assert task is not None
         broker.acknowledge(task[0])
     # duplicate acknowledge
@@ -215,6 +215,7 @@ def test_sqs():
     Conf.SQS = None
     Conf.BULK = 1
     Conf.DJANGO_REDIS = 'default'
+
 
 @pytest.mark.django_db
 def test_orm():
@@ -229,7 +230,7 @@ def test_orm():
     broker.enqueue('test')
     assert broker.queue_size() == 1
     # dequeue
-    task = broker.dequeue()
+    task = broker.dequeue()[0]
     assert task[1] == 'test'
     broker.acknowledge(task[0])
     assert broker.queue_size() == 0
@@ -241,7 +242,7 @@ def test_orm():
     assert broker.queue_size() == 0
     sleep(1.5)
     assert broker.queue_size() == 1
-    task = broker.dequeue()
+    task = broker.dequeue()[0]
     assert broker.queue_size() == 0
     broker.acknowledge(task[0])
     sleep(1.5)
@@ -257,8 +258,8 @@ def test_orm():
     for i in range(5):
         broker.enqueue('test')
     Conf.BULK = 5
-    for i in range(5):
-        task = broker.dequeue()
+    tasks = broker.dequeue()
+    for task in tasks:
         assert task is not None
         broker.acknowledge(task[0])
     # test duplicate acknowledge

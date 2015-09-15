@@ -17,17 +17,9 @@ class Sqs(Broker):
         # sqs supports max 10 messages in bulk
         if Conf.BULK > 10:
             Conf.BULK = 10
-        t = None
-        if len(self.task_cache) > 0:
-            t = self.task_cache.pop()
-        else:
-            tasks = self.queue.receive_messages(MaxNumberOfMessages=Conf.BULK, VisibilityTimeout=Conf.RETRY)
-            if tasks:
-                t = tasks.pop()
-                if tasks:
-                    self.task_cache = tasks
-        if t:
-            return t.receipt_handle, t.body
+        tasks = self.queue.receive_messages(MaxNumberOfMessages=Conf.BULK, VisibilityTimeout=Conf.RETRY)
+        if tasks:
+            return [(t.receipt_handle, t.body) for t in tasks]
 
     def acknowledge(self, task_id):
         return self.delete(task_id)

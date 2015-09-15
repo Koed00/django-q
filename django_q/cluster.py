@@ -298,23 +298,24 @@ def pusher(task_queue, event, broker=None):
     logger.info(_('{} pushing tasks at {}').format(current_process().name, current_process().pid))
     while True:
         try:
-            task = broker.dequeue()
+            task_set = broker.dequeue()
         except Exception as e:
             logger.error(e)
             # broker probably crashed. Let the sentinel handle it.
             sleep(10)
             break
-        if task:
-            ack_id = task[0]
-            # unpack the task
-            try:
-                task = signing.SignedPackage.loads(task[1])
-            except (TypeError, signing.BadSignature) as e:
-                logger.error(e)
-                broker.fail(ack_id)
-                continue
-            task['ack_id'] = ack_id
-            task_queue.put(task)
+        if task_set:
+            for task in task_set:
+                ack_id = task[0]
+                # unpack the task
+                try:
+                    task = signing.SignedPackage.loads(task[1])
+                except (TypeError, signing.BadSignature) as e:
+                    logger.error(e)
+                    broker.fail(ack_id)
+                    continue
+                task['ack_id'] = ack_id
+                task_queue.put(task)
             logger.debug(_('queueing from {}').format(broker.list_key))
         if event.is_set():
             break

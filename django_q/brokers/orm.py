@@ -31,24 +31,13 @@ class ORM(Broker):
         return package.pk
 
     def dequeue(self):
-        if len(self.task_cache) > 0:
-            t = self.task_cache.pop()
-            return t.pk, t.payload
-        else:
-            # Get new and timed out tasks
             tasks = OrmQ.objects.using(Conf.ORM).filter(
                 Q(key=self.list_key, lock__isnull=True) |
                 Q(key=self.list_key, lock__lte=timezone.now() - timedelta(seconds=Conf.RETRY)))[:Conf.BULK]
             if tasks:
                 # lock them
                 OrmQ.objects.using(Conf.ORM).filter(pk__in=tasks).update(lock=timezone.now())
-                tasks = [t for t in tasks]
-                # pop one task
-                t = tasks.pop()
-                if tasks:
-                    # add remainder to cache
-                    self.task_cache = [t for t in tasks]
-                return t.pk, t.payload
+                return [(t.pk, t.payload) for t in tasks]
             # empty queue, spare the cpu
             sleep(0.2)
 
