@@ -18,10 +18,19 @@ def test_broker():
     broker.acknowledge('test')
     broker.ping()
     broker.info()
+    # stats
     assert broker.get_stat('test_1') is None
     broker.set_stat('test_1', 'test', 3)
     assert broker.get_stat('test_1') == 'test'
     assert broker.get_stats('test:*')[0] == 'test'
+    # stats with no cache
+    Conf.CACHE = 'not_configured'
+    broker.cache = broker.get_cache()
+    assert broker.get_stat('test_1') is None
+    broker.set_stat('test_1', 'test', 3)
+    assert broker.get_stat('test_1') is None
+    assert broker.get_stats('test:*') is None
+    Conf.CACHE = 'default'
 
 
 def test_redis():
