@@ -7,12 +7,13 @@ from django_q.tasks import schedule
 from django_q.models import Task, Failure, OrmQ
 from django_q.humanhash import uuid
 from django_q.conf import Conf
+from django_q.signing import SignedPackage
 
 
 @pytest.mark.django_db
 def test_admin_views(admin_client):
-    Conf.ORM='default'
-    s = schedule('sched.test')
+    Conf.ORM = 'default'
+    s = schedule('schedule.test')
     tag = uuid()
     f = Task.objects.create(
         id=tag[1],
@@ -25,13 +26,13 @@ def test_admin_views(admin_client):
     t = Task.objects.create(
         id=tag[1],
         name=tag[0],
-        func='test.succes',
+        func='test.success',
         started=timezone.now(),
         stopped=timezone.now(),
         success=True)
     q = OrmQ.objects.create(
         key='test',
-        payload='test')
+        payload=SignedPackage.dumps({'id': 1, 'func': 'test', 'name': 'test'}))
     admin_urls = (
         # schedule
         reverse('admin:django_q_schedule_changelist'),
