@@ -94,6 +94,11 @@ Since some of these numbers are based on what is available in your tasks databas
 
 Like with the monitor, these statistics come from a Redis server or Django's cache framework. So make sure you have either one configured.
 
+To print out the current configuration run::
+
+    $ python manage.py qinfo --config
+
+
 Status
 ------
 
