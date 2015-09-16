@@ -220,8 +220,8 @@ Adapted from `Sebastian Raschka's blog <http://sebastianraschka.com/Articles/201
 
     # wait for 100 results to return and print it.
     def parzen_hook(task):
-        if count_group('parzen') == 100:
-            print(result_group('parzen'))
+        if task.group_count() == 100:
+            print(task.group_result())
 
 
 Django Q is not optimized for distributed computing, but this example will give you an idea of what you can do with task :ref:`groups`.

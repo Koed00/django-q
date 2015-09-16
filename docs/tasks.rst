@@ -127,8 +127,20 @@ Getting results by using :func:`result_group` is of course much faster than usin
 
 .. note::
 
-   Although :func:`fetch_group` returns a queryset, due to the nature of the PickleField , calling ``Queryset.values`` on it will return a list of encoded results.
-   Use list comprehension or an iterator instead.
+   Calling ``Queryset.values`` for the result on Django 1.7 or lower will return a list of encoded results.
+   If you can't upgrade to Django 1.8, use list comprehension or an iterator to return decoded results.
+
+You can also access group functions from a task result instance:
+
+.. code-block:: python
+
+    from django_q import fetch
+
+    task = fetch('winter-speaker-alpha-ceiling')
+    if  task.group_count() > 100:
+        print(task.group_result())
+        task.group_delete()
+        print('Deleted group {}'.format(task.group))
 
 Synchronous testing
 -------------------
@@ -317,6 +329,21 @@ Reference
         .. note::
 
             Time taken represents the time a task spends in the cluster, this includes any time it may have waited in the queue.
+
+    .. py:method:: group_result(failures=False)
+
+    Returns a list of results from this task's group.
+    Set failures to ``True`` to include failed results.
+
+    .. py:method:: group_count(failures=False)
+
+    Returns a count of the number of task results in this task's group.
+    Returns the number of failures when ``failures=True``
+
+    .. py:method:: group_delete(tasks=False)
+
+    Resets the group label on all the tasks in this task's group.
+    If ``tasks=True`` it will also delete the tasks in this group from the database, including itself.
 
     .. py:classmethod:: get_result(task_id)
 
