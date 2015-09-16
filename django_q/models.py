@@ -1,6 +1,6 @@
 import logging
-from django import get_version
 
+from django import get_version
 import importlib
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -10,6 +10,8 @@ from django.dispatch import receiver
 from django.utils import timezone
 from picklefield import PickledObjectField
 from picklefield.fields import dbsafe_decode
+
+from django_q.signing import SignedPackage
 
 
 class Task(models.Model):
@@ -40,11 +42,19 @@ class Task(models.Model):
             values = Task.objects.filter(group=group_id).exclude(success=False).values_list('result', flat=True)
         return decode_results(values)
 
+    def group_result(self, failures=False):
+        if self.group:
+            return self.get_result_group(self.group, failures)
+
     @staticmethod
     def get_group_count(group_id, failures=False):
         if failures:
             return Failure.objects.filter(group=group_id).count()
         return Task.objects.filter(group=group_id).count()
+
+    def group_count(self, failures=False):
+        if self.group:
+            return self.get_group_count(self.group, failures)
 
     @staticmethod
     def delete_group(group_id, objects=False):
@@ -52,6 +62,10 @@ class Task(models.Model):
         if objects:
             return group.delete()
         return group.update(group=None)
+
+    def group_delete(self, tasks=False):
+        if self.group:
+            return self.delete_group(self.group, tasks)
 
     @staticmethod
     def get_task(task_id):
@@ -189,14 +203,26 @@ class Schedule(models.Model):
 
 
 class OrmQ(models.Model):
-        key = models.CharField(max_length=100)
-        payload = models.TextField()
-        lock = models.DateTimeField(null=True)
+    key = models.CharField(max_length=100)
+    payload = models.TextField()
+    lock = models.DateTimeField(null=True)
 
-        class Meta:
-            app_label = 'django_q'
-            verbose_name = _('Queued task')
-            verbose_name_plural = _('Queued tasks')
+    def task(self):
+        return SignedPackage.loads(self.payload)
+
+    def func(self):
+        return self.task()['func']
+
+    def task_id(self):
+        return self.task()['id']
+
+    def name(self):
+        return self.task()['name']
+
+    class Meta:
+        app_label = 'django_q'
+        verbose_name = _('Queued task')
+        verbose_name_plural = _('Queued tasks')
 
 
 # Backwards compatibility for Django 1.7
@@ -205,5 +231,3 @@ def decode_results(values):
         # decode values in 1.7
         return [dbsafe_decode(v) for v in values]
     return values
-
-

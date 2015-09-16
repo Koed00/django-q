@@ -96,11 +96,11 @@ You can override this class if you want to contribute and support your own broke
 
    .. py:method:: enqueue(task)
 
-      Sends a task package to the broker queue and returns a tracking id.
+      Sends a task package to the broker queue and returns a tracking id if available.
 
    .. py:method:: dequeue()
 
-      Gets a task package from the broker and returns a tuple with a tracking id and the package.
+      Gets packages from the broker and returns a list of tuples with a tracking id and the package.
 
    .. py:method:: acknowledge(id)
 

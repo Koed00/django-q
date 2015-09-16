@@ -9,18 +9,10 @@ class IronMQBroker(Broker):
         return self.connection.post(task)['ids'][0]
 
     def dequeue(self):
-        t = None
-        if len(self.task_cache) > 0:
-            t = self.task_cache.pop()
-        else:
             timeout = Conf.RETRY or None
             tasks = self.connection.get(timeout=timeout, wait=1, max=Conf.BULK)['messages']
             if tasks:
-                t = tasks.pop()
-                if tasks:
-                    self.task_cache = tasks
-        if t:
-            return t['id'], t['body']
+                return [(t['id'], t['body']) for t in tasks]
 
     def ping(self):
         return self.connection.name == self.list_key

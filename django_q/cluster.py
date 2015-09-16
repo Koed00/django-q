@@ -171,7 +171,7 @@ class Sentinel(object):
         self.spawn_process(worker, self.task_queue, self.result_queue, Value('f', -1), self.timeout)
 
     def spawn_monitor(self):
-        return self.spawn_process(monitor, self.result_queue)
+        return self.spawn_process(monitor, self.result_queue, self.broker)
 
     def reincarnate(self, process):
         """
@@ -298,23 +298,24 @@ def pusher(task_queue, event, broker=None):
     logger.info(_('{} pushing tasks at {}').format(current_process().name, current_process().pid))
     while True:
         try:
-            task = broker.dequeue()
+            task_set = broker.dequeue()
         except Exception as e:
             logger.error(e)
             # broker probably crashed. Let the sentinel handle it.
             sleep(10)
             break
-        if task:
-            ack_id = task[0]
-            # unpack the task
-            try:
-                task = signing.SignedPackage.loads(task[1])
-            except (TypeError, signing.BadSignature) as e:
-                logger.error(e)
-                broker.fail(ack_id)
-                continue
-            task['ack_id'] = ack_id
-            task_queue.put(task)
+        if task_set:
+            for task in task_set:
+                ack_id = task[0]
+                # unpack the task
+                try:
+                    task = signing.SignedPackage.loads(task[1])
+                except (TypeError, signing.BadSignature) as e:
+                    logger.error(e)
+                    broker.fail(ack_id)
+                    continue
+                task['ack_id'] = ack_id
+                task_queue.put(task)
             logger.debug(_('queueing from {}').format(broker.list_key))
         if event.is_set():
             break
@@ -493,7 +494,7 @@ def set_cpu_affinity(n, process_ids, actual=not Conf.TESTING):
     """
     Sets the cpu affinity for the supplied processes.
     Requires the optional psutil module.
-    :param int n:
+    :param int n: affinity
     :param list process_ids: a list of pids
     :param bool actual: Test workaround for Travis not supporting cpu affinity
     """

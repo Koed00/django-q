@@ -215,13 +215,19 @@ def test_async(broker, admin_user):
     assert result(result_j.name) == result_j.result
     # groups
     assert result_group('test_j')[0] == result_j.result
+    assert result_j.group_result()[0] == result_j.result
     assert result_group('test_j', failures=True)[0] == result_j.result
+    assert result_j.group_result(failures=True)[0] == result_j.result
     assert fetch_group('test_j')[0].id == [result_j][0].id
     assert fetch_group('test_j', failures=False)[0].id == [result_j][0].id
     assert count_group('test_j') == 1
+    assert result_j.group_count() == 1
     assert count_group('test_j', failures=True) == 0
+    assert result_j.group_count(failures=True) == 0
     assert delete_group('test_j') == 1
+    assert result_j.group_delete() == 0
     assert delete_group('test_j', tasks=True) is None
+    assert result_j.group_delete(tasks=True) is None
     # task k should not have been saved
     assert fetch(k) is None
     broker.delete_queue()

@@ -11,18 +11,10 @@ class Disque(Broker):
             'ADDJOB {} {} 500 RETRY {}'.format(self.list_key, task, retry)).decode()
 
     def dequeue(self):
-        t = None
-        if len(self.task_cache) > 0:
-            t = self.task_cache.pop()
-        else:
             tasks = self.connection.execute_command(
                 'GETJOB COUNT {} TIMEOUT 1000 FROM {}'.format(Conf.BULK, self.list_key))
             if tasks:
-                t = tasks.pop()
-                if tasks:
-                    self.task_cache = tasks
-        if t:
-            return t[1].decode(), t[2].decode()
+                return [(t[1].decode(), t[2].decode()) for t in tasks]
 
     def queue_size(self):
         return self.connection.execute_command('QLEN {}'.format(self.list_key))

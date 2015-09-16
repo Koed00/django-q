@@ -15,3 +15,4 @@ def test_qmonitor():
 @pytest.mark.django_db
 def test_qinfo():
     call_command('qinfo')
+    call_command('qinfo', config=True)
