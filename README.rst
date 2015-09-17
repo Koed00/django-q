@@ -200,8 +200,8 @@ Acknowledgements
 
 .. |image0| image:: https://travis-ci.org/Koed00/django-q.svg?branch=master
    :target: https://travis-ci.org/Koed00/django-q
-.. |image1| image:: https://coveralls.io/repos/Koed00/django-q/badge.svg?branch=master
-   :target: https://coveralls.io/r/Koed00/django-q?branch=master
+.. |image1| image:: http://codecov.io/github/Koed00/django-q/coverage.svg?branch=master
+   :target: http://codecov.io/github/Koed00/django-q?branch=master
 .. |image2| image:: http://badges.gitter.im/Join%20Chat.svg
    :target: https://gitter.im/Koed00/django-q
 .. |docs| image:: https://readthedocs.org/projects/docs/badge/?version=latest
