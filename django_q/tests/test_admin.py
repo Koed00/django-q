@@ -68,6 +68,15 @@ def test_admin_views(admin_client):
     response = admin_client.post(url, data)
     assert response.status_code == 302
     assert Failure.objects.filter(name=f.id).exists() is False
+    # change q
+    url = reverse('admin:django_q_ormq_change', args=(q.id,))
+    data = {'key': 'default', 'payload': 'test', 'lock_0': '2015-09-17', 'lock_1': '14:31:51', '_save': 'Save'}
+    response = admin_client.post(url, data)
+    assert response.status_code == 302
+    # delete q
+    url = reverse('admin:django_q_ormq_delete', args=(q.id,))
+    data = {'post': 'yes'}
+    response = admin_client.post(url, data)
+    assert response.status_code == 302
     # cleanup
-    q.delete()
     Conf.ORM = None
