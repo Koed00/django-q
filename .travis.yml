@@ -27,7 +27,7 @@ before_script:
 install:
   - pip install -q django==$DJANGO
   - pip install -r requirements.txt
-  - pip install pytest-django coveralls sphinx
+  - pip install pytest-django codecov sphinx
   - python setup.py install
 
 script:
@@ -35,7 +35,7 @@ script:
   - sphinx-build -b html -d docs/_build/doctrees  -nW docs docs/_build/html
 
 after_success:
-  - coveralls
+  - codecov
 
 notifications:
   webhooks:
