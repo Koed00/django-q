@@ -104,6 +104,15 @@ class QueueAdmin(admin.ModelAdmin):
         'lock'
     )
 
+    def save_model(self, request, obj, form, change):
+        obj.save(using=Conf.ORM)
+
+    def delete_model(self, request, obj):
+        obj.delete(using=Conf.ORM)
+
+    def get_queryset(self, request):
+        return super(QueueAdmin, self).get_queryset(request).using(Conf.ORM)
+
     def has_add_permission(self, request, obj=None):
         """Don't allow adds."""
         return False
