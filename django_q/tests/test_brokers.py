@@ -268,9 +268,12 @@ def test_orm():
         broker.enqueue('test')
     Conf.BULK = 5
     tasks = broker.dequeue()
+    assert broker.lock_size() == Conf.BULK
     for task in tasks:
         assert task is not None
         broker.acknowledge(task[0])
+    # test lock size
+    assert broker.lock_size() == 0
     # test duplicate acknowledge
     broker.acknowledge(task[0])
     # delete queue

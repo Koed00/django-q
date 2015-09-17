@@ -4,6 +4,7 @@ from django_q import async
 from django_q.cluster import Cluster
 from django_q.monitor import monitor, info
 from django_q.status import Stat
+from django_q.conf import Conf
 
 
 @pytest.mark.django_db
@@ -22,6 +23,10 @@ def test_monitor():
             assert stat.empty_queues() is True
             break
     assert found_c is True
+    # test lock size for orm broker
+    Conf.ORM = 'default'
+    monitor(run_once=True)
+    Conf.ORM = None
 
 
 @pytest.mark.django_db
