@@ -3,8 +3,8 @@
     :alt: Q logo
     :target: https://django-q.readthedocs.org/
 
-A multiprocessing task queue for Django
----------------------------------------
+A multiprocessing distributed task queue for Django
+---------------------------------------------------
 
 |image0| |image1| |docs| |image2|
 
