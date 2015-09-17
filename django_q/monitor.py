@@ -82,9 +82,12 @@ def monitor(run_once=False, broker=None):
                 i += 1
             # bottom bar
             i += 1
+            queue_size = broker.queue_size()
+            if Conf.ORM:
+                queue_size = '{}({})'.format(queue_size, broker.lock_size())
             print(term.move(i, 0) + term.white_on_cyan(term.center(broker.info(), width=col_width * 2)))
             print(term.move(i, 2 * col_width) + term.black_on_cyan(term.center(_('Queued'), width=col_width)))
-            print(term.move(i, 3 * col_width) + term.white_on_cyan(term.center(broker.queue_size(), width=col_width)))
+            print(term.move(i, 3 * col_width) + term.white_on_cyan(term.center(queue_size, width=col_width)))
             print(term.move(i, 4 * col_width) + term.black_on_cyan(term.center(_('Success'), width=col_width)))
             print(term.move(i, 5 * col_width) + term.white_on_cyan(
                 term.center(models.Success.objects.count(), width=col_width)))
