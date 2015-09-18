@@ -59,9 +59,9 @@ sync
 Simulates a task execution synchronously. Useful for testing.
 Can also be forced globally via the :ref:`sync` configuration option.
 
-redis
-"""""
-A redis connection. In case you want to control your own connections.
+broker
+""""""
+A broker instance, in case you want to control your own connections.
 
 q_options
 """""""""
@@ -173,17 +173,17 @@ Instead of setting ``sync`` on each individual ``async`` you can also configure 
 Connection pooling
 ------------------
 
-Django Q tries to pass redis connections around its parts as much as possible to save you from running out of connections.
-When you are making individual calls to :func:`async` a lot though, it can help to set up a redis connection to reuse for :func:`async`:
+Django Q tries to pass broker instances around its parts as much as possible to save you from running out of connections.
+When you are making individual calls to :func:`async` a lot though, it can help to set up a broker to reuse for :func:`async`:
 
 .. code:: python
 
-    # redis connection economy example
-    from django_q import async
-    from django_q.conf import redis_client
+    # broker connection economy example
+    from django_q import async, get_broker
 
+    broker = get_broker()
     for i in range(50):
-        async('math.modf', 2.5, redis=redis_client)
+        async('math.modf', 2.5, broker=broker)
 
 .. tip::
 
