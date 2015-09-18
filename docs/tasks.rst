@@ -25,7 +25,10 @@ Use :func:`async` from your code to quickly offload tasks to the :class:`Cluster
     task_result = result(task_id)
 
     # result returns None if the task has not been executed yet
-    # so in most cases you will want to use a hook:
+    # you can wait for it
+    task_result = result(task_id, 200)
+
+    # but in most cases you will want to use a hook:
 
     async('math.modf', 2.5, hook='hooks.print_result')
 
@@ -208,19 +211,21 @@ Reference
    :returns: The uuid of the task
    :rtype: str
 
-.. py:function:: result(task_id)
+.. py:function:: result(task_id, wait=0)
 
     Gets the result of a previously executed task
 
     :param str task_id: the uuid or name of the task
+    :param int wait: optional milliseconds to wait for a result
     :returns: The result of the executed task
 
-.. py:function:: fetch(task_id)
+.. py:function:: fetch(task_id, wait=0)
 
     Returns a previously executed task
 
     :param str name: the uuid or name of the task
-    :returns: The task if any
+    :param in wait: optional milliseconds to wait for a result
+    :returns: A task object
     :rtype: Task
 
     .. versionchanged:: 0.2.0

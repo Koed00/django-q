@@ -230,6 +230,8 @@ def test_async(broker, admin_user):
     assert result_j.group_delete(tasks=True) is None
     # task k should not have been saved
     assert fetch(k) is None
+    assert fetch(k, 100) is None
+    assert result(k, 100) is None
     broker.delete_queue()
 
 
