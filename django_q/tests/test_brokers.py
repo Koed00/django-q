@@ -216,6 +216,7 @@ def test_sqs():
         broker.acknowledge(task[0])
     # duplicate acknowledge
     broker.acknowledge(task[0])
+    assert broker.lock_size() == 0
     # delete queue
     broker.enqueue('test')
     broker.purge_queue()
