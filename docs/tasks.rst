@@ -224,7 +224,7 @@ Reference
     Returns a previously executed task
 
     :param str name: the uuid or name of the task
-    :param in wait: optional milliseconds to wait for a result
+    :param int wait: optional milliseconds to wait for a result
     :returns: A task object
     :rtype: Task
 
