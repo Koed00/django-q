@@ -5,6 +5,7 @@ from multiprocessing import Queue, Value
 from django.utils import timezone
 
 # local
+import time
 import signing
 import cluster
 from django_q.conf import Conf, logger
@@ -82,16 +83,25 @@ def schedule(func, *args, **kwargs):
                                    )
 
 
-def result(task_id):
+def result(task_id, wait=0):
     """
     Return the result of the named task.
 
     :type task_id: str or uuid
     :param task_id: the task name or uuid
+    :type wait: int
+    :param wait: number of milliseconds to wait for a result
     :return: the result object of this task
     :rtype: object
     """
-    return Task.get_result(task_id)
+    start = time.time()
+    while True:
+        r = Task.get_result(task_id)
+        if r:
+            return r
+        if (time.time() - start) * 1000 >= wait:
+            break
+        time.sleep(0.01)
 
 
 def result_group(group_id, failures=False):
@@ -105,16 +115,25 @@ def result_group(group_id, failures=False):
     return Task.get_result_group(group_id, failures)
 
 
-def fetch(task_id):
+def fetch(task_id, wait=0):
     """
     Return the processed task.
 
     :param task_id: the task name or uuid
     :type task_id: str or uuid
+    :param wait: the number of milliseconds to wait for a result
+    :type wait: int
     :return: the full task object
     :rtype: Task
     """
-    return Task.get_task(task_id)
+    start = time.time()
+    while True:
+        t = Task.get_task(task_id)
+        if t:
+            return t
+        if (time.time() - start) * 1000 >= wait:
+            break
+        time.sleep(0.01)
 
 
 def fetch_group(group_id, failures=True):

@@ -27,6 +27,9 @@ class Sqs(Broker):
     def queue_size(self):
         return int(self.queue.attributes['ApproximateNumberOfMessages'])
 
+    def lock_size(self):
+        return int(self.queue.attributes['ApproximateNumberOfMessagesNotVisible'])
+
     def delete(self, task_id):
         message = self.sqs.Message(self.queue.url, task_id)
         message.delete()

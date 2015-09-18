@@ -129,6 +129,11 @@ You can override this class if you want to contribute and support your own broke
 
       Returns the amount of messages in the brokers queue.
 
+   .. py:method:: lock_size()
+
+      Optional method that returns the number of messages currently awaiting acknowledgement.
+      Only implemented on brokers that support it.
+
    .. py:method:: ping()
 
       Returns True if the broker can be reached.

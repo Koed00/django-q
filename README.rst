@@ -127,7 +127,10 @@ Use `async` from your code to quickly offload tasks:
     task_result = result(task_id)
 
     # result returns None if the task has not been executed yet
-    # so in most cases you will want to use a hook:
+    # you can wait for it
+    task_result = result(task_id, 200)
+
+    # but in most cases you will want to use a hook:
 
     async('math.modf', 2.5, hook='hooks.print_result')
 
