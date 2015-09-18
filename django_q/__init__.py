@@ -8,6 +8,7 @@ from .tasks import async, schedule, result, result_group, fetch, fetch_group, co
 from .models import Task, Schedule, Success, Failure
 from .cluster import Cluster
 from .status import Stat
+from .brokers import get_broker
 
 VERSION = (0, 7, 3)
 
