@@ -12,6 +12,7 @@ def test_broker():
     broker.enqueue('test')
     broker.dequeue()
     broker.queue_size()
+    broker.lock_size()
     broker.purge_queue()
     broker.delete('id')
     broker.delete_queue()

@@ -29,6 +29,11 @@ class Broker(object):
         """
         pass
 
+    def lock_size(self):
+        """
+        :return: the number of tasks currently awaiting acknowledgement
+        """
+
     def delete_queue(self):
         """
         Deletes the queue from the broker
