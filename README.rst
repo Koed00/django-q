@@ -31,7 +31,7 @@ Requirements
 -  `Arrow <https://github.com/crsmithdev/arrow>`__
 -  `Blessed <https://github.com/jquast/blessed>`__
 
-Tested with: Python 2.7 & 3.4. Django 1.7.10 & 1.8.4
+Tested with: Python 2.7 & 3.5. Django 1.7.10 & 1.8.4
 
 Brokers
 ~~~~~~~

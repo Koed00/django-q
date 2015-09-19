@@ -42,7 +42,7 @@ extensions = [
     # 'sphinx.ext.autodoc'
 ]
 
-intersphinx_mapping = {'python': ('https://docs.python.org/3.4', None),
+intersphinx_mapping = {'python': ('https://docs.python.org/3.5', None),
                        'django': ('https://docs.djangoproject.com/en/1.8/',
                                   'https://docs.djangoproject.com/en/1.8//_objects/')}
 
