@@ -24,7 +24,7 @@ Installation
 Requirements
 ------------
 
-Django Q is tested for Python 2.7 and 3.4
+Django Q is tested for Python 2.7 and 3.5
 
 -  `Django <https://www.djangoproject.com>`__
 
