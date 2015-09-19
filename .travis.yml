@@ -27,7 +27,7 @@ before_script:
 install:
   - pip install -q django==$DJANGO
   - pip install -r requirements.txt
-  - pi[ install pytest --upgrade
+  - pip install pytest --upgrade
   - pip install pytest-django codecov sphinx
   - python setup.py install
 
