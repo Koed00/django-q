@@ -1,6 +1,6 @@
 import pytest
 
-from django_q import async
+from django_q import async, get_broker
 from django_q.cluster import Cluster
 from django_q.monitor import monitor, info
 from django_q.status import Stat
@@ -23,9 +23,14 @@ def test_monitor():
             assert stat.empty_queues() is True
             break
     assert found_c is True
-    # test lock size for orm broker
+    # test lock size
     Conf.ORM = 'default'
-    monitor(run_once=True)
+    b = get_broker('monitor_test')
+    b.enqueue('test')
+    b.dequeue()
+    assert b.lock_size() == 1
+    monitor(run_once=True, broker=b)
+    b.delete_queue()
     Conf.ORM = None
 
 
