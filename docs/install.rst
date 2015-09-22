@@ -81,6 +81,7 @@ OS X
 ~~~~
 This should be completely compatible, except for the following known issues:
 
+* ``multiprocessing.Queue.qsize()`` is not supported. This leads to the monitor not reporting the internal queue size of clusters running under OS X.
 * CPU count through :func:`multiprocessing.cpu_count()` does not work. Installing :ref:`psutil<psutil_package>` provides Django Q with an alternative way of determining the number of CPU's on your system
 * CPU affinity is provided by :ref:`psutil<psutil_package>` which at this time does not support this feature on OSX. The code however is aware of this and will fake the CPU affinity assignment in the logs without actually assigning it. This way you can still develop with this setting.
 
