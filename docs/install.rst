@@ -50,7 +50,7 @@ Optional
 
     $ pip install redis
 
-.. _psutil:
+.. _psutil_package:
 
 - `Psutil <https://github.com/giampaolo/psutil>`__  python system and process utilities module by Giampaolo Rodola', is an optional requirement and adds cpu affinity settings to the cluster::
 
@@ -71,3 +71,52 @@ Optional
 - `Redis <http://redis.io/>`__ server is the default broker for Django Q. It provides the best performance and does not require Django's cache framework for monitoring.
 
 - `Disque <https://github.com/antirez/disque>`__ server is based on Redis by the same author, but focuses on reliable queues. Currently in Alpha, but highly recommended. You can either build it from source or use it on Heroku through the `Tynd <https://disque.tynd.co/>`__ beta.
+
+
+Compatibility
+-------------
+Django Q is still a young project. If you do find any incompatibilities please submit an issue on `github <https://github.com/Koed00/django-q>`__.
+
+OS X
+~~~~
+This should be completely compatible, except for the following known issues:
+
+* CPU count through :func:`multiprocessing.cpu_count()` does not work. Installing :ref:`psutil<psutil_package>` provides Django Q with an alternative way of determining the number of CPU's on your system
+* CPU affinity is provided by :ref:`psutil<psutil_package>` which at this time does not support this feature on OSX. The code however is aware of this and will fake the CPU affinity assignment in the logs without actually assigning it. This way you can still develop with this setting.
+
+Windows
+~~~~~~~
+The cluster and worker multiprocessing code depend on the OS's ability to fork, unfortunately forking is not supported under windows.
+You should however be able to develop and test without the cluster by setting the ``sync`` option to ``True`` in the configuration.
+This will run all ``async`` calls inline through a single cluster worker without the need for forking.
+Other known issues are:
+
+* :func:`os.getppid()` is only supported under windows since Python 3.2. If you use an older version you need to install :ref:`psutil<psutil_package>` as an alternative.
+* CPU count through :func:`multiprocessing.cpu_count()` occasionally fails on servers. Installing :ref:`psutil<psutil_package>` provides Django Q with an alternative way of determining the number of CPU's on your system
+* The monitor and info commands rely on the Curses package which is not officially supported on windows. There are however some ports available like `this one <http://www.lfd.uci.edu/~gohlke/pythonlibs/#curses>`__ by Christoph Gohlke.
+
+Python
+~~~~~~
+The code is always tested against the latest version of Python 2 and Python 3 and we try to stay compatible with the last two versions of each.
+Current tests are performed with Python 2.7.10 and 3.5.
+If you do encounter any regressions with earlier versions, please submit an issue on `github <https://github.com/Koed00/django-q>`__
+
+.. note::
+
+    Django 1.7.10 or earlier is not compatible with Python 3.5
+
+Open-source packages
+~~~~~~~~~~~~~~~~~~~~
+Django Q is always tested with the latest versions of the required and optional Python packages. We try to keep the dependencies as up to date as possible.
+You can reference the `requirements <https://github.com/Koed00/django-q/blob/master/requirements.txt>`__ file to determine which versions are currently being used for tests and development.
+
+Django
+~~~~~~
+We strive to be compatible with last two major version of Django.
+At the moment this means we support the 1.7.10 and 1.8.4 releases.
+Once version 1.9 is out , support for Django 1.7 will be deprecated.
+This means than newer releases of Django Q might still work, but are no longer targeted for testing.
+
+
+
+

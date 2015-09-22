@@ -325,7 +325,7 @@ As a rule of thumb; cpu_affinity 1 favors repetitive short running tasks, while 
 
 .. note::
 
-    The ``cpu_affinity`` setting requires the optional :ref:`psutil <psutil>` module.
+    The ``cpu_affinity`` setting requires the optional :ref:`psutil<psutil_package>` module.
 
     *Psutil does not support cpu affinity on OS X at this time.*
 
@@ -333,4 +333,4 @@ As a rule of thumb; cpu_affinity 1 favors repetitive short running tasks, while 
 
 .. rubric:: Footnotes
 
-.. [#f1] Uses :func:`multiprocessing.cpu_count()` which can fail on some platforms. If so , please set the worker count in the configuration manually or install :ref:`psutil<psutil>` to provide an alternative cpu count method.
+.. [#f1] Uses :func:`multiprocessing.cpu_count()` which can fail on some platforms. If so , please set the worker count in the configuration manually or install :ref:`psutil<psutil_package>` to provide an alternative cpu count method.
