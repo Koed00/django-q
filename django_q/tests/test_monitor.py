@@ -1,6 +1,7 @@
 import pytest
 
-from django_q import async, get_broker
+from django_q.tasks import async
+from django_q.brokers import get_broker
 from django_q.cluster import Cluster
 from django_q.monitor import monitor, info
 from django_q.status import Stat

@@ -79,9 +79,9 @@ Django Q is still a young project. If you do find any incompatibilities please s
 
 OS X
 ~~~~
-This should be completely compatible, except for the following known issues:
+Running Django Q on OS X should work fine, except for the following known issues:
 
-* ``multiprocessing.Queue.qsize()`` is not supported. This leads to the monitor not reporting the internal queue size of clusters running under OS X.
+* :meth:`multiprocessing.Queue.qsize()` is not supported. This leads to the monitor not reporting the internal queue size of clusters running under OS X.
 * CPU count through :func:`multiprocessing.cpu_count()` does not work. Installing :ref:`psutil<psutil_package>` provides Django Q with an alternative way of determining the number of CPU's on your system
 * CPU affinity is provided by :ref:`psutil<psutil_package>` which at this time does not support this feature on OSX. The code however is aware of this and will fake the CPU affinity assignment in the logs without actually assigning it. This way you can still develop with this setting.
 
@@ -116,7 +116,7 @@ Django
 We strive to be compatible with last two major version of Django.
 At the moment this means we support the 1.7.10 and 1.8.4 releases.
 Once version 1.9 is out , support for Django 1.7 will be deprecated.
-This means than newer releases of Django Q might still work, but are no longer targeted for testing.
+This will mean that newer releases of Django Q might still work, but are no longer targeted for testing.
 
 
 
