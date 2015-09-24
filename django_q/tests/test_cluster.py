@@ -65,6 +65,7 @@ def test_cluster_initial(broker):
     assert c.stop() is True
     assert c.sentinel.is_alive() is False
     assert c.has_stopped
+    assert c.stop() is False
     broker.delete_queue()
 
 
