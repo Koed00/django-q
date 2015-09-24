@@ -229,7 +229,7 @@ def test_async(broker, admin_user):
     deleted_group = delete_group('test_j', tasks=True)
     assert deleted_group is None or deleted_group[0] == 0  # Django 1.9
     deleted_group = result_j.group_delete(tasks=True)
-    assert delete_group is None or deleted_group[0] == 0  # Django 1.9
+    assert deleted_group is None or deleted_group[0] == 0  # Django 1.9
     # task k should not have been saved
     assert fetch(k) is None
     assert fetch(k, 100) is None
