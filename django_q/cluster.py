@@ -13,7 +13,6 @@ standard_library.install_aliases()
 import importlib
 import signal
 import socket
-import sys
 import ast
 from time import sleep
 from multiprocessing import Queue, Event, Process, Value, current_process
@@ -49,12 +48,6 @@ class Cluster(object):
         signal.signal(signal.SIGINT, self.sig_handler)
 
     def start(self):
-        # This is just for PyCharm to not crash. Ignore it.
-        if not hasattr(sys.stdin, 'close'):
-            def dummy_close():
-                pass
-
-            sys.stdin.close = dummy_close
         # Start Sentinel
         self.stop_event = Event()
         self.start_event = Event()
@@ -150,12 +143,6 @@ class Sentinel(object):
         """
         :type target: function or class
         """
-        # This is just for PyCharm to not crash. Ignore it.
-        if not hasattr(sys.stdin, 'close'):
-            def dummy_close():
-                pass
-
-            sys.stdin.close = dummy_close
         p = Process(target=target, args=args)
         p.daemon = True
         if target == worker:
