@@ -268,7 +268,7 @@ Set ``orm`` to the name of that database connection and make sure you run migrat
 
 mongo
 ~~~~~
-To use MongoDB as a message broker you simply provide the connection information in a dictionary ::
+To use MongoDB as a message broker you simply provide the connection information in a dictionary::
 
     # example MongoDB broker connection
 
@@ -284,7 +284,7 @@ To use MongoDB as a message broker you simply provide the connection information
         }
     }
 
-The ``mongo`` dictionary can contain any of the parameters exposed by pymongo's`MongoClient<https://api.mongodb.org/python/current/api/pymongo/mongo_client.html#pymongo.mongo_client.MongoClient>`__
+The ``mongo`` dictionary can contain any of the parameters exposed by pymongo's `MongoClient <https://api.mongodb.org/python/current/api/pymongo/mongo_client.html#pymongo.mongo_client.MongoClient>`__
 
 mongo_db
 ~~~~~~~~
