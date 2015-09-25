@@ -50,6 +50,10 @@ class Conf(object):
     # ORM broker
     ORM = conf.get('orm', None)
 
+    # MongoDB broker
+    MONGO = conf.get('mongo', None)
+    MONGO_DB = conf.get('mongo_db', 'django-q')
+
     # Name of the cluster or site. For when you run multiple sites on one redis server
     PREFIX = conf.get('name', 'default')
 

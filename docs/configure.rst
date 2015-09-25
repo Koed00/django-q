@@ -264,6 +264,33 @@ Using the Django ORM backend will also enable the Queued Tasks table in the Admi
 If you need better performance , you should consider using a different database backend than the main project.
 Set ``orm`` to the name of that database connection and make sure you run migrations on it using the ``--database`` option.
 
+.. _mongo_configuration:
+
+mongo
+~~~~~
+To use MongoDB as a message broker you simply provide the connection information in a dictionary ::
+
+    # example MongoDB broker connection
+
+    Q_CLUSTER = {
+        'name': 'MongoDB',
+        'workers': 8,
+        'timeout': 60,
+        'retry': 70,
+        'queue_limit': 100,
+        'mongo': {
+                'host': '127.0.0.1',
+                'port': 27017
+        }
+    }
+
+The ``mongo`` dictionary can contain any of the parameters exposed by pymongo's`MongoClient<https://api.mongodb.org/python/current/api/pymongo/mongo_client.html#pymongo.mongo_client.MongoClient>`__
+
+mongo_db
+~~~~~~~~
+When using the MongoDB broker you can optionally provide a database name to use for the queues.
+Defaults to ``django-q``
+
 .. _bulk:
 
 bulk
@@ -273,7 +300,7 @@ Especially HTTP based or very high latency servers can benefit from bulk dequeue
 Keep in mind however that settings this too high can degrade performance with multiple clusters or very large task packages.
 
 Not supported by the default Redis broker.
-Defaults to 1.
+Defaults to ``1``.
 
 cache
 ~~~~~

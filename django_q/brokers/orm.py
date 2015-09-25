@@ -21,7 +21,7 @@ class ORM(Broker):
         return self.connection.filter(key=self.list_key, lock__lte=_timeout()).count()
 
     def lock_size(self):
-        return self.connection.filter(key=self.list_key, lock__gte=_timeout()).count()
+        return self.connection.filter(key=self.list_key, lock__gt=_timeout()).count()
 
     def purge_queue(self):
         return self.connection.filter(key=self.list_key).delete()
@@ -30,7 +30,9 @@ class ORM(Broker):
         return True
 
     def info(self):
-        return 'ORM {}'.format(Conf.ORM)
+        if not self._info:
+            self._info = 'ORM {}'.format(Conf.ORM)
+        return self._info
 
     def fail(self, task_id):
         self.delete(task_id)

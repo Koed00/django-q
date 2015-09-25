@@ -40,8 +40,10 @@ class Disque(Broker):
         return len(jobs)
 
     def info(self):
-        info = self.connection.info('server')
-        return 'Disque {}'.format(info['disque_version'])
+        if not self._info:
+            info = self.connection.info('server')
+            self._info= 'Disque {}'.format(info['disque_version'])
+        return self._info
 
     @staticmethod
     def get_connection(list_key=Conf.PREFIX):

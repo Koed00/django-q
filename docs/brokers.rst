@@ -2,7 +2,7 @@ Brokers
 =======
 
 The broker sits between your Django instances and your Django Q cluster instances; accepting, saving and delivering task packages.
-Currently we support a variety of brokers from the default Redis, bleeding edge Disque to the convenient Amazon SQS.
+Currently we support a variety of brokers from the default Redis, bleeding edge Disque to the convenient ORM and fast MongoBD.
 
 The default Redis broker does not support message receipts.
 This means that in case of a catastrophic failure of the cluster server or worker timeouts, tasks that were being executed get lost.
@@ -72,6 +72,16 @@ Although `SQS <https://aws.amazon.com/sqs/>`__ is not the fastest, it is stable,
 * Needs Django's `Cache framework <https://docs.djangoproject.com/en/1.8/topics/cache/#setting-up-the-cache>`__ configured for monitoring
 * Requires the `boto3 <https://github.com/boto/boto3>`__ client library: ``pip install boto3``
 * See the :ref:`sqs_configuration` configuration section for options.
+
+
+MongoDB
+-------
+The
+
+* Delivery receipts
+* Needs Django's `Cache framework <https://docs.djangoproject.com/en/1.8/topics/cache/#setting-up-the-cache>`__ configured for monitoring
+* Requires the `pymongo <https://github.com/mongodb/mongo-python-driver>`__ driver: ``pip install pymongo``
+* See the :ref:`mongo_configuration` configuration section for options.
 
 .. _orm_broker:
 
