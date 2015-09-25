@@ -113,7 +113,7 @@ Use `async` from your code to quickly offload tasks:
 
 .. code:: python
 
-    from django_q import async, result
+    from django_q.tasks import async, result
 
     # create the task
     async('math.copysign', 2, -2)
@@ -149,9 +149,8 @@ Admin page or directly from your code:
 
 .. code:: python
 
-    from django_q import Schedule, schedule
-
     # Use the schedule function
+    from django_q.tasks import schedule
 
     schedule('math.copysign',
              2, -2,
@@ -159,6 +158,7 @@ Admin page or directly from your code:
              schedule_type=Schedule.DAILY)
 
     # Or create the object directly
+    from django_q.models import Schedule
 
     Schedule.objects.create(func='math.copysign',
                             hook='hooks.print_result',

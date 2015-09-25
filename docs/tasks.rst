@@ -11,7 +11,7 @@ Use :func:`async` from your code to quickly offload tasks to the :class:`Cluster
 
 .. code:: python
 
-    from django_q import async, result
+    from django_q.tasks import async, result
 
     # create the task
     async('math.copysign', 2, -2)
@@ -88,7 +88,7 @@ You can group together results by passing :func:`async` the optional ``group`` k
 .. code-block:: python
 
     # result group example
-    from django_q import async, result_group
+    from django_q.tasks import async, result_group
 
     for i in range(4):
         async('math.modf', i, group='modf')
@@ -107,7 +107,7 @@ Instead of :func:`result_group` you can also use :func:`fetch_group` to return a
 .. code-block:: python
 
     # fetch group example
-    from django_q import fetch_group, count_group, result_group
+    from django_q.tasks import fetch_group, count_group, result_group
 
     # count the number of failures
     failure_count = count_group('modf', failures=True)
@@ -137,7 +137,7 @@ You can also access group functions from a task result instance:
 
 .. code-block:: python
 
-    from django_q import fetch
+    from django_q.tasks import fetch
 
     task = fetch('winter-speaker-alpha-ceiling')
     if  task.group_count() > 100:
@@ -151,7 +151,7 @@ Synchronous testing
 :func:`async` can be instructed to execute a task immediately by setting the optional keyword ``sync=True``.
 The task will then be injected straight into a worker and the result saved by a monitor instance::
 
-    from django_q import async, fetch
+    from django_q.tasks import async, fetch
 
     # create a synchronous task
     task_id = async('my.buggy.code', sync=True)
@@ -179,7 +179,8 @@ When you are making individual calls to :func:`async` a lot though, it can help 
 .. code:: python
 
     # broker connection economy example
-    from django_q import async, get_broker
+    from django_q.tasks import async
+    from django_q.brokers import get_broker
 
     broker = get_broker()
     for i in range(50):

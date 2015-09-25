@@ -11,7 +11,8 @@ Sending an email can take a while so why not queue it:
     # Welcome mail with follow up example
     from datetime import timedelta
     from django.utils import timezone
-    from django_q import async, schedule, Schedule
+    from django_q.tasks import async, schedule
+    from django_q.models import Schedule
 
 
     def welcome_mail(user):
@@ -49,7 +50,7 @@ A good place to use async tasks are Django's model signals. You don't want to de
     from django.contrib.auth.models import User
     from django.db.models.signals import pre_save
     from django.dispatch import receiver
-    from django_q import async
+    from django_q.tasks import async
 
     # set up the pre_save signal for our user
     @receiver(pre_save, sender=User)
@@ -102,7 +103,7 @@ In this example the user requests a report and we let the cluster do the generat
 .. code-block:: python
 
     # Report generation with hook example
-    from django_q import async
+    from django_q.tasks import async
 
     # views.py
     # user requests a report.
@@ -114,7 +115,7 @@ In this example the user requests a report and we let the cluster do the generat
 .. code-block:: python
 
     # tasks.py
-    from django_q import async
+    from django_q.tasks import async
 
     # report generator
     def create_html_report(user):
@@ -150,7 +151,7 @@ here's an example of how you can have Django Q take care of your indexes in real
     from .models import Document
     from django.db.models.signals import post_save
     from django.dispatch import receiver
-    from django_q import async
+    from django_q.tasks import async
 
     # hook up the post save handler
     @receiver(post_save, sender=Document)
@@ -187,7 +188,7 @@ Adapted from `Sebastian Raschka's blog <http://sebastianraschka.com/Articles/201
     # Group example with Parzen-window estimation
     import numpy
 
-    from django_q import async, result_group,\
+    from django_q.tasks import async, result_group,\
         count_group, delete_group
 
     # the estimation function

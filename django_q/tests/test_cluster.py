@@ -2,8 +2,8 @@ import sys
 from multiprocessing import Queue, Event, Value
 import threading
 from time import sleep
-
 import os
+
 import pytest
 
 myPath = os.path.dirname(os.path.abspath(__file__))
@@ -227,8 +227,10 @@ def test_async(broker, admin_user):
     assert result_j.group_count(failures=True) == 0
     assert delete_group('test_j') == 1
     assert result_j.group_delete() == 0
-    assert delete_group('test_j', tasks=True) is None
-    assert result_j.group_delete(tasks=True) is None
+    deleted_group = delete_group('test_j', tasks=True)
+    assert deleted_group is None or deleted_group[0] == 0  # Django 1.9
+    deleted_group = result_j.group_delete(tasks=True)
+    assert deleted_group is None or deleted_group[0] == 0  # Django 1.9
     # task k should not have been saved
     assert fetch(k) is None
     assert fetch(k, 100) is None

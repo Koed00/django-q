@@ -10,15 +10,17 @@ You can manage them through the :ref:`admin_page` or directly from your code wit
 
 .. code:: python
 
-    from django_q import Schedule, schedule
-
     # Use the schedule wrapper
+    from django_q.tasks import schedule
+
     schedule('math.copysign',
              2, -2,
              hook='hooks.print_result',
              schedule_type=Schedule.DAILY)
 
     # Or create the object directly
+    from django_q.models import Schedule
+
     Schedule.objects.create(func='math.copysign',
                             hook='hooks.print_result',
                             args='2,-2',
@@ -65,7 +67,7 @@ If you want to schedule regular Django management commands, you can use the :mod
         return management.call_command('clearsessions')
 
     # now you can schedule it to run every hour
-    from django_q import schedule
+    from django_q.tasks import schedule
 
     schedule('tasks.clear_sessions_command', schedule_type='H')
 
