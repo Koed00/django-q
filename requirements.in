@@ -8,3 +8,4 @@ psutil
 django-redis
 iron-mq
 boto3
+pymongo
