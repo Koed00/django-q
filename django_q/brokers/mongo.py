@@ -1,10 +1,11 @@
 from datetime import timedelta
 from time import sleep
+
 from bson import ObjectId
-
 from django.utils import timezone
-
 from pymongo import MongoClient
+
+from pymongo.errors import ConfigurationError
 
 from django_q.brokers import Broker
 from django_q.conf import Conf
@@ -17,11 +18,19 @@ def _timeout():
 class Mongo(Broker):
     def __init__(self, list_key=Conf.PREFIX):
         super(Mongo, self).__init__(list_key)
-        self.collection = self.connection[Conf.MONGO_DB][list_key]
+        self.collection = self.get_collection()
 
     @staticmethod
     def get_connection(list_key=Conf.PREFIX):
         return MongoClient(**Conf.MONGO)
+
+    def get_collection(self):
+        if not Conf.MONGO_DB:
+            try:
+                Conf.MONGO_DB = self.connection.get_default_database()[1]
+            except ConfigurationError:
+                Conf.MONGO_DB = 'django-q'
+        return self.connection[Conf.MONGO_DB][self.list_key]
 
     def queue_size(self):
         return self.collection.count({'lock': {'$lte': _timeout()}})

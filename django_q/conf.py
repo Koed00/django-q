@@ -52,7 +52,7 @@ class Conf(object):
 
     # MongoDB broker
     MONGO = conf.get('mongo', None)
-    MONGO_DB = conf.get('mongo_db', 'django-q')
+    MONGO_DB = conf.get('mongo_db', None)
 
     # Name of the cluster or site. For when you run multiple sites on one redis server
     PREFIX = conf.get('name', 'default')

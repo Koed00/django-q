@@ -285,11 +285,12 @@ To use MongoDB as a message broker you simply provide the connection information
     }
 
 The ``mongo`` dictionary can contain any of the parameters exposed by pymongo's `MongoClient <https://api.mongodb.org/python/current/api/pymongo/mongo_client.html#pymongo.mongo_client.MongoClient>`__
+If you want to use a mongodb uri, you can supply it as the ``host`` parameter.
 
 mongo_db
 ~~~~~~~~
 When using the MongoDB broker you can optionally provide a database name to use for the queues.
-Defaults to ``django-q``
+Defaults to default database if available, otherwise ``django-q``
 
 .. _bulk:
 
