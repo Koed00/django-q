@@ -7,6 +7,7 @@ class Broker(object):
         self.connection = self.get_connection(list_key)
         self.list_key = list_key
         self.cache = self.get_cache()
+        self._info = None
 
     def enqueue(self, task):
         """
@@ -78,7 +79,7 @@ class Broker(object):
         """
         Shows the broker type
         """
-        pass
+        return self._info
 
     def set_stat(self, key, value, timeout):
         """
@@ -167,6 +168,9 @@ def get_broker(list_key=Conf.PREFIX):
     elif Conf.ORM:
         from brokers import orm
         return orm.ORM(list_key=list_key)
+    elif Conf.MONGO:
+        from brokers import mongo
+        return mongo.Mongo(list_key=list_key)
     # default to redis
     else:
         from brokers import redis_broker

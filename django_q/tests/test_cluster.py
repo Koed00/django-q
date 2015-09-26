@@ -33,6 +33,7 @@ def broker():
     Conf.IRON_MQ = None
     Conf.SQS = None
     Conf.ORM = None
+    Conf.MONGO = None
     Conf.DJANGO_REDIS = 'default'
     return get_broker()
 

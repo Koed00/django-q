@@ -79,6 +79,10 @@ a single keyword dict named ``q_options``. This enables you to use these keyword
 
 Please not that this will override any other option keywords.
 
+.. note::
+    For tasks to be processed you will need to have a worker cluster running in the background using ``python manage.py qcluster``
+    or you need to configure Django Q to run in synchronous mode for testing using the :ref:`sync` option.
+
 .. _groups:
 
 Groups

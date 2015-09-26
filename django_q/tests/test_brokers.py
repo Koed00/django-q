@@ -285,3 +285,64 @@ def test_orm():
     assert broker.queue_size() == 0
     # back to django-redis
     Conf.ORM = None
+
+
+@pytest.mark.django_db
+def test_mongo():
+    Conf.MONGO = {'host': '127.0.0.1', 'port': 27017}
+    # check broker
+    broker = get_broker(list_key='mongo_test')
+    assert broker.ping() is True
+    assert broker.info() is not None
+    # clear before we start
+    broker.delete_queue()
+    # enqueue
+    broker.enqueue('test')
+    assert broker.queue_size() == 1
+    # dequeue
+    task = broker.dequeue()[0]
+    assert task[1] == 'test'
+    broker.acknowledge(task[0])
+    assert broker.queue_size() == 0
+    # Retry test
+    Conf.RETRY = 1
+    broker.enqueue('test')
+    assert broker.queue_size() == 1
+    broker.dequeue()
+    assert broker.queue_size() == 0
+    sleep(1.5)
+    assert broker.queue_size() == 1
+    task = broker.dequeue()[0]
+    assert broker.queue_size() == 0
+    broker.acknowledge(task[0])
+    sleep(1.5)
+    assert broker.queue_size() == 0
+    # delete job
+    task_id = broker.enqueue('test')
+    broker.delete(task_id)
+    assert broker.dequeue() is None
+    # fail
+    task_id = broker.enqueue('test')
+    broker.fail(task_id)
+    # bulk test
+    for i in range(5):
+        broker.enqueue('test')
+    tasks = []
+    for i in range(5):
+        tasks.append(broker.dequeue()[0])
+    assert broker.lock_size() == 5
+    for task in tasks:
+        assert task is not None
+        broker.acknowledge(task[0])
+    # test lock size
+    assert broker.lock_size() == 0
+    # test duplicate acknowledge
+    broker.acknowledge(task[0])
+    # delete queue
+    broker.enqueue('test')
+    broker.enqueue('test')
+    broker.purge_queue()
+    broker.delete_queue()
+    assert broker.queue_size() == 0
+    # back to django-redis
+    Conf.ORM = None

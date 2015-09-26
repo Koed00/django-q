@@ -68,10 +68,15 @@ Optional
 
     $ pip install iron-mq
 
+- `Pymongo <https://github.com/mongodb/mongo-python-driver>`__ is needed if you want to use MongoDB as a message broker::
+
+    $ pip install pymongo
+
 - `Redis <http://redis.io/>`__ server is the default broker for Django Q. It provides the best performance and does not require Django's cache framework for monitoring.
 
 - `Disque <https://github.com/antirez/disque>`__ server is based on Redis by the same author, but focuses on reliable queues. Currently in Alpha, but highly recommended. You can either build it from source or use it on Heroku through the `Tynd <https://disque.tynd.co/>`__ beta.
 
+- `MongoDB <https://www.mongodb.org/>`__ is a highly scalable NoSQL database which makes for a very fast and reliably persistent at-least-once message broker. Usually available on most PaaS providers.
 
 Compatibility
 -------------

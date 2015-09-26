@@ -2,7 +2,7 @@ Brokers
 =======
 
 The broker sits between your Django instances and your Django Q cluster instances; accepting, saving and delivering task packages.
-Currently we support a variety of brokers from the default Redis, bleeding edge Disque to the convenient Amazon SQS.
+Currently we support a variety of brokers from the default Redis, bleeding edge Disque to the convenient ORM and fast MongoBD.
 
 The default Redis broker does not support message receipts.
 This means that in case of a catastrophic failure of the cluster server or worker timeouts, tasks that were being executed get lost.
@@ -73,6 +73,18 @@ Although `SQS <https://aws.amazon.com/sqs/>`__ is not the fastest, it is stable,
 * Requires the `boto3 <https://github.com/boto/boto3>`__ client library: ``pip install boto3``
 * See the :ref:`sqs_configuration` configuration section for options.
 
+
+MongoDB
+-------
+This highly scalable NoSQL database makes for a very fast and reliably persistent at-least-once message broker.
+Usually available on most PaaS providers, as `open-source <https://www.mongodb.org/>`__ or commercial `enterprise <https://www.mongodb.com/lp/download/mongodb-enterprise>`__ edition.
+
+* Delivery receipts
+* Needs Django's `Cache framework <https://docs.djangoproject.com/en/1.8/topics/cache/#setting-up-the-cache>`__ configured for monitoring
+* Can be configured as the Django cache-backend through several open-source cache providers.
+* Requires the `pymongo <https://github.com/mongodb/mongo-python-driver>`__ driver: ``pip install pymongo``
+* See the :ref:`mongo_configuration` configuration section for options.
+
 .. _orm_broker:
 
 Django ORM
@@ -84,6 +96,7 @@ However for a medium message rate and scheduled tasks, this is the most convenie
 * Delivery receipts
 * Supports bulk dequeue
 * Needs Django's `Cache framework <https://docs.djangoproject.com/en/1.8/topics/cache/#setting-up-the-cache>`__ configured for monitoring
+* Can be `configured <https://docs.djangoproject.com/en/1.8/topics/cache/#database-caching>`__ as its own cache backend.
 * Queue editable in Django Admin
 * See the :ref:`orm_configuration` configuration on how to set it up.
 

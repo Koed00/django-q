@@ -1,4 +1,5 @@
 import redis
+
 from django_q.brokers import Broker
 from django_q.conf import Conf, logger
 
@@ -9,7 +10,6 @@ except ImportError:
 
 
 class Redis(Broker):
-
     def __init__(self, list_key=Conf.PREFIX):
         super(Redis, self).__init__(list_key='django_q:{}:q'.format(list_key))
 
@@ -38,8 +38,10 @@ class Redis(Broker):
             raise e
 
     def info(self):
-        info = self.connection.info('server')
-        return 'Redis {}'.format(info['redis_version'])
+        if not self._info:
+            info = self.connection.info('server')
+            self._info = 'Redis {}'.format(info['redis_version'])
+        return self._info
 
     def set_stat(self, key, value, timeout):
         self.connection.set(key, value, timeout)
