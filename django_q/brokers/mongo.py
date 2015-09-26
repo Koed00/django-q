@@ -27,7 +27,7 @@ class Mongo(Broker):
     def get_collection(self):
         if not Conf.MONGO_DB:
             try:
-                Conf.MONGO_DB = self.connection.get_default_database()[1]
+                Conf.MONGO_DB = self.connection.get_default_database().name
             except ConfigurationError:
                 Conf.MONGO_DB = 'django-q'
         return self.connection[Conf.MONGO_DB][self.list_key]
