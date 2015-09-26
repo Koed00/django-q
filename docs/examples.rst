@@ -1,5 +1,6 @@
 Examples
 --------
+.. py:currentmodule:: django_q
 
 Emails
 ======
@@ -177,6 +178,54 @@ here's an example of how you can have Django Q take care of your indexes in real
 
 Now every time a Document is saved, your indexes will be updated without causing a delay in your save action.
 You could expand this to dealing with deletes, by adding a ``post_delete`` signal and calling ``index.remove_object`` in the async function.
+
+Shell
+=====
+You can execute or schedule shell commands using Pythons :mod:`subprocess` module:
+
+.. code-block:: python
+
+    from django_q.tasks import async, result
+
+    # make a backup copy of setup.py
+    async('subprocess.call', ['cp', 'setup.py', 'setup.py.bak'])
+
+    # call ls -l and dump the output
+    task_id=async('subprocess.check_output', ['ls', '-l'])
+
+    # get the result
+    dir_list = result(task_id)
+
+In Python 3.5 the subprocess module has changed quite a bit and returns a :class:`subprocess.CompletedProcess` object instead:
+
+.. code-block:: python
+
+    from django_q.tasks import async, result
+
+    # make a backup copy of setup.py
+    tid = async('subprocess.run', ['cp', 'setup.py', 'setup.py.bak'])
+
+    # get the result
+    r=result(tid, 500)
+    # we can now look at the original arguments
+    >>> r.args
+    ['cp', 'setup.py', 'setup.py.bak']
+    # and the returncode
+    >>> r.returncode
+    0
+
+    # to capture the output we'll need a pipe
+    from subprocess import PIPE
+
+    # call ls -l and pipe the output
+    tid = async('subprocess.run', ['ls', '-l'], stdout=PIPE)
+    # get the result
+    res = result(tid, 500)
+    # print the output
+    print(res.stdout)
+
+
+Instead of :func:`async` you can of course also use :func:`schedule` to schedule commands.
 
 Groups
 ======
