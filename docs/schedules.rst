@@ -57,7 +57,20 @@ The scheduler will then skip execution of scheduled events in the past. Instead 
 Management Commands
 -------------------
 
-If you want to schedule regular Django management commands, you can use the :mod:`django.core.management` module to make a wrapper function which you can schedule in Django Q::
+If you want to schedule regular Django management commands, you can use the :mod:`django.core.management` module to call them directly:
+
+.. code-block:: python
+
+    from django_q.tasks import schedule
+
+    # run `manage.py clearsession` every hour
+    schedule('django.core.management.call_command',
+             'clearsessions',
+             schedule_type='H')
+
+Or you can make a wrapper function which you can then schedule in Django Q:
+
+.. code-block:: python
 
     # tasks.py
     from django.core import management

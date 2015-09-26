@@ -227,6 +227,22 @@ In Python 3.5 the subprocess module has changed quite a bit and returns a :class
 
 Instead of :func:`async` you can of course also use :func:`schedule` to schedule commands.
 
+For regular Django management commands, it is easier to call them directly:
+
+.. code-block:: python
+
+    from django_q.tasks import async, schedule
+
+    async('django.core.management.call_command','clearsessions')
+
+    # or clear those sessions every hour
+
+    schedule('django.core.management.call_command',
+         'clearsessions',
+         schedule_type='H')
+
+
+
 Groups
 ======
 A group example with Kernel density estimation for probability density functions using the Parzen-window technique.
