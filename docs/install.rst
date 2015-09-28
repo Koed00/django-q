@@ -123,6 +123,7 @@ At the moment this means we support the 1.7.10 and 1.8.4 releases.
 Once version 1.9 is out , support for Django 1.7 will be deprecated.
 This will mean that newer releases of Django Q might still work, but are no longer targeted for testing.
 
+Django Q has been tested with Django 1.9a1 and should be compatible.
 
 
 
