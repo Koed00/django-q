@@ -318,13 +318,7 @@ def monitor(result_queue, broker=None):
         broker = get_broker()
     name = current_process().name
     logger.info(_("{} monitoring at {}").format(name, current_process().pid))
-    db.close_old_connections()
-    connection_timer = timezone.now()
     for task in iter(result_queue.get, 'STOP'):
-        # check db connection timeout
-        if (timezone.now() - connection_timer).total_seconds() >= Conf.DB_TIMEOUT:
-            db.close_old_connections()
-            connection_timer = timezone.now()
         # acknowledge
         ack_id = task.pop('ack_id', False)
         if ack_id:
@@ -347,8 +341,6 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
     """
     name = current_process().name
     logger.info(_('{} ready for work at {}').format(name, current_process().pid))
-    db.close_old_connections()
-    connection_timer = timezone.now()
     task_count = 0
     # Start reading the task queue
     for task in iter(task_queue.get, 'STOP'):
@@ -368,10 +360,7 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
                 result = (e, False)
         # We're still going
         if not result:
-            # check db connection timeout
-            if (timezone.now() - connection_timer).total_seconds() >= Conf.DB_TIMEOUT:
-                db.close_old_connections()
-                connection_timer = timezone.now()
+            db.close_old_connections()
             # execute the payload
             timer.value = task['kwargs'].pop('timeout', timeout or 0)  # Busy
             try:
@@ -400,6 +389,7 @@ def save_task(task):
     if not task.get('save', Conf.SAVE_LIMIT > 0) and task['success']:
         return
     # SAVE LIMIT > 0: Prune database, SAVE_LIMIT 0: No pruning
+    db.close_old_connections()
     try:
         if task['success'] and 0 < Conf.SAVE_LIMIT <= Success.objects.count():
             Success.objects.last().delete()
@@ -424,7 +414,6 @@ def scheduler(broker=None):
     """
     if not broker:
         broker = get_broker()
-    # reset stale db connections
     db.close_old_connections()
     try:
         for s in Schedule.objects.exclude(repeats=0).filter(next_run__lt=timezone.now()):

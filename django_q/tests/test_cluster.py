@@ -113,7 +113,6 @@ def test_cluster(broker):
 @pytest.mark.django_db
 def test_async(broker, admin_user):
     broker.list_key = 'cluster_test:q'
-    Conf.DB_TIMEOUT = 0
     broker.delete_queue()
     a = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, hook='django_q.tests.test_cluster.assert_result',
               broker=broker)
@@ -238,7 +237,6 @@ def test_async(broker, admin_user):
     assert fetch(k, 100) is None
     assert result(k, 100) is None
     broker.delete_queue()
-    Conf.DB_TIMEOUT = 60
 
 
 @pytest.mark.django_db
