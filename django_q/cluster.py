@@ -117,8 +117,8 @@ class Sentinel(object):
         self.task_queue = Queue(maxsize=Conf.QUEUE_LIMIT) if Conf.QUEUE_LIMIT else Queue()
         self.result_queue = Queue()
         self.event_out = Event()
-        self.monitor = Process()
-        self.pusher = Process()
+        self.monitor = None
+        self.pusher = None
         if start:
             self.start()
 
@@ -163,7 +163,7 @@ class Sentinel(object):
     def reincarnate(self, process):
         """
         :param process: the process to reincarnate
-        :type process: Process
+        :type process: Process or None
         """
         if process == self.monitor:
             self.monitor = self.spawn_monitor()
@@ -276,7 +276,7 @@ class Sentinel(object):
 
 def pusher(task_queue, event, broker=None):
     """
-    Pulls tasks of the Redis List and puts them in the task queue
+    Pulls tasks of the broker and puts them in the task queue
     :type task_queue: multiprocessing.Queue
     :type event: multiprocessing.Event
     """
@@ -412,6 +412,8 @@ def scheduler(broker=None):
     """
     if not broker:
         broker = get_broker()
+    # reset stale db connections
+    db.close_old_connections()
     try:
         for s in Schedule.objects.exclude(repeats=0).filter(next_run__lt=timezone.now()):
             args = ()
