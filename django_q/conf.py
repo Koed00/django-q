@@ -64,6 +64,9 @@ class Conf(object):
     # Failures are always saved
     SAVE_LIMIT = conf.get('save_limit', 250)
 
+    # Sets the time in seconds to check for stale database connections
+    DB_TIMEOUT = conf.get('db_timeout', 60)
+
     # Disable the scheduler
     SCHEDULER = conf.get('scheduler', True)
 
