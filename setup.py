@@ -29,7 +29,7 @@ setup(
     version='0.7.6',
     author='Ilan Steemers',
     author_email='koed0@gmail.com',
-    keywords='django distributed task queue worker redis disque ironmq sqs orm multiprocessing',
+    keywords='django distributed task queue worker redis disque ironmq sqs orm mongodb multiprocessing',
     packages=['django_q'],
     include_package_data=True,
     url='https://django-q.readthedocs.org',
