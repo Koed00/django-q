@@ -188,6 +188,7 @@ class Sentinel(object):
     def spawn_cluster(self):
         self.pool = []
         Stat(self).save()
+        db.connection.close()
         # spawn worker pool
         for __ in range(self.pool_size):
             self.spawn_worker()
