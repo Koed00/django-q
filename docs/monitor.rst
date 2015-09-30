@@ -171,13 +171,13 @@ Reference
 
     Returns true or false depending on any tasks still present in the task or result queue.
 
-    .. py:classmethod:: get(cluster_id, r=redis_client)
+    .. py:classmethod:: get(cluster_id, broker=None)
 
-    Gets the current :class:`Stat` for the cluster id. Takes an optional redis connection.
+    Gets the current :class:`Stat` for the cluster id. Takes an optional broker connection.
 
-    .. py:classmethod:: get_all(r=redis_client)
+    .. py:classmethod:: get_all(broker=None)
 
-    Returns a list of :class:`Stat` objects for all active clusters. Takes an optional redis connection.
+    Returns a list of :class:`Stat` objects for all active clusters. Takes an optional broker connection.
 
 .. rubric:: Footnotes
 

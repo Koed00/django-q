@@ -154,3 +154,7 @@ You can override this class if you want to contribute and support your own broke
    .. py:method:: info()
 
       Shows the name and version of the currently configured broker.
+
+.. py:function:: brokers.get_broker()
+
+      Returns a :class:`Broker` instance based on the current configuration.

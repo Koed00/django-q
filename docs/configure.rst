@@ -64,7 +64,7 @@ Only works with brokers that support delivery receipts. Defaults to 60 seconds.
 compress
 ~~~~~~~~
 
-Compresses task packages to Redis. Useful for large payloads, but can add overhead when used with many small packages.
+Compresses task packages to the broker. Useful for large payloads, but can add overhead when used with many small packages.
 Defaults to ``False``
 
 .. _save_limit:

@@ -171,7 +171,7 @@ The task will then be injected straight into a worker and the result saved by a 
 
     An error occurred: ImportError("No module named 'my'",)
 
-Note that :func:`async` will block until the task is executed and saved. This feature bypasses the Redis server and is intended for debugging and development.
+Note that :func:`async` will block until the task is executed and saved. This feature bypasses the broker and is intended for debugging and development.
 Instead of setting ``sync`` on each individual ``async`` you can also configure :ref:`sync` as a global override.
 
 Connection pooling
@@ -192,14 +192,14 @@ When you are making individual calls to :func:`async` a lot though, it can help 
 
 .. tip::
 
-    If you are using `django-redis <https://github.com/niwinz/django-redis>`__ , you can :ref:`configure <django_redis>` Django Q to use its connection pool.
+    If you are using `django-redis <https://github.com/niwinz/django-redis>`__  and the redis broker, you can :ref:`configure <django_redis>` Django Q to use its connection pool.
 
 
 Reference
 ---------
 
 .. py:function:: async(func, *args, hook=None, group=None, timeout=None,\
-    save=None, sync=False, redis=None, q_options=None, **kwargs)
+    save=None, sync=False, broker=None, q_options=None, **kwargs)
 
     Puts a task in the cluster queue
 
@@ -210,7 +210,7 @@ Reference
    :param int timeout: Overrides global cluster :ref:`timeout`.
    :param bool save: Overrides global save setting for this task.
    :param bool sync: If set to True, async will simulate a task execution
-   :param redis: Optional redis connection
+   :param broker: Optional broker connection from :func:`brokers.get_broker`
    :param dict q_options: Options dict, overrides option keywords
    :param dict kwargs: Keyword arguments for the task function
    :returns: The uuid of the task
