@@ -113,6 +113,10 @@ class Conf(object):
     # The Django cache to use
     CACHE = conf.get('cache', 'default')
 
+    # Use the cache as result backend. Can be 'True' or an integer representing the global cache timeout.
+    # i.e 'cached: 60' , will make all results go the cache and expire in 60 seconds.
+    CACHED = conf.get('cached', False)
+
     # If set to False the scheduler won't execute tasks in the past.
     # Instead it will run once and reschedule the next run in the future. Defaults to True.
     CATCH_UP = conf.get('catch_up', True)

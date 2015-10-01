@@ -325,7 +325,11 @@ def monitor(result_queue, broker=None):
         if ack_id:
             broker.acknowledge(ack_id)
         # save the result
-        save_task(task)
+        if task.get('cached', False):
+            save_cache(task, broker)
+        else:
+            save_task(task)
+        # log the result
         if task['success']:
             logger.info(_("Processed [{}]").format(task['name']))
         else:
@@ -384,7 +388,7 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
 
 def save_task(task):
     """
-    Saves the task package to Django
+    Saves the task package to Django or the cache
     """
     # SAVE LIMIT < 0 : Don't save success
     if not task.get('save', Conf.SAVE_LIMIT > 0) and task['success']:
@@ -405,6 +409,26 @@ def save_task(task):
                             result=task['result'],
                             group=task.get('group'),
                             success=task['success'])
+    except Exception as e:
+        logger.error(e)
+
+
+def save_cache(task, broker):
+    key = 'django_q:{}:results'.format(broker.list_key)
+    timeout = task['cached']
+    if timeout is True:
+        timeout = None
+    try:
+        task_package = signing.SignedPackage.dumps(task)
+        group = task.get('group', False)
+        if group:
+            group_list = broker.cache.get('{}:{}'.format(key, group)) or []
+            group_list.append(task_package)
+            broker.cache.set('{}:{}'.format(key, group), group_list, timeout)
+        else:
+            broker.cache.set('{}:{}'.format(key, task['id']),
+                             task_package,
+                             timeout)
     except Exception as e:
         logger.error(e)
 
