@@ -4,7 +4,7 @@ import pytest
 
 from django_q.cluster import Sentinel
 from django_q.conf import Conf
-from django_q.tasks import async, result, fetch, count_group, result_group, fetch_group, delete_group
+from django_q.tasks import async, result, fetch, count_group, result_group, fetch_group, delete_group, delete_cached
 from django_q.brokers import get_broker
 
 
@@ -54,4 +54,7 @@ def test_cached(broker):
     assert len(fetch_group(group, cached=True, failures=False)) == 5
     delete_group(group, cached=True)
     assert count_group(group, cached=True) is None
+    delete_cached(task_id)
+    assert result(task_id, cached=True) is None
+    assert fetch(task_id, cached=True) is None
     broker.cache.clear()

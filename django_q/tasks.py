@@ -283,8 +283,14 @@ def delete_group(group_id, tasks=False, cached=Conf.CACHED):
 def delete_group_cached(group_id, broker=None):
     if not broker:
         broker = get_broker()
+    return delete_cached(group_id, broker)
+
+
+def delete_cached(task_id, broker=None):
+    if not broker:
+        broker = get_broker()
     key = 'django_q:{}:results'.format(broker.list_key)
-    return broker.cache.delete('{}:{}'.format(key, group_id))
+    return broker.cache.delete('{}:{}'.format(key, task_id))
 
 
 def queue_size(broker=None):
