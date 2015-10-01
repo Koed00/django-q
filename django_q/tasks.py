@@ -198,7 +198,7 @@ def fetch_cached(task_id, wait=0, broker=None):
         time.sleep(0.01)
 
 
-def fetch_group(group_id, failures=True, cached=True):
+def fetch_group(group_id, failures=True, cached=False):
     """
     Return a list of Tasks for a task group.
 
