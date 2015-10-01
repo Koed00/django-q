@@ -31,6 +31,10 @@ def test_cached(broker):
     async('math.copysign', 1, -1, cached=True, broker=broker, group=group)
     async('math.copysign', 1, -1, cached=True, broker=broker, group=group)
     async('math.copysign', 1, -1, cached=True, broker=broker, group=group)
+    async('math.popysign', 1, -1, cached=True, broker=broker, group=group)
+    # test wait on cache
+    assert result(task_id, wait=1, cached=True) is None
+    assert fetch(task_id, wait=1, cached=True) is None
     # run a single cluster
     start_event = Event()
     stop_event = Event()
@@ -42,10 +46,11 @@ def test_cached(broker):
     # make sure it's not in the db backend
     assert fetch(task_id) is None
     # assert group
-    assert count_group(group, cached=True) == 5
-    assert count_group(group, cached=True, failures=True) == 0
+    assert count_group(group, cached=True) == 6
+    assert count_group(group, cached=True, failures=True) == 1
     assert result_group(group, cached=True) == [-1, -1, -1, -1, -1]
-    assert len(fetch_group(group, cached=True)) == 5
+    assert len(result_group(group, cached=True, failures=True)) == 6
+    assert len(fetch_group(group, cached=True)) == 6
     assert len(fetch_group(group, cached=True, failures=False)) == 5
     delete_group(group, cached=True)
     assert count_group(group, cached=True) is None

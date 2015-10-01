@@ -266,7 +266,7 @@ def count_group_cached(group_id, failures=False, broker=None):
         return failure_count
 
 
-def delete_group(group_id, tasks=False, cached=Conf.CACHE):
+def delete_group(group_id, tasks=False, cached=Conf.CACHED):
     """
     Delete a group.
 
