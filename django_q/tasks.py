@@ -15,7 +15,7 @@ from django_q.brokers import get_broker
 
 
 def async(func, *args, **kwargs):
-    """Send a task to the cluster."""
+    """Queue a task for the cluster."""
     # get options from q_options dict or direct from kwargs
     options = kwargs.pop('q_options', kwargs)
     hook = options.pop('hook', None)
@@ -94,7 +94,7 @@ def result(task_id, wait=0, cached=Conf.CACHED):
     :param task_id: the task name or uuid
     :type wait: int
     :param wait: number of milliseconds to wait for a result
-    :param cached: run this against the cache backend
+    :param bool cached: run this against the cache backend
     :return: the result object of this task
     :rtype: object
     """
@@ -127,35 +127,58 @@ def result_cached(task_id, wait=0, broker=None):
         time.sleep(0.01)
 
 
-def result_group(group_id, failures=False, cached=Conf.CACHED):
+def result_group(group_id, failures=False, wait=0, count=None, cached=Conf.CACHED):
     """
     Return a list of results for a task group.
 
     :param str group_id: the group id
     :param bool failures: set to True to include failures
-    :param cached: run this against the cache backend
+    :param int count: Block until there are this many results in the group
+    :param bool cached: run this against the cache backend
     :return: list or results
     """
     if cached:
-        return result_group_cached(group_id, failures)
-    return Task.get_result_group(group_id, failures)
+        return result_group_cached(group_id, failures, wait, count)
+    start = time.time()
+    if count:
+        while True:
+            if count_group(group_id) == count or wait and (time.time() - start) * 1000 >= wait:
+                break
+            time.sleep(0.01)
+    while True:
+        r = Task.get_result_group(group_id, failures)
+        if r:
+            return r
+        if (time.time() - start) * 1000 >= wait:
+            break
+        time.sleep(0.01)
 
 
-def result_group_cached(group_id, failures=False, broker=None):
+def result_group_cached(group_id, failures=False, wait=0, count=None, broker=None):
     """
     Return a list of results for a task group from the cache backend
     """
     if not broker:
         broker = get_broker()
+    start = time.time()
+    if count:
+        while True:
+            if count_group_cached(group_id) == count or wait and (time.time() - start) * 1000 >= wait:
+                break
+            time.sleep(0.01)
     key = 'django_q:{}:results'.format(broker.list_key)
-    group_list = broker.cache.get('{}:{}'.format(key, group_id))
-    if group_list:
-        result_list = []
-        for task_package in group_list:
-            task = signing.SignedPackage.loads(task_package)
-            if task['success'] or failures:
-                result_list.append(task['result'])
-        return result_list
+    while True:
+        group_list = broker.cache.get('{}:{}'.format(key, group_id))
+        if group_list:
+            result_list = []
+            for task_package in group_list:
+                task = signing.SignedPackage.loads(task_package)
+                if task['success'] or failures:
+                    result_list.append(task['result'])
+            return result_list
+        if (time.time() - start) * 1000 >= wait:
+            break
+        time.sleep(0.01)
 
 
 def fetch(task_id, wait=0, cached=Conf.CACHED):
@@ -166,7 +189,7 @@ def fetch(task_id, wait=0, cached=Conf.CACHED):
     :type task_id: str or uuid
     :param wait: the number of milliseconds to wait for a result
     :type wait: int
-    :param cached: run this against the cache backend
+    :param bool cached: run this against the cache backend
     :return: the full task object
     :rtype: Task
     """
@@ -210,46 +233,68 @@ def fetch_cached(task_id, wait=0, broker=None):
         time.sleep(0.01)
 
 
-def fetch_group(group_id, failures=True, cached=Conf.CACHED):
+def fetch_group(group_id, failures=True, wait=0, count=None, cached=Conf.CACHED):
     """
     Return a list of Tasks for a task group.
 
     :param str group_id: the group id
     :param bool failures: set to False to exclude failures
-    :param cached: run this against the cache backend
+    :param bool cached: run this against the cache backend
     :return: list of Tasks
     """
     if cached:
-        return fetch_group_cached(group_id, failures)
-    return Task.get_task_group(group_id, failures)
+        return fetch_group_cached(group_id, failures, wait, count)
+    start = time.time()
+    if count:
+        while True:
+            if count_group(group_id) == count or wait and (time.time() - start) * 1000 >= wait:
+                break
+            time.sleep(0.01)
+    while True:
+        r = Task.get_task_group(group_id, failures)
+        if r:
+            return r
+        if (time.time() - start) * 1000 >= wait:
+            break
+        time.sleep(0.01)
 
 
-def fetch_group_cached(group_id, failures=True, broker=None):
+def fetch_group_cached(group_id, failures=True, wait=0, count=None, broker=None):
     """
     Return a list of Tasks for a task group in the cache backend
     """
     if not broker:
         broker = get_broker()
+    start = time.time()
+    if count:
+        while True:
+            if count_group_cached(group_id) == count or wait and (time.time() - start) * 1000 >= wait:
+                break
+            time.sleep(0.01)
     key = 'django_q:{}:results'.format(broker.list_key)
-    group_list = broker.cache.get('{}:{}'.format(key, group_id))
-    if group_list:
-        task_list = []
-        for task_package in group_list:
-            task = signing.SignedPackage.loads(task_package)
-            if task['success'] or failures:
-                t = Task(id=task['id'],
-                         name=task['name'],
-                         func=task['func'],
-                         hook=task.get('hook'),
-                         args=task['args'],
-                         kwargs=task['kwargs'],
-                         started=task['started'],
-                         stopped=task['stopped'],
-                         result=task['result'],
-                         group=task.get('group'),
-                         success=task['success'])
-                task_list.append(t)
-        return task_list
+    while True:
+        group_list = broker.cache.get('{}:{}'.format(key, group_id))
+        if group_list:
+            task_list = []
+            for task_package in group_list:
+                task = signing.SignedPackage.loads(task_package)
+                if task['success'] or failures:
+                    t = Task(id=task['id'],
+                             name=task['name'],
+                             func=task['func'],
+                             hook=task.get('hook'),
+                             args=task['args'],
+                             kwargs=task['kwargs'],
+                             started=task['started'],
+                             stopped=task['stopped'],
+                             result=task['result'],
+                             group=task.get('group'),
+                             success=task['success'])
+                    task_list.append(t)
+            return task_list
+        if (time.time() - start) * 1000 >= wait:
+            break
+        time.sleep(0.01)
 
 
 def count_group(group_id, failures=False, cached=Conf.CACHED):
@@ -258,7 +303,7 @@ def count_group(group_id, failures=False, cached=Conf.CACHED):
 
     :param str group_id: the group id
     :param bool failures: Returns failure count if True
-    :param cached: run this against the cache backend
+    :param bool cached: run this against the cache backend
     :return: the number of tasks/results in a group
     :rtype: int
     """
@@ -293,7 +338,7 @@ def delete_group(group_id, tasks=False, cached=Conf.CACHED):
     :param str group_id: the group id
     :param bool tasks: If set to True this will also delete the group tasks.
     Otherwise just the group label is removed.
-    :param cached: run this against the cache backend
+    :param bool cached: run this against the cache backend
     :return:
     """
     if cached:
