@@ -59,6 +59,12 @@ sync
 Simulates a task execution synchronously. Useful for testing.
 Can also be forced globally via the :ref:`sync` configuration option.
 
+cached
+""""""
+Redirects the result to the cache backend instead of the database if set to ``True`` or to an integer indicating the cache timeout in seconds.
+e.g. ``cached=60``. Especially useful with large and group operations where you don't need the all results in your
+database and want to take advantage of the speed of your cache backend.
+
 broker
 """"""
 A broker instance, in case you want to control your own connections.
@@ -149,6 +155,47 @@ You can also access group functions from a task result instance:
         task.group_delete()
         print('Deleted group {}'.format(task.group))
 
+Cached operations
+-----------------
+You can run your tasks results against the Django cache backend instead of the database backend by either using the global :ref:`cached` setting or by supplying the ``cached`` keyword to individual functions.
+This can be useful if you are not interested in persistent results or if you run large group tasks where you only want the final result.
+By using a cache backend like Redis or Memcached you can speed up access to your task results significantly compared to a relational database.
+
+When you set ``cached=True``, results will be saved permanently in the cache and you will have to rely on your backend's cleanup strategies (like LRU) to
+manage stale results.
+You can however opt to set a manual timeout on the results, by setting ``cached=60``. Meaning the result will be evicted from the cache after 60 seconds.
+This works both globally or on individual async executions.::
+
+    # simple cached example
+    from django_q.tasks import async, result
+
+    # cache the result for 10 seconds
+    id = async('math.floor', 100, cached=10)
+
+    # wait max 50ms for the result to appear in the cache
+    result(id, wait=50, cached=True)
+
+This also works for group actions::
+
+    # cached group example
+    from django_q.tasks import async, result_group
+    from django_q.brokers import get_broker
+
+    # set up a broker instance for better performance
+    broker = get_broker()
+
+    # async a hundred functions under a group label
+    for i in range(100):
+        async('math.frexp',
+              i,
+              group='frexp',
+              cached=True,
+              broker=broker)
+
+    # wait max 50ms for one hundred results to return
+    result_group('frexp', wait=50, count=100, cached=True)
+
+
 Synchronous testing
 -------------------
 
@@ -199,7 +246,7 @@ Reference
 ---------
 
 .. py:function:: async(func, *args, hook=None, group=None, timeout=None,\
-    save=None, sync=False, broker=None, q_options=None, **kwargs)
+    save=None, sync=False, cached=False, broker=None, q_options=None, **kwargs)
 
     Puts a task in the cluster queue
 
@@ -210,26 +257,29 @@ Reference
    :param int timeout: Overrides global cluster :ref:`timeout`.
    :param bool save: Overrides global save setting for this task.
    :param bool sync: If set to True, async will simulate a task execution
+   :param cached: Output the result to the cache backend. Bool or timeout in seconds
    :param broker: Optional broker connection from :func:`brokers.get_broker`
    :param dict q_options: Options dict, overrides option keywords
    :param dict kwargs: Keyword arguments for the task function
    :returns: The uuid of the task
    :rtype: str
 
-.. py:function:: result(task_id, wait=0)
+.. py:function:: result(task_id, wait=0, cached=False)
 
     Gets the result of a previously executed task
 
     :param str task_id: the uuid or name of the task
     :param int wait: optional milliseconds to wait for a result
+    :param bool cached: run this against the cache backend.
     :returns: The result of the executed task
 
-.. py:function:: fetch(task_id, wait=0)
+.. py:function:: fetch(task_id, wait=0, cached=False)
 
     Returns a previously executed task
 
     :param str name: the uuid or name of the task
     :param int wait: optional milliseconds to wait for a result
+    :param bool cached: run this against the cache backend.
     :returns: A task object
     :rtype: Task
 
@@ -245,41 +295,57 @@ Reference
     :returns: The amount of task packages in the broker
     :rtype: int
 
-.. py:function:: result_group(group_id, failures=False)
+.. py:function:: result_group(group_id, failures=False, wait=0, count=None, cached=False)
 
     Returns the results of a task group
 
     :param str group_id: the group identifier
     :param bool failures: set this to ``True`` to include failed results
+    :param int wait: optional milliseconds to wait for a result or count
+    :param int count: block until there are this many results in the group
+    :param bool cached: run this against the cache backend
     :returns: a list of results
     :rtype: list
 
-.. py:function:: fetch_group(group_id, failures=True)
+.. py:function:: fetch_group(group_id, failures=True, wait=0, count=None, cached=False)
 
     Returns a list of tasks in a group
 
     :param str group_id: the group identifier
     :param bool failures: set this to ``False`` to exclude failed tasks
-    :returns: a list of Tasks
+    :param int wait: optional milliseconds to wait for a task or count
+    :param int count: block until there are this many tasks in the group
+    :param bool cached: run this against the cache backend.
+    :returns: a list of :class:`Task`
     :rtype: list
 
-.. py:function:: count_group(group_id, failures=False)
+.. py:function:: count_group(group_id, failures=False, cached=False)
 
     Counts the number of task results in a group.
 
     :param str group_id: the group identifier
     :param bool failures: counts the number of failures if ``True``
+    :param bool cached: run this against the cache backend.
     :returns: the number of tasks or failures in a group
     :rtype: int
 
-.. py:function:: delete_group(group_id, tasks=False)
+.. py:function:: delete_group(group_id, tasks=False, cached=False)
 
     Deletes a group label from the database.
 
     :param str group_id: the group identifier
     :param bool tasks: also deletes the associated tasks if ``True``
+    :param bool cached: run this against the cache backend.
     :returns: the numbers of tasks affected
     :rtype: int
+
+.. py:function:: delete_cached(task_id, broker=None)
+
+    Deletes a task from the cache backend
+
+    :param task_id: the uuid of the task
+    :param broker: an optional broker instance
+
 
 .. py:class:: Task
 
