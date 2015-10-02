@@ -33,8 +33,13 @@ def test_cached(broker):
     async('math.copysign', 1, -1, cached=True, broker=broker, group=group)
     async('math.popysign', 1, -1, cached=True, broker=broker, group=group)
     # test wait on cache
-    assert result(task_id, wait=1, cached=True) is None
-    assert fetch(task_id, wait=1, cached=True) is None
+    # test wait timeout
+    assert result(task_id, wait=10, cached=True) is None
+    assert fetch(task_id, wait=10, cached=True) is None
+    assert result_group(group, wait=10, cached=True) is None
+    assert result_group(group, count=2, wait=10, cached=True) is None
+    assert fetch_group(group, wait=10, cached=True) is None
+    assert fetch_group(group, count=2, wait=10, cached=True) is None
     # run a single cluster
     start_event = Event()
     stop_event = Event()
@@ -42,7 +47,7 @@ def test_cached(broker):
     Sentinel(stop_event, start_event, broker=broker)
     # assert results
     assert result(task_id, wait=500, cached=True) == -1
-    assert fetch(task_id,wait=500, cached=True).result == -1
+    assert fetch(task_id, wait=500, cached=True).result == -1
     # make sure it's not in the db backend
     assert fetch(task_id) is None
     # assert group
