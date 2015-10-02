@@ -1,4 +1,4 @@
-"""Provides task functionalities."""
+"""Provides task functionality."""
 from multiprocessing import Queue, Value
 
 # django
@@ -94,6 +94,7 @@ def result(task_id, wait=0, cached=Conf.CACHED):
     :param task_id: the task name or uuid
     :type wait: int
     :param wait: number of milliseconds to wait for a result
+    :param cached: run this against the cache backend
     :return: the result object of this task
     :rtype: object
     """
@@ -110,6 +111,9 @@ def result(task_id, wait=0, cached=Conf.CACHED):
 
 
 def result_cached(task_id, wait=0, broker=None):
+    """
+     Return the result from the cache backend
+    """
     if not broker:
         broker = get_broker()
     key = 'django_q:{}:results'.format(broker.list_key)
@@ -129,6 +133,7 @@ def result_group(group_id, failures=False, cached=Conf.CACHED):
 
     :param str group_id: the group id
     :param bool failures: set to True to include failures
+    :param cached: run this against the cache backend
     :return: list or results
     """
     if cached:
@@ -137,6 +142,9 @@ def result_group(group_id, failures=False, cached=Conf.CACHED):
 
 
 def result_group_cached(group_id, failures=False, broker=None):
+    """
+    Return a list of results for a task group from the cache backend
+    """
     if not broker:
         broker = get_broker()
     key = 'django_q:{}:results'.format(broker.list_key)
@@ -158,6 +166,7 @@ def fetch(task_id, wait=0, cached=Conf.CACHED):
     :type task_id: str or uuid
     :param wait: the number of milliseconds to wait for a result
     :type wait: int
+    :param cached: run this against the cache backend
     :return: the full task object
     :rtype: Task
     """
@@ -174,6 +183,9 @@ def fetch(task_id, wait=0, cached=Conf.CACHED):
 
 
 def fetch_cached(task_id, wait=0, broker=None):
+    """
+    Return the processed task from the cache backend
+    """
     if not broker:
         broker = get_broker()
     key = 'django_q:{}:results'.format(broker.list_key)
@@ -198,12 +210,13 @@ def fetch_cached(task_id, wait=0, broker=None):
         time.sleep(0.01)
 
 
-def fetch_group(group_id, failures=True, cached=False):
+def fetch_group(group_id, failures=True, cached=Conf.CACHED):
     """
     Return a list of Tasks for a task group.
 
     :param str group_id: the group id
     :param bool failures: set to False to exclude failures
+    :param cached: run this against the cache backend
     :return: list of Tasks
     """
     if cached:
@@ -212,6 +225,9 @@ def fetch_group(group_id, failures=True, cached=False):
 
 
 def fetch_group_cached(group_id, failures=True, broker=None):
+    """
+    Return a list of Tasks for a task group in the cache backend
+    """
     if not broker:
         broker = get_broker()
     key = 'django_q:{}:results'.format(broker.list_key)
@@ -242,6 +258,7 @@ def count_group(group_id, failures=False, cached=Conf.CACHED):
 
     :param str group_id: the group id
     :param bool failures: Returns failure count if True
+    :param cached: run this against the cache backend
     :return: the number of tasks/results in a group
     :rtype: int
     """
@@ -251,6 +268,9 @@ def count_group(group_id, failures=False, cached=Conf.CACHED):
 
 
 def count_group_cached(group_id, failures=False, broker=None):
+    """
+    Count the results in a group in the cache backend
+    """
     if not broker:
         broker = get_broker()
     key = 'django_q:{}:results'.format(broker.list_key)
@@ -273,6 +293,7 @@ def delete_group(group_id, tasks=False, cached=Conf.CACHED):
     :param str group_id: the group id
     :param bool tasks: If set to True this will also delete the group tasks.
     Otherwise just the group label is removed.
+    :param cached: run this against the cache backend
     :return:
     """
     if cached:
@@ -281,12 +302,18 @@ def delete_group(group_id, tasks=False, cached=Conf.CACHED):
 
 
 def delete_group_cached(group_id, broker=None):
+    """
+    Delete a group from the cache backend
+    """
     if not broker:
         broker = get_broker()
     return delete_cached(group_id, broker)
 
 
 def delete_cached(task_id, broker=None):
+    """
+    Delete a task from the cache backend
+    """
     if not broker:
         broker = get_broker()
     key = 'django_q:{}:results'.format(broker.list_key)
