@@ -160,6 +160,13 @@ def test_async(broker, admin_user):
     assert broker.queue_size() == 0
     assert task_queue.qsize() == task_count
     task_queue.put('STOP')
+    # test wait timeout
+    assert result(j, wait=10) is None
+    assert fetch(j, wait=10) is None
+    assert result_group('test_j', wait=10) is None
+    assert result_group('test_j', count=2, wait=10) is None
+    assert fetch_group('test_j', wait=10) is None
+    assert fetch_group('test_j', count=2, wait=10) is None
     # let a worker handle them
     result_queue = Queue()
     worker(task_queue, result_queue, Value('f', -1))

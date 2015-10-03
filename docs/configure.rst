@@ -308,6 +308,13 @@ cache
 For some brokers, you will need to set up the Django `cache framework <https://docs.djangoproject.com/en/1.8/topics/cache/#setting-up-the-cache>`__
 to gather statistics for the monitor. You can indicate which cache to use by setting this value. Defaults to ``default``.
 
+.. _cached:
+
+cached
+~~~~~~
+Switches all task and result functions from using the database backend to the cache backend. This is the same as setting the keyword ``cached=True`` on all task functions.
+Instead of a bool this can also be set to the number of seconds you want the cache to retain results. e.g. ``cached=60``
+
 scheduler
 ~~~~~~~~~
 You can disable the scheduler by setting this option to ``False``. This will reduce a little overhead if you're not using schedules, but is most useful if you want to temporarily disable all schedules.

@@ -325,7 +325,11 @@ def monitor(result_queue, broker=None):
         if ack_id:
             broker.acknowledge(ack_id)
         # save the result
-        save_task(task)
+        if task.get('cached', False):
+            save_cached(task, broker)
+        else:
+            save_task(task)
+        # log the result
         if task['success']:
             logger.info(_("Processed [{}]").format(task['name']))
         else:
@@ -384,7 +388,7 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
 
 def save_task(task):
     """
-    Saves the task package to Django
+    Saves the task package to Django or the cache
     """
     # SAVE LIMIT < 0 : Don't save success
     if not task.get('save', Conf.SAVE_LIMIT > 0) and task['success']:
@@ -405,6 +409,43 @@ def save_task(task):
                             result=task['result'],
                             group=task.get('group'),
                             success=task['success'])
+    except Exception as e:
+        logger.error(e)
+
+
+def save_cached(task, broker):
+    task_key = '{}:{}'.format(broker.list_key, task['id'])
+    timeout = task['cached']
+    if timeout is True:
+        timeout = None
+    try:
+        group = task.get('group', False)
+        iter_count = task.get('iter_count', None)
+        # if it's a group append to the group list
+        if group:
+            task_key = '{}:{}:{}'.format(broker.list_key, group, task['id'])
+            group_key = '{}:{}:keys'.format(broker.list_key, group)
+            group_list = broker.cache.get(group_key) or []
+            # if it's an inter group, check if we are ready
+            if iter_count and len(group_list) == iter_count-1:
+                group_args = '{}:{}:args'.format(broker.list_key, group)
+                # collate the results into a Task result
+                results = [signing.SignedPackage.loads(broker.cache.get(k))['result'] for k in group_list]
+                results.append(task['result'])
+                task['result'] = results
+                task['id'] = group
+                task['args'] = signing.SignedPackage.loads(broker.cache.get(group_args))
+                save_task(task)
+                broker.cache.delete_many(group_list)
+                broker.cache.delete_many([group_key, group_args])
+                return
+            # save the group list
+            group_list.append(task_key)
+            broker.cache.set(group_key, group_list)
+        # save the task
+        broker.cache.set(task_key,
+                         signing.SignedPackage.dumps(task),
+                         timeout)
     except Exception as e:
         logger.error(e)
 
