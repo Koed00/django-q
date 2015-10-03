@@ -24,6 +24,7 @@ def async(func, *args, **kwargs):
     group = options.pop('group', None)
     save = options.pop('save', None)
     cached = options.pop('cached', Conf.CACHED)
+    iter_count = options.pop('iter_count', None)
     # get an id
     tag = uuid()
     # build the task package
@@ -41,6 +42,8 @@ def async(func, *args, **kwargs):
         task['save'] = save
     if cached:
         task['cached'] = cached
+    if iter_count:
+        task['iter_count'] = iter_count
     # sign it
     pack = signing.SignedPackage.dumps(task)
     if sync or Conf.SYNC:
@@ -116,10 +119,9 @@ def result_cached(task_id, wait=0, broker=None):
     """
     if not broker:
         broker = get_broker()
-    key = 'django_q:{}:results'.format(broker.list_key)
     start = time.time()
     while True:
-        r = broker.cache.get('{}:{}'.format(key, task_id))
+        r = broker.cache.get('{}:{}'.format(broker.list_key, task_id))
         if r:
             return signing.SignedPackage.loads(r)['result']
         if (time.time() - start) * 1000 >= wait:
@@ -166,13 +168,12 @@ def result_group_cached(group_id, failures=False, wait=0, count=None, broker=Non
             if count_group_cached(group_id) == count or wait and (time.time() - start) * 1000 >= wait:
                 break
             time.sleep(0.01)
-    key = 'django_q:{}:results'.format(broker.list_key)
     while True:
-        group_list = broker.cache.get('{}:{}'.format(key, group_id))
+        group_list = broker.cache.get('{}:{}:keys'.format(broker.list_key, group_id))
         if group_list:
             result_list = []
-            for task_package in group_list:
-                task = signing.SignedPackage.loads(task_package)
+            for task_key in group_list:
+                task = signing.SignedPackage.loads(broker.cache.get(task_key))
                 if task['success'] or failures:
                     result_list.append(task['result'])
             return result_list
@@ -211,10 +212,9 @@ def fetch_cached(task_id, wait=0, broker=None):
     """
     if not broker:
         broker = get_broker()
-    key = 'django_q:{}:results'.format(broker.list_key)
     start = time.time()
     while True:
-        r = broker.cache.get('{}:{}'.format(key, task_id))
+        r = broker.cache.get('{}:{}'.format(broker.list_key, task_id))
         if r:
             task = signing.SignedPackage.loads(r)
             t = Task(id=task['id'],
@@ -271,13 +271,12 @@ def fetch_group_cached(group_id, failures=True, wait=0, count=None, broker=None)
             if count_group_cached(group_id) == count or wait and (time.time() - start) * 1000 >= wait:
                 break
             time.sleep(0.01)
-    key = 'django_q:{}:results'.format(broker.list_key)
     while True:
-        group_list = broker.cache.get('{}:{}'.format(key, group_id))
+        group_list = broker.cache.get('{}:{}:keys'.format(broker.list_key, group_id))
         if group_list:
             task_list = []
-            for task_package in group_list:
-                task = signing.SignedPackage.loads(task_package)
+            for task_key in group_list:
+                task = signing.SignedPackage.loads(broker.cache.get(task_key))
                 if task['success'] or failures:
                     t = Task(id=task['id'],
                              name=task['name'],
@@ -318,14 +317,13 @@ def count_group_cached(group_id, failures=False, broker=None):
     """
     if not broker:
         broker = get_broker()
-    key = 'django_q:{}:results'.format(broker.list_key)
-    group_list = broker.cache.get('{}:{}'.format(key, group_id))
+    group_list = broker.cache.get('{}:{}:keys'.format(broker.list_key, group_id))
     if group_list:
         if not failures:
             return len(group_list)
         failure_count = 0
-        for task_package in group_list:
-            task = signing.SignedPackage.loads(task_package)
+        for task_key in group_list:
+            task = signing.SignedPackage.loads(broker.cache.get(task_key))
             if not task['success']:
                 failure_count += 1
         return failure_count
@@ -352,7 +350,10 @@ def delete_group_cached(group_id, broker=None):
     """
     if not broker:
         broker = get_broker()
-    return delete_cached(group_id, broker)
+    group_key = '{}:{}:keys'.format(broker.list_key, group_id)
+    group_list = broker.cache.get(group_key)
+    broker.cache.delete_many(group_list)
+    broker.cache.delete(group_key)
 
 
 def delete_cached(task_id, broker=None):
@@ -361,14 +362,13 @@ def delete_cached(task_id, broker=None):
     """
     if not broker:
         broker = get_broker()
-    key = 'django_q:{}:results'.format(broker.list_key)
-    return broker.cache.delete('{}:{}'.format(key, task_id))
+    return broker.cache.delete('{}:{}'.format(broker.list_key, task_id))
 
 
 def queue_size(broker=None):
     """
     Returns the current queue size.
-    Note that this doesn't count any tasks currently being processed by workers.
+    Note that this doesn't count any tasks curren    key = 'django_q:{}:results'.format(broker.list_key)tly being processed by workers.
 
     :param broker: optional broker
     :return: current queue size
@@ -377,6 +377,26 @@ def queue_size(broker=None):
     if not broker:
         broker = get_broker()
     return broker.queue_size()
+
+
+def async_iter(func, args_iter, **kwargs):
+    iter_count = len(args_iter)
+    iter_group = uuid()[1]
+    # clean up the kwargs
+    options = kwargs.get('q_options', kwargs)
+    options.pop('hook', None)
+    options['broker'] = options.get('broker', get_broker())
+    options['group'] = iter_group
+    options['iter_count'] = iter_count
+    options['cached'] = True
+    # save the original arguments
+    broker = options['broker']
+    broker.cache.set('{}:{}:args'.format(broker.list_key, iter_group), signing.SignedPackage.dumps(args_iter))
+    for args in args_iter:
+        if type(args) is not tuple:
+            args = (args,)
+        async(func, *args, **options)
+    return iter_group
 
 
 def _sync(pack):
