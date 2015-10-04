@@ -4,7 +4,8 @@ import pytest
 
 from django_q.cluster import Sentinel
 from django_q.conf import Conf
-from django_q.tasks import async, result, fetch, count_group, result_group, fetch_group, delete_group, delete_cached
+from django_q.tasks import async, result, fetch, count_group, result_group, fetch_group, delete_group, delete_cached, \
+    async_iter
 from django_q.brokers import get_broker
 
 
@@ -63,3 +64,23 @@ def test_cached(broker):
     assert result(task_id, cached=True) is None
     assert fetch(task_id, cached=True) is None
     broker.cache.clear()
+
+
+@pytest.mark.django_db
+def test_iter(broker):
+    broker.purge_queue()
+    broker.cache.clear()
+    it = [i for i in range(10)]
+    it2 = [(1, -1), (2, -1), (3, -4), (5, 6)]
+    it3 = (1, 2, 3, 4, 5)
+    t = async_iter('math.floor', it, sync=True)
+    t2 = async_iter('math.copysign', it2, sync=True)
+    t3 = async_iter('math.floor', it3, sync=True)
+    t4 = async_iter('math.floor', (1,), sync=True)
+    result_t = result(t)
+    assert result_t is not None
+    task_t = fetch(t)
+    assert task_t.result == result_t
+    assert result(t2) is not None
+    assert result(t3) is not None
+    assert result(t4)[0] == 1
