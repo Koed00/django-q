@@ -5,9 +5,9 @@
 #    pip-compile requirements.in
 #
 arrow==0.6.0
-blessed==1.9.5
+blessed==1.10.0
 boto3==1.1.4
-botocore==1.2.6           # via boto3
+botocore==1.2.7           # via boto3
 django-picklefield==0.3.2
 django-redis==4.2.0
 docutils==0.12            # via botocore
@@ -16,12 +16,12 @@ futures==2.2.0            # via boto3
 hiredis==0.2.0
 iron-core==1.1.9          # via iron-mq
 iron-mq==0.7
-jmespath==0.8.0           # via boto3, botocore
+jmespath==0.9.0           # via boto3, botocore
 msgpack-python==0.4.6     # via django-redis
 psutil==3.2.1
 pymongo==3.0.3
 python-dateutil==2.4.2    # via arrow, botocore, iron-core
 redis==2.10.3
 requests==2.7.0           # via iron-core
-six==1.9.0                # via python-dateutil
+six==1.9.0                # via blessed, python-dateutil
 wcwidth==0.1.5            # via blessed
