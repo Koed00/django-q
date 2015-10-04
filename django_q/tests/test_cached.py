@@ -80,6 +80,7 @@ def test_iter(broker):
     result_t = result(t)
     assert result_t is not None
     task_t = fetch(t)
+    assert task_t. __unicode__ is not None
     assert task_t.result == result_t
     assert result(t2) is not None
     assert result(t3) is not None
