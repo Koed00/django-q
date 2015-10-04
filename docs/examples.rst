@@ -253,8 +253,7 @@ Adapted from `Sebastian Raschka's blog <http://sebastianraschka.com/Articles/201
     # Group example with Parzen-window estimation
     import numpy
 
-    from django_q.tasks import async, result_group,\
-        count_group, delete_group
+    from django_q.tasks import async, result_group, delete_group
 
     # the estimation function
     def parzen_estimation(x_samples, point_x, h):
@@ -268,29 +267,46 @@ Adapted from `Sebastian Raschka's blog <http://sebastianraschka.com/Articles/201
                 k_n += 1
         return h, (k_n / len(x_samples)) / (h ** point_x.shape[1])
 
-
     # create 100 calculations and send them to the cluster
     def parzen_async():
         # clear the previous results
-        delete_group('parzen', tasks=True)
+        delete_group('parzen', cached=True)
         mu_vec = numpy.array([0, 0])
         cov_mat = numpy.array([[1, 0], [0, 1]])
-        sample = numpy.random.\
+        sample = numpy.random. \
             multivariate_normal(mu_vec, cov_mat, 10000)
         widths = numpy.linspace(1.0, 1.2, 100)
         x = numpy.array([[0], [0]])
-        # async them with a group label and a hook
+        # async them with a group label to the cache backend
         for w in widths:
             async(parzen_estimation, sample, x, w,
-             group='parzen', hook=parzen_hook)
+                  group='parzen', cached=True)
+        # return after 100 results
+        return result_group('parzen', count=100, cached=True)
 
-    # wait for 100 results to return and print it.
-    def parzen_hook(task):
-        if task.group_count() == 100:
-            print(task.group_result())
 
 
 Django Q is not optimized for distributed computing, but this example will give you an idea of what you can do with task :ref:`groups`.
+
+Alternatively the ``parzen_async()`` function can also be written with :func:`async_iter`, which automatically utilizes the cache backend and groups to return a single result from an iterable:
+
+.. code-block:: python
+
+    # create 100 calculations and send them to the cluster
+    # with async_iter
+    def parzen_async():
+        mu_vec = numpy.array([0, 0])
+        cov_mat = numpy.array([[1, 0], [0, 1]])
+        sample = numpy.random. \
+            multivariate_normal(mu_vec, cov_mat, 10000)
+        widths = numpy.linspace(1.0, 1.2, 100)
+        x = numpy.array([[0], [0]])
+        # async them with async iterable
+        args = [(sample, x, w) for w in widths]
+        result_id = async_iter(parzen_estimation, args)
+        # return the result or timeout after 10 seconds
+        return result(result_id, wait=10000)
+
 
 .. note::
 
