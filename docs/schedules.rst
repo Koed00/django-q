@@ -85,6 +85,7 @@ Or you can make a wrapper function which you can then schedule in Django Q:
     schedule('tasks.clear_sessions_command', schedule_type='H')
 
 
+Check out the :ref:`shell` examples if you want to schedule regular shell commands
 
 Reference
 ---------

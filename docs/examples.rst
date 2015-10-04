@@ -179,6 +179,8 @@ here's an example of how you can have Django Q take care of your indexes in real
 Now every time a Document is saved, your indexes will be updated without causing a delay in your save action.
 You could expand this to dealing with deletes, by adding a ``post_delete`` signal and calling ``index.remove_object`` in the async function.
 
+.. _shell:
+
 Shell
 =====
 You can execute or schedule shell commands using Pythons :mod:`subprocess` module:
@@ -267,7 +269,7 @@ Adapted from `Sebastian Raschka's blog <http://sebastianraschka.com/Articles/201
                 k_n += 1
         return h, (k_n / len(x_samples)) / (h ** point_x.shape[1])
 
-    # create 100 calculations and send them to the cluster
+    # create 100 calculations and return the collated result
     def parzen_async():
         # clear the previous results
         delete_group('parzen', cached=True)
@@ -292,8 +294,7 @@ Alternatively the ``parzen_async()`` function can also be written with :func:`as
 
 .. code-block:: python
 
-    # create 100 calculations and send them to the cluster
-    # with async_iter
+    # create 100 calculations and return the collated result
     def parzen_async():
         mu_vec = numpy.array([0, 0])
         cov_mat = numpy.array([[1, 0], [0, 1]])

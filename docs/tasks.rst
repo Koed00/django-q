@@ -187,7 +187,7 @@ By using a cache backend like Redis or Memcached you can speed up access to your
 
 When you set ``cached=True``, results will be saved permanently in the cache and you will have to rely on your backend's cleanup strategies (like LRU) to
 manage stale results.
-You can also opt to set a manual timeout on the results, by setting ``cached=60``. Meaning the result will be evicted from the cache after 60 seconds.
+You can also opt to set a manual timeout on the results, by setting e.g. ``cached=60``. Meaning the result will be evicted from the cache after 60 seconds.
 This works both globally or on individual async executions.::
 
     # simple cached example
@@ -199,8 +199,8 @@ This works both globally or on individual async executions.::
     # wait max 50ms for the result to appear in the cache
     result(id, wait=50, cached=True)
 
-    # o fetch the task object
-    task = fetch(id, cache=True)
+    # or fetch the task object
+    task = fetch(id, cached=True)
 
     # and then save it to the database
     task.save()
