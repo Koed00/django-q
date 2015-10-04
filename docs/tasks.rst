@@ -89,6 +89,28 @@ Please not that this will override any other option keywords.
     For tasks to be processed you will need to have a worker cluster running in the background using ``python manage.py qcluster``
     or you need to configure Django Q to run in synchronous mode for testing using the :ref:`sync` option.
 
+
+
+Async Iterable
+--------------
+If you have an iterable object with arguments for a function, you can use :func:`async_iter` to async them with a single command::
+
+    # Async Iterable example
+    from django_q.tasks import async_iter, result
+
+    # set up a list of arguments for math.floor
+    iter = [i for i in range(100)]
+
+    # async iter them
+    id=async_iter('math.floor',iter)
+
+    # wait for the collated result for 1 second
+    result_list = result(id, wait=1000)
+
+This will individually queue 100 tasks to the worker cluster, which will save their results in the cache backend for speed.
+Once all the 100 results are in the cache, they are collated into a list and saved as a single result in the database. The cache results are then cleared.
+Needs the Django cache framework.
+
 .. _groups:
 
 Groups
@@ -103,13 +125,15 @@ You can group together results by passing :func:`async` the optional ``group`` k
     for i in range(4):
         async('math.modf', i, group='modf')
 
-    # after the tasks have finished you can get the group results
-    result = result_group('modf')
+    # wait until the group has 4 results
+    result = result_group('modf', count=4)
     print(result)
 
 .. code-block:: python
 
     [(0.0, 0.0), (0.0, 1.0), (0.0, 2.0), (0.0, 3.0)]
+
+Note that the same can be achieved much faster with :func:`async_iter`
 
 Take care to not limit your results database too much and call :func:`delete_group` before each run, unless you want your results to keep adding up.
 Instead of :func:`result_group` you can also use :func:`fetch_group` to return a queryset of :class:`Task` objects.:
@@ -163,7 +187,7 @@ By using a cache backend like Redis or Memcached you can speed up access to your
 
 When you set ``cached=True``, results will be saved permanently in the cache and you will have to rely on your backend's cleanup strategies (like LRU) to
 manage stale results.
-You can however opt to set a manual timeout on the results, by setting ``cached=60``. Meaning the result will be evicted from the cache after 60 seconds.
+You can also opt to set a manual timeout on the results, by setting ``cached=60``. Meaning the result will be evicted from the cache after 60 seconds.
 This works both globally or on individual async executions.::
 
     # simple cached example
@@ -174,6 +198,12 @@ This works both globally or on individual async executions.::
 
     # wait max 50ms for the result to appear in the cache
     result(id, wait=50, cached=True)
+
+    # o fetch the task object
+    task = fetch(id, cache=True)
+
+    # and then save it to the database
+    task.save()
 
 This also works for group actions::
 
@@ -195,6 +225,7 @@ This also works for group actions::
     # wait max 50ms for one hundred results to return
     result_group('frexp', wait=50, count=100, cached=True)
 
+Note that exact same result can be achieved by using the more convenient :func:`async_iter` in this case, but without hook support.
 
 Synchronous testing
 -------------------
@@ -286,6 +317,16 @@ Reference
     .. versionchanged:: 0.2.0
 
     Renamed from get_task
+
+.. py:function:: async_iter(func, args_iter,**kwargs)
+
+   Runs iterable arguments against the cache backend and returns a single collated result
+
+   :param object func: The task function to execute
+   :param args: An iterable containing arguments for the task function
+   :param dict kwargs: Keyword arguments for the task function. Ignores ``cached`` and ``hook``.
+   :returns: The uuid of the task
+   :rtype: str
 
 .. py:function:: queue_size()
 
