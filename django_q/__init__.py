@@ -5,7 +5,7 @@ from django import get_version
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath)
 
-VERSION = (0, 7, 7)
+VERSION = (0, 7, 8)
 
 default_app_config = 'django_q.apps.DjangoQConfig'
 
