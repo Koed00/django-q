@@ -18,7 +18,7 @@ iron-core==1.1.9          # via iron-mq
 iron-mq==0.7
 jmespath==0.9.0           # via boto3, botocore
 msgpack-python==0.4.6     # via django-redis
-psutil==3.2.1
+psutil==3.2.2
 pymongo==3.0.3
 python-dateutil==2.4.2    # via arrow, botocore, iron-core
 redis==2.10.3
