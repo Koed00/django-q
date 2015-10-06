@@ -25,6 +25,7 @@ def async(func, *args, **kwargs):
     save = options.pop('save', None)
     cached = options.pop('cached', Conf.CACHED)
     iter_count = options.pop('iter_count', None)
+    iter_cached = options.pop('iter_cached', None)
     # get an id
     tag = uuid()
     # build the task package
@@ -44,6 +45,8 @@ def async(func, *args, **kwargs):
         task['cached'] = cached
     if iter_count:
         task['iter_count'] = iter_count
+    if iter_cached:
+        task['iter_cached'] = iter_cached
     # sign it
     pack = signing.SignedPackage.dumps(task)
     if sync or Conf.SYNC:
@@ -388,6 +391,8 @@ def async_iter(func, args_iter, **kwargs):
     options['broker'] = options.get('broker', get_broker())
     options['group'] = iter_group
     options['iter_count'] = iter_count
+    if options.get('cached', None):
+        options['iter_cached'] = options['cached']
     options['cached'] = True
     # save the original arguments
     broker = options['broker']
