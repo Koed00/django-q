@@ -320,11 +320,12 @@ Reference
 
 .. py:function:: async_iter(func, args_iter,**kwargs)
 
-   Runs iterable arguments against the cache backend and returns a single collated result
+   Runs iterable arguments against the cache backend and returns a single collated result.
+   Accepts the same options as :func:`async` except ``hook``.
 
    :param object func: The task function to execute
    :param args: An iterable containing arguments for the task function
-   :param dict kwargs: Keyword arguments for the task function. Ignores ``cached`` and ``hook``.
+   :param dict kwargs: Keyword arguments for the task function. Ignores ``hook``.
    :returns: The uuid of the task
    :rtype: str
 

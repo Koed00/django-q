@@ -420,7 +420,7 @@ def save_cached(task, broker):
         timeout = None
     try:
         group = task.get('group', False)
-        iter_count = task.get('iter_count', None)
+        iter_count = task.get('iter_count', 0)
         # if it's a group append to the group list
         if group:
             task_key = '{}:{}:{}'.format(broker.list_key, group, task['id'])
@@ -435,7 +435,13 @@ def save_cached(task, broker):
                 task['result'] = results
                 task['id'] = group
                 task['args'] = signing.SignedPackage.loads(broker.cache.get(group_args))
-                save_task(task)
+                task.pop('iter_count', None)
+                task.pop('group', None)
+                if task.get('iter_cached', None):
+                    task['cached'] = task.pop('iter_cached', None)
+                    save_cached(task, broker=broker)
+                else:
+                    save_task(task)
                 broker.cache.delete_many(group_list)
                 broker.cache.delete_many([group_key, group_args])
                 return

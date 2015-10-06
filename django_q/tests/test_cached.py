@@ -1,8 +1,8 @@
-from multiprocessing import Event
+from multiprocessing import Event, Queue, Value
 
 import pytest
+from django_q.cluster import pusher, worker, monitor
 
-from django_q.cluster import Sentinel
 from django_q.conf import Conf
 from django_q.tasks import async, result, fetch, count_group, result_group, fetch_group, delete_group, delete_cached, \
     async_iter
@@ -33,6 +33,7 @@ def test_cached(broker):
     async('math.copysign', 1, -1, cached=True, broker=broker, group=group)
     async('math.copysign', 1, -1, cached=True, broker=broker, group=group)
     async('math.popysign', 1, -1, cached=True, broker=broker, group=group)
+    iter_id = async_iter('math.floor', [i for i in range(10)], cached=True)
     # test wait on cache
     # test wait timeout
     assert result(task_id, wait=10, cached=True) is None
@@ -41,11 +42,23 @@ def test_cached(broker):
     assert result_group(group, count=2, wait=10, cached=True) is None
     assert fetch_group(group, wait=10, cached=True) is None
     assert fetch_group(group, count=2, wait=10, cached=True) is None
-    # run a single cluster
-    start_event = Event()
+    # run a single inline cluster
+    task_count = 17
+    assert broker.queue_size() == task_count
+    task_queue = Queue()
     stop_event = Event()
     stop_event.set()
-    Sentinel(stop_event, start_event, broker=broker)
+    for i in range(task_count):
+        pusher(task_queue, stop_event, broker=broker)
+    assert broker.queue_size() == 0
+    assert task_queue.qsize() == task_count
+    task_queue.put('STOP')
+    result_queue = Queue()
+    worker(task_queue, result_queue, Value('f', -1))
+    assert result_queue.qsize() == task_count
+    result_queue.put('STOP')
+    monitor(result_queue)
+    assert result_queue.qsize() == 0
     # assert results
     assert result(task_id, wait=500, cached=True) == -1
     assert fetch(task_id, wait=500, cached=True).result == -1
@@ -63,6 +76,9 @@ def test_cached(broker):
     delete_cached(task_id)
     assert result(task_id, cached=True) is None
     assert fetch(task_id, cached=True) is None
+    # iter cached
+    assert result(iter_id) is None
+    assert result(iter_id, cached=True) is not None
     broker.cache.clear()
 
 
@@ -85,3 +101,4 @@ def test_iter(broker):
     assert result(t2) is not None
     assert result(t3) is not None
     assert result(t4)[0] == 1
+    # test cached iter result
