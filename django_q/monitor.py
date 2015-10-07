@@ -13,7 +13,7 @@ from django.utils.translation import ugettext as _
 from django_q.conf import Conf
 from django_q.status import Stat
 from django_q.brokers import get_broker
-from django_q import models
+from django_q import models, VERSION
 
 
 def monitor(run_once=False, broker=None):
@@ -146,7 +146,10 @@ def info(broker=None):
     # print to terminal
     print(term.clear_eos())
     col_width = int(term.width / 6)
-    print(term.black_on_green(term.center(_('-- {} summary --').format(Conf.PREFIX))))
+    print(term.black_on_green(
+        term.center(
+            _('-- {} {} on {}  --').format(Conf.PREFIX.capitalize(), '.'.join(str(v) for v in VERSION),
+                                           broker.info()))))
     print(term.cyan(_('Clusters')) +
           term.move_x(1 * col_width) +
           term.white(str(clusters)) +
