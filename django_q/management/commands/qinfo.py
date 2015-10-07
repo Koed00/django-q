@@ -1,8 +1,10 @@
 from optparse import make_option
-from django.core.management.base import BaseCommand
-from django.utils.translation import ugettext as _
-from django_q import VERSION
 
+from django.core.management.base import BaseCommand
+
+from django.utils.translation import ugettext as _
+
+from django_q import VERSION
 from django_q.conf import Conf
 from django_q.monitor import info
 
