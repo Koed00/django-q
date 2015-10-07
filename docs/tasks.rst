@@ -205,6 +205,8 @@ This works both globally or on individual async executions.::
     # and then save it to the database
     task.save()
 
+As you can see you can easily turn a cached result into a permanent database result by calling ``save()`` on it.
+
 This also works for group actions::
 
     # cached group example
@@ -225,7 +227,7 @@ This also works for group actions::
     # wait max 50ms for one hundred results to return
     result_group('frexp', wait=50, count=100, cached=True)
 
-Note that exact same result can be achieved by using the more convenient :func:`async_iter` in this case, but without hook support.
+If you don't need hooks, that exact same result can be achieved by using the more convenient :func:`async_iter`.
 
 Synchronous testing
 -------------------
