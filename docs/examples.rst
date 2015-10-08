@@ -296,7 +296,7 @@ Alternatively the ``parzen_async()`` function can also be written with :func:`as
 
     # create 100 calculations and return the collated result
     def parzen_async():
-        mu_vec = numpy.array([0, 0])n this case, but without hook support.
+        mu_vec = numpy.array([0, 0])
         cov_mat = numpy.array([[1, 0], [0, 1]])
         sample = numpy.random. \
             multivariate_normal(mu_vec, cov_mat, 10000)
