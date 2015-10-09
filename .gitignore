@@ -57,8 +57,11 @@ docs/_build/
 target/
 
 dev-requirements.txt
+dev-requirements.in
 manage.py
 db.sqlite3
+*.ipynb
+*.rdb
 .venv
 .idea
 djq

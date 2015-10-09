@@ -7,7 +7,7 @@
 arrow==0.6.0
 blessed==1.10.0
 boto3==1.1.4
-botocore==1.2.9           # via boto3
+botocore==1.2.10          # via boto3
 django-picklefield==0.3.2
 django-redis==4.2.0
 docutils==0.12            # via botocore
