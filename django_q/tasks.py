@@ -456,7 +456,7 @@ class Chain(object):
         Start queueing the chain to the worker cluster
         :return: the chain's group id
         """
-        self.group = async_chain(chain=self.chain.copy(), group=self.group, cached=self.cached, sync=self.sync,
+        self.group = async_chain(chain=self.chain[:], group=self.group, cached=self.cached, sync=self.sync,
                                  broker=self.broker)
         self.started = True
         return self.group
