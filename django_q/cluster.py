@@ -328,7 +328,7 @@ def monitor(result_queue, broker=None):
         if task.get('cached', False):
             save_cached(task, broker)
         else:
-            save_task(task)
+            save_task(task, broker)
         # log the result
         if task['success']:
             logger.info(_("Processed [{}]").format(task['name']))
@@ -386,7 +386,7 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
     logger.info(_('{} stopped doing work').format(name))
 
 
-def save_task(task):
+def save_task(task, broker):
     """
     Saves the task package to Django or the cache
     """
@@ -395,7 +395,7 @@ def save_task(task):
         return
     # async next in a chain
     if task.get('chain', None):
-        tasks.async_chain(task['chain'], group=task['group'], cached=task['cached'])
+        tasks.async_chain(task['chain'], group=task['group'], cached=task['cached'], sync=task['sync'], broker=broker)
     # SAVE LIMIT > 0: Prune database, SAVE_LIMIT 0: No pruning
     db.close_old_connections()
     try:
@@ -430,7 +430,7 @@ def save_cached(task, broker):
             group_key = '{}:{}:keys'.format(broker.list_key, group)
             group_list = broker.cache.get(group_key) or []
             # if it's an iter group, check if we are ready
-            if iter_count and len(group_list) == iter_count-1:
+            if iter_count and len(group_list) == iter_count - 1:
                 group_args = '{}:{}:args'.format(broker.list_key, group)
                 # collate the results into a Task result
                 results = [signing.SignedPackage.loads(broker.cache.get(k))['result'] for k in group_list]
@@ -444,7 +444,7 @@ def save_cached(task, broker):
                     task['cached'] = task.pop('iter_cached', None)
                     save_cached(task, broker=broker)
                 else:
-                    save_task(task)
+                    save_task(task, broker)
                 broker.cache.delete_many(group_list)
                 broker.cache.delete_many([group_key, group_args])
                 return
@@ -453,7 +453,7 @@ def save_cached(task, broker):
             broker.cache.set(group_key, group_list)
             # async next in a chain
             if task.get('chain', None):
-                tasks.async_chain(task['chain'], group=group, cached=task['cached'])
+                tasks.async_chain(task['chain'], group=group, cached=task['cached'], sync=task['sync'], broker=broker)
         # save the task
         broker.cache.set(task_key,
                          signing.SignedPackage.dumps(task),

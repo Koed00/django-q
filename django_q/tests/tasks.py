@@ -38,5 +38,9 @@ def get_user_id(user):
     return user.id
 
 
+def hello():
+    return 'hello'
+
+
 def result(obj):
     print('RESULT HOOK {} : {}'.format(obj.name, obj.result))

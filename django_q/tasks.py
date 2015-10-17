@@ -19,11 +19,11 @@ def async(func, *args, **kwargs):
     # get options from q_options dict or direct from kwargs
     options = kwargs.pop('q_options', kwargs)
     broker = options.pop('broker', get_broker())
-    sync = options.pop('sync', False)
     # pop optionals
     opts = {'hook': None,
             'group': None,
             'save': None,
+            'sync': None,
             'cached': Conf.CACHED,
             'iter_count': None,
             'iter_cached': None,
@@ -44,7 +44,7 @@ def async(func, *args, **kwargs):
             task[key] = opts[key]
     # sign it
     pack = signing.SignedPackage.dumps(task)
-    if sync or Conf.SYNC:
+    if task.get('sync', False) or Conf.SYNC:
         return _sync(pack)
     # push it
     broker.enqueue(pack)
@@ -402,7 +402,7 @@ def async_iter(func, args_iter, **kwargs):
     return iter_group
 
 
-def async_chain(chain, group=None, cached=Conf.CACHED, sync=Conf.SYNC):
+def async_chain(chain, group=None, cached=Conf.CACHED, sync=Conf.SYNC, broker=None):
     """
     async a chain of tasks
     the chain must be in the format [(func,(args),{kwargs}),(func,(args),{kwargs})]
@@ -422,6 +422,7 @@ def async_chain(chain, group=None, cached=Conf.CACHED, sync=Conf.SYNC):
     kwargs['group'] = group
     kwargs['cached'] = cached
     kwargs['sync'] = sync
+    kwargs['broker'] = broker or get_broker()
     async(task[0], *args, **kwargs)
     return group
 
@@ -430,26 +431,34 @@ class Chain(object):
     """
     A sequential chain of tasks
     """
+
     def __init__(self, chain=None, group=None, cached=Conf.CACHED, sync=Conf.SYNC):
         self.chain = chain or []
         self.group = group or ''
+        self.broker = get_broker()
         self.cached = cached
         self.sync = sync
+        self.started = False
 
     def append(self, func, *args, **kwargs):
         """
         add a task to the chain
         takes the same parameters as async()
         """
-        task = (func, args, kwargs)
-        self.chain.append(task)
+        self.chain.append((func, args, kwargs))
+        # remove existing results
+        if self.started:
+            delete_group(self.group)
+            self.started = False
 
     def run(self):
         """
         Start queueing the chain to the worker cluster
         :return: the chain's group id
         """
-        self.group = async_chain(self.chain, group=self.group, cached=self.cached, sync=self.sync)
+        self.group = async_chain(chain=self.chain.copy(), group=self.group, cached=self.cached, sync=self.sync,
+                                 broker=self.broker)
+        self.started = True
         return self.group
 
     def result(self, wait=0):
@@ -458,7 +467,8 @@ class Chain(object):
         :param int wait: how many milliseconds to wait for a result
         :return: an unsorted list of results
         """
-        return result_group(self.group, wait=wait, count=len(self.chain), cached=self.cached)
+        if self.started:
+            return result_group(self.group, wait=wait, count=self.length(), cached=self.cached)
 
     def fetch(self, failures=True, wait=0):
         """
@@ -467,14 +477,24 @@ class Chain(object):
         :param int wait: how many milliseconds to wait for a result
         :return: an unsorted list of task objects
         """
-        return fetch_group(self.group, failures=failures, wait=wait, count=len(self.chain), cached=self.cached)
+        if self.started:
+            return fetch_group(self.group, failures=failures, wait=wait, count=self.length(), cached=self.cached)
 
     def current(self):
         """
         get the index of the currently executing chain element
         :return int: current chain index
         """
+        if not self.started:
+            return None
         return count_group(self.group, cached=self.cached)
+
+    def length(self):
+        """
+        get the length of the chain
+        :return int: length of the chain
+        """
+        return len(self.chain)
 
 
 def _sync(pack):
