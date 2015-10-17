@@ -79,7 +79,7 @@ class Task(models.Model):
         return (self.stopped - self.started).total_seconds()
 
     def __unicode__(self):
-        return self.name
+        return u'{}'.format(self.name or self.id)
 
     class Meta:
         app_label = 'django_q'

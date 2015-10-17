@@ -393,6 +393,9 @@ def save_task(task):
     # SAVE LIMIT < 0 : Don't save success
     if not task.get('save', Conf.SAVE_LIMIT > 0) and task['success']:
         return
+    # async next in a chain
+    if task.get('chain', None):
+        tasks.async_chain(task['chain'], group=task['group'], cached=task['cached'])
     # SAVE LIMIT > 0: Prune database, SAVE_LIMIT 0: No pruning
     db.close_old_connections()
     try:
@@ -419,14 +422,14 @@ def save_cached(task, broker):
     if timeout is True:
         timeout = None
     try:
-        group = task.get('group', False)
+        group = task.get('group', None)
         iter_count = task.get('iter_count', 0)
         # if it's a group append to the group list
         if group:
             task_key = '{}:{}:{}'.format(broker.list_key, group, task['id'])
             group_key = '{}:{}:keys'.format(broker.list_key, group)
             group_list = broker.cache.get(group_key) or []
-            # if it's an inter group, check if we are ready
+            # if it's an iter group, check if we are ready
             if iter_count and len(group_list) == iter_count-1:
                 group_args = '{}:{}:args'.format(broker.list_key, group)
                 # collate the results into a Task result
@@ -448,6 +451,9 @@ def save_cached(task, broker):
             # save the group list
             group_list.append(task_key)
             broker.cache.set(group_key, group_list)
+            # async next in a chain
+            if task.get('chain', None):
+                tasks.async_chain(task['chain'], group=group, cached=task['cached'])
         # save the task
         broker.cache.set(task_key,
                          signing.SignedPackage.dumps(task),
