@@ -449,6 +449,7 @@ class Iter(object):
         self.args.append(args)
         if self.started:
             self.started = False
+        return self.length()
 
     def run(self):
         """
@@ -511,6 +512,7 @@ class Chain(object):
         if self.started:
             delete_group(self.group)
             self.started = False
+        return self.length()
 
     def run(self):
         """
