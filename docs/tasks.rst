@@ -323,13 +323,24 @@ Reference
 .. py:function:: async_iter(func, args_iter,**kwargs)
 
    Runs iterable arguments against the cache backend and returns a single collated result.
-   Accepts the same options as :func:`async` except ``hook``.
+   Accepts the same options as :func:`async` except ``hook``. See also the :class:`Iter` class.
 
    :param object func: The task function to execute
    :param args: An iterable containing arguments for the task function
    :param dict kwargs: Keyword arguments for the task function. Ignores ``hook``.
    :returns: The uuid of the task
    :rtype: str
+
+
+.. py:function:: async_chain(chain, group=None, cached=Conf.CACHED, sync=Conf.SYNC, broker=None)
+
+    Async a chain of tasks. See also the :class:`Chain` class.
+
+    :param list chain: a list of tasks in the format [(func,(args),{kwargs}), (func,(args),{kwargs})]
+    :param str group: an optional group name.
+    :param bool cached: run this against the cache backend
+    :param bool sync: execute this inline instead of asynchronous
+
 
 .. py:function:: queue_size()
 
@@ -500,3 +511,110 @@ Reference
 .. py:class:: Failure
 
      A proxy model of :class:`Task` with the queryset filtered on :attr:`Task.success` is ``False``.
+
+
+.. py:class:: Iter(func=None, args=None, kwargs=None, cached=Conf.CACHED, sync=Conf.SYNC, broker=None)
+
+    An async task with iterable arguments. Serves as a convenient wrapper for :func:`async_iter`
+    You can pass the iterable arguments at construction or you can append individual argument tuples.
+
+        :param func: the function to execute
+        :param args: an iterable of arguments.
+        :param kwargs: the keyword arguments
+        :param bool cached: run this against the cache backend
+        :param bool sync: execute this inline instead of asynchronous
+        :param broker: optional broker instance
+
+
+    .. py:method:: append(*args)
+
+    Append arguments to the iter set. Returns the current set count.
+
+        :param args: the arguments for a single execution
+        :return: the current set count
+        :rtype: int
+
+
+    .. py:method:: run()
+
+    Start queueing the tasks to the worker cluster.
+
+        :return: the task result id
+
+
+    .. py:method:: result(wait=0)
+
+    return the full list of results.
+
+        :param int wait: how many milliseconds to wait for a result
+        :return: an unsorted list of results
+
+
+    .. py:method:: fetch(wait=0)
+
+    get the task result objects.
+
+        :param int wait: how many milliseconds to wait for a result
+        :return: an unsorted list of task objects
+
+
+    .. py:method:: length()
+
+    get the length of the arguments list
+
+        :return int: length of the argument list
+
+
+.. py:class:: Chain(chain=None, group=None, cached=Conf.CACHED, sync=Conf.SYNC)
+
+    A sequential chain of tasks. Acts as a convenient wrapper for :func:`async_chain`
+    You can pass the task chain at construction or you can append individual tasks before running them.
+
+        :param list chain: a list of task in the format [(func,(args),{kwargs}), (func,(args),{kwargs})]
+        :param str group: an optional group name.
+        :param bool cached: run this against the cache backend
+        :param bool sync: execute this inline instead of asynchronous
+
+
+    .. py:method:: append(func, *args, **kwargs)
+
+    Append a task to the chain. Takes the same arguments as :func:`async`
+
+        :return: the current number of tasks in the chain
+        :rtype: int
+
+
+    .. py:method:: run()
+
+    Start queueing the chain to the worker cluster.
+
+        :return: the chains group id
+
+
+    .. py:method:: result(wait=0)
+
+    return the full list of results from the chain when it finishes. Blocks until timeout or result.
+
+        :param int wait: how many milliseconds to wait for a result
+        :return: an unsorted list of results
+
+
+    .. py:method:: fetch(failures=True, wait=0)
+
+    get the task result objects from the chain when it finishes. Blocks until timeout or result.
+
+        :param failures: include failed tasks
+        :param int wait: how many milliseconds to wait for a result
+        :return: an unsorted list of task objects
+
+    .. py:method:: current()
+
+    get the index of the currently executing chain element
+
+        :return int: current chain index
+
+    .. py:method:: length()
+
+    get the length of the chain
+
+        :return int: length of the chain
