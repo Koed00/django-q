@@ -427,6 +427,67 @@ def async_chain(chain, group=None, cached=Conf.CACHED, sync=Conf.SYNC, broker=No
     return group
 
 
+class Iter(object):
+    """
+    An async task with iterable arguments
+    """
+
+    def __init__(self, func=None, args=None, kwargs=None, cached=Conf.CACHED, sync=Conf.SYNC, broker=None):
+        self.func = func
+        self.args = args or []
+        self.kwargs = kwargs or {}
+        self.id = ''
+        self.broker = broker or get_broker()
+        self.cached = cached
+        self.sync = sync
+        self.started = False
+
+    def append(self, *args):
+        """
+        add arguments to the set
+        """
+        self.args.append(args)
+        if self.started:
+            self.started = False
+
+    def run(self):
+        """
+        Start queueing the tasks to the worker cluster
+        :return: the task id
+        """
+        self.kwargs['cached'] = self.cached
+        self.kwargs['sync'] = self.sync
+        self.kwargs['broker'] = self.broker
+        self.id = async_iter(self.func, self.args, **self.kwargs)
+        self.started = True
+        return self.id
+
+    def result(self, wait=0):
+        """
+        return the full list of results.
+        :param int wait: how many milliseconds to wait for a result
+        :return: an unsorted list of results
+        """
+        if self.started:
+            return result(self.id, wait=wait, cached=self.cached)
+
+    def fetch(self,  wait=0):
+        """
+        get the task result objects.
+        :param int wait: how many milliseconds to wait for a result
+        :return: an unsorted list of task objects
+        """
+        if self.started:
+            return fetch(self.id, wait=wait, cached=self.cached)
+
+    def length(self):
+        """
+        get the length of the arguments list
+        :return int: length of the argument list
+        """
+        return len(self.args)
+
+
 class Chain(object):
     """
     A sequential chain of tasks

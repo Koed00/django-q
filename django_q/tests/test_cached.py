@@ -5,7 +5,7 @@ import pytest
 from django_q.cluster import pusher, worker, monitor
 from django_q.conf import Conf
 from django_q.tasks import async, result, fetch, count_group, result_group, fetch_group, delete_group, delete_cached, \
-    async_iter, Chain, async_chain
+    async_iter, Chain, async_chain, Iter
 from django_q.brokers import get_broker
 
 
@@ -100,7 +100,21 @@ def test_iter(broker):
     assert result(t2) is not None
     assert result(t3) is not None
     assert result(t4)[0] == 1
-    # test cached iter result
+    # test iter class
+    i = Iter('math.copysign', sync=True, cached=True)
+    i.append(1, -1)
+    i.append(2, -1)
+    i.append(3, -4)
+    i.append(5, 6)
+    assert i.started is False
+    assert i.length() == 4
+    assert i.run() is not None
+    assert len(i.result()) == 4
+    assert len(i.fetch().result) == 4
+    i.append(1, -7)
+    assert i.result() is None
+    i.run()
+    assert len(i.result()) == 5
 
 
 @pytest.mark.django_db
