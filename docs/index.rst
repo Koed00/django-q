@@ -11,7 +11,7 @@ Django Q is a native Django task queue, scheduler and worker application using P
 Features
 --------
 
--  Multiprocessing worker pool
+-  Multiprocessing worker poole7u-CG
 -  Asynchronous tasks
 -  Scheduled and repeated tasks
 -  Encrypted and compressed packages
@@ -39,6 +39,7 @@ Contents:
     Cluster <cluster>
     Monitor <monitor>
     Admin <admin>
+    Architecture <architecture>
     Examples <examples>
 
 * :ref:`genindex`
