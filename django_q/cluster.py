@@ -328,7 +328,7 @@ def monitor(result_queue, broker=None):
         if task.get('cached', False):
             save_cached(task, broker)
         else:
-            save_task(task)
+            save_task(task, broker)
         # log the result
         if task['success']:
             logger.info(_("Processed [{}]").format(task['name']))
@@ -386,13 +386,16 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
     logger.info(_('{} stopped doing work').format(name))
 
 
-def save_task(task):
+def save_task(task, broker):
     """
     Saves the task package to Django or the cache
     """
     # SAVE LIMIT < 0 : Don't save success
     if not task.get('save', Conf.SAVE_LIMIT > 0) and task['success']:
         return
+    # async next in a chain
+    if task.get('chain', None):
+        tasks.async_chain(task['chain'], group=task['group'], cached=task['cached'], sync=task['sync'], broker=broker)
     # SAVE LIMIT > 0: Prune database, SAVE_LIMIT 0: No pruning
     db.close_old_connections()
     try:
@@ -419,15 +422,15 @@ def save_cached(task, broker):
     if timeout is True:
         timeout = None
     try:
-        group = task.get('group', False)
+        group = task.get('group', None)
         iter_count = task.get('iter_count', 0)
         # if it's a group append to the group list
         if group:
             task_key = '{}:{}:{}'.format(broker.list_key, group, task['id'])
             group_key = '{}:{}:keys'.format(broker.list_key, group)
             group_list = broker.cache.get(group_key) or []
-            # if it's an inter group, check if we are ready
-            if iter_count and len(group_list) == iter_count-1:
+            # if it's an iter group, check if we are ready
+            if iter_count and len(group_list) == iter_count - 1:
                 group_args = '{}:{}:args'.format(broker.list_key, group)
                 # collate the results into a Task result
                 results = [signing.SignedPackage.loads(broker.cache.get(k))['result'] for k in group_list]
@@ -441,13 +444,16 @@ def save_cached(task, broker):
                     task['cached'] = task.pop('iter_cached', None)
                     save_cached(task, broker=broker)
                 else:
-                    save_task(task)
+                    save_task(task, broker)
                 broker.cache.delete_many(group_list)
                 broker.cache.delete_many([group_key, group_args])
                 return
             # save the group list
             group_list.append(task_key)
             broker.cache.set(group_key, group_list)
+            # async next in a chain
+            if task.get('chain', None):
+                tasks.async_chain(task['chain'], group=group, cached=task['cached'], sync=task['sync'], broker=broker)
         # save the task
         broker.cache.set(task_key,
                          signing.SignedPackage.dumps(task),

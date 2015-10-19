@@ -18,15 +18,19 @@ def async(func, *args, **kwargs):
     """Queue a task for the cluster."""
     # get options from q_options dict or direct from kwargs
     options = kwargs.pop('q_options', kwargs)
-    hook = options.pop('hook', None)
     broker = options.pop('broker', get_broker())
-    sync = options.pop('sync', False)
-    group = options.pop('group', None)
-    save = options.pop('save', None)
-    cached = options.pop('cached', Conf.CACHED)
-    iter_count = options.pop('iter_count', None)
-    iter_cached = options.pop('iter_cached', None)
-    # get an id
+    # pop optionals
+    opts = {'hook': None,
+            'group': None,
+            'save': None,
+            'sync': None,
+            'cached': Conf.CACHED,
+            'iter_count': None,
+            'iter_cached': None,
+            'chain': None}
+    for key in opts:
+        opts[key] = options.pop(key, opts[key])
+        # get an id
     tag = uuid()
     # build the task package
     task = {'id': tag[1], 'name': tag[0],
@@ -34,22 +38,13 @@ def async(func, *args, **kwargs):
             'args': args,
             'kwargs': kwargs,
             'started': timezone.now()}
-    # add optionals
-    if hook:
-        task['hook'] = hook
-    if group:
-        task['group'] = group
-    if save is not None:
-        task['save'] = save
-    if cached:
-        task['cached'] = cached
-    if iter_count:
-        task['iter_count'] = iter_count
-    if iter_cached:
-        task['iter_cached'] = iter_cached
+    # push optionals
+    for key in opts:
+        if opts[key] is not None:
+            task[key] = opts[key]
     # sign it
     pack = signing.SignedPackage.dumps(task)
-    if sync or Conf.SYNC:
+    if task.get('sync', False) or Conf.SYNC:
         return _sync(pack)
     # push it
     broker.enqueue(pack)
@@ -371,7 +366,7 @@ def delete_cached(task_id, broker=None):
 def queue_size(broker=None):
     """
     Returns the current queue size.
-    Note that this doesn't count any tasks curren    key = 'django_q:{}:results'.format(broker.list_key)tly being processed by workers.
+    Note that this doesn't count any tasks currently being processed by workers.
 
     :param broker: optional broker
     :return: current queue size
@@ -383,6 +378,9 @@ def queue_size(broker=None):
 
 
 def async_iter(func, args_iter, **kwargs):
+    """
+    async a function with iterable arguments
+    """
     iter_count = len(args_iter)
     iter_group = uuid()[1]
     # clean up the kwargs
@@ -402,6 +400,164 @@ def async_iter(func, args_iter, **kwargs):
             args = (args,)
         async(func, *args, **options)
     return iter_group
+
+
+def async_chain(chain, group=None, cached=Conf.CACHED, sync=Conf.SYNC, broker=None):
+    """
+    async a chain of tasks
+    the chain must be in the format [(func,(args),{kwargs}),(func,(args),{kwargs})]
+    """
+    if not group:
+        group = uuid()[1]
+    args = ()
+    kwargs = {}
+    task = chain.pop(0)
+    if type(task) is not tuple:
+        task = (task,)
+    if len(task) > 1:
+        args = task[1]
+    if len(task) > 2:
+        kwargs = task[2]
+    kwargs['chain'] = chain
+    kwargs['group'] = group
+    kwargs['cached'] = cached
+    kwargs['sync'] = sync
+    kwargs['broker'] = broker or get_broker()
+    async(task[0], *args, **kwargs)
+    return group
+
+
+class Iter(object):
+    """
+    An async task with iterable arguments
+    """
+
+    def __init__(self, func=None, args=None, kwargs=None, cached=Conf.CACHED, sync=Conf.SYNC, broker=None):
+        self.func = func
+        self.args = args or []
+        self.kwargs = kwargs or {}
+        self.id = ''
+        self.broker = broker or get_broker()
+        self.cached = cached
+        self.sync = sync
+        self.started = False
+
+    def append(self, *args):
+        """
+        add arguments to the set
+        """
+        self.args.append(args)
+        if self.started:
+            self.started = False
+        return self.length()
+
+    def run(self):
+        """
+        Start queueing the tasks to the worker cluster
+        :return: the task id
+        """
+        self.kwargs['cached'] = self.cached
+        self.kwargs['sync'] = self.sync
+        self.kwargs['broker'] = self.broker
+        self.id = async_iter(self.func, self.args, **self.kwargs)
+        self.started = True
+        return self.id
+
+    def result(self, wait=0):
+        """
+        return the full list of results.
+        :param int wait: how many milliseconds to wait for a result
+        :return: an unsorted list of results
+        """
+        if self.started:
+            return result(self.id, wait=wait, cached=self.cached)
+
+    def fetch(self,  wait=0):
+        """
+        get the task result objects.
+        :param int wait: how many milliseconds to wait for a result
+        :return: an unsorted list of task objects
+        """
+        if self.started:
+            return fetch(self.id, wait=wait, cached=self.cached)
+
+    def length(self):
+        """
+        get the length of the arguments list
+        :return int: length of the argument list
+        """
+        return len(self.args)
+
+
+class Chain(object):
+    """
+    A sequential chain of tasks
+    """
+
+    def __init__(self, chain=None, group=None, cached=Conf.CACHED, sync=Conf.SYNC):
+        self.chain = chain or []
+        self.group = group or ''
+        self.broker = get_broker()
+        self.cached = cached
+        self.sync = sync
+        self.started = False
+
+    def append(self, func, *args, **kwargs):
+        """
+        add a task to the chain
+        takes the same parameters as async()
+        """
+        self.chain.append((func, args, kwargs))
+        # remove existing results
+        if self.started:
+            delete_group(self.group)
+            self.started = False
+        return self.length()
+
+    def run(self):
+        """
+        Start queueing the chain to the worker cluster
+        :return: the chain's group id
+        """
+        self.group = async_chain(chain=self.chain[:], group=self.group, cached=self.cached, sync=self.sync,
+                                 broker=self.broker)
+        self.started = True
+        return self.group
+
+    def result(self, wait=0):
+        """
+        return the full list of results from the chain when it finishes. blocks until timeout.
+        :param int wait: how many milliseconds to wait for a result
+        :return: an unsorted list of results
+        """
+        if self.started:
+            return result_group(self.group, wait=wait, count=self.length(), cached=self.cached)
+
+    def fetch(self, failures=True, wait=0):
+        """
+        get the task result objects from the chain when it finishes. blocks until timeout.
+        :param failures: include failed tasks
+        :param int wait: how many milliseconds to wait for a result
+        :return: an unsorted list of task objects
+        """
+        if self.started:
+            return fetch_group(self.group, failures=failures, wait=wait, count=self.length(), cached=self.cached)
+
+    def current(self):
+        """
+        get the index of the currently executing chain element
+        :return int: current chain index
+        """
+        if not self.started:
+            return None
+        return count_group(self.group, cached=self.cached)
+
+    def length(self):
+        """
+        get the length of the chain
+        :return int: length of the chain
+        """
+        return len(self.chain)
 
 
 def _sync(pack):

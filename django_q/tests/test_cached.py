@@ -1,11 +1,11 @@
 from multiprocessing import Event, Queue, Value
 
 import pytest
-from django_q.cluster import pusher, worker, monitor
 
+from django_q.cluster import pusher, worker, monitor
 from django_q.conf import Conf
 from django_q.tasks import async, result, fetch, count_group, result_group, fetch_group, delete_group, delete_cached, \
-    async_iter
+    async_iter, Chain, async_chain, Iter
 from django_q.brokers import get_broker
 
 
@@ -96,9 +96,52 @@ def test_iter(broker):
     result_t = result(t)
     assert result_t is not None
     task_t = fetch(t)
-    assert task_t. __unicode__ is not None
     assert task_t.result == result_t
     assert result(t2) is not None
     assert result(t3) is not None
     assert result(t4)[0] == 1
-    # test cached iter result
+    # test iter class
+    i = Iter('math.copysign', sync=True, cached=True)
+    i.append(1, -1)
+    i.append(2, -1)
+    i.append(3, -4)
+    i.append(5, 6)
+    assert i.started is False
+    assert i.length() == 4
+    assert i.run() is not None
+    assert len(i.result()) == 4
+    assert len(i.fetch().result) == 4
+    i.append(1, -7)
+    assert i.result() is None
+    i.run()
+    assert len(i.result()) == 5
+
+
+@pytest.mark.django_db
+def test_chain(broker):
+    broker.purge_queue()
+    broker.cache.clear()
+    task_chain = Chain(sync=True)
+    task_chain.append('math.floor', 1)
+    task_chain.append('math.copysign', 1, -1)
+    task_chain.append('math.floor', 2)
+    assert task_chain.length() == 3
+    assert task_chain.current() is None
+    task_chain.run()
+    r = task_chain.result(wait=1000)
+    assert task_chain.current() == task_chain.length()
+    assert len(r) == task_chain.length()
+    t = task_chain.fetch()
+    assert len(t) == task_chain.length()
+    task_chain.cached = True
+    task_chain.append('math.floor', 3)
+    assert task_chain.length() == 4
+    task_chain.run()
+    r = task_chain.result(wait=1000)
+    assert task_chain.current() == task_chain.length()
+    assert len(r) == task_chain.length()
+    t = task_chain.fetch()
+    assert len(t) == task_chain.length()
+    # test single
+    rid = async_chain(['django_q.tests.tasks.hello', 'django_q.tests.tasks.hello'], sync=True, cached=True)
+    assert result_group(rid, cached=True) == ['hello', 'hello']
