@@ -16,7 +16,7 @@ Features
 -  Scheduled and repeated tasks
 -  Encrypted and compressed packages
 -  Failure and success database or cache
--  Result hooks and groups
+-  Result hooks, groups and chains
 -  Django Admin integration
 -  PaaS compatible with multiple instances
 -  Multi cluster monitor
