@@ -91,8 +91,8 @@ Please not that this will override any other option keywords.
 
 
 
-Async Iterable
---------------
+Iterable
+--------
 If you have an iterable object with arguments for a function, you can use :func:`async_iter` to async them with a single command::
 
     # Async Iterable example
@@ -109,6 +109,30 @@ If you have an iterable object with arguments for a function, you can use :func:
 
 This will individually queue 100 tasks to the worker cluster, which will save their results in the cache backend for speed.
 Once all the 100 results are in the cache, they are collated into a list and saved as a single result in the database. The cache results are then cleared.
+
+You can also use an :class:`Iter` instance which can sometimes be more convenient:
+
+.. code-block:: python
+
+    from django_q.tasks import Iter
+
+    i = Iter('math.copysign')
+
+    # add some arguments
+    i.append(1, -1)
+    i.append(2, -1)
+    i.append(3, -1)
+
+    # run it
+    i.run()
+
+    # get the results
+    print(i.result())
+
+.. code-block:: python
+
+    [-1.0, -2.0, -3.0]
+
 Needs the Django cache framework.
 
 .. _groups:
@@ -178,6 +202,45 @@ You can also access group functions from a task result instance:
         print(task.group_result())
         task.group_delete()
         print('Deleted group {}'.format(task.group))
+
+Chains
+------
+Sometimes you want to run tasks sequentially. For that you can use the :func:`async_chain` function:
+
+.. code-block:: python
+
+    # Async a chain of tasks
+    from django_q.tasks import async_chain, result_group
+
+    # the chain must be in the format
+    # [(func,(args),{kwargs}),(func,(args),{kwargs}),..]
+    group_id = async_chain([('math.copysign', (1, -1)),
+                            ('math.floor', (1,))])
+
+    # get group result
+    result_group(group_id, count=2)
+
+A slightly more convenient way is to use a :class:`Chain` instance:
+
+.. code-block:: python
+
+    # Chain async
+    from django_q.tasks import Chain
+
+    # create a chain that uses the cache backend
+    chain = Chain(cached=True)
+
+    # add some tasks
+    chain.append('math.copysign', 1, -1)
+    chain.append('math.floor', 1)
+
+    # run it
+    chain.run()
+
+    print(chain.result())
+.. code-block:: python
+
+    [-1.0, 1]
 
 Cached operations
 -----------------
