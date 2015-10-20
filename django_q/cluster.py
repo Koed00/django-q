@@ -450,7 +450,7 @@ def save_cached(task, broker):
                 return
             # save the group list
             group_list.append(task_key)
-            broker.cache.set(group_key, group_list)
+            broker.cache.set(group_key, group_list, timeout)
             # async next in a chain
             if task.get('chain', None):
                 tasks.async_chain(task['chain'], group=group, cached=task['cached'], sync=task['sync'], broker=broker)
