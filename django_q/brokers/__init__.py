@@ -160,10 +160,10 @@ def get_broker(list_key=Conf.PREFIX):
         from . import disque
         return disque.Disque(list_key=list_key)
     elif Conf.IRON_MQ:
-        from ..brokers import ironmq
+        from brokers import ironmq
         return ironmq.IronMQBroker(list_key=list_key)
     elif Conf.SQS:
-        from ..brokers import aws_sqs
+        from brokers import aws_sqs
         return aws_sqs.Sqs(list_key=list_key)
     elif Conf.ORM:
         from . import orm
