@@ -157,7 +157,7 @@ def get_broker(list_key=Conf.PREFIX):
     """
     # disque
     if Conf.DISQUE_NODES:
-        from . import disque
+        from brokers import disque
         return disque.Disque(list_key=list_key)
     elif Conf.IRON_MQ:
         from brokers import ironmq
@@ -166,12 +166,12 @@ def get_broker(list_key=Conf.PREFIX):
         from brokers import aws_sqs
         return aws_sqs.Sqs(list_key=list_key)
     elif Conf.ORM:
-        from . import orm
+        from brokers import orm
         return orm.ORM(list_key=list_key)
     elif Conf.MONGO:
-        from . import mongo
+        from brokers import mongo
         return mongo.Mongo(list_key=list_key)
     # default to redis
     else:
-        from . import redis_broker
+        from brokers import redis_broker
         return redis_broker.Redis(list_key=list_key)
