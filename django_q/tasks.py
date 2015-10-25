@@ -106,7 +106,7 @@ def result(task_id, wait=0, cached=Conf.CACHED):
         r = Task.get_result(task_id)
         if r:
             return r
-        if (time.time() - start) * 1000 >= wait:
+        if (time.time() - start) * 1000 >= wait >= 0:
             break
         time.sleep(0.01)
 
@@ -122,7 +122,7 @@ def result_cached(task_id, wait=0, broker=None):
         r = broker.cache.get('{}:{}'.format(broker.list_key, task_id))
         if r:
             return signing.SignedPackage.loads(r)['result']
-        if (time.time() - start) * 1000 >= wait:
+        if (time.time() - start) * 1000 >= wait >= 0:
             break
         time.sleep(0.01)
 
@@ -142,14 +142,14 @@ def result_group(group_id, failures=False, wait=0, count=None, cached=Conf.CACHE
     start = time.time()
     if count:
         while True:
-            if count_group(group_id) == count or wait and (time.time() - start) * 1000 >= wait:
+            if count_group(group_id) == count or wait and (time.time() - start) * 1000 >= wait >= 0:
                 break
             time.sleep(0.01)
     while True:
         r = Task.get_result_group(group_id, failures)
         if r:
             return r
-        if (time.time() - start) * 1000 >= wait:
+        if (time.time() - start) * 1000 >= wait >= 0:
             break
         time.sleep(0.01)
 
@@ -163,7 +163,7 @@ def result_group_cached(group_id, failures=False, wait=0, count=None, broker=Non
     start = time.time()
     if count:
         while True:
-            if count_group_cached(group_id) == count or wait and (time.time() - start) * 1000 >= wait:
+            if count_group_cached(group_id) == count or wait and (time.time() - start) * 1000 >= wait > 0:
                 break
             time.sleep(0.01)
     while True:
@@ -175,7 +175,7 @@ def result_group_cached(group_id, failures=False, wait=0, count=None, broker=Non
                 if task['success'] or failures:
                     result_list.append(task['result'])
             return result_list
-        if (time.time() - start) * 1000 >= wait:
+        if (time.time() - start) * 1000 >= wait >= 0:
             break
         time.sleep(0.01)
 
@@ -199,7 +199,7 @@ def fetch(task_id, wait=0, cached=Conf.CACHED):
         t = Task.get_task(task_id)
         if t:
             return t
-        if (time.time() - start) * 1000 >= wait:
+        if (time.time() - start) * 1000 >= wait >= 0:
             break
         time.sleep(0.01)
 
@@ -226,7 +226,7 @@ def fetch_cached(task_id, wait=0, broker=None):
                      result=task['result'],
                      success=task['success'])
             return t
-        if (time.time() - start) * 1000 >= wait:
+        if (time.time() - start) * 1000 >= wait >= 0:
             break
         time.sleep(0.01)
 
@@ -245,14 +245,14 @@ def fetch_group(group_id, failures=True, wait=0, count=None, cached=Conf.CACHED)
     start = time.time()
     if count:
         while True:
-            if count_group(group_id) == count or wait and (time.time() - start) * 1000 >= wait:
+            if count_group(group_id) == count or wait and (time.time() - start) * 1000 >= wait >= 0:
                 break
             time.sleep(0.01)
     while True:
         r = Task.get_task_group(group_id, failures)
         if r:
             return r
-        if (time.time() - start) * 1000 >= wait:
+        if (time.time() - start) * 1000 >= wait >= 0:
             break
         time.sleep(0.01)
 
@@ -266,7 +266,7 @@ def fetch_group_cached(group_id, failures=True, wait=0, count=None, broker=None)
     start = time.time()
     if count:
         while True:
-            if count_group_cached(group_id) == count or wait and (time.time() - start) * 1000 >= wait:
+            if count_group_cached(group_id) == count or wait and (time.time() - start) * 1000 >= wait >= 0:
                 break
             time.sleep(0.01)
     while True:
@@ -289,7 +289,7 @@ def fetch_group_cached(group_id, failures=True, wait=0, count=None, broker=None)
                              success=task['success'])
                     task_list.append(t)
             return task_list
-        if (time.time() - start) * 1000 >= wait:
+        if (time.time() - start) * 1000 >= wait >= 0:
             break
         time.sleep(0.01)
 
@@ -472,7 +472,7 @@ class Iter(object):
         if self.started:
             return result(self.id, wait=wait, cached=self.cached)
 
-    def fetch(self,  wait=0):
+    def fetch(self, wait=0):
         """
         get the task result objects.
         :param int wait: how many milliseconds to wait for a result
