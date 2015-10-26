@@ -1,5 +1,4 @@
 """Provides task functionality."""
-from copy import deepcopy
 from multiprocessing import Queue, Value
 
 # django
@@ -17,36 +16,45 @@ from django_q.brokers import get_broker
 
 def async(func, *args, **kwargs):
     """Queue a task for the cluster."""
-    # get options from q_options dict or direct from kwargs
-    keywords = deepcopy(kwargs)
-    options = keywords.pop('q_options', keywords)
-    broker = options.pop('broker', get_broker())
-    # pop optionals
-    opt_keys = {'hook': None,
-                'group': None,
-                'save': None,
-                'sync': None,
-                'cached': Conf.CACHED,
-                'iter_count': None,
-                'iter_cached': None,
-                'chain': None}
-    for key in opt_keys:
-        opt_keys[key] = options.pop(key, opt_keys[key])
-        # get an id
+    keywords = {}
+    options = {}
+    opt_keys = ('hook', 'group', 'save', 'sync', 'cached', 'iter_count', 'iter_cached', 'chain', 'broker')
+    # split keywords and options from kwargs and q_options
+    if 'q_options' in kwargs:
+        for key, value in kwargs.items():
+            if key != 'q_options':
+                keywords[key] = value
+        for key, value in kwargs['q_options'].items():
+            if key in opt_keys:
+                options[key] = value
+    else:
+        for key, value in kwargs.items():
+            if key in opt_keys:
+                options[key] = value
+            else:
+                keywords[key] = value
+    # get an id
     tag = uuid()
     # build the task package
-    task = {'id': tag[1], 'name': tag[0],
+    task = {'id': tag[1],
+            'name': tag[0],
             'func': func,
             'args': args,
             'kwargs': keywords,
             'started': timezone.now()}
+    # don't serialize the broker
+    broker = options.pop('broker', get_broker())
+    # overrides
+    if 'cached' not in options and Conf.CACHED:
+        options['cached'] = Conf.CACHED
+    if 'sync' not in options and Conf.SYNC:
+        options['sync'] = Conf.SYNC
     # push optionals
-    for key in opt_keys:
-        if opt_keys[key] is not None:
-            task[key] = opt_keys[key]
+    for key in options:
+            task[key] = options[key]
     # sign it
     pack = signing.SignedPackage.dumps(task)
-    if task.get('sync', False) or Conf.SYNC:
+    if task.get('sync', False):
         return _sync(pack)
     # push it
     broker.enqueue(pack)
