@@ -5,7 +5,7 @@ import pytest
 from django_q.cluster import pusher, worker, monitor
 from django_q.conf import Conf
 from django_q.tasks import async, result, fetch, count_group, result_group, fetch_group, delete_group, delete_cached, \
-    async_iter, Chain, async_chain, Iter
+    async_iter, Chain, async_chain, Iter, Async
 from django_q.brokers import get_broker
 
 
@@ -145,3 +145,43 @@ def test_chain(broker):
     # test single
     rid = async_chain(['django_q.tests.tasks.hello', 'django_q.tests.tasks.hello'], sync=True, cached=True)
     assert result_group(rid, cached=True) == ['hello', 'hello']
+
+
+@pytest.mark.django_db
+def test_async_class(broker):
+    broker.purge_queue()
+    broker.cache.clear()
+    a = Async('math.copysign')
+    assert a.func == 'math.copysign'
+    a.args = (1, -1)
+    assert a.started is False
+    a.cached = True
+    assert a.cached is True
+    a.sync = True
+    assert a.sync is True
+    a.broker = broker
+    assert a.broker == broker
+    a.run()
+    assert a.result() == -1
+    assert a.fetch().result == -1
+    # again with kwargs
+    a = Async('math.copysign', 1, -1, cached=True, sync=True, broker=broker)
+    a.run()
+    assert a.result() == -1
+    # with q_options
+    a = Async('math.copysign', 1, -1, q_options={'cached': True, 'sync': False, 'broker': broker})
+    assert a.sync is False
+    a.sync = True
+    assert a.kwargs['q_options']['sync'] is True
+    a.run()
+    assert a.result() == -1
+    a.group = 'async_class_test'
+    assert a.group == 'async_class_test'
+    a.save = False
+    assert a.save is False
+    a.hook = 'djq.tests.tasks.hello'
+    assert a.hook == 'djq.tests.tasks.hello'
+    assert a.started is False
+    a.run()
+    assert a.result_group() == [-1]
+    assert a.fetch_group() == [a.fetch()]
