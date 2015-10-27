@@ -426,7 +426,6 @@ def save_cached(task, broker):
         iter_count = task.get('iter_count', 0)
         # if it's a group append to the group list
         if group:
-            task_key = '{}:{}:{}'.format(broker.list_key, group, task['id'])
             group_key = '{}:{}:keys'.format(broker.list_key, group)
             group_list = broker.cache.get(group_key) or []
             # if it's an iter group, check if we are ready
