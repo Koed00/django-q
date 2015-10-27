@@ -16,42 +16,32 @@ from django_q.brokers import get_broker
 
 def async(func, *args, **kwargs):
     """Queue a task for the cluster."""
-    keywords = {}
-    options = {}
+    keywords = kwargs.copy()
     opt_keys = ('hook', 'group', 'save', 'sync', 'cached', 'iter_count', 'iter_cached', 'chain', 'broker')
-    # split keywords and options from kwargs and q_options
-    if 'q_options' in kwargs:
-        for key, value in kwargs.items():
-            if key != 'q_options':
-                keywords[key] = value
-        for key, value in kwargs['q_options'].items():
-            if key in opt_keys:
-                options[key] = value
-    else:
-        for key, value in kwargs.items():
-            if key in opt_keys:
-                options[key] = value
-            else:
-                keywords[key] = value
+    q_options = keywords.pop('q_options', None)
     # get an id
     tag = uuid()
     # build the task package
     task = {'id': tag[1],
             'name': tag[0],
             'func': func,
-            'args': args,
-            'kwargs': keywords,
-            'started': timezone.now()}
-    # don't serialize the broker
-    broker = options.pop('broker', get_broker())
-    # overrides
-    if 'cached' not in options and Conf.CACHED:
-        options['cached'] = Conf.CACHED
-    if 'sync' not in options and Conf.SYNC:
-        options['sync'] = Conf.SYNC
+            'args': args}
     # push optionals
-    for key in options:
-            task[key] = options[key]
+    for key in opt_keys:
+        if q_options and key in q_options:
+            task[key] = q_options[key]
+        elif key in keywords:
+            task[key] = keywords.pop(key)
+    # don't serialize the broker
+    broker = task.pop('broker', get_broker())
+    # overrides
+    if 'cached' not in task and Conf.CACHED:
+        task['cached'] = Conf.CACHED
+    if 'sync' not in task and Conf.SYNC:
+        task['sync'] = Conf.SYNC
+    # finalize
+    task['kwargs'] = keywords
+    task['started'] = timezone.now()
     # sign it
     pack = signing.SignedPackage.dumps(task)
     if task.get('sync', False):
@@ -571,6 +561,10 @@ class Chain(object):
 
 
 class Async(object):
+    """
+    an async task
+    """
+
     def __init__(self, func, *args, **kwargs):
         self.id = ''
         self.started = False
