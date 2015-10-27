@@ -185,3 +185,11 @@ def test_async_class(broker):
     a.run()
     assert a.result_group() == [-1]
     assert a.fetch_group() == [a.fetch()]
+    # global overrides
+    Conf.SYNC = True
+    Conf.CACHED = True
+    a = Async('math.floor', 1.5)
+    a.run()
+    assert a.result() == 1
+    Conf.SYNC = False
+    Conf.CACHED = False
