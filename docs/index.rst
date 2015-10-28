@@ -35,6 +35,9 @@ Contents:
     Configuration <configure>
     Brokers <brokers>
     Tasks <tasks>
+    Groups <group>
+    Iterable <iterable>
+    Chains <chain>
     Schedules <schedules>
     Cluster <cluster>
     Monitor <monitor>
