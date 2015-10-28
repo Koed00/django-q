@@ -288,7 +288,7 @@ Adapted from `Sebastian Raschka's blog <http://sebastianraschka.com/Articles/201
 
 
 
-Django Q is not optimized for distributed computing, but this example will give you an idea of what you can do with task :ref:`groups`.
+Django Q is not optimized for distributed computing, but this example will give you an idea of what you can do with task :doc:`group`.
 
 Alternatively the ``parzen_async()`` function can also be written with :func:`async_iter`, which automatically utilizes the cache backend and groups to return a single result from an iterable:
 
