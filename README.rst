@@ -16,7 +16,7 @@ Features
 -  Scheduled and repeated tasks
 -  Encrypted and compressed packages
 -  Failure and success database or cache
--  Result hooks and groups
+-  Result hooks, groups and chains
 -  Django Admin integration
 -  PaaS compatible with multiple instances
 -  Multi cluster monitor
@@ -201,6 +201,7 @@ Acknowledgements
    `RQ <https://github.com/ui/django-rq>`__
 -  Human readable hashes by
    `HumanHash <https://github.com/zacharyvoase/humanhash>`__
+-  Redditors feedback at `r/django <https://www.reddit.com/r/django/>`__
 
 .. |image0| image:: https://travis-ci.org/Koed00/django-q.svg?branch=master
    :target: https://travis-ci.org/Koed00/django-q
