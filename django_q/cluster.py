@@ -14,6 +14,7 @@ import importlib
 import signal
 import socket
 import ast
+import os
 from time import sleep
 from multiprocessing import Queue, Event, Process, Value, current_process
 
@@ -44,6 +45,7 @@ class Cluster(object):
         self.pid = current_process().pid
         self.host = socket.gethostname()
         self.timeout = Conf.TIMEOUT
+        self.env = os.environ.copy()
         signal.signal(signal.SIGTERM, self.sig_handler)
         signal.signal(signal.SIGINT, self.sig_handler)
 
@@ -52,7 +54,7 @@ class Cluster(object):
         self.stop_event = Event()
         self.start_event = Event()
         self.sentinel = Process(target=Sentinel,
-                                args=(self.stop_event, self.start_event, self.broker, self.timeout))
+                                args=(self.stop_event, self.start_event, self.broker, self.timeout, self.env))
         self.sentinel.start()
         logger.info(_('Q Cluster-{} starting.').format(self.pid))
         while not self.start_event.is_set():
@@ -99,7 +101,7 @@ class Cluster(object):
 
 
 class Sentinel(object):
-    def __init__(self, stop_event, start_event, broker=None, timeout=Conf.TIMEOUT, start=True):
+    def __init__(self, stop_event, start_event, broker=None, timeout=Conf.TIMEOUT, env=None, start=True):
         # Make sure we catch signals for the pool
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         signal.signal(signal.SIGTERM, signal.SIG_DFL)
@@ -114,6 +116,7 @@ class Sentinel(object):
         self.pool_size = Conf.WORKERS
         self.pool = []
         self.timeout = timeout
+        self.env = env
         self.task_queue = Queue(maxsize=Conf.QUEUE_LIMIT) if Conf.QUEUE_LIMIT else Queue()
         self.result_queue = Queue()
         self.event_out = Event()
@@ -123,6 +126,8 @@ class Sentinel(object):
             self.start()
 
     def start(self):
+        if self.env is not None:
+            os.environ = self.env
         self.broker.ping()
         self.spawn_cluster()
         self.guard()
@@ -155,7 +160,7 @@ class Sentinel(object):
         return self.spawn_process(pusher, self.task_queue, self.event_out, self.broker)
 
     def spawn_worker(self):
-        self.spawn_process(worker, self.task_queue, self.result_queue, Value('f', -1), self.timeout)
+        self.spawn_process(worker, self.task_queue, self.result_queue, Value('f', -1), self.timeout, self.env)
 
     def spawn_monitor(self):
         return self.spawn_process(monitor, self.result_queue, self.broker)
@@ -337,13 +342,17 @@ def monitor(result_queue, broker=None):
     logger.info(_("{} stopped monitoring results").format(name))
 
 
-def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
+def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT, env=None):
     """
     Takes a task from the task queue, tries to execute it and puts the result back in the result queue
     :type task_queue: multiprocessing.Queue
     :type result_queue: multiprocessing.Queue
     :type timer: multiprocessing.Value
     """
+
+    if env is not None:
+        os.environ = env
+    
     name = current_process().name
     logger.info(_('{} ready for work at {}').format(name, current_process().pid))
     task_count = 0
