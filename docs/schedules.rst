@@ -49,10 +49,11 @@ You can manage them through the :ref:`admin_page` or directly from your code wit
 Missed schedules
 ----------------
 If your cluster has not run for a while, the default behavior for the scheduler is to play catch up with the schedules and keep executing them until they are up to date.
-For example, if your cluster was down for a day and you start it again. Any hourly schedules you had will run 24 times, once every schedule loop, until they are back in sync.
-This behavior is intended to facilitate schedules that poll or gather statistics, but might not be suitable to your particular situation.
+In practical terms this means the scheduler will execute tasks in the past, reschedule them in the past and immediately execute them again until the schedule is set in the future.
+This default behavior is intended to facilitate schedules that poll or gather statistics, but might not be suitable to your particular situation.
 You can change this by setting the :ref:`catch_up` configuration setting to ``False``.
-The scheduler will then skip execution of scheduled events in the past. Instead those tasks will run only once and normal scheduling resumes.
+The scheduler will then skip execution of scheduled events in the past.
+Instead those tasks will run only once and scheduler will find the next available slot in the future according to original schedule parameters.
 
 Management Commands
 -------------------
