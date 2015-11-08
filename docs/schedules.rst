@@ -53,7 +53,7 @@ In practical terms this means the scheduler will execute tasks in the past, resc
 This default behavior is intended to facilitate schedules that poll or gather statistics, but might not be suitable to your particular situation.
 You can change this by setting the :ref:`catch_up` configuration setting to ``False``.
 The scheduler will then skip execution of scheduled events in the past.
-Instead those tasks will run only once and scheduler will find the next available slot in the future according to original schedule parameters.
+Instead those tasks will run once when the cluster starts again and the scheduler will find the next available slot in the future according to original schedule parameters.
 
 Management Commands
 -------------------
