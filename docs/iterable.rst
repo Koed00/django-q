@@ -32,6 +32,16 @@ You can also use an :class:`Iter` instance which can sometimes be more convenien
     i.append(2, -1)
     i.append(3, -1)
 
+    # run it
+    i.run()
+
+    # get the results
+    print(i.result())
+
+.. code-block:: python
+
+    [-1.0, -2.0, -3.0]
+
 Reference
 ---------
 
