@@ -5,7 +5,7 @@
 #    pip-compile requirements.in
 #
 arrow==0.7.0
-blessed==1.12.0
+blessed==1.14.0
 boto3==1.2.1
 botocore==1.3.5           # via boto3
 django-picklefield==0.3.2
