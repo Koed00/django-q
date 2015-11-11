@@ -16,7 +16,7 @@ You can manage them through the :ref:`admin_page` or directly from your code wit
     schedule('math.copysign',
              2, -2,
              hook='hooks.print_result',
-             schedule_type=Schedule.DAILY)
+             schedule_type='D')
 
     # Or create the object directly
     from django_q.models import Schedule
