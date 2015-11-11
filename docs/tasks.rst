@@ -83,7 +83,7 @@ a single keyword dict named ``q_options``. This enables you to use these keyword
 
     async('math.modf', 2.5, q_options=opts)
 
-Please not that this will override any other option keywords.
+Please note that this will override any other option keywords.
 
 .. note::
     For tasks to be processed you will need to have a worker cluster running in the background using ``python manage.py qcluster``
