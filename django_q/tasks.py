@@ -75,16 +75,16 @@ def schedule(func, *args, **kwargs):
     repeats = kwargs.pop('repeats', -1)
     next_run = kwargs.pop('next_run', timezone.now())
 
-    return Schedule.objects.create(name=name,
-                                   func=func,
-                                   hook=hook,
-                                   args=args,
-                                   kwargs=kwargs,
-                                   schedule_type=schedule_type,
-                                   minutes=minutes,
-                                   repeats=repeats,
-                                   next_run=next_run
-                                   )
+    return Schedule.objects.update_or_create(func=func,
+                                             defaults={
+                                                 'name': name,
+                                                 'hook': hook,
+                                                 'args': args,
+                                                 'kwargs': kwargs,
+                                                 'schedule_type': schedule_type,
+                                                 'minutes': minutes,
+                                                 'repeats': repeats,
+                                                 'next_run': next_run})[0]
 
 
 def result(task_id, wait=0, cached=Conf.CACHED):
