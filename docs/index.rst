@@ -24,7 +24,7 @@ Features
 -  Python 2 and 3
 
 
-Django Q is tested with: Python 2.7 & 3.5. Django 1.7.10 & 1.8.6
+Django Q is tested with: Python 2.7 & 3.5. Django 1.8.8 & 1.9.1
 
 Contents:
 
