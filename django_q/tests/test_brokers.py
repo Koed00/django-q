@@ -135,11 +135,12 @@ def test_ironmq():
     Conf.RETRY = 1
     broker.enqueue('test')
     assert broker.dequeue() is not None
-    sleep(1.5)
+    sleep(3)
+    assert broker.dequeue() is not None
     task = broker.dequeue()[0]
     assert len(task) > 0
     broker.acknowledge(task[0])
-    sleep(1.5)
+    sleep(3)
     # delete job
     task_id = broker.enqueue('test')
     broker.delete(task_id)
