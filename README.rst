@@ -26,12 +26,12 @@ Features
 Requirements
 ~~~~~~~~~~~~
 
--  `Django <https://www.djangoproject.com>`__ > = 1.7
+-  `Django <https://www.djangoproject.com>`__ > = 1.8
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
 -  `Arrow <https://github.com/crsmithdev/arrow>`__
 -  `Blessed <https://github.com/jquast/blessed>`__
 
-Tested with: Python 2.7 & 3.5. Django 1.7.10 & 1.8.6
+Tested with: Python 2.7 & 3.5. Django 1.8.8 & 1.9.1
 
 Brokers
 ~~~~~~~
