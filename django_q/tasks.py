@@ -2,6 +2,7 @@
 from multiprocessing import Queue, Value
 
 # django
+from django.db import IntegrityError
 from django.utils import timezone
 
 # local
@@ -75,6 +76,11 @@ def schedule(func, *args, **kwargs):
     repeats = kwargs.pop('repeats', -1)
     next_run = kwargs.pop('next_run', timezone.now())
 
+    # check for name duplicates instead of am unique constraint
+    if name and Schedule.objects.filter(name=name).exists():
+        raise IntegrityError("A schedule with the same name already exists.")
+
+    # create and return the schedule
     return Schedule.objects.create(name=name,
                                    func=func,
                                    hook=hook,
