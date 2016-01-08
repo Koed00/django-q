@@ -157,6 +157,7 @@ logger = logging.getLogger('django-q')
 # Set up standard logging handler in case there is none
 if not logger.handlers:
     logger.setLevel(level=getattr(logging, Conf.LOG_LEVEL))
+    logger.propagate = False
     formatter = logging.Formatter(fmt='%(asctime)s [Q] %(levelname)s %(message)s',
                                   datefmt='%H:%M:%S')
     handler = logging.StreamHandler()
