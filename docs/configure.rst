@@ -320,6 +320,21 @@ scheduler
 You can disable the scheduler by setting this option to ``False``. This will reduce a little overhead if you're not using schedules, but is most useful if you want to temporarily disable all schedules.
 Defaults to ``True``
 
+rollbar
+~~~~~~~
+You can redirect worker exceptions directly to your `Rollbar <https://rollbar.com/>`__ dashboard by installing the python notifier with ``pip install rollbar`` and adding this configuration dictionary to your config::
+
+    # rollbar config
+    Q_CLUSTER = {
+        'rollbar': {
+            'access_token': '32we33a92a5224jiww8982',
+            'environment': 'Django-Q'
+        }
+    }
+
+Please check the Pyrollbar `configuration reference <https://github.com/rollbar/pyrollbar#configuration-reference>`__ for more options.
+Note that you will need a `Rollbar <https://rollbar.com/>`__ account and access token to use this feature.
+
 cpu_affinity
 ~~~~~~~~~~~~
 
