@@ -78,6 +78,11 @@ Optional
 
 - `MongoDB <https://www.mongodb.org/>`__ is a highly scalable NoSQL database which makes for a very fast and reliably persistent at-least-once message broker. Usually available on most PaaS providers.
 
+- `Pyrollbar <https://github.com/rollbar/pyrollbar>`__ is an error notifier for `Rollbar <https://rollbar.com/>`__  which lets you manage your worker errors in one place. Needs a `Rollbar <https://rollbar.com/>`__ account and access key::
+
+    $ pip install rollbar
+
+
 Compatibility
 -------------
 Django Q is still a young project. If you do find any incompatibilities please submit an issue on `github <https://github.com/Koed00/django-q>`__.

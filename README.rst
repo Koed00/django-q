@@ -21,7 +21,7 @@ Features
 -  PaaS compatible with multiple instances
 -  Multi cluster monitor
 -  Redis, Disque, IronMQ, SQS, MongoDB or ORM
--  Python 2 and 3
+-  Rollbar support
 
 Requirements
 ~~~~~~~~~~~~
