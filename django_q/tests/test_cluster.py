@@ -264,23 +264,6 @@ def test_timeout(broker):
 
 
 @pytest.mark.django_db
-def test_timeout(broker):
-    # set up the Sentinel
-    broker.list_key = 'timeout_test:q'
-    broker.purge_queue()
-    async('django_q.tests.tasks.count_forever', broker=broker)
-    start_event = Event()
-    stop_event = Event()
-    # Set a timer to stop the Sentinel
-    threading.Timer(3, stop_event.set).start()
-    s = Sentinel(stop_event, start_event, broker=broker, timeout=1)
-    assert start_event.is_set()
-    assert s.status() == Conf.STOPPED
-    assert s.reincarnations == 1
-    broker.delete_queue()
-
-
-@pytest.mark.django_db
 def test_timeout_override(broker):
     # set up the Sentinel
     broker.list_key = 'timeout_override_test:q'
