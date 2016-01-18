@@ -1,8 +1,9 @@
 # Future
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
 from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 from builtins import range
 
 from future import standard_library
@@ -320,19 +321,21 @@ def monitor(result_queue, broker=None):
     name = current_process().name
     logger.info(_("{} monitoring at {}").format(name, current_process().pid))
     for task in iter(result_queue.get, 'STOP'):
-        # acknowledge
-        ack_id = task.pop('ack_id', False)
-        if ack_id:
-            broker.acknowledge(ack_id)
         # save the result
         if task.get('cached', False):
             save_cached(task, broker)
         else:
             save_task(task, broker)
-        # log the result
+        # acknowledge and log the result
         if task['success']:
+            # acknowledge
+            ack_id = task.pop('ack_id', False)
+            if ack_id:
+                broker.acknowledge(ack_id)
+            # log success
             logger.info(_("Processed [{}]").format(task['name']))
         else:
+            # log failure
             logger.error(_("Failed [{}] - {}").format(task['name'], task['result']))
     logger.info(_("{} stopped monitoring results").format(name))
 
@@ -521,10 +524,11 @@ def scheduler(broker=None):
             # log it
             if not s.task:
                 logger.error(
-                    _('{} failed to create a task from schedule [{}]').format(current_process().name, s.name or s.id))
+                        _('{} failed to create a task from schedule [{}]').format(current_process().name,
+                                                                                  s.name or s.id))
             else:
                 logger.info(
-                    _('{} created a task from schedule [{}]').format(current_process().name, s.name or s.id))
+                        _('{} created a task from schedule [{}]').format(current_process().name, s.name or s.id))
             # default behavior is to delete a ONCE schedule
             if s.schedule_type == s.ONCE:
                 if s.repeats < 0:
