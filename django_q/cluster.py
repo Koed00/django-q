@@ -408,17 +408,19 @@ def save_task(task, broker):
     try:
         if task['success'] and 0 < Conf.SAVE_LIMIT <= Success.objects.count():
             Success.objects.last().delete()
-        Task.objects.create(id=task['id'],
-                            name=task['name'],
-                            func=task['func'],
-                            hook=task.get('hook'),
-                            args=task['args'],
-                            kwargs=task['kwargs'],
-                            started=task['started'],
-                            stopped=task['stopped'],
-                            result=task['result'],
-                            group=task.get('group'),
-                            success=task['success'])
+        Task.objects.update_or_create(id=task['id'],
+                                      name=task['name'],
+                                      defaults={
+                                          'func': task['func'],
+                                          'hook': task.get('hook'),
+                                          'args': task['args'],
+                                          'kwargs': task['kwargs'],
+                                          'started': task['started'],
+                                          'stopped': task['stopped'],
+                                          'result': task['result'],
+                                          'group': task.get('group'),
+                                          'success': task['success']}
+                                      )
     except Exception as e:
         logger.error(e)
 
