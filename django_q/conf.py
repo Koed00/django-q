@@ -128,6 +128,9 @@ class Conf(object):
     # The redis stats key
     Q_STAT = 'django_q:{}:cluster'.format(PREFIX)
 
+    # Optional Rollbar key
+    ROLLBAR = conf.get('rollbar', {})
+
     # OSX doesn't implement qsize because of missing sem_getvalue()
     try:
         QSIZE = Queue().qsize() == 0
@@ -154,11 +157,27 @@ logger = logging.getLogger('django-q')
 # Set up standard logging handler in case there is none
 if not logger.handlers:
     logger.setLevel(level=getattr(logging, Conf.LOG_LEVEL))
+    logger.propagate = False
     formatter = logging.Formatter(fmt='%(asctime)s [Q] %(levelname)s %(message)s',
                                   datefmt='%H:%M:%S')
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
     logger.addHandler(handler)
+
+# rollbar
+if Conf.ROLLBAR:
+    rollbar_conf = Conf.ROLLBAR
+    try:
+        import rollbar
+        rollbar.init(rollbar_conf.pop('access_token'), environment=rollbar_conf.pop('environment'), **rollbar_conf)
+    except ImportError:
+        rollbar = None
+
+else:
+    rollbar = None
+
+
+
 
 
 # get parent pid compatibility

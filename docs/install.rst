@@ -29,7 +29,7 @@ Django Q is tested for Python 2.7 and 3.5
 -  `Django <https://www.djangoproject.com>`__
 
     Django Q aims to use as much of Django's standard offerings as possible
-    The code is tested against Django version `1.7.10` and `1.8.6`.
+    The code is tested against Django version `1.8.8` and `1.9.1`.
 
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
 
@@ -78,6 +78,11 @@ Optional
 
 - `MongoDB <https://www.mongodb.org/>`__ is a highly scalable NoSQL database which makes for a very fast and reliably persistent at-least-once message broker. Usually available on most PaaS providers.
 
+- `Pyrollbar <https://github.com/rollbar/pyrollbar>`__ is an error notifier for `Rollbar <https://rollbar.com/>`__  which lets you manage your worker errors in one place. Needs a `Rollbar <https://rollbar.com/>`__ account and access key::
+
+    $ pip install rollbar
+
+
 Compatibility
 -------------
 Django Q is still a young project. If you do find any incompatibilities please submit an issue on `github <https://github.com/Koed00/django-q>`__.
@@ -119,11 +124,9 @@ You can reference the `requirements <https://github.com/Koed00/django-q/blob/mas
 Django
 ~~~~~~
 We strive to be compatible with last two major version of Django.
-At the moment this means we support the 1.7.10 and 1.8.6 releases.
-Once version 1.9 is out , support for Django 1.7 will be deprecated.
-This will mean that newer releases of Django Q might still work, but are no longer targeted for testing.
+At the moment this means we support the 1.8.8 and 1.9.1 releases.
 
-Django Q has been tested with Django 1.9b1 and should be compatible.
+You might find that Django Q still works fine with Django 1.7, but new releases are no longer tested for it.
 
 
 

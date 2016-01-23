@@ -1,8 +1,9 @@
 # Future
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
 from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 from builtins import range
 
 from future import standard_library
@@ -29,7 +30,7 @@ from django import db
 import signing
 import tasks
 
-from django_q.conf import Conf, logger, psutil, get_ppid
+from django_q.conf import Conf, logger, psutil, get_ppid, rollbar
 from django_q.models import Task, Success, Schedule
 from django_q.status import Stat, Status
 from django_q.brokers import get_broker
@@ -320,19 +321,21 @@ def monitor(result_queue, broker=None):
     name = current_process().name
     logger.info(_("{} monitoring at {}").format(name, current_process().pid))
     for task in iter(result_queue.get, 'STOP'):
-        # acknowledge
-        ack_id = task.pop('ack_id', False)
-        if ack_id:
-            broker.acknowledge(ack_id)
         # save the result
         if task.get('cached', False):
             save_cached(task, broker)
         else:
             save_task(task, broker)
-        # log the result
+        # acknowledge and log the result
         if task['success']:
+            # acknowledge
+            ack_id = task.pop('ack_id', False)
+            if ack_id:
+                broker.acknowledge(ack_id)
+            # log success
             logger.info(_("Processed [{}]").format(task['name']))
         else:
+            # log failure
             logger.error(_("Failed [{}] - {}").format(task['name'], task['result']))
     logger.info(_("{} stopped monitoring results").format(name))
 
@@ -363,6 +366,8 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
                 f = getattr(m, func)
             except (ValueError, ImportError, AttributeError) as e:
                 result = (e, False)
+                if rollbar:
+                    rollbar.report_exc_info()
         # We're still going
         if not result:
             db.close_old_connections()
@@ -372,7 +377,9 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
                 res = f(*task['args'], **task['kwargs'])
                 result = (res, True)
             except Exception as e:
-                result = (e, False)
+                result = ('{}'.format(e), False)
+                if rollbar:
+                    rollbar.report_exc_info()
         # Process result
         task['result'] = result[0]
         task['success'] = result[1]
@@ -401,17 +408,28 @@ def save_task(task, broker):
     try:
         if task['success'] and 0 < Conf.SAVE_LIMIT <= Success.objects.count():
             Success.objects.last().delete()
-        Task.objects.create(id=task['id'],
-                            name=task['name'],
-                            func=task['func'],
-                            hook=task.get('hook'),
-                            args=task['args'],
-                            kwargs=task['kwargs'],
-                            started=task['started'],
-                            stopped=task['stopped'],
-                            result=task['result'],
-                            group=task.get('group'),
-                            success=task['success'])
+        # check if this task has previous results
+        if Task.objects.filter(id=task['id'], name=task['name']).exists():
+            existing_task = Task.objects.get(id=task['id'], name=task['name'])
+            # only update the result if it hasn't succeeded yet
+            if not existing_task.success:
+                existing_task.stopped = task['stopped']
+                existing_task.result = task['result']
+                existing_task.success = task['success']
+                existing_task.save()
+        else:
+            Task.objects.create(id=task['id'],
+                                name=task['name'],
+                                func=task['func'],
+                                hook=task.get('hook'),
+                                args=task['args'],
+                                kwargs=task['kwargs'],
+                                started=task['started'],
+                                stopped=task['stopped'],
+                                result=task['result'],
+                                group=task.get('group'),
+                                success=task['success']
+                                )
     except Exception as e:
         logger.error(e)
 
@@ -517,10 +535,11 @@ def scheduler(broker=None):
             # log it
             if not s.task:
                 logger.error(
-                    _('{} failed to create a task from schedule [{}]').format(current_process().name, s.name or s.id))
+                        _('{} failed to create a task from schedule [{}]').format(current_process().name,
+                                                                                  s.name or s.id))
             else:
                 logger.info(
-                    _('{} created a task from schedule [{}]').format(current_process().name, s.name or s.id))
+                        _('{} created a task from schedule [{}]').format(current_process().name, s.name or s.id))
             # default behavior is to delete a ONCE schedule
             if s.schedule_type == s.ONCE:
                 if s.repeats < 0:

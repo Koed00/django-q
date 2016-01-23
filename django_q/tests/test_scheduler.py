@@ -1,15 +1,15 @@
 from datetime import timedelta
 from multiprocessing import Queue, Event, Value
 
-import pytest
 import arrow
-
+import pytest
+from django.db import IntegrityError
 from django.utils import timezone
 
 from django_q.brokers import get_broker
-from django_q.conf import Conf
 from django_q.cluster import pusher, worker, monitor, scheduler
-from django_q.tasks import Schedule, fetch, schedule as create_schedule, queue_size
+from django_q.conf import Conf
+from django_q.tasks import Schedule, fetch, schedule as create_schedule
 
 
 @pytest.fixture
@@ -33,6 +33,14 @@ def test_scheduler(broker):
                                schedule_type=Schedule.HOURLY,
                                repeats=1)
     assert schedule.last_run() is None
+    # check duplicate constraint
+    with pytest.raises(IntegrityError):
+        schedule = create_schedule('math.copysign',
+                                   1, -1,
+                                   name='test math',
+                                   hook='django_q.tests.tasks.result',
+                                   schedule_type=Schedule.HOURLY,
+                                   repeats=1)
     # run scheduler
     scheduler(broker=broker)
     # set up the workflow

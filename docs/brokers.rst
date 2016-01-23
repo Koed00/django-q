@@ -18,8 +18,11 @@ Some pointers:
 * Don't set the :ref:`retry` timer to a lower or equal number than the task timeout.
 * Retry time includes time the task spends waiting in the clusters internal queue.
 * Don't set the :ref:`queue_limit` so high that tasks time out while waiting to be processed.
-* In case a task is worked on twice, you will see a duplicate key error in the cluster logs.
-* Duplicate tasks do generate additional receipt messages, but the result is discarded in favor of the first result.
+* In case a task is worked on twice, the task result will be updated with the latest results.
+* In some rare cases a non-atomic broker will re-queue a task after it has been acknowledged.
+* If a task runs twice and a previous run has succeeded, the new result wil be discarded.
+* Limiting the number of retries is handled globally in your actual broker's settings.
+
 
 Support for more brokers is being worked on.
 
