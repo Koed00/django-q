@@ -1,16 +1,17 @@
 import sys
-from multiprocessing import Queue, Event, Value
 import threading
+from multiprocessing import Queue, Event, Value
 from time import sleep
-import os
+from django.utils import timezone
 
+import os
 import pytest
 
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
-from django_q.cluster import Cluster, Sentinel, pusher, worker, monitor
-from django_q.humanhash import DEFAULT_WORDLIST
+from django_q.cluster import Cluster, Sentinel, pusher, worker, monitor, save_task
+from django_q.humanhash import DEFAULT_WORDLIST, uuid
 from django_q.tasks import fetch, fetch_group, async, result, result_group, count_group, delete_group, queue_size
 from django_q.models import Task, Success
 from django_q.conf import Conf
@@ -338,6 +339,51 @@ def test_bad_secret(broker, monkeypatch):
     worker(task_queue, result_queue, Value('f', -1), )
     assert result_queue.qsize() == 0
     broker.delete_queue()
+
+
+@pytest.mark.django_db
+def test_update_failed(broker):
+    tag = uuid()
+    task = {'id': tag[1],
+            'name': tag[0],
+            'func': 'math.copysign',
+            'args': (1, -1),
+            'kwargs': {},
+            'started': timezone.now(),
+            'stopped': timezone.now(),
+            'success': False,
+            'result': None}
+    # initial save - no success
+    save_task(task, broker)
+    assert Task.objects.filter(id=task['id']).exists()
+    saved_task = Task.objects.get(id=task['id'])
+    assert saved_task.success is False
+    sleep(0.5)
+    # second save - no success
+    old_stopped = task['stopped']
+    task['stopped']=timezone.now()
+    save_task(task, broker)
+    saved_task = Task.objects.get(id=task['id'])
+    assert saved_task.stopped > old_stopped
+    # third save - success
+    task['stopped']=timezone.now()
+    task['result']='result'
+    task['success']=True
+    save_task(task, broker)
+    saved_task = Task.objects.get(id=task['id'])
+    assert saved_task.success is True
+    # fourth save - no success
+    task['result'] = None
+    task['success'] = False
+    task['stopped'] = old_stopped
+    save_task(task, broker)
+    # should not overwrite success
+    saved_task = Task.objects.get(id=task['id'])
+    assert saved_task.success is True
+    assert saved_task.result == 'result'
+
+
+
 
 
 @pytest.mark.django_db
