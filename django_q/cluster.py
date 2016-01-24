@@ -478,7 +478,7 @@ def scheduler(broker=None):
         broker = get_broker()
     db.close_old_connections()
     try:
-        for s in Schedule.objects.exclude(repeats=0).filter(next_run__lt=timezone.now()):
+        for s in Schedule.objects.exclude(repeats=0).filter(broker_name=broker.list_key, next_run__lt=timezone.now()):
             args = ()
             kwargs = {}
             # get args, kwargs and hook
