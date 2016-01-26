@@ -303,6 +303,11 @@ Keep in mind however that settings this too high can degrade performance with mu
 Not supported by the default Redis broker.
 Defaults to ``1``.
 
+poll
+~~~~
+Sets the queue polling interval for database brokers that don't have a blocking call. Defaults to 0.2 (seconds).
+Currently only affects the ORM and MongoDB brokers.
+
 cache
 ~~~~~
 For some brokers, you will need to set up the Django `cache framework <https://docs.djangoproject.com/en/1.8/topics/cache/#setting-up-the-cache>`__

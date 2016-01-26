@@ -50,6 +50,9 @@ class Conf(object):
     # ORM broker
     ORM = conf.get('orm', None)
 
+    # Database Poll
+    POLL = conf.get('poll', 0.2)
+
     # MongoDB broker
     MONGO = conf.get('mongo', None)
     MONGO_DB = conf.get('mongo_db', None)
