@@ -61,7 +61,7 @@ class Mongo(Broker):
         if task:
             return [(str(task['_id']), task['payload'])]
         # empty queue, spare the cpu
-        sleep(0.2)
+        sleep(Conf.POLL)
 
     def delete_queue(self):
         return self.collection.drop()

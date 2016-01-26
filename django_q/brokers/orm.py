@@ -61,7 +61,7 @@ class ORM(Broker):
                 task_list.append((task.pk, task.payload))
             return task_list
         # empty queue, spare the cpu
-        sleep(0.2)
+        sleep(Conf.POLL)
 
     def delete_queue(self):
         return self.purge_queue()
