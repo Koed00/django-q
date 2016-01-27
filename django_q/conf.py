@@ -51,8 +51,8 @@ class Conf(object):
     # ORM broker
     ORM = conf.get('orm', None)
 
-    # Custom broker
-    BROKER = conf.get('broker', None)
+    # Custom broker class
+    BROKER_CLASS = conf.get('broker_class', None)
 
     # Database Poll
     POLL = conf.get('poll', 0.2)

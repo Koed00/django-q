@@ -50,12 +50,12 @@ def test_redis():
 
 
 def test_custom():
-    Conf.BROKER = 'brokers.redis_broker.Redis'
+    Conf.BROKER_CLASS = 'brokers.redis_broker.Redis'
     broker = get_broker()
     assert broker.ping() is True
     assert broker.info() is not None
     assert broker.__class__.__name__ == 'Redis'
-    Conf.BROKER = None
+    Conf.BROKER_CLASS = None
 
 
 def test_disque():

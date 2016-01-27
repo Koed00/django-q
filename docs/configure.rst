@@ -292,6 +292,23 @@ mongo_db
 When using the MongoDB broker you can optionally provide a database name to use for the queues.
 Defaults to default database if available, otherwise ``django-q``
 
+.. _custom_broker:
+
+broker_class
+~~~~~~~~~~~~
+You can use a custom broker class for your cluster workers::
+
+    # example Custom broker class connection
+
+    Q_CLUSTER = {
+        'name': 'Custom',
+        'workers': 8,
+        'timeout': 60,
+        'broker_class: 'myapp.broker.CustomBroker'
+    }
+
+Make sure your ``CustomBroker`` class inherits from either the base :class:`Broker` class or one of its children.
+
 .. _bulk:
 
 bulk

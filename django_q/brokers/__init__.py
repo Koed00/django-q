@@ -159,8 +159,8 @@ def get_broker(list_key=Conf.PREFIX):
     :return:
     """
     # custom
-    if Conf.BROKER:
-        module, func = Conf.BROKER.rsplit('.', 1)
+    if Conf.BROKER_CLASS:
+        module, func = Conf.BROKER_CLASS.rsplit('.', 1)
         m = importlib.import_module(module)
         broker = getattr(m, func)
         return broker(list_key=list)
