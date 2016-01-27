@@ -292,7 +292,7 @@ mongo_db
 When using the MongoDB broker you can optionally provide a database name to use for the queues.
 Defaults to default database if available, otherwise ``django-q``
 
-.. _custom_broker:
+.. _broker_class:
 
 broker_class
 ~~~~~~~~~~~~
