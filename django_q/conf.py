@@ -1,4 +1,5 @@
 import logging
+from copy import deepcopy
 from signal import signal
 from multiprocessing import cpu_count, Queue
 
@@ -49,6 +50,9 @@ class Conf(object):
 
     # ORM broker
     ORM = conf.get('orm', None)
+
+    # Custom broker
+    BROKER = conf.get('broker', None)
 
     # Database Poll
     POLL = conf.get('poll', 0.2)
@@ -169,7 +173,7 @@ if not logger.handlers:
 
 # rollbar
 if Conf.ROLLBAR:
-    rollbar_conf = Conf.ROLLBAR
+    rollbar_conf = deepcopy(Conf.ROLLBAR)
     try:
         import rollbar
         rollbar.init(rollbar_conf.pop('access_token'), environment=rollbar_conf.pop('environment'), **rollbar_conf)
@@ -178,9 +182,6 @@ if Conf.ROLLBAR:
 
 else:
     rollbar = None
-
-
-
 
 
 # get parent pid compatibility
