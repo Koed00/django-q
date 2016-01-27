@@ -1,5 +1,8 @@
-from django_q.conf import Conf
+import importlib
+
 from django.core.cache import caches, InvalidCacheBackendError
+
+from django_q.conf import Conf
 
 
 class Broker(object):
@@ -171,6 +174,12 @@ def get_broker(list_key=Conf.PREFIX):
     elif Conf.MONGO:
         from brokers import mongo
         return mongo.Mongo(list_key=list_key)
+    elif Conf.BROKER:
+        module, func = Conf.BROKER.rsplit('.', 1)
+        m = importlib.import_module(module)
+        broker = getattr(m, func)
+        return broker(list_key=list)
+
     # default to redis
     else:
         from brokers import redis_broker
