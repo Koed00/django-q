@@ -54,7 +54,7 @@ def test_custom():
     broker = get_broker()
     assert broker.ping() is True
     assert broker.info() is not None
-    assert broker.__class__.__name == 'Redis'
+    assert broker.__class__.__name__ == 'Redis'
     Conf.BROKER = None
 
 
