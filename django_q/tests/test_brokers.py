@@ -1,9 +1,11 @@
-from time import sleep
-import pytest
 import os
+from time import sleep
+
+import pytest
 import redis
-from django_q.conf import Conf
+
 from django_q.brokers import get_broker, Broker
+from django_q.conf import Conf
 from django_q.humanhash import uuid
 
 
@@ -45,6 +47,15 @@ def test_redis():
         broker.ping()
     Conf.REDIS = None
     Conf.DJANGO_REDIS = 'default'
+
+
+def test_custom():
+    Conf.BROKER_CLASS = 'brokers.redis_broker.Redis'
+    broker = get_broker()
+    assert broker.ping() is True
+    assert broker.info() is not None
+    assert broker.__class__.__name__ == 'Redis'
+    Conf.BROKER_CLASS = None
 
 
 def test_disque():
@@ -132,15 +143,15 @@ def test_ironmq():
     broker.acknowledge(task[0])
     assert broker.dequeue() is None
     # Retry test
-    #Conf.RETRY = 1
-    #broker.enqueue('test')
-    #assert broker.dequeue() is not None
-    #sleep(3)
+    # Conf.RETRY = 1
+    # broker.enqueue('test')
     # assert broker.dequeue() is not None
-    #task = broker.dequeue()[0]
-    #assert len(task) > 0
-    #broker.acknowledge(task[0])
-    #sleep(3)
+    # sleep(3)
+    # assert broker.dequeue() is not None
+    # task = broker.dequeue()[0]
+    # assert len(task) > 0
+    # broker.acknowledge(task[0])
+    # sleep(3)
     # delete job
     task_id = broker.enqueue('test')
     broker.delete(task_id)

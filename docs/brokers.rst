@@ -103,6 +103,36 @@ However for a medium message rate and scheduled tasks, this is the most convenie
 * Queue editable in Django Admin
 * See the :ref:`orm_configuration` configuration on how to set it up.
 
+
+
+Custom Broker
+-------------
+You can override the :class:`Broker` or any of its existing derived broker types.
+
+.. code-block:: python
+
+    # example Custom broker.py
+    from django_q.brokers import Broker
+
+    class CustomBroker(Broker):
+        def info(self):
+            return 'My Custom Broker'
+
+Using the :ref:`broker_class` configuration setting you can then instruct Django Q to use this instead of one of the existing brokers:
+
+.. code-block:: python
+
+    # example Custom broker class connection
+
+    Q_CLUSTER = {
+        'name': 'Custom',
+        'workers': 8,
+        'timeout': 60,
+        'broker_class: 'myapp.broker.CustomBroker'
+    }
+
+If you do write a custom broker for one of the many message queueing servers out there we don't support yet, please consider contributing it to the project.
+
 Reference
 ---------
 The :class:`Broker` class is used internally to communicate with the different types of brokers.
