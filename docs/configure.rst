@@ -322,8 +322,8 @@ Defaults to ``1``.
 
 poll
 ~~~~
-Sets the queue polling interval for database brokers that don't have a blocking call. Defaults to 0.2 (seconds).
-Currently only affects the ORM and MongoDB brokers.
+Sets the queue polling interval for database brokers that don't have a blocking call. Currently only affects the ORM and MongoDB brokers.
+Defaults to ``0.2`` (seconds).
 
 cache
 ~~~~~
