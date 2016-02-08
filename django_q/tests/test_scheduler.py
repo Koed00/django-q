@@ -18,9 +18,9 @@ def broker():
     Conf.IRON_MQ = None
     Conf.SQS = None
     Conf.ORM = None
+    Conf.PREFIX = "scheduler_test:q"
     Conf.DJANGO_REDIS = 'default'
     return get_broker()
-
 
 @pytest.mark.django_db
 def test_scheduler(broker):

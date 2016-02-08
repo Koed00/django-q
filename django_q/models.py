@@ -7,6 +7,7 @@ from picklefield import PickledObjectField
 from picklefield.fields import dbsafe_decode
 
 from django_q.signing import SignedPackage
+from django_q.conf import Conf
 
 
 class Task(models.Model):
@@ -122,6 +123,7 @@ class Failure(Task):
 
 class Schedule(models.Model):
     name = models.CharField(max_length=100, null=True)
+    broker_name = models.CharField(max_length=100, default=Conf.PREFIX)
     func = models.CharField(max_length=256, help_text='e.g. module.tasks.function')
     hook = models.CharField(max_length=256, null=True, blank=True, help_text='e.g. module.tasks.result_function')
     args = models.TextField(null=True, blank=True, help_text=_("e.g. 1, 2, 'John'"))

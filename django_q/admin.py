@@ -80,6 +80,7 @@ class ScheduleAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'name',
+        'broker_name',
         'func',
         'schedule_type',
         'repeats',
@@ -88,7 +89,7 @@ class ScheduleAdmin(admin.ModelAdmin):
         'success'
     )
 
-    list_filter = ('next_run', 'schedule_type')
+    list_filter = ('next_run', 'broker_name', 'schedule_type')
     search_fields = ('func',)
     list_display_links = ('id', 'name')
 
