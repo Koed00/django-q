@@ -388,6 +388,7 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
         timer.value = -1  # Idle
         # Recycle
         if task_count == Conf.RECYCLE:
+            db.connections.close_all()  # Close any active connections
             timer.value = -2  # Recycled
             break
     logger.info(_('{} stopped doing work').format(name))
