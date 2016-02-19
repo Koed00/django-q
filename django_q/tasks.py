@@ -48,7 +48,8 @@ def async(func, *args, **kwargs):
     if task.get('sync', False):
         return _sync(pack)
     # push it
-    broker.enqueue(pack)
+    enqueue_id = broker.enqueue(pack)
+    logger.info('Enqueued {}'.format(enqueue_id))
     logger.debug('Pushed {}'.format(tag))
     return task['id']
 
