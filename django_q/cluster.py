@@ -530,7 +530,7 @@ def scheduler(broker=None):
                 s.repeats += -1
             # send it to the cluster
             q_options['broker'] = broker
-            q_options['group'] = s.name or s.id
+            q_options['group'] = q_options.get('group', s.name or s.id)
             kwargs['q_options'] = q_options
             s.task = tasks.async(s.func, *args, **kwargs)
             # log it
