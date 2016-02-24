@@ -166,6 +166,7 @@ class Sentinel(object):
         :param process: the process to reincarnate
         :type process: Process or None
         """
+        db.connections.close_all()  # Close any old connections
         if process == self.monitor:
             self.monitor = self.spawn_monitor()
             logger.error(_("reincarnated monitor {} after sudden death").format(process.name))
@@ -388,7 +389,6 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
         timer.value = -1  # Idle
         # Recycle
         if task_count == Conf.RECYCLE:
-            db.connections.close_all()  # Close any active connections
             timer.value = -2  # Recycled
             break
     logger.info(_('{} stopped doing work').format(name))
