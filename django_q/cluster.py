@@ -333,7 +333,7 @@ def monitor(result_queue, broker=None):
             if ack_id:
                 broker.acknowledge(ack_id)
             # log success
-            logger.info(_("Processed [{}]").format(task['name']))
+            logger.info(_("Processed [{}] [{}]").format(task['name'], task['id']))
         else:
             # log failure
             logger.error(_("Failed [{}] - {}").format(task['name'], task['result']))
@@ -356,7 +356,7 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
         timer.value = -1  # Idle
         task_count += 1
         # Get the function from the task
-        logger.info(_('{} processing [{}]').format(name, task['name']))
+        logger.info(_('{} processing [{}] [{}]').format(name, task['name'], task['id']))
         f = task['func']
         # if it's not an instance try to get it from the string
         if not callable(task['func']):
