@@ -69,6 +69,11 @@ broker
 """"""
 A broker instance, in case you want to control your own connections.
 
+task_name
+"""""""""
+
+Optionally overwrites the auto-generated task name.
+
 q_options
 """""""""
 None of the option keywords get passed on to the task function.

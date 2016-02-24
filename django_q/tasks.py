@@ -24,7 +24,7 @@ def async(func, *args, **kwargs):
     tag = uuid()
     # build the task package
     task = {'id': tag[1],
-            'name': tag[0],
+            'name': q_options.pop('task_name', None) or tag[0],
             'func': func,
             'args': args}
     # push optionals
