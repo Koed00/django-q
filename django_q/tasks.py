@@ -19,12 +19,12 @@ def async(func, *args, **kwargs):
     """Queue a task for the cluster."""
     keywords = kwargs.copy()
     opt_keys = ('hook', 'group', 'save', 'sync', 'cached', 'iter_count', 'iter_cached', 'chain', 'broker')
-    q_options = keywords.pop('q_options', None)
+    q_options = keywords.pop('q_options', {})
     # get an id
     tag = uuid()
     # build the task package
     task = {'id': tag[1],
-            'name': tag[0],
+            'name': keywords.pop('task_name', None) or q_options.pop('task_name', None) or tag[0],
             'func': func,
             'args': args}
     # push optionals
