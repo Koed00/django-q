@@ -399,7 +399,7 @@ def save_task(task, broker):
     Saves the task package to Django or the cache
     """
     # SAVE LIMIT < 0 : Don't save success
-    if not task.get('save', Conf.SAVE_LIMIT > 0) and task['success']:
+    if not task.get('save', Conf.SAVE_LIMIT >= 0) and task['success']:
         return
     # async next in a chain
     if task.get('chain', None):
