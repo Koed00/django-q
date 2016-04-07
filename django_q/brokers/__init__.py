@@ -163,7 +163,7 @@ def get_broker(list_key=Conf.PREFIX):
         module, func = Conf.BROKER_CLASS.rsplit('.', 1)
         m = importlib.import_module(module)
         broker = getattr(m, func)
-        return broker(list_key=list)
+        return broker(list_key=list_key)
     # disque
     elif Conf.DISQUE_NODES:
         from brokers import disque
