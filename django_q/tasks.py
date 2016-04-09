@@ -19,7 +19,7 @@ def async(func, *args, **kwargs):
     """Queue a task for the cluster."""
     keywords = kwargs.copy()
     opt_keys = ('hook', 'group', 'save', 'sync', 'cached', 'iter_count', 'iter_cached', 'chain', 'broker')
-    q_options = keywords.pop('q_options', {})
+    q_options = keywords.pop('q_options', {}).copy()
     # get an id
     tag = uuid()
     # build the task package
@@ -30,7 +30,7 @@ def async(func, *args, **kwargs):
     # push optionals
     for key in opt_keys:
         if q_options and key in q_options:
-            task[key] = q_options[key]
+            task[key] = q_options.pop(key)
         elif key in keywords:
             task[key] = keywords.pop(key)
     # don't serialize the broker
@@ -42,6 +42,8 @@ def async(func, *args, **kwargs):
         task['sync'] = Conf.SYNC
     # finalize
     task['kwargs'] = keywords
+    if q_options:
+        task['kwargs'].update(q_options)
     task['started'] = timezone.now()
     # sign it
     pack = signing.SignedPackage.dumps(task)

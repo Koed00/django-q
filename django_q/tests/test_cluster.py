@@ -7,6 +7,8 @@ from django.utils import timezone
 import os
 import pytest
 
+import signing
+
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
@@ -108,6 +110,19 @@ def test_cluster(broker):
     assert result_queue.qsize() == 0
     # check result
     assert result(task) == 1506
+    broker.delete_queue()
+
+
+@pytest.mark.django_db
+def test_async_q_options_timeout(broker):
+    broker.list_key = 'test_async_q_options_timeout:q'
+    broker.delete_queue()
+    q_options = {
+        'timeout': 90,
+    }
+    async('django_q.tests.tasks.hello', broker=broker, q_options=q_options)
+    task = signing.SignedPackage.loads(broker.dequeue()[0][1])
+    assert 'timeout' in task['kwargs'] and task['kwargs']['timeout'] == q_options['timeout']
     broker.delete_queue()
 
 
