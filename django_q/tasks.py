@@ -18,7 +18,7 @@ from django_q.brokers import get_broker
 def async(func, *args, **kwargs):
     """Queue a task for the cluster."""
     keywords = kwargs.copy()
-    opt_keys = ('hook', 'group', 'save', 'sync', 'cached', 'iter_count', 'iter_cached', 'chain', 'broker')
+    opt_keys = ('hook', 'group', 'save', 'sync', 'cached', 'iter_count', 'iter_cached', 'chain', 'broker', 'timeout')
     q_options = keywords.pop('q_options', {})
     # get an id
     tag = uuid()
