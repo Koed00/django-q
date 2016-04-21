@@ -544,7 +544,8 @@ def scheduler(broker=None):
             # default behavior is to delete a ONCE schedule
             if s.schedule_type == s.ONCE:
                 if s.repeats < 0:
-                    return s.delete()
+                    s.delete()
+                    continue
                 # but not if it has a positive repeats
                 s.repeats = 0
             # save the schedule
