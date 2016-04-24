@@ -7,10 +7,10 @@
 
 arrow==0.7.0
 blessed==1.14.1
-boto3==1.3.0
-botocore==1.4.11          # via boto3
+boto3==1.3.1
+botocore==1.4.13          # via boto3
 django-picklefield==0.3.2
-django-redis==4.4.0
+django-redis==4.4.2
 docutils==0.12            # via botocore
 future==0.15.2
 hiredis==0.2.0
@@ -19,9 +19,9 @@ iron-mq==0.8
 jmespath==0.9.0           # via boto3, botocore
 psutil==4.1.0
 pymongo==3.2.2
-python-dateutil==2.5.2    # via arrow, botocore, iron-core
+python-dateutil==2.5.3    # via arrow, botocore, iron-core
 redis==2.10.5
 requests==2.9.1           # via iron-core, rollbar
-rollbar==0.11.6
+rollbar==0.12.1
 six==1.10.0               # via blessed, python-dateutil, rollbar
 wcwidth==0.1.6            # via blessed
