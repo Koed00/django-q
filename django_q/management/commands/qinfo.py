@@ -6,7 +6,7 @@ from django.utils.translation import ugettext as _
 
 from django_q import VERSION
 from django_q.conf import Conf
-from django_q.monitor import info
+from django_q.monitor import info, get_ids
 
 
 class Command(BaseCommand):
@@ -19,10 +19,17 @@ class Command(BaseCommand):
                     dest='config',
                     default=False,
                     help='Print current configuration.'),
+        make_option('--ids',
+                    action='store_true',
+                    dest='ids',
+                    default=False,
+                    help='Print cluster task IDs (PIDs).'),
     )
 
     def handle(self, *args, **options):
-        if options.get('config', False):
+        if options.get('ids', True):
+            get_ids()
+        elif options.get('config', False):
             hide = ['conf', 'IDLE', 'STOPPING', 'STARTING', 'WORKING', 'SIGNAL_NAMES', 'STOPPED']
             settings = [a for a in dir(Conf) if not a.startswith('__') and a not in hide]
             self.stdout.write('VERSION: {}'.format('.'.join(str(v) for v in VERSION)))
