@@ -1,7 +1,4 @@
-from optparse import make_option
-
 from django.core.management.base import BaseCommand
-
 from django.utils.translation import ugettext as _
 
 from django_q import VERSION
@@ -13,18 +10,21 @@ class Command(BaseCommand):
     # Translators: help text for qinfo management command
     help = _('General information over all clusters.')
 
-    option_list = BaseCommand.option_list + (
-        make_option('--config',
-                    action='store_true',
-                    dest='config',
-                    default=False,
-                    help='Print current configuration.'),
-        make_option('--ids',
-                    action='store_true',
-                    dest='ids',
-                    default=False,
-                    help='Print cluster task IDs (PIDs).'),
-    )
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--config',
+            action='store_true',
+            dest='config',
+            default=False,
+            help='Print current configuration.',
+        )
+        parser.add_argument(
+            '--ids',
+            action='store_true',
+            dest='ids',
+            default=False,
+            help='Print cluster task ID(s) (PIDs).',
+        )
 
     def handle(self, *args, **options):
         if options.get('ids', True):
