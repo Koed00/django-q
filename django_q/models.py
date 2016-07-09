@@ -127,7 +127,7 @@ class Schedule(models.Model):
     args = models.TextField(null=True, blank=True, help_text=_("e.g. 1, 2, 'John'"))
     kwargs = models.TextField(null=True, blank=True, help_text=_("e.g. x=1, y=2, name='John'"))
     ONCE = 'O'
-    MINUTES = 'I'
+    SECONDS = 'I'
     HOURLY = 'H'
     DAILY = 'D'
     WEEKLY = 'W'
@@ -136,7 +136,7 @@ class Schedule(models.Model):
     YEARLY = 'Y'
     TYPE = (
         (ONCE, _('Once')),
-        (MINUTES, _('Minutes')),
+        (SECONDS, _('Seconds')),
         (HOURLY, _('Hourly')),
         (DAILY, _('Daily')),
         (WEEKLY, _('Weekly')),
@@ -145,8 +145,8 @@ class Schedule(models.Model):
         (YEARLY, _('Yearly')),
     )
     schedule_type = models.CharField(max_length=1, choices=TYPE, default=TYPE[0][0], verbose_name=_('Schedule Type'))
-    minutes = models.PositiveSmallIntegerField(null=True, blank=True,
-                                               help_text=_('Number of minutes for the Minutes type'))
+    seconds = models.PositiveSmallIntegerField(null=True, blank=True,
+                                               help_text=_('Number of seconds for the Seconds type'))
     repeats = models.SmallIntegerField(default=-1, verbose_name=_('Repeats'), help_text=_('n = n times, -1 = forever'))
     next_run = models.DateTimeField(verbose_name=_('Next Run'), default=timezone.now, null=True)
     task = models.CharField(max_length=100, null=True, editable=False)

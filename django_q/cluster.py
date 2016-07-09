@@ -226,9 +226,9 @@ class Sentinel(object):
             # Check Pusher
             if not self.pusher.is_alive():
                 self.reincarnate(self.pusher)
-            # Call scheduler once a minute (or so)
+            # Call scheduler once a second (or so)
             counter += cycle
-            if counter == 30 and Conf.SCHEDULER:
+            if counter >= 1 and Conf.SCHEDULER:
                 counter = 0
                 scheduler(broker=self.broker)
             # Save current status
@@ -510,8 +510,8 @@ def scheduler(broker=None):
             if not s.schedule_type == s.ONCE:
                 next_run = arrow.get(s.next_run)
                 while True:
-                    if s.schedule_type == s.MINUTES:
-                        next_run = next_run.replace(minutes=+(s.minutes or 1))
+                    if s.schedule_type == s.SECONDS:
+                        next_run = next_run.replace(seconds=+(s.seconds or 1))
                     elif s.schedule_type == s.HOURLY:
                         next_run = next_run.replace(hours=+1)
                     elif s.schedule_type == s.DAILY:
