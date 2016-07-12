@@ -78,6 +78,11 @@ Limits the amount of successful tasks saved to Django.
  - Defaults to ``250``
  - Failures are always saved.
 
+guard_cycle
+~~~~~~~~~~~
+
+Guard loop sleep in seconds
+
 .. _sync:
 
 sync

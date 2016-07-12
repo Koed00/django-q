@@ -208,7 +208,7 @@ class Sentinel(object):
         logger.info(_('Q Cluster-{} running.').format(self.parent_pid))
         scheduler(broker=self.broker)
         counter = 0
-        cycle = 0.5  # guard loop sleep in seconds
+        cycle = Conf.GUARD_CYCLE  # guard loop sleep in seconds
         # Guard loop. Runs at least once
         while not self.stop_event.is_set() or not counter:
             # Check Workers
@@ -228,7 +228,7 @@ class Sentinel(object):
                 self.reincarnate(self.pusher)
             # Call scheduler once a minute (or so)
             counter += cycle
-            if counter == 30 and Conf.SCHEDULER:
+            if counter >= 30 and Conf.SCHEDULER:
                 counter = 0
                 scheduler(broker=self.broker)
             # Save current status
