@@ -31,7 +31,7 @@ Requirements
 -  `Arrow <https://github.com/crsmithdev/arrow>`__
 -  `Blessed <https://github.com/jquast/blessed>`__
 
-Tested with: Python 2.7 & 3.5. Django 1.8.13, 1.9.7 and 1.10a1
+Tested with: Python 2.7 & 3.5. Django 1.8.14, 1.9.8 and 1.10rc1
 
 Brokers
 ~~~~~~~
@@ -166,7 +166,7 @@ Admin page or directly from your code:
                             args='2,-2',
                             schedule_type=Schedule.DAILY
                             )
-    
+
     # Run a task every 5 minutes, starting at 6 today
     # for 2 hours
     import arrow
