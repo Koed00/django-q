@@ -124,7 +124,7 @@ You can reference the `requirements <https://github.com/Koed00/django-q/blob/mas
 Django
 ~~~~~~
 We strive to be compatible with last two major version of Django.
-At the moment this means we support the 1.8.13 and 1.9.7 releases.
+At the moment this means we support the 1.8.14 and 1.9.8 releases.
 
 You might find that Django Q still works fine with Django 1.7, but new releases are no longer tested for it.
 
