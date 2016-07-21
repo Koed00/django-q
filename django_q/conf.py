@@ -71,11 +71,9 @@ class Conf(object):
     # Failures are always saved
     SAVE_LIMIT = conf.get('save_limit', 250)
 
-    # Guard loop sleep in seconds
+    # Guard loop sleep in seconds. Should be between 0 and 60 seconds.
     GUARD_CYCLE = conf.get('guard_cycle', 0.5)
-    if GUARD_CYCLE <= 0 or GUARD_CYCLE >= 60:
-        raise ValueError('`guard_cycle` must be greater than 0 and less than 60 sec')
-
+    
     # Disable the scheduler
     SCHEDULER = conf.get('scheduler', True)
 
