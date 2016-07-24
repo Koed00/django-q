@@ -54,6 +54,9 @@ class Conf(object):
     # Custom broker class
     BROKER_CLASS = conf.get('broker_class', None)
 
+    # Connection Pool
+    POOL = conf.get('pool', True)
+
     # Database Poll
     POLL = conf.get('poll', 0.2)
 
