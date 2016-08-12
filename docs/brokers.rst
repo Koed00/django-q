@@ -2,7 +2,7 @@ Brokers
 =======
 
 The broker sits between your Django instances and your Django Q cluster instances; accepting, saving and delivering task packages.
-Currently we support a variety of brokers from the default Redis, bleeding edge Disque to the convenient ORM and fast MongoBD.
+Currently we support a variety of brokers from the default Redis, bleeding edge Disque to the convenient ORM and fast MongoDB.
 
 The default Redis broker does not support message receipts.
 This means that in case of a catastrophic failure of the cluster server or worker timeouts, tasks that were being executed get lost.
