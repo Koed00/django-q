@@ -20,6 +20,9 @@ Installation
 
 -  Choose a message :doc:`broker<brokers>` , configure it and install the appropriate client library.
 
+-  Run Django Q cluster in order to handle tasks async::
+
+    $ python manage.py qcluster
 
 Requirements
 ------------
