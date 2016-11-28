@@ -61,7 +61,7 @@ def test_custom():
 def test_disque():
     Conf.DISQUE_NODES = ['127.0.0.1:7711']
     # check broker
-    broker = get_broker(list_key='disque_test')
+    broker = get_broker(list_key='disque_test_{}'.format(uuid()))
     assert broker.ping() is True
     assert broker.info() is not None
     # clear before we start
@@ -244,7 +244,7 @@ def test_sqs():
 def test_orm():
     Conf.ORM = 'default'
     # check broker
-    broker = get_broker(list_key='orm_test')
+    broker = get_broker(list_key='orm_test_{}'.format(uuid()))
     assert broker.ping() is True
     assert broker.info() is not None
     # clear before we start
@@ -303,7 +303,7 @@ def test_orm():
 def test_mongo():
     Conf.MONGO = {'host': '127.0.0.1', 'port': 27017}
     # check broker
-    broker = get_broker(list_key='mongo_test')
+    broker = get_broker(list_key='mongo_test_{}'.format(uuid()))
     assert broker.ping() is True
     assert broker.info() is not None
     # clear before we start
