@@ -59,6 +59,7 @@ def test_custom():
 
 
 def test_disque():
+    Conf.SQS = None
     Conf.DISQUE_NODES = ['127.0.0.1:7711']
     # check broker
     broker = get_broker(list_key=uuid()[0])
@@ -242,6 +243,7 @@ def test_sqs():
 
 @pytest.mark.django_db
 def test_orm():
+    Conf.SQS = None
     Conf.ORM = 'default'
     # check broker
     broker = get_broker(list_key=uuid()[0])
@@ -297,10 +299,12 @@ def test_orm():
     assert broker.queue_size() == 0
     # back to django-redis
     Conf.ORM = None
+    Conf.DJANGO_REDIS = 'default'
 
 
 @pytest.mark.django_db
 def test_mongo():
+    Conf.SQS = None
     Conf.MONGO = {'host': '127.0.0.1', 'port': 27017}
     # check broker
     broker = get_broker(list_key=uuid()[0])
