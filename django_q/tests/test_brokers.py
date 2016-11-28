@@ -204,6 +204,7 @@ def test_sqs():
     # Retry test
     Conf.RETRY = 1
     broker.enqueue('test')
+    sleep(1)
     assert broker.dequeue() is not None
     sleep(3)
     task = broker.dequeue()
