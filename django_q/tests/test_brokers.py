@@ -205,11 +205,13 @@ def test_sqs():
     Conf.RETRY = 1
     broker.enqueue('test')
     assert broker.dequeue() is not None
-    sleep(2)
-    task = broker.dequeue()[0]
+    sleep(3)
+    task = broker.dequeue()
+    assert task is not None
+    task = task[0]
     assert len(task) > 0
     broker.acknowledge(task[0])
-    sleep(2)
+    sleep(3)
     # delete job
     broker.enqueue('test')
     task_id = broker.dequeue()[0][0]
