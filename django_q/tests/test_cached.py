@@ -10,13 +10,8 @@ from django_q.brokers import get_broker
 
 
 @pytest.fixture
-def broker():
-    Conf.DISQUE_NODES = None
-    Conf.IRON_MQ = None
-    Conf.SQS = None
-    Conf.ORM = None
-    Conf.MONGO = None
-    Conf.DJANGO_REDIS = 'default'
+def broker(monkeypatch):
+    monkeypatch.setattr(Conf, 'DJANGO_REDIS', 'default')
     return get_broker()
 
 
@@ -148,7 +143,7 @@ def test_chain(broker):
 
 
 @pytest.mark.django_db
-def test_async_class(broker):
+def test_async_class(broker, monkeypatch):
     broker.purge_queue()
     broker.cache.clear()
     a = Async('math.copysign')
@@ -186,10 +181,8 @@ def test_async_class(broker):
     assert a.result_group() == [-1]
     assert a.fetch_group() == [a.fetch()]
     # global overrides
-    Conf.SYNC = True
-    Conf.CACHED = True
+    monkeypatch.setattr(Conf, 'SYNC', True)
+    monkeypatch.setattr(Conf, 'CACHED', True)
     a = Async('math.floor', 1.5)
     a.run()
     assert a.result() == 1
-    Conf.SYNC = False
-    Conf.CACHED = False

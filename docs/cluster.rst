@@ -77,10 +77,16 @@ An example :file:`circus.ini` ::
     numprocesses = 1
     copy_env = True
 
-
-
 Note that we only start one process. It is not a good idea to run multiple instances of the cluster in the same environment since this does nothing to increase performance and in all likelihood will diminish it.
 Control your cluster using the ``workers``, ``recycle`` and ``timeout`` settings in your :doc:`configure`
+
+An example :file:`supervisor.conf` ::
+
+    [program:django-q]
+    command = python manage.py qcluster
+    stopasgroup = true
+
+Supervisor's ``stopasgroup`` will ensure that the single process doesn't leave orphan process on stop or restart.
 
 Reference
 ---------
