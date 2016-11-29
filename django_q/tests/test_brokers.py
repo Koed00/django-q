@@ -21,6 +21,7 @@ def test_broker(monkeypatch):
     broker.acknowledge('test')
     broker.ping()
     broker.info()
+    broker.close()
     # stats
     assert broker.get_stat('test_1') is None
     broker.set_stat('test_1', 'test', 3)
@@ -40,6 +41,9 @@ def test_redis(monkeypatch):
     broker = get_broker()
     assert broker.ping() is True
     assert broker.info() is not None
+    # check close and autoreconnect
+    broker.close()
+    assert broker.ping() is True
     monkeypatch.setattr(Conf, 'REDIS', {'host': '127.0.0.1', 'port': 7799})
     broker = get_broker()
     with pytest.raises(Exception):
@@ -52,6 +56,9 @@ def test_custom(monkeypatch):
     assert broker.ping() is True
     assert broker.info() is not None
     assert broker.__class__.__name__ == 'Redis'
+    # check close and autoreconnect
+    broker.close()
+    assert broker.ping() is True
 
 
 def test_disque(monkeypatch):
@@ -106,6 +113,9 @@ def test_disque(monkeypatch):
     broker.enqueue('test')
     broker.delete_queue()
     assert broker.queue_size() == 0
+    # check close and autoreconnect
+    broker.close()
+    assert broker.ping() is True
     # connection test
     monkeypatch.setattr(Conf, 'DISQUE_NODES', ['127.0.0.1:7798', '127.0.0.1:7799'])
     with pytest.raises(redis.exceptions.ConnectionError):
@@ -166,6 +176,9 @@ def test_ironmq(monkeypatch):
     broker.purge_queue()
     assert broker.dequeue() is None
     broker.delete_queue()
+    # check close and autoreconnect
+    broker.close()
+    assert broker.ping() is True
 
 
 @pytest.mark.skipif(not os.getenv('AWS_ACCESS_KEY_ID'),
@@ -220,6 +233,9 @@ def test_sqs(monkeypatch):
     broker.enqueue('test')
     broker.purge_queue()
     broker.delete_queue()
+    # check close and autoreconnect
+    broker.close()
+    assert broker.ping() is True
 
 
 @pytest.mark.django_db
@@ -277,6 +293,9 @@ def test_orm(monkeypatch):
     broker.enqueue('test')
     broker.delete_queue()
     assert broker.queue_size() == 0
+    # check close and autoreconnect
+    broker.close()
+    assert broker.ping() is True
 
 
 @pytest.mark.django_db
@@ -336,3 +355,6 @@ def test_mongo(monkeypatch):
     broker.purge_queue()
     broker.delete_queue()
     assert broker.queue_size() == 0
+    # check close and autoreconnect
+    broker.close()
+    assert broker.ping() is True

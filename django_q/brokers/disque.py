@@ -26,6 +26,10 @@ class Disque(Broker):
     def ping(self):
         return self.connection.execute_command('HELLO')[0] > 0
 
+    def _close(self):
+        if self.connection is not None:
+            self.connection.connection_pool.disconnect()
+
     def delete(self, task_id):
         return self.connection.execute_command('DELJOB {}'.format(task_id))
 

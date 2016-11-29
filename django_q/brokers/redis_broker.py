@@ -37,6 +37,10 @@ class Redis(Broker):
             logger.error('Can not connect to Redis server.')
             raise e
 
+    def _close(self):
+        if self.connection is not None:
+            self.connection.connection_pool.disconnect()
+
     def info(self):
         if not self._info:
             info = self.connection.info('server')

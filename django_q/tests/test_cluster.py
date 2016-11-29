@@ -337,6 +337,19 @@ def test_bad_secret(broker, monkeypatch):
 
 
 @pytest.mark.django_db
+def test_bad_broker(broker, mocker):
+    mocker.patch.object(broker, 'set_stat',
+        side_effect=Exception('Unusable connection'))
+    stop_event = Event()
+    stop_event.set()
+    start_event = Event()
+    s = Sentinel(stop_event, start_event, broker=broker, start=False)
+    mock_close = mocker.patch.object(broker, 'close')
+    Stat(s).save()
+    assert mock_close.called
+
+
+@pytest.mark.django_db
 def test_update_failed(broker):
     tag = uuid()
     task = {'id': tag[1],
