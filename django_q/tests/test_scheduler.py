@@ -13,17 +13,13 @@ from django_q.tasks import Schedule, fetch, schedule as create_schedule
 
 
 @pytest.fixture
-def broker():
-    Conf.DISQUE_NODES = None
-    Conf.IRON_MQ = None
-    Conf.SQS = None
-    Conf.ORM = None
-    Conf.DJANGO_REDIS = 'default'
+def broker(monkeypatch):
+    monkeypatch.setattr(Conf, 'DJANGO_REDIS', 'default')
     return get_broker()
 
 
 @pytest.mark.django_db
-def test_scheduler(broker):
+def test_scheduler(broker, monkeypatch):
     broker.list_key = 'scheduler_test:q'
     broker.delete_queue()
     schedule = create_schedule('math.copysign',
@@ -117,7 +113,7 @@ def test_scheduler(broker):
     # ONCE schedule should be deleted
     assert Schedule.objects.filter(pk=once_schedule.pk).exists() is False
     # Catch up On
-    Conf.CATCH_UP = True
+    monkeypatch.setattr(Conf, 'CATCH_UP', True)
     now = timezone.now()
     schedule = create_schedule('django_q.tests.tasks.word_multiply',
                                2,
@@ -130,7 +126,7 @@ def test_scheduler(broker):
     schedule = Schedule.objects.get(pk=schedule.pk)
     assert schedule.next_run < now
     # Catch up off
-    Conf.CATCH_UP = False
+    monkeypatch.setattr(Conf, 'CATCH_UP', False)
     scheduler(broker=broker)
     schedule = Schedule.objects.get(pk=schedule.pk)
     assert schedule.next_run > now

@@ -11,8 +11,8 @@ from django_q.signing import SignedPackage
 
 
 @pytest.mark.django_db
-def test_admin_views(admin_client):
-    Conf.ORM = 'default'
+def test_admin_views(admin_client, monkeypatch):
+    monkeypatch.setattr(Conf, 'ORM', 'default')
     s = schedule('schedule.test')
     tag = uuid()
     f = Task.objects.create(
@@ -78,5 +78,3 @@ def test_admin_views(admin_client):
     data = {'post': 'yes'}
     response = admin_client.post(url, data)
     assert response.status_code == 302
-    # cleanup
-    Conf.ORM = None

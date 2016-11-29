@@ -9,7 +9,7 @@ from django_q.conf import Conf
 
 
 @pytest.mark.django_db
-def test_monitor():
+def test_monitor(monkeypatch):
     assert Stat.get(0).sentinel == 0
     c = Cluster()
     c.start()
@@ -25,14 +25,13 @@ def test_monitor():
             break
     assert found_c is True
     # test lock size
-    Conf.ORM = 'default'
+    monkeypatch.setattr(Conf, 'ORM', 'default')
     b = get_broker('monitor_test')
     b.enqueue('test')
     b.dequeue()
     assert b.lock_size() == 1
     monitor(run_once=True, broker=b)
     b.delete_queue()
-    Conf.ORM = None
 
 
 @pytest.mark.django_db
