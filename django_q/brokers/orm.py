@@ -54,11 +54,10 @@ class ORM(Broker):
         tasks = self.get_connection().filter(key=self.list_key, lock__lt=_timeout())[0:Conf.BULK]
         if tasks:
             task_list = []
-            lock = timezone.now()
             for task in tasks:
-                task.lock = lock
-                task.save(update_fields=['lock'])
-                task_list.append((task.pk, task.payload))
+                if self.get_connection().filter(id=task.id, lock=task.lock).update(lock=timezone.now()):
+                    task_list.append((task.pk, task.payload))
+                # else don't process, as another cluster has been faster than us on that task
             return task_list
         # empty queue, spare the cpu
         sleep(Conf.POLL)
