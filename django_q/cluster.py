@@ -147,7 +147,7 @@ class Sentinel(object):
         p = Process(target=target, args=args)
         p.daemon = True
         if target == worker:
-            p.daemon = False
+            p.daemon = Conf.DAEMINIZE_WORKER
             p.timer = args[2]
             self.pool.append(p)
         p.start()
