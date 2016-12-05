@@ -91,6 +91,9 @@ class Conf(object):
                 # sensible default
                 WORKERS = 4
 
+    # Option to undaemonize the workers and allow them to spawn child processes
+    DAEMONIZE_WORKERS = conf.get('daemonize_workers', True)
+
     # Maximum number of tasks that each cluster can work on
     QUEUE_LIMIT = conf.get('queue_limit', int(WORKERS) ** 2)
 
