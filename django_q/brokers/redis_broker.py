@@ -38,7 +38,11 @@ class Redis(Broker):
             raise e
 
     def _close(self):
-        if self.connection is not None:
+        if django_redis and Conf.DJANGO_REDIS:
+            from django.core.cache import caches
+            cache = caches[Conf.DJANGO_REDIS]
+            cache.client.close()
+        elif self.connection is not None:
             self.connection.connection_pool.disconnect()
 
     def info(self):
