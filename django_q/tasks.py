@@ -13,6 +13,7 @@ from django_q.conf import Conf, logger
 from django_q.models import Schedule, Task
 from django_q.humanhash import uuid
 from django_q.brokers import get_broker
+from django_q.signals import pre_enqueue
 
 
 def async(func, *args, **kwargs):
@@ -43,6 +44,8 @@ def async(func, *args, **kwargs):
     # finalize
     task['kwargs'] = keywords
     task['started'] = timezone.now()
+    # signal it
+    pre_enqueue.send(sender="django_q", task=task)
     # sign it
     pack = signing.SignedPackage.dumps(task)
     if task.get('sync', False):
