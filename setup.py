@@ -55,5 +55,15 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Software Development :: Libraries :: Python Modules',
-    ]
+    ],
+    entry_points={
+        'djangoq.errorreporters': [
+            'rollbar = django_q_rollbar.Rollbar',
+            'sentry = django_q_sentry.Sentry',
+        ]
+    },
+    extras_require={
+        'rollbar': ["django-q-rollbar>=0.1"],
+        'sentry': ["django-q-sentry>=0.1"],
+    }
 )
