@@ -207,6 +207,8 @@ if Conf.ERROR_REPORTER:
         error_reporter = ErrorReporter(reporters)
     except ImportError:
         error_reporter = None
+else:
+    error_reporter = None
 
 # # rollbar
 # if Conf.ROLLBAR:
