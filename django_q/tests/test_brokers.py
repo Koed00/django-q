@@ -199,8 +199,13 @@ def test_sqs(monkeypatch):
     broker.acknowledge(task[0])
     sleep(2)
     # delete job
+    monkeypatch.setattr(Conf, 'RETRY', 60)
     broker.enqueue('test')
-    task_id = broker.dequeue()[0][0]
+    sleep(1)
+    task = broker.dequeue()
+    if not task:
+        pytest.skip('SQS being weird')
+    task_id = task[0][0]
     broker.delete(task_id)
     assert broker.dequeue() is None
     # fail
