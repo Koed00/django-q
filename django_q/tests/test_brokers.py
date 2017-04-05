@@ -190,8 +190,6 @@ def test_sqs(monkeypatch):
     monkeypatch.setattr(Conf, 'RETRY', 1)
     broker.enqueue('test')
     sleep(2)
-    assert broker.dequeue() is not None
-    sleep(2)
     task = broker.dequeue()[0]
     assert len(task) > 0
     broker.acknowledge(task[0])
