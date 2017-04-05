@@ -170,7 +170,7 @@ def test_ironmq(monkeypatch):
 
 @pytest.mark.skipif(not os.getenv('AWS_ACCESS_KEY_ID'),
                     reason="requires AWS credentials")
-def test_sqs(monkeypatch):
+def canceled_sqs(monkeypatch):
     monkeypatch.setattr(Conf, 'SQS', {'aws_region': os.getenv('AWS_REGION'),
                                       'aws_access_key_id': os.getenv('AWS_ACCESS_KEY_ID'),
                                       'aws_secret_access_key': os.getenv('AWS_SECRET_ACCESS_KEY')})
