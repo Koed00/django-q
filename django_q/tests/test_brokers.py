@@ -57,7 +57,7 @@ def test_custom(monkeypatch):
 def test_disque(monkeypatch):
     monkeypatch.setattr(Conf, 'DISQUE_NODES', ['127.0.0.1:7711'])
     # check broker
-    broker = get_broker(list_key='disque_test')
+    broker = get_broker(list_key=uuid()[0])
     assert broker.ping() is True
     assert broker.info() is not None
     # clear before we start
@@ -190,11 +190,13 @@ def test_sqs(monkeypatch):
     monkeypatch.setattr(Conf, 'RETRY', 1)
     broker.enqueue('test')
     assert broker.dequeue() is not None
-    sleep(2)
-    task = broker.dequeue()[0]
+    sleep(3)
+    task = broker.dequeue()
+    assert task is not None
+    task = task[0]
     assert len(task) > 0
     broker.acknowledge(task[0])
-    sleep(2)
+    sleep(3)
     # delete job
     broker.enqueue('test')
     task_id = broker.dequeue()[0][0]
@@ -226,7 +228,7 @@ def test_sqs(monkeypatch):
 def test_orm(monkeypatch):
     monkeypatch.setattr(Conf, 'ORM', 'default')
     # check broker
-    broker = get_broker(list_key='orm_test')
+    broker = get_broker(list_key=uuid()[0])
     assert broker.ping() is True
     assert broker.info() is not None
     # clear before we start
@@ -283,7 +285,7 @@ def test_orm(monkeypatch):
 def test_mongo(monkeypatch):
     monkeypatch.setattr(Conf, 'MONGO', {'host': '127.0.0.1', 'port': 27017})
     # check broker
-    broker = get_broker(list_key='mongo_test')
+    broker = get_broker(list_key=uuid()[0])
     assert broker.ping() is True
     assert broker.info() is not None
     # clear before we start
