@@ -265,7 +265,7 @@ Reference
 
     Returns a previously executed task
 
-    :param str name: the uuid or name of the task
+    :param str task_id: the uuid or name of the task
     :param int wait: optional milliseconds to wait for a result. -1 for indefinite
     :param bool cached: run this against the cache backend.
     :returns: A task object
@@ -288,7 +288,7 @@ Reference
 
     Deletes a task from the cache backend
 
-    :param task_id: the uuid of the task
+    :param str task_id: the uuid of the task
     :param broker: an optional broker instance
 
 
