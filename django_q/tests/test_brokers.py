@@ -189,6 +189,7 @@ def test_sqs(monkeypatch):
     # Retry test
     monkeypatch.setattr(Conf, 'RETRY', 1)
     broker.enqueue('test')
+    sleep(2)
     assert broker.dequeue() is not None
     sleep(2)
     task = broker.dequeue()[0]
