@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
-
+import traceback
 from builtins import range
 
 from future import standard_library
@@ -292,7 +292,8 @@ def pusher(task_queue, event, broker=None):
         try:
             task_set = broker.dequeue()
         except Exception as e:
-            logger.error(e)
+            tb = traceback.format_exc()
+            logger.error(e, tb)
             # broker probably crashed. Let the sentinel handle it.
             sleep(10)
             break
@@ -303,7 +304,8 @@ def pusher(task_queue, event, broker=None):
                 try:
                     task = signing.SignedPackage.loads(task[1])
                 except (TypeError, signing.BadSignature) as e:
-                    logger.error(e)
+                    tb = traceback.format_exc()
+                    logger.error(e, tb)
                     broker.fail(ack_id)
                     continue
                 task['ack_id'] = ack_id
@@ -383,7 +385,9 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
                 res = f(*task['args'], **task['kwargs'])
                 result = (res, True)
             except Exception as e:
-                result = ('{}'.format(e), False)
+                tb = traceback.format_exc()
+                
+                result = ('{}'.format(tb), False)
                 if rollbar:
                     rollbar.report_exc_info()
         # Process result
