@@ -37,7 +37,7 @@ setup(
     description='A multiprocessing distributed task queue for Django',
     long_description=README,
     install_requires=['django>=1.7', 'django-picklefield', 'blessed', 'arrow', 'future'],
-    test_requires=['pytest', 'pytest-django', ],
+    tests_require=['pytest', 'pytest-django', 'pytest-mock', 'mock'],
     cmdclass={'test': PyTest},
     classifiers=[
         'Development Status :: 4 - Beta',
