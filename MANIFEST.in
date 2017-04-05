@@ -4,3 +4,4 @@ include django_q/management/*.py
 include django_q/management/commands/*.py
 include django_q/migrations/*.py
 include django_q/brokers/*.py
+include django_q/tests/*.py
