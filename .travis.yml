@@ -9,9 +9,9 @@ python:
   - "3.4"
 
 env:
-    - DJANGO=1.10rc1
-    - DJANGO=1.9.8
-    - DJANGO=1.8.14
+    - DJANGO=1.11
+    - DJANGO=1.10.7
+    - DJANGO=1.8.18
 
 sudo: false
 
