@@ -177,6 +177,7 @@ class Sentinel(object):
             logger.error(_("reincarnated pusher {} after sudden death").format(process.name))
         else:
             self.pool.remove(process)
+            db.connection.close()
             self.spawn_worker()
             if self.timeout and int(process.timer.value) == 0:
                 # only need to terminate on timeout, otherwise we risk destabilizing the queues
