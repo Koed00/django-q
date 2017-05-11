@@ -493,6 +493,8 @@ def scheduler(broker=None):
         broker = get_broker()
     db.close_old_connections()
     try:
+      from django.db import transaction
+      with transaction.atomic():
         for s in Schedule.objects.exclude(repeats=0).filter(next_run__lt=timezone.now()):
             args = ()
             kwargs = {}
