@@ -4,8 +4,6 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from builtins import range
-
 # Standard
 import importlib
 import signal
@@ -26,11 +24,13 @@ from django import db
 import signing
 import tasks
 
+from django_q.compat import range
 from django_q.conf import Conf, logger, psutil, get_ppid, rollbar
 from django_q.models import Task, Success, Schedule
 from django_q.status import Stat, Status
 from django_q.brokers import get_broker
 from django_q.signals import pre_execute
+
 
 
 class Cluster(object):
