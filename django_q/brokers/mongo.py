@@ -44,6 +44,11 @@ class Mongo(Broker):
     def ping(self):
         return self.info is not None
 
+    def _close(self):
+        if self.connection is not None:
+            self.connection.close()
+            self._info = None
+
     def info(self):
         if not self._info:
             self._info = 'MongoDB {}'.format(self.connection.server_info()['version'])

@@ -37,6 +37,14 @@ class Redis(Broker):
             logger.error('Can not connect to Redis server.')
             raise e
 
+    def _close(self):
+        if django_redis and Conf.DJANGO_REDIS:
+            from django.core.cache import caches
+            cache = caches[Conf.DJANGO_REDIS]
+            cache.client.close()
+        elif self.connection is not None:
+            self.connection.connection_pool.disconnect()
+
     def info(self):
         if not self._info:
             info = self.connection.info('server')

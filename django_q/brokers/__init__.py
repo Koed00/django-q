@@ -7,10 +7,20 @@ from django_q.conf import Conf
 
 class Broker(object):
     def __init__(self, list_key=Conf.PREFIX):
-        self.connection = self.get_connection(list_key)
+        self.connection = None
         self.list_key = list_key
         self.cache = self.get_cache()
         self._info = None
+
+    @property
+    def connection(self):
+        if not self._connection:
+            self._connection = self.get_connection(self.list_key)
+        return self._connection
+
+    @connection.setter
+    def connection(self, value):
+        self._connection = value
 
     def enqueue(self, task):
         """
@@ -75,6 +85,21 @@ class Broker(object):
         """
         Checks whether the broker connection is available
         :rtype: bool
+        """
+        pass
+
+    def close(self):
+        """
+        Close the broker connection
+        """
+        try:
+            self._close()
+        finally:
+            self.connection = None
+
+    def _close(self):
+        """
+        Close the underlying broker connection
         """
         pass
 
