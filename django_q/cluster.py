@@ -6,10 +6,6 @@ from __future__ import unicode_literals
 
 from builtins import range
 
-from future import standard_library
-
-standard_library.install_aliases()
-
 # Standard
 import importlib
 import signal
