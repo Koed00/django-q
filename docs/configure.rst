@@ -40,6 +40,12 @@ workers
 
 The number of workers to use in the cluster. Defaults to CPU count of the current host, but can be set to a custom number.  [#f1]_
 
+daemonize_workers
+~~~~~~~~~~~~~~~~~
+
+Set the daemon flag when spawning workers. You may need to disable this flag if your worker needs to spawn child process but be carefull with orphaned child processes in case of sudden termination of the main process.
+Defaults to ``True``.
+
 recycle
 ~~~~~~~
 

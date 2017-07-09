@@ -187,3 +187,14 @@ def info(broker=None):
           term.white('{0:.4f}'.format(exec_time))
           )
     return True
+
+
+def get_ids():
+    # prints id (PID) of running clusters
+    stat = Stat.get_all()
+    if stat:
+        for s in stat:
+            print(s.cluster_id)
+    else:
+        print('No clusters appear to be running.')
+    return True
