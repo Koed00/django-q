@@ -412,8 +412,9 @@ def save_task(task, broker):
     # SAVE LIMIT > 0: Prune database, SAVE_LIMIT 0: No pruning
     db.close_old_connections()
     try:
-        if task['success'] and 0 < Conf.SAVE_LIMIT <= Success.objects.count():
-            Success.objects.last().delete()
+        # race condition in original code, fixed below
+        #if task['success'] and 0 < Conf.SAVE_LIMIT <= Success.objects.count():
+        #    Success.objects.last().delete()
         # check if this task has previous results
         if Task.objects.filter(id=task['id'], name=task['name']).exists():
             existing_task = Task.objects.get(id=task['id'], name=task['name'])
@@ -436,6 +437,28 @@ def save_task(task, broker):
                                 group=task.get('group'),
                                 success=task['success']
                                 )
+        # fix for multiple clusters: clean old successful tasks after succeeding a new one
+        #Success.objects.exclude(id__in=Success.objects.all()[:Conf.SAVE_LIMIT]).delete()
+        # solution for MySQL (avoid limit in subquery)
+        with db.connection.cursor() as cursor:
+            cursor.execute(
+                '''
+                    DELETE  i1.*
+                    FROM    django_q_task i1
+                    LEFT JOIN
+                            (
+                            SELECT  id
+                            FROM    django_q_task ii
+                            WHERE success IS TRUE
+                            ORDER BY
+                                    stopped DESC
+                            LIMIT %s
+                            ) i2
+                    ON      i1.id = i2.id
+                    WHERE   success IS TRUE AND i2.id IS NULL
+                ''',
+                [Conf.SAVE_LIMIT]
+            )
     except Exception as e:
         logger.error(e)
 
