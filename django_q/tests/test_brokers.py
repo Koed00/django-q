@@ -5,6 +5,7 @@ import pytest
 import redis
 
 from django_q.brokers import get_broker, Broker
+from django_q.compat import range
 from django_q.conf import Conf
 from django_q.humanhash import uuid
 
