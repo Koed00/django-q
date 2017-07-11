@@ -434,27 +434,30 @@ def save_task(task, broker):
                                 success=task['success']
                                 )
         # fix for multiple clusters: clean old successful tasks after succeeding a new one
-        #Success.objects.exclude(id__in=Success.objects.all()[:Conf.SAVE_LIMIT]).delete()
-        # solution for MySQL (avoid limit in subquery)
-        with db.connection.cursor() as cursor:
-            cursor.execute(
-                '''
-                    DELETE  i1.*
-                    FROM    django_q_task i1
-                    LEFT JOIN
-                            (
-                            SELECT  id
-                            FROM    django_q_task ii
-                            WHERE success IS TRUE
-                            ORDER BY
-                                    stopped DESC
-                            LIMIT %s
-                            ) i2
-                    ON      i1.id = i2.id
-                    WHERE   success IS TRUE AND i2.id IS NULL
-                ''',
-                [Conf.SAVE_LIMIT]
-            )
+        # with a separate solution for MySQL (to avoid limit in subquery)
+        if db.connection.vendor == 'mysql':
+            with db.connection.cursor() as cursor:
+                cursor.execute(
+                    '''
+                        DELETE  d
+                        FROM    django_q_task AS d
+                        LEFT JOIN
+                                (
+                                SELECT  id
+                                FROM    django_q_task
+                                WHERE success IS TRUE
+                                ORDER BY
+                                        stopped DESC
+                                LIMIT %s
+                                ) AS q
+                        ON      d.id = q.id
+                        WHERE   d.success IS TRUE AND q.id IS NULL
+                    ''',
+                    [Conf.SAVE_LIMIT]
+                )
+        else:
+            Success.objects.exclude(id__in=Success.objects.all()[:Conf.SAVE_LIMIT]).delete()
+
     except Exception as e:
         logger.error(e)
 
