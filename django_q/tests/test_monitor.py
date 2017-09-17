@@ -3,6 +3,7 @@ import pytest
 from django_q.tasks import async
 from django_q.brokers import get_broker
 from django_q.cluster import Cluster
+from django_q.compat import range
 from django_q.monitor import monitor, info
 from django_q.status import Stat
 from django_q.conf import Conf
