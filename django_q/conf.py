@@ -210,19 +210,6 @@ if Conf.ERROR_REPORTER:
 else:
     error_reporter = None
 
-# # rollbar
-# if Conf.ROLLBAR:
-#     rollbar_conf = deepcopy(Conf.ROLLBAR)
-#     try:
-#         import rollbar
-#         rollbar.init(rollbar_conf.pop('access_token'), environment=rollbar_conf.pop('environment'), **rollbar_conf)
-#     except ImportError:
-#         rollbar = None
-
-# else:
-#     rollbar = None
-
-
 
 # get parent pid compatibility
 def get_ppid():
