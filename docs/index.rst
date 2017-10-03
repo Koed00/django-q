@@ -42,6 +42,7 @@ Contents:
     Cluster <cluster>
     Monitor <monitor>
     Admin <admin>
+    Errors <errors>
     Signals <signals>
     Architecture <architecture>
     Examples <examples>
