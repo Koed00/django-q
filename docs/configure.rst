@@ -373,20 +373,24 @@ To enable installed error reporters, you must provide the configuration settings
 
 For more information on error reporters and developing error reporting plugins for Django Q, see :doc:`errors<errors>`.
 
-.. rollbar
-.. ~~~~~~~
-.. You can redirect worker exceptions directly to your `Rollbar <https://rollbar.com/>`__ dashboard by installing the python notifier with ``pip install rollbar`` and adding this configuration dictionary to your config::
+rollbar
+~~~~~~~
+You can redirect worker exceptions directly to your `Rollbar <https://rollbar.com/>`__ dashboard by installing the python notifier with ``pip install rollbar`` and adding this configuration dictionary to your config::
 
-..     # rollbar config
-..     Q_CLUSTER = {
-..         'rollbar': {
-..             'access_token': '32we33a92a5224jiww8982',
-..             'environment': 'Django-Q'
-..         }
-..     }
+    # rollbar config
+    Q_CLUSTER = {
+        'rollbar': {
+            'access_token': '32we33a92a5224jiww8982',
+            'environment': 'Django-Q'
+        }
+    }
 
-.. Please check the Pyrollbar `configuration reference <https://github.com/rollbar/pyrollbar#configuration-reference>`__ for more options.
-.. Note that you will need a `Rollbar <https://rollbar.com/>`__ account and access token to use this feature.
+Please check the Pyrollbar `configuration reference <https://github.com/rollbar/pyrollbar#configuration-reference>`__ for more options.
+Note that you will need a `Rollbar <https://rollbar.com/>`__ account and access token to use this feature.
+
+
+.. note::
+    The ``rollbar`` setting is included for backwards compatibility, for those who utilized rollbar configuration before the ``error_reporter`` interface was introduced. Note that Rollbar support can be configured either via the ``rollbar`` setting, or via the ``django-q-rollbar`` package and enabled via the ``error_reporter`` setting above.
 
 cpu_affinity
 ~~~~~~~~~~~~
