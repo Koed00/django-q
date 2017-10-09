@@ -147,7 +147,7 @@ class Schedule(models.Model):
     schedule_type = models.CharField(max_length=1, choices=TYPE, default=TYPE[0][0], verbose_name=_('Schedule Type'))
     minutes = models.PositiveSmallIntegerField(null=True, blank=True,
                                                help_text=_('Number of minutes for the Minutes type'))
-    repeats = models.SmallIntegerField(default=-1, verbose_name=_('Repeats'), help_text=_('n = n times, -1 = forever'))
+    repeats = models.IntegerField(default=-1, verbose_name=_('Repeats'), help_text=_('n = n times, -1 = forever'))
     next_run = models.DateTimeField(verbose_name=_('Next Run'), default=timezone.now, null=True)
     task = models.CharField(max_length=100, null=True, editable=False)
 
