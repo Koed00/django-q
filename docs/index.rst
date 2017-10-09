@@ -24,7 +24,7 @@ Features
 -  Rollbar support
 
 
-Django Q is tested with: Python 2.7 & 3.6. Django 1.8.18 LTS, 1.10.7 and 1.11
+Django Q is tested with: Python 2.7 & 3.6. Django 1.8.18 LTS, 1.10.8 and 1.11.6
 
 Contents:
 
