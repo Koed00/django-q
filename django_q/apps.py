@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
-from .conf import Conf
+from django_q.conf import Conf
 
 
 class DjangoQConfig(AppConfig):
