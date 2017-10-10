@@ -25,7 +25,7 @@ import signing
 import tasks
 
 from django_q.compat import range
-from django_q.conf import Conf, logger, psutil, get_ppid, rollbar
+from django_q.conf import Conf, logger, psutil, get_ppid, error_reporter, rollbar
 from django_q.models import Task, Success, Schedule
 from django_q.status import Stat, Status
 from django_q.brokers import get_broker
@@ -365,6 +365,8 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
                 f = getattr(m, func)
             except (ValueError, ImportError, AttributeError) as e:
                 result = (e, False)
+                if error_reporter:
+                    error_reporter.report()
                 if rollbar:
                     rollbar.report_exc_info()
         # We're still going
@@ -380,6 +382,8 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
                 result = (res, True)
             except Exception as e:
                 result = ('{}'.format(e), False)
+                if error_reporter:
+                    error_reporter.report()
                 if rollbar:
                     rollbar.report_exc_info()
         # Process result
