@@ -357,7 +357,7 @@ Defaults to ``True``
 
 error_reporter
 ~~~~~~~~~~~~~~
-You can redirect worker exceptions directly to various error reportes (for example, `Rollbar <https://rollbar.com/>` or `Sentry <https://docs.sentry.io/>`) by installing Django Q with the necessary `extras <https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies>`.
+You can redirect worker exceptions directly to various error reporters (for example `Rollbar <https://rollbar.com/>`__ or `Sentry <https://docs.sentry.io/>`__) by installing Django Q with the necessary `extras <https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies>`__.
 
 To enable installed error reporters, you must provide the configuration settings required by an error reporter extension::
 
@@ -368,7 +368,7 @@ To enable installed error reporters, you must provide the configuration settings
                 'access_token': '32we33a92a5224jiww8982',
                 'environment': 'Django-Q'
             }
-        } 
+        }
     }
 
 For more information on error reporters and developing error reporting plugins for Django Q, see :doc:`errors<errors>`.

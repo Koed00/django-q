@@ -86,6 +86,16 @@ Optional
     $ pip install rollbar
 
 
+
+Extras
+------
+- `django-q-rollbar <https://github.com/danielwelch/django-q-rollbar>`__ is a Rollbar error reporter::
+
+    $ pip install django-q[rollbar]
+- `django-q-sentry <https://github.com/danielwelch/django-q-sentry>`__ is a Sentry error reporter::
+
+    $ pip install django-q[sentry]
+
 Compatibility
 -------------
 Django Q is still a young project. If you do find any incompatibilities please submit an issue on `github <https://github.com/Koed00/django-q>`__.
@@ -128,7 +138,7 @@ You can reference the `requirements <https://github.com/Koed00/django-q/blob/mas
 Django
 ~~~~~~
 We strive to be compatible with last two major version of Django.
-At the moment this means we support the 1.8.18 LTS, 1.10.8 and 1.11.2 releases.
+At the moment this means we support the 1.8.18 LTS, 1.10.8 and 1.11.6 releases.
 
 You might find that Django Q still works fine with Django 1.7 and 1.9, but new releases are no longer tested for it.
 
