@@ -21,7 +21,7 @@ Features
 -  PaaS compatible with multiple instances
 -  Multi cluster monitor
 -  Redis, Disque, IronMQ, SQS, MongoDB or ORM
--  Rollbar support
+-  Rollbar and Sentry support
 
 Requirements
 ~~~~~~~~~~~~
