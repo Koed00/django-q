@@ -353,6 +353,26 @@ scheduler
 You can disable the scheduler by setting this option to ``False``. This will reduce a little overhead if you're not using schedules, but is most useful if you want to temporarily disable all schedules.
 Defaults to ``True``
 
+.. _error_reporter:
+
+error_reporter
+~~~~~~~~~~~~~~
+You can redirect worker exceptions directly to various error reporters (for example `Rollbar <https://rollbar.com/>`__ or `Sentry <https://docs.sentry.io/>`__) by installing Django Q with the necessary `extras <https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies>`__.
+
+To enable installed error reporters, you must provide the configuration settings required by an error reporter extension::
+
+    # error_reporter config--rollbar example
+    Q_CLUSTER = {
+        'error_reporter': {
+            'rollbar': {
+                'access_token': '32we33a92a5224jiww8982',
+                'environment': 'Django-Q'
+            }
+        }
+    }
+
+For more information on error reporters and developing error reporting plugins for Django Q, see :doc:`errors<errors>`.
+
 rollbar
 ~~~~~~~
 You can redirect worker exceptions directly to your `Rollbar <https://rollbar.com/>`__ dashboard by installing the python notifier with ``pip install rollbar`` and adding this configuration dictionary to your config::
@@ -367,6 +387,10 @@ You can redirect worker exceptions directly to your `Rollbar <https://rollbar.co
 
 Please check the Pyrollbar `configuration reference <https://github.com/rollbar/pyrollbar#configuration-reference>`__ for more options.
 Note that you will need a `Rollbar <https://rollbar.com/>`__ account and access token to use this feature.
+
+
+.. note::
+    The ``rollbar`` setting is included for backwards compatibility, for those who utilized rollbar configuration before the ``error_reporter`` interface was introduced. Note that Rollbar support can be configured either via the ``rollbar`` setting, or via the ``django-q-rollbar`` package and enabled via the ``error_reporter`` setting above.
 
 cpu_affinity
 ~~~~~~~~~~~~

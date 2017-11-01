@@ -21,10 +21,10 @@ Features
 -  PaaS compatible with multiple instances
 -  Multi cluster monitor
 -  Redis, Disque, IronMQ, SQS, MongoDB or ORM
--  Rollbar support
+-  Rollbar and Sentry support
 
 
-Django Q is tested with: Python 2.7 & 3.6. Django 1.8.18 LTS, 1.10.7 and 1.11
+Django Q is tested with: Python 2.7 & 3.6. Django 1.8.18 LTS, 1.10.8 and 1.11.6
 
 Contents:
 
@@ -42,6 +42,7 @@ Contents:
     Cluster <cluster>
     Monitor <monitor>
     Admin <admin>
+    Errors <errors>
     Signals <signals>
     Architecture <architecture>
     Examples <examples>

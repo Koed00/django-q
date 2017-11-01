@@ -18,7 +18,7 @@ from django_q.models import Task, Success
 from django_q.conf import Conf
 from django_q.status import Stat
 from django_q.brokers import get_broker
-from .tasks import multiply
+from django_q.tests.tasks import multiply
 
 
 class WordClass(object):

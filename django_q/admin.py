@@ -2,9 +2,9 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from .tasks import async
-from .models import Success, Failure, Schedule, OrmQ
-from .conf import Conf
+from django_q.tasks import async
+from django_q.models import Success, Failure, Schedule, OrmQ
+from django_q.conf import Conf
 
 
 class TaskAdmin(admin.ModelAdmin):
