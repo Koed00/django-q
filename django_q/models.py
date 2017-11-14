@@ -1,5 +1,10 @@
 from django import get_version
-from django.core.urlresolvers import reverse
+try:
+    # Django 2.0
+    from django.urls import reverse
+except ImportError:
+    # Django <= 1.11
+    from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 from django.utils import timezone
