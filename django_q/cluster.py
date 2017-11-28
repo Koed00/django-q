@@ -517,9 +517,13 @@ def scheduler(broker=None):
     """
     if not broker:
         broker = get_broker()
+    key = 'django_q:{}:scheduler'.format(Conf.PREFIX)
+    import uuid
+    value = uuid.uuid1().hex
     db.close_old_connections()
     try:
-      with db.transaction.atomic():
+        if not broker.cache.add(key, value, Conf.TIMEOUT):
+            return
         for s in Schedule.objects.exclude(repeats=0).filter(next_run__lt=timezone.now()):
             args = ()
             kwargs = {}
@@ -584,6 +588,9 @@ def scheduler(broker=None):
             s.save()
     except Exception as e:
         logger.error(e)
+    finally:
+        if broker.cache.get(key) == value:
+            broker.cache.delete(key)
 
 
 def set_cpu_affinity(n, process_ids, actual=not Conf.TESTING):
