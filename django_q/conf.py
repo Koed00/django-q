@@ -216,10 +216,10 @@ if Conf.ERROR_REPORTER:
         # iterate through the configured error reporters,
         # and instantiate an ErrorReporter using the provided config
         for name, conf in error_conf.items():
-            Reporter = pkg_resources.iter_entry_points(
-                    'djangoq.errorreporters', name).load()
-            e = Reporter(**conf)
-            reporters.append(e)
+            for entry in pkg_resources.iter_entry_points(
+                    'djangoq.errorreporters', name):
+                Reporter = entry.load()
+                reporters.append(Reporter(**conf))
         error_reporter = ErrorReporter(reporters)
     except ImportError:
         error_reporter = None
