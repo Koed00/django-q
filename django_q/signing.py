@@ -4,7 +4,7 @@ try:
 except ImportError:
     import pickle
 
-from django.core import signing
+from django_q import core_signing as signing
 
 from django_q.conf import Conf
 
