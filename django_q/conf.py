@@ -1,7 +1,7 @@
 import logging
 from copy import deepcopy
 from signal import signal
-from multiprocessing import cpu_count, Queue
+from multiprocessing import cpu_count
 
 # django
 from django.utils.translation import ugettext_lazy as _
@@ -10,6 +10,9 @@ from django.conf import settings
 # external
 import os
 import pkg_resources
+
+# local
+from django_q.queues import Queue
 
 # optional
 try:

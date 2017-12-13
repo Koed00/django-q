@@ -10,7 +10,7 @@ import signal
 import socket
 import ast
 from time import sleep
-from multiprocessing import Queue, Event, Process, Value, current_process
+from multiprocessing import Event, Process, Value, current_process
 
 # external
 import arrow
@@ -30,7 +30,7 @@ from django_q.models import Task, Success, Schedule
 from django_q.status import Stat, Status
 from django_q.brokers import get_broker
 from django_q.signals import pre_execute
-
+from django_q.queues import Queue
 
 
 class Cluster(object):

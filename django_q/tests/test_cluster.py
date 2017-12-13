@@ -1,6 +1,6 @@
 import sys
 import threading
-from multiprocessing import Queue, Event, Value
+from multiprocessing import Event, Value
 from time import sleep
 from django.utils import timezone
 
@@ -19,6 +19,7 @@ from django_q.conf import Conf
 from django_q.status import Stat
 from django_q.brokers import get_broker
 from django_q.tests.tasks import multiply
+from django_q.queues import Queue
 
 
 class WordClass(object):
