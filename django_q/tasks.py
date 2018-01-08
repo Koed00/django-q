@@ -1,5 +1,5 @@
 """Provides task functionality."""
-from multiprocessing import Queue, Value
+from multiprocessing import Value
 
 # django
 from django.db import IntegrityError
@@ -14,6 +14,7 @@ from django_q.models import Schedule, Task
 from django_q.humanhash import uuid
 from django_q.brokers import get_broker
 from django_q.signals import pre_enqueue
+from django_q.queues import Queue
 
 
 def async(func, *args, **kwargs):

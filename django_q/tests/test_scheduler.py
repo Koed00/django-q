@@ -1,5 +1,5 @@
 from datetime import timedelta
-from multiprocessing import Queue, Event, Value
+from multiprocessing import Event, Value
 
 import arrow
 import pytest
@@ -10,6 +10,7 @@ from django_q.brokers import get_broker
 from django_q.cluster import pusher, worker, monitor, scheduler
 from django_q.conf import Conf
 from django_q.tasks import Schedule, fetch, schedule as create_schedule
+from django_q.queues import Queue
 
 
 @pytest.fixture

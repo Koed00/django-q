@@ -5,12 +5,11 @@ services:
   - mongodb
 
 python:
-  - "2.7"
   - "3.6"
 
 env:
-    - DJANGO=1.11.6
-    - DJANGO=1.10.8
+    - DJANGO=2.0
+    - DJANGO=1.11.9
     - DJANGO=1.8.18
 
 sudo: false
