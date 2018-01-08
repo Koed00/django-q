@@ -32,7 +32,7 @@ Django Q is tested for Python 2.7 and 3.6
 -  `Django <https://www.djangoproject.com>`__
 
     Django Q aims to use as much of Django's standard offerings as possible
-    The code is tested against Django versions `1.8.18 LTS`, `1.10.8` and `1.11.6`.
+    The code is tested against Django versions `1.8.18 LTS`, `1.11.9` and `2.0`.
 
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
 
@@ -92,6 +92,7 @@ Extras
 - `django-q-rollbar <https://github.com/danielwelch/django-q-rollbar>`__ is a Rollbar error reporter::
 
     $ pip install django-q[rollbar]
+
 - `django-q-sentry <https://github.com/danielwelch/django-q-sentry>`__ is a Sentry error reporter::
 
     $ pip install django-q[sentry]
@@ -138,9 +139,9 @@ You can reference the `requirements <https://github.com/Koed00/django-q/blob/mas
 Django
 ~~~~~~
 We strive to be compatible with last two major version of Django.
-At the moment this means we support the 1.8.18 LTS, 1.10.8 and 1.11.6 releases.
+At the moment this means we support the 1.8.18 LTS, 1.11.9 and 2.0 releases.
 
-You might find that Django Q still works fine with Django 1.7 and 1.9, but new releases are no longer tested for it.
+You might find that Django Q still works fine with Django 1.7,1.9 and 1.10, but new releases are no longer tested for it.
 
 
 
