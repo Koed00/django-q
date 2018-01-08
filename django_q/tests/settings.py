@@ -1,4 +1,5 @@
 import os
+import django
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -27,6 +28,7 @@ INSTALLED_APPS = (
     'django_q',
     'django_redis'
 )
+
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
