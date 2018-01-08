@@ -9,7 +9,7 @@ python:
 
 env:
     - DJANGO=2.0
-    - DJANGO=1.11.8
+    - DJANGO=1.11.9
     - DJANGO=1.8.18
 
 sudo: false
