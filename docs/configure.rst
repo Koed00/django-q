@@ -229,7 +229,7 @@ All connection keywords are supported. See the `iron-mq <https://github.com/iron
 
 sqs
 ~~~
-To use Amazon SQS as a broker you need to provide the AWS region and credentials::
+To use Amazon SQS as a broker you need to provide the AWS region and credentials either via the config, or any other boto3 configuration method::
 
     # example SQS broker connection
 
@@ -241,9 +241,9 @@ To use Amazon SQS as a broker you need to provide the AWS region and credentials
         'queue_limit': 100,
         'bulk': 5,
         'sqs': {
-            'aws_region': 'us-east-1',
-            'aws_access_key_id': 'ac-Idr.....YwflZBaaxI',
-            'aws_secret_access_key': '500f7b....b0f302e9'
+            'aws_region': 'us-east-1',  # optional
+            'aws_access_key_id': 'ac-Idr.....YwflZBaaxI',  # optional
+            'aws_secret_access_key': '500f7b....b0f302e9'  # optional
         }
     }
 
