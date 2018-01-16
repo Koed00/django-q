@@ -59,8 +59,8 @@ setup(
     ],
     entry_points={
         'djangoq.errorreporters': [
-            'rollbar = django_q_rollbar.Rollbar',
-            'sentry = django_q_sentry.Sentry',
+            'rollbar = django_q_rollbar:Rollbar',
+            'sentry = django_q_sentry:Sentry',
         ]
     },
     extras_require={
