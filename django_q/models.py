@@ -3,6 +3,7 @@ try:
     from django.urls import reverse
 except ImportError: # Django < 1.10
     from django.core.urlresolvers import reverse
+from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 from django.utils import timezone
@@ -165,7 +166,7 @@ class Schedule(models.Model):
                 url = reverse('admin:django_q_success_change', args=(task.id,))
             else:
                 url = reverse('admin:django_q_failure_change', args=(task.id,))
-            return '<a href="{}">[{}]</a>'.format(url, task.name)
+            return format_html('<a href="{}">[{}]</a>'.format(url, task.name))
         return None
 
     def __unicode__(self):
