@@ -1,6 +1,7 @@
 """
 The code is derived from https://github.com/althonos/pronto/commit/3384010dfb4fc7c66a219f59276adef3288a886b
 """
+import sys
 
 import multiprocessing
 import multiprocessing.queues
@@ -48,7 +49,11 @@ class Queue(multiprocessing.queues.Queue):
     """
 
     def __init__(self, *args, **kwargs):
-        super(Queue, self).__init__(*args, ctx=multiprocessing.get_context(), **kwargs)
+        if sys.version_info < (3, 0):
+            super(Queue, self).__init__(*args, **kwargs)
+        else:
+            super(Queue, self).__init__(*args, ctx=multiprocessing.get_context(), **kwargs)
+
         self.size = SharedCounter(0)
 
     def put(self, *args, **kwargs):
