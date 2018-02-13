@@ -1,5 +1,6 @@
 include LICENSE
 include README.rst
+include CHANGELOG.md
 include django_q/management/*.py
 include django_q/management/commands/*.py
 include django_q/migrations/*.py
