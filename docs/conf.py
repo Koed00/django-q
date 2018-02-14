@@ -21,6 +21,7 @@ import alabaster
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'django_q.tests.settings'
+nitpick_ignore = [('py:class', 'datetime')]
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
