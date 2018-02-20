@@ -4,19 +4,20 @@ import datetime
 import time
 import zlib
 
+from django.core.signing import BadSignature, SignatureExpired, b64_decode, JSONSerializer, \
+    Signer as Sgnr, TimestampSigner as TsS, dumps
 from django.utils import baseconv
 from django.utils.crypto import constant_time_compare
 from django.utils.encoding import force_bytes, force_str, force_text
-from django.core.signing import BadSignature, SignatureExpired, b64_decode, JSONSerializer, \
-    Signer as Sgnr, TimestampSigner as TsS, dumps
 
 dumps = dumps
-
 
 """
 The loads function is the same as the `django.core.signing.loads` function
 The difference is that `this` loads function calls `TimestampSigner` and `Signer`
 """
+
+
 def loads(s, key=None, salt='django.core.signing', serializer=JSONSerializer, max_age=None):
     """
     Reverse of dumps(), raise BadSignature if signature fails.
@@ -55,6 +56,8 @@ class Signer(Sgnr):
 TimestampSigner is also the same as `django.core.signing.TimestampSigner` but is
 calling `this` Signer.
 """
+
+
 class TimestampSigner(Signer, TsS):
 
     def unsign(self, value, max_age=None):
