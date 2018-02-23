@@ -5,6 +5,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 # Standard
+import traceback
 import importlib
 import signal
 import socket
@@ -31,7 +32,6 @@ from django_q.status import Stat, Status
 from django_q.brokers import get_broker
 from django_q.signals import pre_execute
 from django_q.queues import Queue
-
 
 class Cluster(object):
     def __init__(self, broker=None):
@@ -112,7 +112,8 @@ class Sentinel(object):
         self.pool_size = Conf.WORKERS
         self.pool = []
         self.timeout = timeout
-        self.task_queue = Queue(maxsize=Conf.QUEUE_LIMIT) if Conf.QUEUE_LIMIT else Queue()
+        self.task_queue = Queue(
+            maxsize=Conf.QUEUE_LIMIT) if Conf.QUEUE_LIMIT else Queue()
         self.result_queue = Queue()
         self.event_out = Event()
         self.monitor = None
@@ -154,7 +155,8 @@ class Sentinel(object):
         return self.spawn_process(pusher, self.task_queue, self.event_out, self.broker)
 
     def spawn_worker(self):
-        self.spawn_process(worker, self.task_queue, self.result_queue, Value('f', -1), self.timeout)
+        self.spawn_process(worker, self.task_queue,
+                           self.result_queue, Value('f', -1), self.timeout)
 
     def spawn_monitor(self):
         return self.spawn_process(monitor, self.result_queue, self.broker)
@@ -167,21 +169,25 @@ class Sentinel(object):
         db.connections.close_all()  # Close any old connections
         if process == self.monitor:
             self.monitor = self.spawn_monitor()
-            logger.error(_("reincarnated monitor {} after sudden death").format(process.name))
+            logger.error(
+                _("reincarnated monitor {} after sudden death").format(process.name))
         elif process == self.pusher:
             self.pusher = self.spawn_pusher()
-            logger.error(_("reincarnated pusher {} after sudden death").format(process.name))
+            logger.error(
+                _("reincarnated pusher {} after sudden death").format(process.name))
         else:
             self.pool.remove(process)
             self.spawn_worker()
             if self.timeout and int(process.timer.value) == 0:
                 # only need to terminate on timeout, otherwise we risk destabilizing the queues
                 process.terminate()
-                logger.warn(_("reincarnated worker {} after timeout").format(process.name))
+                logger.warn(
+                    _("reincarnated worker {} after timeout").format(process.name))
             elif int(process.timer.value) == -2:
                 logger.info(_("recycled worker {}").format(process.name))
             else:
-                logger.error(_("reincarnated worker {} after death").format(process.name))
+                logger.error(
+                    _("reincarnated worker {} after death").format(process.name))
 
         self.reincarnations += 1
 
@@ -200,7 +206,8 @@ class Sentinel(object):
             set_cpu_affinity(Conf.CPU_AFFINITY, [w.pid for w in self.pool])
 
     def guard(self):
-        logger.info(_('{} guarding cluster at {}').format(current_process().name, self.pid))
+        logger.info(_('{} guarding cluster at {}').format(
+            current_process().name, self.pid))
         self.start_event.set()
         Stat(self).save()
         logger.info(_('Q Cluster-{} running.').format(self.parent_pid))
@@ -283,12 +290,14 @@ def pusher(task_queue, event, broker=None):
     """
     if not broker:
         broker = get_broker()
-    logger.info(_('{} pushing tasks at {}').format(current_process().name, current_process().pid))
+    logger.info(_('{} pushing tasks at {}').format(
+        current_process().name, current_process().pid))
     while True:
         try:
             task_set = broker.dequeue()
         except Exception as e:
-            logger.error(e)
+            tb = traceback.format_exc()
+            logger.error(e, tb)
             # broker probably crashed. Let the sentinel handle it.
             sleep(10)
             break
@@ -299,7 +308,8 @@ def pusher(task_queue, event, broker=None):
                 try:
                     task = signing.SignedPackage.loads(task[1])
                 except (TypeError, signing.BadSignature) as e:
-                    logger.error(e)
+                    tb = traceback.format_exc()
+                    logger.error(e, tb)
                     broker.fail(ack_id)
                     continue
                 task['ack_id'] = ack_id
@@ -335,7 +345,8 @@ def monitor(result_queue, broker=None):
             logger.info(_("Processed [{}]").format(task['name']))
         else:
             # log failure
-            logger.error(_("Failed [{}] - {}").format(task['name'], task['result']))
+            logger.error(
+                _("Failed [{}] - {}").format(task['name'], task['result']))
     logger.info(_("{} stopped monitoring results").format(name))
 
 
@@ -347,7 +358,8 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
     :type timer: multiprocessing.Value
     """
     name = current_process().name
-    logger.info(_('{} ready for work at {}').format(name, current_process().pid))
+    logger.info(_('{} ready for work at {}').format(
+        name, current_process().pid))
     task_count = 0
     # Start reading the task queue
     for task in iter(task_queue.get, 'STOP'):
@@ -381,7 +393,9 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
                 res = f(*task['args'], **task['kwargs'])
                 result = (res, True)
             except Exception as e:
-                result = ('{}'.format(e), False)
+                tb = traceback.format_exc()
+
+                result = ('{}'.format(tb), False)
                 if error_reporter:
                     error_reporter.report()
                 if rollbar:
@@ -408,7 +422,8 @@ def save_task(task, broker):
         return
     # async next in a chain
     if task.get('chain', None):
-        tasks.async_chain(task['chain'], group=task['group'], cached=task['cached'], sync=task['sync'], broker=broker)
+        tasks.async_chain(task['chain'], group=task['group'],
+                          cached=task['cached'], sync=task['sync'], broker=broker)
     # SAVE LIMIT > 0: Prune database, SAVE_LIMIT 0: No pruning
     db.close_old_connections()
     try:
@@ -456,11 +471,13 @@ def save_cached(task, broker):
             if iter_count and len(group_list) == iter_count - 1:
                 group_args = '{}:{}:args'.format(broker.list_key, group)
                 # collate the results into a Task result
-                results = [signing.SignedPackage.loads(broker.cache.get(k))['result'] for k in group_list]
+                results = [signing.SignedPackage.loads(broker.cache.get(k))[
+                    'result'] for k in group_list]
                 results.append(task['result'])
                 task['result'] = results
                 task['id'] = group
-                task['args'] = signing.SignedPackage.loads(broker.cache.get(group_args))
+                task['args'] = signing.SignedPackage.loads(
+                    broker.cache.get(group_args))
                 task.pop('iter_count', None)
                 task.pop('group', None)
                 if task.get('iter_cached', None):
@@ -476,7 +493,8 @@ def save_cached(task, broker):
             broker.cache.set(group_key, group_list, timeout)
             # async next in a chain
             if task.get('chain', None):
-                tasks.async_chain(task['chain'], group=group, cached=task['cached'], sync=task['sync'], broker=broker)
+                tasks.async_chain(
+                    task['chain'], group=group, cached=task['cached'], sync=task['sync'], broker=broker)
         # save the task
         broker.cache.set(task_key,
                          signing.SignedPackage.dumps(task),
@@ -541,11 +559,11 @@ def scheduler(broker=None):
             # log it
             if not s.task:
                 logger.error(
-                        _('{} failed to create a task from schedule [{}]').format(current_process().name,
-                                                                                  s.name or s.id))
+                    _('{} failed to create a task from schedule [{}]').format(current_process().name,
+                                                                              s.name or s.id))
             else:
                 logger.info(
-                        _('{} created a task from schedule [{}]').format(current_process().name, s.name or s.id))
+                    _('{} created a task from schedule [{}]').format(current_process().name, s.name or s.id))
             # default behavior is to delete a ONCE schedule
             if s.schedule_type == s.ONCE:
                 if s.repeats < 0:
@@ -573,7 +591,8 @@ def set_cpu_affinity(n, process_ids, actual=not Conf.TESTING):
         return
     # check if the platform supports cpu_affinity
     if actual and not hasattr(psutil.Process(process_ids[0]), 'cpu_affinity'):
-        logger.warning('Faking cpu affinity because it is not supported on this platform')
+        logger.warning(
+            'Faking cpu affinity because it is not supported on this platform')
         actual = False
     # get the available processors
     cpu_list = list(range(psutil.cpu_count()))
