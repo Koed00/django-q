@@ -50,7 +50,7 @@ Installation
     $ pip install django-q
 
 
--  Add `django_q` to your `INSTALLED_APPS` in your projects `settings.py`::
+-  Add `django_q` to your `INSTALLED_APPS` in your projects `settings.py` after all other apps::
 
        INSTALLED_APPS = (
            # other apps
