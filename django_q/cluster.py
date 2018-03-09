@@ -325,12 +325,12 @@ def monitor(result_queue, broker=None):
             save_cached(task, broker)
         else:
             save_task(task, broker)
-        # acknowledge and log the result
+        # acknowledge result
+        ack_id = task.pop('ack_id', False)
+        if ack_id and (task['success'] or task.get('ack_failure', False)):
+            broker.acknowledge(ack_id)
+        # log the result
         if task['success']:
-            # acknowledge
-            ack_id = task.pop('ack_id', False)
-            if ack_id:
-                broker.acknowledge(ack_id)
             # log success
             logger.info(_("Processed [{}]").format(task['name']))
         else:
