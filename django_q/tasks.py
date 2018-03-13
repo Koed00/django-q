@@ -9,7 +9,6 @@ from django.utils import timezone
 
 # local
 from django_q.signing import SignedPackage
-from django_q import cluster
 from django_q.conf import Conf, logger
 from django_q.models import Schedule, Task
 from django_q.humanhash import uuid
@@ -672,13 +671,17 @@ class Async(object):
 
 
 def _sync(pack):
+    # Python 2.6 is unable to handle this import on top of the file
+    # because it creates a circular dependency between tasks and cluster
+    from django_q.cluster import worker, monitor
+
     """Simulate a package travelling through the cluster."""
     task_queue = Queue()
     result_queue = Queue()
     task = SignedPackage.loads(pack)
     task_queue.put(task)
     task_queue.put('STOP')
-    cluster.worker(task_queue, result_queue, Value('f', -1))
+    worker(task_queue, result_queue, Value('f', -1))
     result_queue.put('STOP')
-    cluster.monitor(result_queue)
+    monitor(result_queue)
     return task['id']
