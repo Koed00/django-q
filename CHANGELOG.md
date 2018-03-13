@@ -1,5 +1,8 @@
 # Change Log
 
+## [v0.9.4](https://github.com/koed00/django-q/tree/v0.9.4) (2018-03-13)
+[Full Changelog](https://github.com/koed00/django-q/compare/v0.9.3...v0.9.4)
+
 ## [v0.9.3](https://github.com/koed00/django-q/tree/v0.9.3) (2018-03-13)
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.9.2...v0.9.3)
 
