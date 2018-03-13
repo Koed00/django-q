@@ -21,8 +21,7 @@ from django.utils.translation import ugettext_lazy as _
 from django import db
 
 # Local
-import tasks
-
+from django_q import tasks
 from django_q.compat import range
 from django_q.conf import Conf, logger, psutil, get_ppid, error_reporter, rollbar
 from django_q.models import Task, Success, Schedule
