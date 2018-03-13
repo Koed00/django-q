@@ -1,4 +1,6 @@
 """Provides task functionality."""
+# Standard
+from time import sleep, time
 from multiprocessing import Value
 
 # django
@@ -6,9 +8,7 @@ from django.db import IntegrityError
 from django.utils import timezone
 
 # local
-import time
-import signing
-import cluster
+from django_q.signing import SignedPackage
 from django_q.conf import Conf, logger
 from django_q.models import Schedule, Task
 from django_q.humanhash import uuid
@@ -20,7 +20,7 @@ from django_q.queues import Queue
 def async(func, *args, **kwargs):
     """Queue a task for the cluster."""
     keywords = kwargs.copy()
-    opt_keys = ('hook', 'group', 'save', 'sync', 'cached', 'iter_count', 'iter_cached', 'chain', 'broker')
+    opt_keys = ('hook', 'group', 'save', 'sync', 'cached', 'ack_failure', 'iter_count', 'iter_cached', 'chain', 'broker')
     q_options = keywords.pop('q_options', {})
     # get an id
     tag = uuid()
@@ -42,13 +42,15 @@ def async(func, *args, **kwargs):
         task['cached'] = Conf.CACHED
     if 'sync' not in task and Conf.SYNC:
         task['sync'] = Conf.SYNC
+    if 'ack_failure' not in task and Conf.ACK_FAILURES:
+        task['ack_failure'] = Conf.ACK_FAILURES
     # finalize
     task['kwargs'] = keywords
     task['started'] = timezone.now()
     # signal it
     pre_enqueue.send(sender="django_q", task=task)
     # sign it
-    pack = signing.SignedPackage.dumps(task)
+    pack = SignedPackage.dumps(task)
     if task.get('sync', False):
         return _sync(pack)
     # push it
@@ -112,14 +114,14 @@ def result(task_id, wait=0, cached=Conf.CACHED):
     """
     if cached:
         return result_cached(task_id, wait)
-    start = time.time()
+    start = time()
     while True:
         r = Task.get_result(task_id)
         if r:
             return r
-        if (time.time() - start) * 1000 >= wait >= 0:
+        if (time() - start) * 1000 >= wait >= 0:
             break
-        time.sleep(0.01)
+        sleep(0.01)
 
 
 def result_cached(task_id, wait=0, broker=None):
@@ -128,14 +130,14 @@ def result_cached(task_id, wait=0, broker=None):
     """
     if not broker:
         broker = get_broker()
-    start = time.time()
+    start = time()
     while True:
         r = broker.cache.get('{}:{}'.format(broker.list_key, task_id))
         if r:
-            return signing.SignedPackage.loads(r)['result']
-        if (time.time() - start) * 1000 >= wait >= 0:
+            return SignedPackage.loads(r)['result']
+        if (time() - start) * 1000 >= wait >= 0:
             break
-        time.sleep(0.01)
+        sleep(0.01)
 
 
 def result_group(group_id, failures=False, wait=0, count=None, cached=Conf.CACHED):
@@ -150,19 +152,19 @@ def result_group(group_id, failures=False, wait=0, count=None, cached=Conf.CACHE
     """
     if cached:
         return result_group_cached(group_id, failures, wait, count)
-    start = time.time()
+    start = time()
     if count:
         while True:
-            if count_group(group_id) == count or wait and (time.time() - start) * 1000 >= wait >= 0:
+            if count_group(group_id) == count or wait and (time() - start) * 1000 >= wait >= 0:
                 break
-            time.sleep(0.01)
+            sleep(0.01)
     while True:
         r = Task.get_result_group(group_id, failures)
         if r:
             return r
-        if (time.time() - start) * 1000 >= wait >= 0:
+        if (time() - start) * 1000 >= wait >= 0:
             break
-        time.sleep(0.01)
+        sleep(0.01)
 
 
 def result_group_cached(group_id, failures=False, wait=0, count=None, broker=None):
@@ -171,24 +173,24 @@ def result_group_cached(group_id, failures=False, wait=0, count=None, broker=Non
     """
     if not broker:
         broker = get_broker()
-    start = time.time()
+    start = time()
     if count:
         while True:
-            if count_group_cached(group_id) == count or wait and (time.time() - start) * 1000 >= wait > 0:
+            if count_group_cached(group_id) == count or wait and (time() - start) * 1000 >= wait > 0:
                 break
-            time.sleep(0.01)
+            sleep(0.01)
     while True:
         group_list = broker.cache.get('{}:{}:keys'.format(broker.list_key, group_id))
         if group_list:
             result_list = []
             for task_key in group_list:
-                task = signing.SignedPackage.loads(broker.cache.get(task_key))
+                task = SignedPackage.loads(broker.cache.get(task_key))
                 if task['success'] or failures:
                     result_list.append(task['result'])
             return result_list
-        if (time.time() - start) * 1000 >= wait >= 0:
+        if (time() - start) * 1000 >= wait >= 0:
             break
-        time.sleep(0.01)
+        sleep(0.01)
 
 
 def fetch(task_id, wait=0, cached=Conf.CACHED):
@@ -205,14 +207,14 @@ def fetch(task_id, wait=0, cached=Conf.CACHED):
     """
     if cached:
         return fetch_cached(task_id, wait)
-    start = time.time()
+    start = time()
     while True:
         t = Task.get_task(task_id)
         if t:
             return t
-        if (time.time() - start) * 1000 >= wait >= 0:
+        if (time() - start) * 1000 >= wait >= 0:
             break
-        time.sleep(0.01)
+        sleep(0.01)
 
 
 def fetch_cached(task_id, wait=0, broker=None):
@@ -221,11 +223,11 @@ def fetch_cached(task_id, wait=0, broker=None):
     """
     if not broker:
         broker = get_broker()
-    start = time.time()
+    start = time()
     while True:
         r = broker.cache.get('{}:{}'.format(broker.list_key, task_id))
         if r:
-            task = signing.SignedPackage.loads(r)
+            task = SignedPackage.loads(r)
             t = Task(id=task['id'],
                      name=task['name'],
                      func=task['func'],
@@ -237,9 +239,9 @@ def fetch_cached(task_id, wait=0, broker=None):
                      result=task['result'],
                      success=task['success'])
             return t
-        if (time.time() - start) * 1000 >= wait >= 0:
+        if (time() - start) * 1000 >= wait >= 0:
             break
-        time.sleep(0.01)
+        sleep(0.01)
 
 
 def fetch_group(group_id, failures=True, wait=0, count=None, cached=Conf.CACHED):
@@ -253,19 +255,19 @@ def fetch_group(group_id, failures=True, wait=0, count=None, cached=Conf.CACHED)
     """
     if cached:
         return fetch_group_cached(group_id, failures, wait, count)
-    start = time.time()
+    start = time()
     if count:
         while True:
-            if count_group(group_id) == count or wait and (time.time() - start) * 1000 >= wait >= 0:
+            if count_group(group_id) == count or wait and (time() - start) * 1000 >= wait >= 0:
                 break
-            time.sleep(0.01)
+            sleep(0.01)
     while True:
         r = Task.get_task_group(group_id, failures)
         if r:
             return r
-        if (time.time() - start) * 1000 >= wait >= 0:
+        if (time() - start) * 1000 >= wait >= 0:
             break
-        time.sleep(0.01)
+        sleep(0.01)
 
 
 def fetch_group_cached(group_id, failures=True, wait=0, count=None, broker=None):
@@ -274,18 +276,18 @@ def fetch_group_cached(group_id, failures=True, wait=0, count=None, broker=None)
     """
     if not broker:
         broker = get_broker()
-    start = time.time()
+    start = time()
     if count:
         while True:
-            if count_group_cached(group_id) == count or wait and (time.time() - start) * 1000 >= wait >= 0:
+            if count_group_cached(group_id) == count or wait and (time() - start) * 1000 >= wait >= 0:
                 break
-            time.sleep(0.01)
+            sleep(0.01)
     while True:
         group_list = broker.cache.get('{}:{}:keys'.format(broker.list_key, group_id))
         if group_list:
             task_list = []
             for task_key in group_list:
-                task = signing.SignedPackage.loads(broker.cache.get(task_key))
+                task = SignedPackage.loads(broker.cache.get(task_key))
                 if task['success'] or failures:
                     t = Task(id=task['id'],
                              name=task['name'],
@@ -300,9 +302,9 @@ def fetch_group_cached(group_id, failures=True, wait=0, count=None, broker=None)
                              success=task['success'])
                     task_list.append(t)
             return task_list
-        if (time.time() - start) * 1000 >= wait >= 0:
+        if (time() - start) * 1000 >= wait >= 0:
             break
-        time.sleep(0.01)
+        sleep(0.01)
 
 
 def count_group(group_id, failures=False, cached=Conf.CACHED):
@@ -332,7 +334,7 @@ def count_group_cached(group_id, failures=False, broker=None):
             return len(group_list)
         failure_count = 0
         for task_key in group_list:
-            task = signing.SignedPackage.loads(broker.cache.get(task_key))
+            task = SignedPackage.loads(broker.cache.get(task_key))
             if not task['success']:
                 failure_count += 1
         return failure_count
@@ -405,7 +407,7 @@ def async_iter(func, args_iter, **kwargs):
     options['cached'] = True
     # save the original arguments
     broker = options['broker']
-    broker.cache.set('{}:{}:args'.format(broker.list_key, iter_group), signing.SignedPackage.dumps(args_iter))
+    broker.cache.set('{}:{}:args'.format(broker.list_key, iter_group), SignedPackage.dumps(args_iter))
     for args in args_iter:
         if type(args) is not tuple:
             args = (args,)
@@ -671,13 +673,17 @@ class Async(object):
 
 
 def _sync(pack):
+    # Python 2.6 is unable to handle this import on top of the file
+    # because it creates a circular dependency between tasks and cluster
+    from django_q.cluster import worker, monitor
+
     """Simulate a package travelling through the cluster."""
     task_queue = Queue()
     result_queue = Queue()
-    task = signing.SignedPackage.loads(pack)
+    task = SignedPackage.loads(pack)
     task_queue.put(task)
     task_queue.put('STOP')
-    cluster.worker(task_queue, result_queue, Value('f', -1))
+    worker(task_queue, result_queue, Value('f', -1))
     result_queue.put('STOP')
-    cluster.monitor(result_queue)
+    monitor(result_queue)
     return task['id']

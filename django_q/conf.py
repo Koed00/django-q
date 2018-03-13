@@ -110,6 +110,11 @@ class Conf(object):
     # Number of seconds to wait for a worker to finish.
     TIMEOUT = conf.get('timeout', None)
 
+    # Whether to acknowledge unsuccessful tasks.
+    # This causes failed tasks to be considered delivered, thereby removing them from
+    # the task queue. Defaults to False.
+    ACK_FAILURES = conf.get('ack_failures', False)
+
     # Number of seconds to wait for acknowledgement before retrying a task
     # Only works with brokers that guarantee delivery. Defaults to 60 seconds.
     RETRY = conf.get('retry', 60)
