@@ -20,7 +20,7 @@ from django_q.queues import Queue
 def async(func, *args, **kwargs):
     """Queue a task for the cluster."""
     keywords = kwargs.copy()
-    opt_keys = ('hook', 'group', 'save', 'sync', 'cached', 'iter_count', 'iter_cached', 'chain', 'broker')
+    opt_keys = ('hook', 'group', 'save', 'sync', 'cached', 'ack_failure', 'iter_count', 'iter_cached', 'chain', 'broker')
     q_options = keywords.pop('q_options', {})
     # get an id
     tag = uuid()
@@ -42,6 +42,8 @@ def async(func, *args, **kwargs):
         task['cached'] = Conf.CACHED
     if 'sync' not in task and Conf.SYNC:
         task['sync'] = Conf.SYNC
+    if 'ack_failure' not in task and Conf.ACK_FAILURES:
+        task['ack_failure'] = Conf.ACK_FAILURES
     # finalize
     task['kwargs'] = keywords
     task['started'] = timezone.now()

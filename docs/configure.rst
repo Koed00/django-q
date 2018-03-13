@@ -59,6 +59,13 @@ timeout
 The number of seconds a worker is allowed to spend on a task before it's terminated. Defaults to ``None``, meaning it will never time out.
 Set this to something that makes sense for your project. Can be overridden for individual tasks.
 
+.. _ack_failures:
+
+ack_failures
+~~~~~~~~~~~~
+
+When set to ``True``, also acknowledge unsuccessful tasks. This causes failed tasks to be considered as successful deliveries, thereby removing them from the task queue. Can also be set per-task by passing the ``ack_failure`` option to :func:`async`. Defaults to ``False``.
+
 .. _retry:
 
 retry

@@ -20,8 +20,12 @@ Broker
 The broker collects task packages from the django instances and queues them for pick up by a cluster.
 If the broker supports message receipts, it will keep a copy of the tasks around until a cluster acknowledges the processing of the task.
 Otherwise it is put back in the queue after a timeout period. This ensure at-least-once delivery.
-Note that even if the task errors when processed by the cluster, this is considered a successful delivery.
 Most failed deliveries will be the result of a worker or the cluster crashing before the task was saved.
+
+.. note::
+   When the :ref:`ack_failures` option is set to ``False`` (the default), a task is
+   considered a failed delivery when it raises an ``Exception``. Set
+   this option to ``True`` to acknowledge failed tasks as successful.
 
 Pusher
 """"""
