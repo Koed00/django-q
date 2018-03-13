@@ -1,5 +1,18 @@
 # Change Log
 
+## [v0.9.3](https://github.com/koed00/django-q/tree/v0.9.3) (2018-03-13)
+[Full Changelog](https://github.com/koed00/django-q/compare/v0.9.2...v0.9.3)
+
+**Closed issues:**
+
+- \[Wishlist\] Please provide a changelog in a text format in your repo. [\#293](https://github.com/Koed00/django-q/issues/293)
+- django-q collides with existing app of name `tasks` [\#199](https://github.com/Koed00/django-q/issues/199)
+
+**Merged pull requests:**
+
+- Add option for acknowledging failed tasks \(globally and per-task\) [\#298](https://github.com/Koed00/django-q/pull/298) ([Balletie](https://github.com/Balletie))
+- Changing the path location where Django-Q is inserted. [\#297](https://github.com/Koed00/django-q/pull/297) ([Eagllus](https://github.com/Eagllus))
+
 ## [v0.9.2](https://github.com/koed00/django-q/tree/v0.9.2) (2018-02-13)
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.9.1...v0.9.2)
 
