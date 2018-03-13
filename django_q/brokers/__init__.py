@@ -166,25 +166,25 @@ def get_broker(list_key=Conf.PREFIX):
         return broker(list_key=list_key)
     # disque
     elif Conf.DISQUE_NODES:
-        from brokers import disque
+        from django_q.brokers import disque
         return disque.Disque(list_key=list_key)
     # Iron MQ
     elif Conf.IRON_MQ:
-        from brokers import ironmq
+        from django_q.brokers import ironmq
         return ironmq.IronMQBroker(list_key=list_key)
     # SQS
     elif Conf.SQS:
-        from brokers import aws_sqs
+        from django_q.brokers import aws_sqs
         return aws_sqs.Sqs(list_key=list_key)
     # ORM
     elif Conf.ORM:
-        from brokers import orm
+        from django_q.brokers import orm
         return orm.ORM(list_key=list_key)
     # Mongo
     elif Conf.MONGO:
-        from brokers import mongo
+        from django_q.brokers import mongo
         return mongo.Mongo(list_key=list_key)
     # default to redis
     else:
-        from brokers import redis_broker
+        from django_q.brokers import redis_broker
         return redis_broker.Redis(list_key=list_key)
