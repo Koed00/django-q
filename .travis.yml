@@ -10,8 +10,8 @@ python:
 
 env:
     - DJANGO=2.0
-    - DJANGO=1.11.9
-    - DJANGO=1.8.18
+    - DJANGO=1.11.11
+    - DJANGO=1.8.19
 
 matrix:
   exclude:
