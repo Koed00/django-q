@@ -1,9 +1,9 @@
-import os
-import sys
+# import os
+# import sys
 import django
 
-myPath = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, myPath)
+# myPath = os.path.dirname(os.path.abspath(__file__))
+# sys.path.insert(0, myPath)
 
 VERSION = (0, 9, 2)
 
