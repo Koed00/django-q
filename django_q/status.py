@@ -2,7 +2,7 @@ import socket
 from django.utils import timezone
 from django_q.brokers import get_broker
 from django_q.conf import Conf, logger
-import signing
+from django_q.signing import SignedPackage, BadSignature
 
 
 class Status(object):
@@ -64,7 +64,7 @@ class Stat(Status):
 
     def save(self):
         try:
-            self.broker.set_stat(self.key, signing.SignedPackage.dumps(self, True), 3)
+            self.broker.set_stat(self.key, SignedPackage.dumps(self, True), 3)
         except Exception as e:
             logger.error(e)
 
@@ -83,8 +83,8 @@ class Stat(Status):
         pack = broker.get_stat(Stat.get_key(cluster_id))
         if pack:
             try:
-                return signing.SignedPackage.loads(pack)
-            except signing.BadSignature:
+                return SignedPackage.loads(pack)
+            except BadSignature:
                 return None
         return Status(cluster_id)
 
@@ -101,8 +101,8 @@ class Stat(Status):
         packs = broker.get_stats('{}:*'.format(Conf.Q_STAT)) or []
         for pack in packs:
             try:
-                stats.append(signing.SignedPackage.loads(pack))
-            except signing.BadSignature:
+                stats.append(SignedPackage.loads(pack))
+            except BadSignature:
                 continue
         return stats
 

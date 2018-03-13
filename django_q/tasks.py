@@ -7,7 +7,7 @@ from django.utils import timezone
 
 # local
 import time
-import signing
+from django_q.signing import SignedPackage
 import cluster
 from django_q.conf import Conf, logger
 from django_q.models import Schedule, Task
@@ -48,7 +48,7 @@ def async(func, *args, **kwargs):
     # signal it
     pre_enqueue.send(sender="django_q", task=task)
     # sign it
-    pack = signing.SignedPackage.dumps(task)
+    pack = SignedPackage.dumps(task)
     if task.get('sync', False):
         return _sync(pack)
     # push it
@@ -132,7 +132,7 @@ def result_cached(task_id, wait=0, broker=None):
     while True:
         r = broker.cache.get('{}:{}'.format(broker.list_key, task_id))
         if r:
-            return signing.SignedPackage.loads(r)['result']
+            return SignedPackage.loads(r)['result']
         if (time.time() - start) * 1000 >= wait >= 0:
             break
         time.sleep(0.01)
@@ -182,7 +182,7 @@ def result_group_cached(group_id, failures=False, wait=0, count=None, broker=Non
         if group_list:
             result_list = []
             for task_key in group_list:
-                task = signing.SignedPackage.loads(broker.cache.get(task_key))
+                task = SignedPackage.loads(broker.cache.get(task_key))
                 if task['success'] or failures:
                     result_list.append(task['result'])
             return result_list
@@ -225,7 +225,7 @@ def fetch_cached(task_id, wait=0, broker=None):
     while True:
         r = broker.cache.get('{}:{}'.format(broker.list_key, task_id))
         if r:
-            task = signing.SignedPackage.loads(r)
+            task = SignedPackage.loads(r)
             t = Task(id=task['id'],
                      name=task['name'],
                      func=task['func'],
@@ -285,7 +285,7 @@ def fetch_group_cached(group_id, failures=True, wait=0, count=None, broker=None)
         if group_list:
             task_list = []
             for task_key in group_list:
-                task = signing.SignedPackage.loads(broker.cache.get(task_key))
+                task = SignedPackage.loads(broker.cache.get(task_key))
                 if task['success'] or failures:
                     t = Task(id=task['id'],
                              name=task['name'],
@@ -332,7 +332,7 @@ def count_group_cached(group_id, failures=False, broker=None):
             return len(group_list)
         failure_count = 0
         for task_key in group_list:
-            task = signing.SignedPackage.loads(broker.cache.get(task_key))
+            task = SignedPackage.loads(broker.cache.get(task_key))
             if not task['success']:
                 failure_count += 1
         return failure_count
@@ -405,7 +405,7 @@ def async_iter(func, args_iter, **kwargs):
     options['cached'] = True
     # save the original arguments
     broker = options['broker']
-    broker.cache.set('{}:{}:args'.format(broker.list_key, iter_group), signing.SignedPackage.dumps(args_iter))
+    broker.cache.set('{}:{}:args'.format(broker.list_key, iter_group), SignedPackage.dumps(args_iter))
     for args in args_iter:
         if type(args) is not tuple:
             args = (args,)
@@ -674,7 +674,7 @@ def _sync(pack):
     """Simulate a package travelling through the cluster."""
     task_queue = Queue()
     result_queue = Queue()
-    task = signing.SignedPackage.loads(pack)
+    task = SignedPackage.loads(pack)
     task_queue.put(task)
     task_queue.put('STOP')
     cluster.worker(task_queue, result_queue, Value('f', -1))
