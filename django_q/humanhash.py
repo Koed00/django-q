@@ -4,12 +4,10 @@ humanhash: Human-readable representations of digests.
 The simplest ways to use this module are the :func:`humanize` and :func:`uuid`
 functions. For tighter control over the output, see :class:`HumanHasher`.
 """
-from argparse import ArgumentError
-
 import operator
 import uuid as uuidlib
+from argparse import ArgumentError
 from functools import reduce
-
 
 DEFAULT_WORDLIST = (
     'ack', 'alabama', 'alanine', 'alaska', 'alpha', 'angel', 'apart', 'april',
@@ -51,7 +49,6 @@ DEFAULT_WORDLIST = (
 
 
 class HumanHasher(object):
-
     """
     Transforms hex digests to human-readable strings.
 
@@ -67,7 +64,7 @@ class HumanHasher(object):
 
     def __init__(self, wordlist=DEFAULT_WORDLIST):
         if len(wordlist) != 256:
-            raise ArgumentError("Wordlist must have exactly 256 items")
+            raise ArgumentError('wordlist', "Wordlist must have exactly 256 items")
         self.wordlist = wordlist
 
     def humanize(self, hexdigest, words=4, separator='-'):

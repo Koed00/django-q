@@ -1,10 +1,9 @@
 """
 The code is derived from https://github.com/althonos/pronto/commit/3384010dfb4fc7c66a219f59276adef3288a886b
 """
-import sys
-
 import multiprocessing
 import multiprocessing.queues
+import sys
 
 
 class SharedCounter(object):
@@ -56,14 +55,13 @@ class Queue(multiprocessing.queues.Queue):
 
         self.size = SharedCounter(0)
 
-    def put(self, *args, **kwargs):
-        super(Queue, self).put(*args, **kwargs)
+    def put(self, obj, block=True, timeout=None):
         self.size.increment(1)
+        return super().put(obj, block, timeout)
 
-    def get(self, *args, **kwargs):
-        x = super(Queue, self).get(*args, **kwargs)
+    def get(self, block=True, timeout=None):
         self.size.increment(-1)
-        return x
+        return super().get(block, timeout)
 
     def qsize(self):
         """ Reliable implementation of multiprocessing.Queue.qsize() """

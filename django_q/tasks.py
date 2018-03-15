@@ -1,26 +1,27 @@
 """Provides task functionality."""
+from multiprocessing import Value
 # Standard
 from time import sleep, time
-from multiprocessing import Value
 
 # django
 from django.db import IntegrityError
 from django.utils import timezone
 
+from django_q.brokers import get_broker
+from django_q.conf import Conf, logger
+from django_q.humanhash import uuid
+from django_q.models import Schedule, Task
+from django_q.queues import Queue
+from django_q.signals import pre_enqueue
 # local
 from django_q.signing import SignedPackage
-from django_q.conf import Conf, logger
-from django_q.models import Schedule, Task
-from django_q.humanhash import uuid
-from django_q.brokers import get_broker
-from django_q.signals import pre_enqueue
-from django_q.queues import Queue
 
 
 def async(func, *args, **kwargs):
     """Queue a task for the cluster."""
     keywords = kwargs.copy()
-    opt_keys = ('hook', 'group', 'save', 'sync', 'cached', 'ack_failure', 'iter_count', 'iter_cached', 'chain', 'broker')
+    opt_keys = (
+    'hook', 'group', 'save', 'sync', 'cached', 'ack_failure', 'iter_count', 'iter_cached', 'chain', 'broker')
     q_options = keywords.pop('q_options', {})
     # get an id
     tag = uuid()
@@ -409,7 +410,7 @@ def async_iter(func, args_iter, **kwargs):
     broker = options['broker']
     broker.cache.set('{}:{}:args'.format(broker.list_key, iter_group), SignedPackage.dumps(args_iter))
     for args in args_iter:
-        if type(args) is not tuple:
+        if not isinstance(args, tuple):
             args = (args,)
         async(func, *args, **options)
     return iter_group
@@ -425,7 +426,7 @@ def async_chain(chain, group=None, cached=Conf.CACHED, sync=Conf.SYNC, broker=No
     args = ()
     kwargs = {}
     task = chain.pop(0)
-    if type(task) is not tuple:
+    if not isinstance(task, tuple):
         task = (task,)
     if len(task) > 1:
         args = task[1]

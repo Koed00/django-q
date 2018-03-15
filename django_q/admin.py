@@ -19,7 +19,7 @@ class TaskAdmin(admin.ModelAdmin):
         'group'
     )
 
-    def has_add_permission(self, request, obj=None):
+    def has_add_permission(self, request):
         """Don't allow adds."""
         return False
 
