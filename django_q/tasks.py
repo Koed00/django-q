@@ -686,4 +686,8 @@ def _sync(pack):
     worker(task_queue, result_queue, Value('f', -1))
     result_queue.put('STOP')
     monitor(result_queue)
+    task_queue.close()
+    task_queue.join_thread()
+    result_queue.close()
+    result_queue.join_thread()
     return task['id']
