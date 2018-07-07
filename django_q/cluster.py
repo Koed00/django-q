@@ -405,9 +405,9 @@ def save_task(task, broker):
     # SAVE LIMIT < 0 : Don't save success
     if not task.get('save', Conf.SAVE_LIMIT >= 0) and task['success']:
         return
-    # async next in a chain
+    # enqueues next in a chain
     if task.get('chain', None):
-        tasks.async_chain(task['chain'], group=task['group'], cached=task['cached'], sync=task['sync'], broker=broker)
+        tasks.enqueue_chain(task['chain'], group=task['group'], cached=task['cached'], sync=task['sync'], broker=broker)
     # SAVE LIMIT > 0: Prune database, SAVE_LIMIT 0: No pruning
     db.close_old_connections()
     try:
@@ -473,9 +473,9 @@ def save_cached(task, broker):
             # save the group list
             group_list.append(task_key)
             broker.cache.set(group_key, group_list, timeout)
-            # async next in a chain
+            # enqueue next in a chain
             if task.get('chain', None):
-                tasks.async_chain(task['chain'], group=group, cached=task['cached'], sync=task['sync'], broker=broker)
+                tasks.enqueue_chain(task['chain'], group=group, cached=task['cached'], sync=task['sync'], broker=broker)
         # save the task
         broker.cache.set(task_key,
                          SignedPackage.dumps(task),
@@ -536,7 +536,7 @@ def scheduler(broker=None):
             q_options['broker'] = broker
             q_options['group'] = q_options.get('group', s.name or s.id)
             kwargs['q_options'] = q_options
-            s.task = tasks.async(s.func, *args, **kwargs)
+            s.task = tasks.enqueue(s.func, *args, **kwargs)
             # log it
             if not s.task:
                 logger.error(

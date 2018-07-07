@@ -110,19 +110,19 @@ Check overall statistics with::
 Creating Tasks
 ~~~~~~~~~~~~~~
 
-Use `async` from your code to quickly offload tasks:
+Use `enqueue` from your code to quickly offload tasks:
 
 .. code:: python
 
-    from django_q.tasks import async, result
+    from django_q.tasks import enqueue, result
 
     # create the task
-    async('math.copysign', 2, -2)
+    enqueue('math.copysign', 2, -2)
 
     # or with a reference
     import math.copysign
 
-    task_id = async(copysign, 2, -2)
+    task_id = enqueue(copysign, 2, -2)
 
     # get the result
     task_result = result(task_id)
@@ -133,7 +133,7 @@ Use `async` from your code to quickly offload tasks:
 
     # but in most cases you will want to use a hook:
 
-    async('math.modf', 2.5, hook='hooks.print_result')
+    enqueue('math.modf', 2.5, hook='hooks.print_result')
 
     # hooks.py
     def print_result(task):
