@@ -2,7 +2,7 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from django_q.tasks import async
+from django_q.tasks import enqueue
 from django_q.models import Success, Failure, Schedule, OrmQ
 from django_q.conf import Conf
 
@@ -41,7 +41,7 @@ class TaskAdmin(admin.ModelAdmin):
 def retry_failed(FailAdmin, request, queryset):
     """Submit selected tasks back to the queue."""
     for task in queryset:
-        async(task.func, *task.args or (), hook=task.hook, **task.kwargs or {})
+        enqueue(task.func, *task.args or (), hook=task.hook, **task.kwargs or {})
         task.delete()
 
 

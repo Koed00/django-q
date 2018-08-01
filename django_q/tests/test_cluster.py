@@ -13,7 +13,7 @@ sys.path.insert(0, myPath + '/../')
 from django_q.cluster import Cluster, Sentinel, pusher, worker, monitor, save_task
 from django_q.compat import range
 from django_q.humanhash import DEFAULT_WORDLIST, uuid
-from django_q.tasks import fetch, fetch_group, async, result, result_group, count_group, delete_group, queue_size
+from django_q.tasks import fetch, fetch_group, enqueue, result, result_group, count_group, delete_group, queue_size
 from django_q.models import Task, Success
 from django_q.conf import Conf
 from django_q.status import Stat
@@ -42,7 +42,7 @@ def test_redis_connection(broker):
 
 @pytest.mark.django_db
 def test_sync(broker):
-    task = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, broker=broker, sync=True)
+    task = enqueue('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, broker=broker, sync=True)
     assert result(task) == 1506
 
 
@@ -82,7 +82,7 @@ def test_sentinel():
 def test_cluster(broker):
     broker.list_key = 'cluster_test:q'
     broker.delete_queue()
-    task = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, broker=broker)
+    task = enqueue('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, broker=broker)
     assert broker.queue_size() == 1
     task_queue = Queue()
     assert task_queue.qsize() == 0
@@ -109,32 +109,32 @@ def test_cluster(broker):
 
 
 @pytest.mark.django_db
-def test_async(broker, admin_user):
+def test_enqueue(broker, admin_user):
     broker.list_key = 'cluster_test:q'
     broker.delete_queue()
-    a = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, hook='django_q.tests.test_cluster.assert_result',
-              broker=broker)
-    b = async('django_q.tests.tasks.count_letters2', WordClass(), hook='django_q.tests.test_cluster.assert_result',
-              broker=broker)
+    a = enqueue('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, hook='django_q.tests.test_cluster.assert_result',
+                broker=broker)
+    b = enqueue('django_q.tests.tasks.count_letters2', WordClass(), hook='django_q.tests.test_cluster.assert_result',
+                broker=broker)
     # unknown argument
-    c = async('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, 'oneargumentoomany',
-              hook='django_q.tests.test_cluster.assert_bad_result', broker=broker)
+    c = enqueue('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, 'oneargumentoomany',
+                hook='django_q.tests.test_cluster.assert_bad_result', broker=broker)
     # unknown function
-    d = async('django_q.tests.tasks.does_not_exist', WordClass(), hook='django_q.tests.test_cluster.assert_bad_result',
-              broker=broker)
+    d = enqueue('django_q.tests.tasks.does_not_exist', WordClass(), hook='django_q.tests.test_cluster.assert_bad_result',
+                broker=broker)
     # function without result
-    e = async('django_q.tests.tasks.countdown', 100000, broker=broker)
+    e = enqueue('django_q.tests.tasks.countdown', 100000, broker=broker)
     # function as instance
-    f = async(multiply, 753, 2, hook=assert_result, broker=broker)
+    f = enqueue(multiply, 753, 2, hook=assert_result, broker=broker)
     # model as argument
-    g = async('django_q.tests.tasks.get_task_name', Task(name='John'), broker=broker)
+    g = enqueue('django_q.tests.tasks.get_task_name', Task(name='John'), broker=broker)
     # args,kwargs, group and broken hook
-    h = async('django_q.tests.tasks.word_multiply', 2, word='django', hook='fail.me', broker=broker)
+    h = enqueue('django_q.tests.tasks.word_multiply', 2, word='django', hook='fail.me', broker=broker)
     # args unpickle test
-    j = async('django_q.tests.tasks.get_user_id', admin_user, broker=broker, group='test_j')
+    j = enqueue('django_q.tests.tasks.get_user_id', admin_user, broker=broker, group='test_j')
     # q_options and save opt_out test
-    k = async('django_q.tests.tasks.get_user_id', admin_user,
-              q_options={'broker': broker, 'group': 'test_k', 'save': False, 'timeout': 90})
+    k = enqueue('django_q.tests.tasks.get_user_id', admin_user,
+                q_options={'broker': broker, 'group': 'test_k', 'save': False, 'timeout': 90})
     # check if everything has a task id
     assert isinstance(a, str)
     assert isinstance(b, str)
@@ -249,7 +249,7 @@ def test_timeout(broker):
     # set up the Sentinel
     broker.list_key = 'timeout_test:q'
     broker.purge_queue()
-    async('django_q.tests.tasks.count_forever', broker=broker)
+    enqueue('django_q.tests.tasks.count_forever', broker=broker)
     start_event = Event()
     stop_event = Event()
     # Set a timer to stop the Sentinel
@@ -265,7 +265,7 @@ def test_timeout(broker):
 def test_timeout_override(broker):
     # set up the Sentinel
     broker.list_key = 'timeout_override_test:q'
-    async('django_q.tests.tasks.count_forever', broker=broker, timeout=1)
+    enqueue('django_q.tests.tasks.count_forever', broker=broker, timeout=1)
     start_event = Event()
     stop_event = Event()
     # Set a timer to stop the Sentinel
@@ -281,9 +281,9 @@ def test_timeout_override(broker):
 def test_recycle(broker, monkeypatch):
     # set up the Sentinel
     broker.list_key = 'test_recycle_test:q'
-    async('django_q.tests.tasks.multiply', 2, 2, broker=broker)
-    async('django_q.tests.tasks.multiply', 2, 2, broker=broker)
-    async('django_q.tests.tasks.multiply', 2, 2, broker=broker)
+    enqueue('django_q.tests.tasks.multiply', 2, 2, broker=broker)
+    enqueue('django_q.tests.tasks.multiply', 2, 2, broker=broker)
+    enqueue('django_q.tests.tasks.multiply', 2, 2, broker=broker)
     start_event = Event()
     stop_event = Event()
     # override settings
@@ -295,8 +295,8 @@ def test_recycle(broker, monkeypatch):
     assert start_event.is_set()
     assert s.status() == Conf.STOPPED
     assert s.reincarnations == 1
-    async('django_q.tests.tasks.multiply', 2, 2, broker=broker)
-    async('django_q.tests.tasks.multiply', 2, 2, broker=broker)
+    enqueue('django_q.tests.tasks.multiply', 2, 2, broker=broker)
+    enqueue('django_q.tests.tasks.multiply', 2, 2, broker=broker)
     task_queue = Queue()
     result_queue = Queue()
     # push two tasks
@@ -318,7 +318,7 @@ def test_recycle(broker, monkeypatch):
 @pytest.mark.django_db
 def test_bad_secret(broker, monkeypatch):
     broker.list_key = 'test_bad_secret:q'
-    async('math.copysign', 1, -1, broker=broker)
+    enqueue('math.copysign', 1, -1, broker=broker)
     stop_event = Event()
     stop_event.set()
     start_event = Event()

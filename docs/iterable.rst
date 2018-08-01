@@ -2,16 +2,16 @@
 
 Iterable
 ========
-If you have an iterable object with arguments for a function, you can use :func:`async_iter` to async them with a single command::
+If you have an iterable object with arguments for a function, you can use :func:`enqueue_iter` to async them with a single command::
 
     # Async Iterable example
-    from django_q.tasks import async_iter, result
+    from django_q.tasks import enqueue_iter, result
 
     # set up a list of arguments for math.floor
     iter = [i for i in range(100)]
 
-    # async iter them
-    id=async_iter('math.floor',iter)
+    # enqueue iter them
+    id=enqueue_iter('math.floor',iter)
 
     # wait for the collated result for 1 second
     result_list = result(id, wait=1000)
@@ -45,10 +45,10 @@ You can also use an :class:`Iter` instance which can sometimes be more convenien
 Reference
 ---------
 
-.. py:function:: async_iter(func, args_iter,**kwargs)
+.. py:function:: enqueue_iter(func, args_iter,**kwargs)
 
    Runs iterable arguments against the cache backend and returns a single collated result.
-   Accepts the same options as :func:`async` except ``hook``. See also the :class:`Iter` class.
+   Accepts the same options as :func:`enqueue` except ``hook``. See also the :class:`Iter` class.
 
    :param object func: The task function to execute
    :param args: An iterable containing arguments for the task function
@@ -58,7 +58,7 @@ Reference
 
 .. py:class:: Iter(func=None, args=None, kwargs=None, cached=Conf.CACHED, sync=Conf.SYNC, broker=None)
 
-    An async task with iterable arguments. Serves as a convenient wrapper for :func:`async_iter`
+    An async task with iterable arguments. Serves as a convenient wrapper for :func:`enqueue_iter`
     You can pass the iterable arguments at construction or you can append individual argument tuples.
 
         :param func: the function to execute
