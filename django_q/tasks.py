@@ -17,7 +17,7 @@ from django_q.signals import pre_enqueue
 from django_q.queues import Queue
 
 
-def enqueue(func, *args, **kwargs):
+def async_task(func, *args, **kwargs):
     """Queue a task for the cluster."""
     keywords = kwargs.copy()
     opt_keys = ('hook', 'group', 'save', 'sync', 'cached', 'ack_failure', 'iter_count', 'iter_cached', 'chain', 'broker')
@@ -390,7 +390,7 @@ def queue_size(broker=None):
     return broker.queue_size()
 
 
-def enqueue_iter(func, args_iter, **kwargs):
+def async_iter(func, args_iter, **kwargs):
     """
     enqueues a function with iterable arguments
     """
@@ -411,11 +411,11 @@ def enqueue_iter(func, args_iter, **kwargs):
     for args in args_iter:
         if type(args) is not tuple:
             args = (args,)
-        enqueue(func, *args, **options)
+        async_task(func, *args, **options)
     return iter_group
 
 
-def enqueue_chain(chain, group=None, cached=Conf.CACHED, sync=Conf.SYNC, broker=None):
+def async_chain(chain, group=None, cached=Conf.CACHED, sync=Conf.SYNC, broker=None):
     """
     enqueues a chain of tasks
     the chain must be in the format [(func,(args),{kwargs}),(func,(args),{kwargs})]
@@ -436,7 +436,7 @@ def enqueue_chain(chain, group=None, cached=Conf.CACHED, sync=Conf.SYNC, broker=
     kwargs['cached'] = cached
     kwargs['sync'] = sync
     kwargs['broker'] = broker or get_broker()
-    enqueue(task[0], *args, **kwargs)
+    async_task(task[0], *args, **kwargs)
     return group
 
 
@@ -472,7 +472,7 @@ class Iter(object):
         self.kwargs['cached'] = self.cached
         self.kwargs['sync'] = self.sync
         self.kwargs['broker'] = self.broker
-        self.id = enqueue_iter(self.func, self.args, **self.kwargs)
+        self.id = async_iter(self.func, self.args, **self.kwargs)
         self.started = True
         return self.id
 
@@ -518,7 +518,7 @@ class Chain(object):
     def append(self, func, *args, **kwargs):
         """
         add a task to the chain
-        takes the same parameters as enqueue()
+        takes the same parameters as async_task()
         """
         self.chain.append((func, args, kwargs))
         # remove existing results
@@ -532,8 +532,8 @@ class Chain(object):
         Start queueing the chain to the worker cluster
         :return: the chain's group id
         """
-        self.group = enqueue_chain(chain=self.chain[:], group=self.group, cached=self.cached, sync=self.sync,
-                                   broker=self.broker)
+        self.group = async_chain(chain=self.chain[:], group=self.group, cached=self.cached, sync=self.sync,
+                                 broker=self.broker)
         self.started = True
         return self.group
 
@@ -647,7 +647,7 @@ class AsyncTask(object):
             return self.kwargs.get(key, default)
 
     def run(self):
-        self.id = enqueue(self.func, *self.args, **self.kwargs)
+        self.id = async_task(self.func, *self.args, **self.kwargs)
         self.started = True
         return self.id
 

@@ -4,22 +4,22 @@ Tasks
 
 .. _async:
 
-enqueue()
+async_task()
 ---------
 
-Use :func:`enqueue` from your code to quickly offload tasks to the :class:`Cluster`:
+Use :func:`async_task` from your code to quickly offload tasks to the :class:`Cluster`:
 
 .. code:: python
 
-    from django_q.tasks import enqueue, result
+    from django_q.tasks import async_task, result
 
     # create the task
-    enqueue('math.copysign', 2, -2)
+    async_task('math.copysign', 2, -2)
 
     # or with import and storing the id
     import math.copysign
 
-    task_id = enqueue(copysign, 2, -2)
+    task_id = async_task(copysign, 2, -2)
 
     # get the result
     task_result = result(task_id)
@@ -30,13 +30,13 @@ Use :func:`enqueue` from your code to quickly offload tasks to the :class:`Clust
 
     # but in most cases you will want to use a hook:
 
-    enqueue('math.modf', 2.5, hook='hooks.print_result')
+    async_task('math.modf', 2.5, hook='hooks.print_result')
 
     # hooks.py
     def print_result(task):
         print(task.result)
 
-:func:`enqueue` can take the following optional keyword arguments:
+:func:`async_task` can take the following optional keyword arguments:
 
 hook
 """"
@@ -84,13 +84,13 @@ None of the option keywords get passed on to the task function.
 As an alternative you can also put them in
 a single keyword dict named ``q_options``. This enables you to use these keywords for your function call::
 
-    # Enqueue options in a dict
+    # Async options in a dict
 
     opts = {'hook': 'hooks.print_result',
             'group': 'math',
             'timeout': 30}
 
-    enqueue('math.modf', 2.5, q_options=opts)
+    async_task('math.modf', 2.5, q_options=opts)
 
 Please note that this will override any other option keywords.
 
@@ -150,10 +150,10 @@ You can also opt to set a manual timeout on the results, by setting e.g. ``cache
 This works both globally or on individual async executions.::
 
     # simple cached example
-    from django_q.tasks import enqueue, result
+    from django_q.tasks import async_task, result
 
     # cache the result for 10 seconds
-    id = enqueue('math.floor', 100, cached=10)
+    id = async_task('math.floor', 100, cached=10)
 
     # wait max 50ms for the result to appear in the cache
     result(id, wait=50, cached=True)
@@ -169,15 +169,15 @@ As you can see you can easily turn a cached result into a permanent database res
 This also works for group actions::
 
     # cached group example
-    from django_q.tasks import enqueue, result_group
+    from django_q.tasks import async_task, result_group
     from django_q.brokers import get_broker
 
     # set up a broker instance for better performance
     broker = get_broker()
 
-    # enqueue a hundred functions under a group label
+    # Async a hundred functions under a group label
     for i in range(100):
-        enqueue('math.frexp',
+        async_task('math.frexp',
                 i,
                 group='frexp',
                 cached=True,
@@ -186,18 +186,18 @@ This also works for group actions::
     # wait max 50ms for one hundred results to return
     result_group('frexp', wait=50, count=100, cached=True)
 
-If you don't need hooks, that exact same result can be achieved by using the more convenient :func:`enqueue_iter`.
+If you don't need hooks, that exact same result can be achieved by using the more convenient :func:`async_iter`.
 
 Synchronous testing
 -------------------
 
-:func:`enqueue` can be instructed to execute a task immediately by setting the optional keyword ``sync=True``.
+:func:`async_task` can be instructed to execute a task immediately by setting the optional keyword ``sync=True``.
 The task will then be injected straight into a worker and the result saved by a monitor instance::
 
-    from django_q.tasks import enqueue, fetch
+    from django_q.tasks import async_task, fetch
 
     # create a synchronous task
-    task_id = enqueue('my.buggy.code', sync=True)
+    task_id = async_task('my.buggy.code', sync=True)
 
     # the task will then be available immediately
     task = fetch(task_id)
@@ -210,24 +210,24 @@ The task will then be injected straight into a worker and the result saved by a 
 
     An error occurred: ImportError("No module named 'my'",)
 
-Note that :func:`enqueue` will block until the task is executed and saved. This feature bypasses the broker and is intended for debugging and development.
-Instead of setting ``sync`` on each individual ``enqueue`` you can also configure :ref:`sync` as a global override.
+Note that :func:`async_task` will block until the task is executed and saved. This feature bypasses the broker and is intended for debugging and development.
+Instead of setting ``sync`` on each individual ``async_task`` you can also configure :ref:`sync` as a global override.
 
 Connection pooling
 ------------------
 
 Django Q tries to pass broker instances around its parts as much as possible to save you from running out of connections.
-When you are making individual calls to :func:`enqueue` a lot though, it can help to set up a broker to reuse for :func:`enqueue`:
+When you are making individual calls to :func:`async_task` a lot though, it can help to set up a broker to reuse for :func:`async_task`:
 
 .. code:: python
 
     # broker connection economy example
-    from django_q.tasks import enqueue
+    from django_q.tasks import async_task
     from django_q.brokers import get_broker
 
     broker = get_broker()
     for i in range(50):
-        enqueue('math.modf', 2.5, broker=broker)
+        async_task('math.modf', 2.5, broker=broker)
 
 .. tip::
 
@@ -237,7 +237,7 @@ When you are making individual calls to :func:`enqueue` a lot though, it can hel
 Reference
 ---------
 
-.. py:function:: enqueue(func, *args, hook=None, group=None, timeout=None,\
+.. py:function:: async_task(func, *args, hook=None, group=None, timeout=None,\
     save=None, sync=False, cached=False, broker=None, q_options=None, **kwargs)
 
     Puts a task in the cluster queue
@@ -249,7 +249,7 @@ Reference
    :param int timeout: Overrides global cluster :ref:`timeout`.
    :param bool save: Overrides global save setting for this task.
    :param bool ack_failure: Overrides the global :ref:`ack_failures` setting for this task.
-   :param bool sync: If set to True, enqueue will simulate a task execution
+   :param bool sync: If set to True, async_task will simulate a task execution
    :param cached: Output the result to the cache backend. Bool or timeout in seconds
    :param broker: Optional broker connection from :func:`brokers.get_broker`
    :param dict q_options: Options dict, overrides option keywords
@@ -410,11 +410,11 @@ Reference
 
 .. py:class:: AsyncTask(func, *args, **kwargs)
 
-    A class wrapper for the :func:`enqueue` function.
+    A class wrapper for the :func:`async_task` function.
 
     :param object func: The task function to execute
     :param tuple args: The arguments for the task function
-    :param dict kwargs: Keyword arguments for the task function, including enqueue options
+    :param dict kwargs: Keyword arguments for the task function, including async_task options
 
     .. py:attribute:: id
 
@@ -434,7 +434,7 @@ Reference
 
     .. py:attribute:: kwargs
 
-    Keyword arguments for the function. Can include any of the optional enqueue keyword attributes directly or in a `q_options` dictionary.
+    Keyword arguments for the function. Can include any of the optional async_task keyword attributes directly or in a `q_options` dictionary.
 
     .. py:attribute:: broker
 

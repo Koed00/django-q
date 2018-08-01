@@ -2,15 +2,15 @@
 
 Groups
 ======
-You can group together results by passing :func:`enqueue` the optional ``group`` keyword:
+You can group together results by passing :func:`async_task` the optional ``group`` keyword:
 
 .. code-block:: python
 
     # result group example
-    from django_q.tasks import enqueue, result_group
+    from django_q.tasks import async_task, result_group
 
     for i in range(4):
-        enqueue('math.modf', i, group='modf')
+        async_task('math.modf', i, group='modf')
 
     # wait until the group has 4 results
     result = result_group('modf', count=4)
@@ -70,10 +70,10 @@ or call them directly on :class:`AsyncTask` object:
 
 .. code-block:: python
 
-    from django_q.tasks import enqueue
+    from django_q.tasks import async_task
 
     # add a task to the math group and run it cached
-    a = enqueue('math.floor', 2.5, group='math', cached=True)
+    a = async_task('math.floor', 2.5, group='math', cached=True)
 
     # wait until this tasks group has 10 results
     result = a.result_group(count=10)

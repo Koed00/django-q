@@ -63,7 +63,7 @@ def test_disque(monkeypatch):
     assert broker.info() is not None
     # clear before we start
     broker.delete_queue()
-    # enqueue
+    # async_task
     broker.enqueue('test')
     assert broker.queue_size() == 1
     # dequeue
@@ -127,7 +127,7 @@ def test_ironmq(monkeypatch):
     # clear before we start
     broker.purge_queue()
     assert broker.queue_size() == 0
-    # enqueue
+    # async_task
     broker.enqueue('test')
     # dequeue
     task = broker.dequeue()[0]
@@ -136,7 +136,7 @@ def test_ironmq(monkeypatch):
     assert broker.dequeue() is None
     # Retry test
     # monkeypatch.setattr(Conf, 'RETRY', 1)
-    # broker.enqueue('test')
+    # broker.async_task('test')
     # assert broker.dequeue() is not None
     # sleep(3)
     # assert broker.dequeue() is not None
@@ -180,7 +180,7 @@ def canceled_sqs(monkeypatch):
     assert broker.ping() is True
     assert broker.info() is not None
     assert broker.queue_size() == 0
-    # enqueue
+    # async_task
     broker.enqueue('test')
     # dequeue
     task = broker.dequeue()[0]
@@ -240,7 +240,7 @@ def test_orm(monkeypatch):
     assert broker.info() is not None
     # clear before we start
     broker.delete_queue()
-    # enqueue
+    # async_task
     broker.enqueue('test')
     assert broker.queue_size() == 1
     # dequeue
@@ -297,7 +297,7 @@ def test_mongo(monkeypatch):
     assert broker.info() is not None
     # clear before we start
     broker.delete_queue()
-    # enqueue
+    # async_task
     broker.enqueue('test')
     assert broker.queue_size() == 1
     # dequeue

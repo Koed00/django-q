@@ -103,7 +103,7 @@ Reference
     :param int minutes: Number of minutes for the Minutes type.
     :param int repeats: Number of times to repeat schedule. -1=Always, 0=Never, n =n.
     :param datetime next_run: Next or first scheduled execution datetime.
-    :param dict q_options: options passed to enqueue for this schedule
+    :param dict q_options: options passed to async_task for this schedule
     :param kwargs: optional keyword arguments for the scheduled function.
 
 .. class:: Schedule

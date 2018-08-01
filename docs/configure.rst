@@ -64,7 +64,7 @@ Set this to something that makes sense for your project. Can be overridden for i
 ack_failures
 ~~~~~~~~~~~~
 
-When set to ``True``, also acknowledge unsuccessful tasks. This causes failed tasks to be considered as successful deliveries, thereby removing them from the task queue. Can also be set per-task by passing the ``ack_failure`` option to :func:`enqueue`. Defaults to ``False``.
+When set to ``True``, also acknowledge unsuccessful tasks. This causes failed tasks to be considered as successful deliveries, thereby removing them from the task queue. Can also be set per-task by passing the ``ack_failure`` option to :func:`async_task`. Defaults to ``False``.
 
 .. _retry:
 
@@ -101,7 +101,7 @@ Guard loop sleep in seconds, must be greater than 0 and less than 60.
 sync
 ~~~~
 
-When set to ``True`` this configuration option forces all :func:`enqueue` calls to be run with ``sync=True``.
+When set to ``True`` this configuration option forces all :func:`async_task` calls to be run with ``sync=True``.
 Effectively making everything synchronous. Useful for testing. Defaults to ``False``.
 
 .. _queue_limit:
