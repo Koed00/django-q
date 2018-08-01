@@ -27,12 +27,13 @@ Installation
 Requirements
 ------------
 
-Django Q is tested for Python 2.7 and 3.6
+Django Q is tested for Python 3.6 and 3.7
 
 -  `Django <https://www.djangoproject.com>`__
 
     Django Q aims to use as much of Django's standard offerings as possible
-    The code is tested against Django versions `1.8.19 LTS`, `1.11.11` and `2.0.x`.
+    The code is tested against Django versions `1.11.11 LTS` and `2.0.x`.
+    Please note that Django versions below 2.0 do not support Python 3.7
 
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
 
@@ -122,14 +123,14 @@ Other known issues are:
 
 Python
 ~~~~~~
-The code is always tested against the latest version of Python 2 and Python 3 and we try to stay compatible with the last two versions of each.
-Current tests are performed with Python 2.7.14 and 3.6.3
+The code is always tested against the latest version Python 3 and we try to stay compatible with the last two versions of each.
+Current tests are performed with 3.6 and 3.7
 If you do encounter any regressions with earlier versions, please submit an issue on `github <https://github.com/Koed00/django-q>`__
 
 .. note::
 
-    Django 1.7.10 or earlier is not compatible with Python 3.5
     Django releases before 1.11 are not officially supported on Python 3.6
+    Django releases before 2.0 are not supported on Python 3.7
 
 Open-source packages
 ~~~~~~~~~~~~~~~~~~~~
@@ -139,9 +140,10 @@ You can reference the `requirements <https://github.com/Koed00/django-q/blob/mas
 Django
 ~~~~~~
 We strive to be compatible with last two major version of Django.
-At the moment this means we support the 1.8.19 LTS, 1.11.11 and 2.0.x releases.
+At the moment this means we support the 1.11.11 and 2.0.x releases.
 
-You might find that Django Q still works fine with Django 1.7,1.9 and 1.10, but new releases are no longer tested for it.
+Since we are now no longer supporting Python 2, we can also not support older versions of Django that do not support Python 3.
+For this you can always use the pre 1.0 release, but it's no longer maintained.
 
 
 
