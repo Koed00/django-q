@@ -26,7 +26,7 @@ class PyTest(Command):
 
 setup(
     name='django-q',
-    version='0.9.4',
+    version='1.0.0',
     author='Ilan Steemers',
     author_email='koed0@gmail.com',
     keywords='django distributed task queue worker scheduler cron redis disque ironmq sqs orm mongodb multiprocessing rollbar',
@@ -36,7 +36,7 @@ setup(
     license='MIT',
     description='A multiprocessing distributed task queue for Django',
     long_description=README,
-    install_requires=['django>=1.8', 'django-picklefield', 'blessed', 'arrow'],
+    install_requires=['django>=1.11', 'django-picklefield', 'blessed', 'arrow'],
     test_requires=['pytest', 'pytest-django', ],
     cmdclass={'test': PyTest},
     classifiers=[
@@ -48,12 +48,11 @@ setup(
         'Operating System :: POSIX',
         'Operating System :: MacOS',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
