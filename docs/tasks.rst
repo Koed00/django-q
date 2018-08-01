@@ -5,7 +5,7 @@ Tasks
 .. _async:
 
 async_task()
----------
+------------
 
 Use :func:`async_task` from your code to quickly offload tasks to the :class:`Cluster`:
 
