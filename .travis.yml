@@ -9,7 +9,7 @@ python:
   - "3.7"
 
 env:
-    - DJANGO=2.0
+    - DJANGO=2.1
     - DJANGO=1.11.11
 
 matrix:
