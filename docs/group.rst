@@ -70,10 +70,10 @@ or call them directly on :class:`AsyncTask` object:
 
 .. code-block:: python
 
-    from django_q.tasks import async_task
+    from django_q.tasks import AsyncTask
 
     # add a task to the math group and run it cached
-    a = async_task('math.floor', 2.5, group='math', cached=True)
+    a = AsyncTask('math.floor', 2.5, group='math', cached=True)
 
     # wait until this tasks group has 10 results
     result = a.result_group(count=10)
