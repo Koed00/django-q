@@ -17,7 +17,8 @@ matrix:
     - python: "3.7"
       env: DJANGO=1.11.11
 
-sudo: false
+sudo: true
+dist: xenial
 
 addons:
   apt:
