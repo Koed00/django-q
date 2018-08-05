@@ -8,6 +8,7 @@ from django.db import IntegrityError
 from django.utils import timezone
 
 # local
+from django_q.cluster import worker, monitor
 from django_q.signing import SignedPackage
 from django_q.conf import Conf, logger
 from django_q.models import Schedule, Task
@@ -673,10 +674,6 @@ class AsyncTask(object):
 
 
 def _sync(pack):
-    # Python 2.6 is unable to handle this import on top of the file
-    # because it creates a circular dependency between tasks and cluster
-    from django_q.cluster import worker, monitor
-
     """Simulate a package travelling through the cluster."""
     task_queue = Queue()
     result_queue = Queue()
@@ -686,4 +683,8 @@ def _sync(pack):
     worker(task_queue, result_queue, Value('f', -1))
     result_queue.put('STOP')
     monitor(result_queue)
+    task_queue.close()
+    task_queue.join_thread()
+    result_queue.close()
+    result_queue.join_thread()
     return task['id']
