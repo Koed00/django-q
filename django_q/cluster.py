@@ -23,7 +23,6 @@ from multiprocessing import Event, Process, Value, current_process
 # Local
 from django_q import tasks
 from django_q.brokers import get_broker
-from django_q.compat import range
 from django_q.conf import Conf, logger, psutil, get_ppid, error_reporter, rollbar
 from django_q.models import Task, Success, Schedule
 from django_q.queues import Queue

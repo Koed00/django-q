@@ -11,7 +11,6 @@ myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
 from django_q.cluster import Cluster, Sentinel, pusher, worker, monitor, save_task
-from django_q.compat import range
 from django_q.humanhash import DEFAULT_WORDLIST, uuid
 from django_q.tasks import fetch, fetch_group, async_task, result, result_group, count_group, delete_group, queue_size
 from django_q.models import Task, Success

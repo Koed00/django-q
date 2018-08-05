@@ -3,7 +3,6 @@ from multiprocessing import Event, Value
 import pytest
 
 from django_q.cluster import pusher, worker, monitor
-from django_q.compat import range
 from django_q.conf import Conf
 from django_q.tasks import async_task, result, fetch, count_group, result_group, fetch_group, delete_group, delete_cached, \
     async_iter, Chain, async_chain, Iter, AsyncTask
