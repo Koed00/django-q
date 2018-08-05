@@ -66,3 +66,4 @@ db.sqlite3
 .idea
 djq
 node_modules
+.DS_Store
