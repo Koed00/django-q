@@ -2,9 +2,9 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from django_q.tasks import async_task
-from django_q.models import Success, Failure, Schedule, OrmQ
 from django_q.conf import Conf
+from django_q.models import Success, Failure, Schedule, OrmQ
+from django_q.tasks import async_task
 
 
 class TaskAdmin(admin.ModelAdmin):
@@ -19,7 +19,7 @@ class TaskAdmin(admin.ModelAdmin):
         'group'
     )
 
-    def has_add_permission(self, request, obj=None):
+    def has_add_permission(self, request):
         """Don't allow adds."""
         return False
 
@@ -59,7 +59,7 @@ class FailAdmin(admin.ModelAdmin):
         'result'
     )
 
-    def has_add_permission(self, request, obj=None):
+    def has_add_permission(self, request):
         """Don't allow adds."""
         return False
 
@@ -113,9 +113,10 @@ class QueueAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return super(QueueAdmin, self).get_queryset(request).using(Conf.ORM)
 
-    def has_add_permission(self, request, obj=None):
+    def has_add_permission(self, request):
         """Don't allow adds."""
         return False
+
 
 admin.site.register(Schedule, ScheduleAdmin)
 admin.site.register(Success, TaskAdmin)
