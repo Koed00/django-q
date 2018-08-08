@@ -1,4 +1,4 @@
-from multiprocessing import Event, Queue, Value
+from multiprocessing import Event, Value
 
 import pytest
 
@@ -8,6 +8,7 @@ from django_q.conf import Conf
 from django_q.tasks import async, result, fetch, count_group, result_group, fetch_group, delete_group, delete_cached, \
     async_iter, Chain, async_chain, Iter, Async
 from django_q.brokers import get_broker
+from django_q.queues import Queue
 
 
 @pytest.fixture

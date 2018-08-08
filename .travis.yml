@@ -9,9 +9,14 @@ python:
   - "3.6"
 
 env:
-    - DJANGO=1.11.6
-    - DJANGO=1.10.8
-    - DJANGO=1.8.18
+    - DJANGO=2.0
+    - DJANGO=1.11.11
+    - DJANGO=1.8.19
+
+matrix:
+  exclude:
+    - python: "2.7"
+      env: DJANGO=2.0
 
 sudo: false
 

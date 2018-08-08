@@ -1,7 +1,7 @@
 import logging
 from copy import deepcopy
 from signal import signal
-from multiprocessing import cpu_count, Queue
+from multiprocessing import cpu_count
 
 # django
 from django.utils.translation import ugettext_lazy as _
@@ -10,6 +10,9 @@ from django.conf import settings
 # external
 import os
 import pkg_resources
+
+# local
+from django_q.queues import Queue
 
 # optional
 try:
@@ -106,6 +109,11 @@ class Conf(object):
 
     # Number of seconds to wait for a worker to finish.
     TIMEOUT = conf.get('timeout', None)
+
+    # Whether to acknowledge unsuccessful tasks.
+    # This causes failed tasks to be considered delivered, thereby removing them from
+    # the task queue. Defaults to False.
+    ACK_FAILURES = conf.get('ack_failures', False)
 
     # Number of seconds to wait for acknowledgement before retrying a task
     # Only works with brokers that guarantee delivery. Defaults to 60 seconds.
@@ -216,10 +224,10 @@ if Conf.ERROR_REPORTER:
         # iterate through the configured error reporters,
         # and instantiate an ErrorReporter using the provided config
         for name, conf in error_conf.items():
-            Reporter = pkg_resources.iter_entry_points(
-                    'djangoq.errorreporters', name).load()
-            e = Reporter(**conf)
-            reporters.append(e)
+            for entry in pkg_resources.iter_entry_points(
+                    'djangoq.errorreporters', name):
+                Reporter = entry.load()
+                reporters.append(Reporter(**conf))
         error_reporter = ErrorReporter(reporters)
     except ImportError:
         error_reporter = None

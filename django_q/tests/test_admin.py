@@ -1,6 +1,9 @@
-from django.core.urlresolvers import reverse
-
+try:
+    from django.urls import reverse
+except ImportError: # Django < 1.10
+    from django.core.urlresolvers import reverse
 from django.utils import timezone
+
 import pytest
 
 from django_q.tasks import schedule

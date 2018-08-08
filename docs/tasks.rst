@@ -54,6 +54,10 @@ timeout
 """""""
 Overrides the cluster's timeout setting for this task.
 
+ack_failure
+"""""""""""
+Overrides the cluster's :ref:`ack_failures` setting for this task.
+
 sync
 """"
 Simulates a task execution synchronously. Useful for testing.
@@ -244,6 +248,7 @@ Reference
    :param str group: An optional group identifier
    :param int timeout: Overrides global cluster :ref:`timeout`.
    :param bool save: Overrides global save setting for this task.
+   :param bool ack_failure: Overrides the global :ref:`ack_failures` setting for this task.
    :param bool sync: If set to True, async will simulate a task execution
    :param cached: Output the result to the cache backend. Bool or timeout in seconds
    :param broker: Optional broker connection from :func:`brokers.get_broker`

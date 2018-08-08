@@ -59,6 +59,13 @@ timeout
 The number of seconds a worker is allowed to spend on a task before it's terminated. Defaults to ``None``, meaning it will never time out.
 Set this to something that makes sense for your project. Can be overridden for individual tasks.
 
+.. _ack_failures:
+
+ack_failures
+~~~~~~~~~~~~
+
+When set to ``True``, also acknowledge unsuccessful tasks. This causes failed tasks to be considered as successful deliveries, thereby removing them from the task queue. Can also be set per-task by passing the ``ack_failure`` option to :func:`async`. Defaults to ``False``.
+
 .. _retry:
 
 retry
@@ -229,7 +236,7 @@ All connection keywords are supported. See the `iron-mq <https://github.com/iron
 
 sqs
 ~~~
-To use Amazon SQS as a broker you need to provide the AWS region and credentials::
+To use Amazon SQS as a broker you need to provide the AWS region and credentials either via the config, or any other boto3 configuration method::
 
     # example SQS broker connection
 
@@ -241,9 +248,9 @@ To use Amazon SQS as a broker you need to provide the AWS region and credentials
         'queue_limit': 100,
         'bulk': 5,
         'sqs': {
-            'aws_region': 'us-east-1',
-            'aws_access_key_id': 'ac-Idr.....YwflZBaaxI',
-            'aws_secret_access_key': '500f7b....b0f302e9'
+            'aws_region': 'us-east-1',  # optional
+            'aws_access_key_id': 'ac-Idr.....YwflZBaaxI',  # optional
+            'aws_secret_access_key': '500f7b....b0f302e9'  # optional
         }
     }
 
