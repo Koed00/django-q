@@ -6,8 +6,8 @@
 #
 arrow==0.12.1
 blessed==1.15.0
-boto3==1.7.69
-botocore==1.10.69         # via boto3, s3transfer
+boto3==1.7.74
+botocore==1.10.74         # via boto3, s3transfer
 certifi==2018.4.16        # via requests
 chardet==3.0.4            # via requests
 django-picklefield==1.0.0
@@ -25,7 +25,7 @@ python-dateutil==2.7.3    # via arrow, botocore, iron-core
 pytz==2018.5              # via django
 redis==2.10.6
 requests==2.19.1          # via iron-core, rollbar
-rollbar==0.14.1
+rollbar==0.14.2
 s3transfer==0.1.13        # via boto3
 six==1.11.0               # via blessed, python-dateutil, rollbar
 urllib3==1.23             # via requests
