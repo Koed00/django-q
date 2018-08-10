@@ -24,9 +24,8 @@ pymongo==3.7.1
 python-dateutil==2.7.3    # via arrow, botocore, iron-core
 pytz==2018.5              # via django
 redis==2.10.6
-requests==2.19.1          # via iron-core, rollbar
-rollbar==0.14.2
+requests==2.19.1          # via iron-core
 s3transfer==0.1.13        # via boto3
-six==1.11.0               # via blessed, python-dateutil, rollbar
+six==1.11.0               # via blessed, python-dateutil
 urllib3==1.23             # via requests
 wcwidth==0.1.7            # via blessed

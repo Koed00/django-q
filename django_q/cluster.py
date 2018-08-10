@@ -23,7 +23,7 @@ from multiprocessing import Event, Process, Value, current_process
 # Local
 from django_q import tasks
 from django_q.brokers import get_broker
-from django_q.conf import Conf, logger, psutil, get_ppid, error_reporter, rollbar
+from django_q.conf import Conf, logger, psutil, get_ppid, error_reporter
 from django_q.models import Task, Success, Schedule
 from django_q.queues import Queue
 from django_q.signals import pre_execute
@@ -365,8 +365,6 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
                 result = (e, False)
                 if error_reporter:
                     error_reporter.report()
-                if rollbar:
-                    rollbar.report_exc_info()
         # We're still going
         if not result:
             db.close_old_connections()
@@ -382,8 +380,6 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
                 result = ('{} : {}'.format(e, traceback.format_exc()), False)
                 if error_reporter:
                     error_reporter.report()
-                if rollbar:
-                    rollbar.report_exc_info()
         # Process result
         task['result'] = result[0]
         task['success'] = result[1]
