@@ -34,8 +34,7 @@ class TaskAdmin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         """Set all fields readonly."""
-        return list(self.readonly_fields) + \
-               [field.name for field in obj._meta.fields]
+        return list(self.readonly_fields) + [field.name for field in obj._meta.fields]
 
 
 def retry_failed(FailAdmin, request, queryset):
@@ -56,7 +55,7 @@ class FailAdmin(admin.ModelAdmin):
         'func',
         'started',
         'stopped',
-        'result'
+        'short_result'
     )
 
     def has_add_permission(self, request):
@@ -70,8 +69,7 @@ class FailAdmin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         """Set all fields readonly."""
-        return list(self.readonly_fields) + \
-               [field.name for field in obj._meta.fields]
+        return list(self.readonly_fields) + [field.name for field in obj._meta.fields]
 
 
 class ScheduleAdmin(admin.ModelAdmin):
