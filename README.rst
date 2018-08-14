@@ -33,6 +33,8 @@ Requirements
 
 Tested with: Python 3.6. 3.7 Django 1.11.11 and 2.0.x
 
+.. warning:: Since Python 3.7 `async` became a reserved keyword and was refactored to `async_task`
+
 Brokers
 ~~~~~~~
 - `Redis <https://django-q.readthedocs.org/en/latest/brokers.html#redis>`__

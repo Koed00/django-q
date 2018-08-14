@@ -7,6 +7,9 @@ Tasks
 async_task()
 ------------
 
+.. warning:: Since Python 3.7 `async` became a reserved keyword and was refactored to `async_task`
+
+
 Use :func:`async_task` from your code to quickly offload tasks to the :class:`Cluster`:
 
 .. code:: python

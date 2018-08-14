@@ -26,6 +26,7 @@ Features
 
 Django Q is tested with: Python 3.6. 3.7 Django 1.11.11 LTS and 2.0.x
 
+
 Contents:
 
 .. toctree::
