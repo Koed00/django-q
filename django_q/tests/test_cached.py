@@ -3,10 +3,9 @@ from multiprocessing import Event, Value
 import pytest
 
 from django_q.cluster import pusher, worker, monitor
-from django_q.compat import range
 from django_q.conf import Conf
-from django_q.tasks import async, result, fetch, count_group, result_group, fetch_group, delete_group, delete_cached, \
-    async_iter, Chain, async_chain, Iter, Async
+from django_q.tasks import async_task, result, fetch, count_group, result_group, fetch_group, delete_group, delete_cached, \
+    async_iter, Chain, async_chain, Iter, AsyncTask
 from django_q.brokers import get_broker
 from django_q.queues import Queue
 
@@ -23,13 +22,13 @@ def test_cached(broker):
     broker.cache.clear()
     group = 'cache_test'
     # queue the tests
-    task_id = async('math.copysign', 1, -1, cached=True, broker=broker)
-    async('math.copysign', 1, -1, cached=True, broker=broker, group=group)
-    async('math.copysign', 1, -1, cached=True, broker=broker, group=group)
-    async('math.copysign', 1, -1, cached=True, broker=broker, group=group)
-    async('math.copysign', 1, -1, cached=True, broker=broker, group=group)
-    async('math.copysign', 1, -1, cached=True, broker=broker, group=group)
-    async('math.popysign', 1, -1, cached=True, broker=broker, group=group)
+    task_id = async_task('math.copysign', 1, -1, cached=True, broker=broker)
+    async_task('math.copysign', 1, -1, cached=True, broker=broker, group=group)
+    async_task('math.copysign', 1, -1, cached=True, broker=broker, group=group)
+    async_task('math.copysign', 1, -1, cached=True, broker=broker, group=group)
+    async_task('math.copysign', 1, -1, cached=True, broker=broker, group=group)
+    async_task('math.copysign', 1, -1, cached=True, broker=broker, group=group)
+    async_task('math.popysign', 1, -1, cached=True, broker=broker, group=group)
     iter_id = async_iter('math.floor', [i for i in range(10)], cached=True)
     # test wait on cache
     # test wait timeout
@@ -145,10 +144,10 @@ def test_chain(broker):
 
 
 @pytest.mark.django_db
-def test_async_class(broker, monkeypatch):
+def test_asynctask_class(broker, monkeypatch):
     broker.purge_queue()
     broker.cache.clear()
-    a = Async('math.copysign')
+    a = AsyncTask('math.copysign')
     assert a.func == 'math.copysign'
     a.args = (1, -1)
     assert a.started is False
@@ -162,11 +161,11 @@ def test_async_class(broker, monkeypatch):
     assert a.result() == -1
     assert a.fetch().result == -1
     # again with kwargs
-    a = Async('math.copysign', 1, -1, cached=True, sync=True, broker=broker)
+    a = AsyncTask('math.copysign', 1, -1, cached=True, sync=True, broker=broker)
     a.run()
     assert a.result() == -1
     # with q_options
-    a = Async('math.copysign', 1, -1, q_options={'cached': True, 'sync': False, 'broker': broker})
+    a = AsyncTask('math.copysign', 1, -1, q_options={'cached': True, 'sync': False, 'broker': broker})
     assert a.sync is False
     a.sync = True
     assert a.kwargs['q_options']['sync'] is True
@@ -185,6 +184,6 @@ def test_async_class(broker, monkeypatch):
     # global overrides
     monkeypatch.setattr(Conf, 'SYNC', True)
     monkeypatch.setattr(Conf, 'CACHED', True)
-    a = Async('math.floor', 1.5)
+    a = AsyncTask('math.floor', 1.5)
     a.run()
     assert a.result() == 1

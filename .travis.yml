@@ -5,20 +5,20 @@ services:
   - mongodb
 
 python:
-  - "2.7"
   - "3.6"
+  - "3.7"
 
 env:
-    - DJANGO=2.0
+    - DJANGO=2.1
     - DJANGO=1.11.11
-    - DJANGO=1.8.19
 
 matrix:
   exclude:
-    - python: "2.7"
-      env: DJANGO=2.0
+    - python: "3.7"
+      env: DJANGO=1.11.11
 
-sudo: false
+sudo: true
+dist: xenial
 
 addons:
   apt:

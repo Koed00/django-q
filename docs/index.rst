@@ -24,7 +24,7 @@ Features
 -  Rollbar and Sentry support
 
 
-Django Q is tested with: Python 2.7 & 3.6. Django 1.8.19 LTS, 1.11.11 and 2.0.x
+Django Q is tested with: Python 3.6. 3.7 Django 1.11.11 LTS and 2.0.x
 
 Contents:
 

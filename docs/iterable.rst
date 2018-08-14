@@ -10,7 +10,7 @@ If you have an iterable object with arguments for a function, you can use :func:
     # set up a list of arguments for math.floor
     iter = [i for i in range(100)]
 
-    # async iter them
+    # async_task iter them
     id=async_iter('math.floor',iter)
 
     # wait for the collated result for 1 second
@@ -48,7 +48,7 @@ Reference
 .. py:function:: async_iter(func, args_iter,**kwargs)
 
    Runs iterable arguments against the cache backend and returns a single collated result.
-   Accepts the same options as :func:`async` except ``hook``. See also the :class:`Iter` class.
+   Accepts the same options as :func:`async_task` except ``hook``. See also the :class:`Iter` class.
 
    :param object func: The task function to execute
    :param args: An iterable containing arguments for the task function

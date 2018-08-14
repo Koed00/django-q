@@ -64,7 +64,7 @@ Set this to something that makes sense for your project. Can be overridden for i
 ack_failures
 ~~~~~~~~~~~~
 
-When set to ``True``, also acknowledge unsuccessful tasks. This causes failed tasks to be considered as successful deliveries, thereby removing them from the task queue. Can also be set per-task by passing the ``ack_failure`` option to :func:`async`. Defaults to ``False``.
+When set to ``True``, also acknowledge unsuccessful tasks. This causes failed tasks to be considered as successful deliveries, thereby removing them from the task queue. Can also be set per-task by passing the ``ack_failure`` option to :func:`async_task`. Defaults to ``False``.
 
 .. _retry:
 
@@ -101,7 +101,7 @@ Guard loop sleep in seconds, must be greater than 0 and less than 60.
 sync
 ~~~~
 
-When set to ``True`` this configuration option forces all :func:`async` calls to be run with ``sync=True``.
+When set to ``True`` this configuration option forces all :func:`async_task` calls to be run with ``sync=True``.
 Effectively making everything synchronous. Useful for testing. Defaults to ``False``.
 
 .. _queue_limit:
@@ -379,25 +379,6 @@ To enable installed error reporters, you must provide the configuration settings
     }
 
 For more information on error reporters and developing error reporting plugins for Django Q, see :doc:`errors<errors>`.
-
-rollbar
-~~~~~~~
-You can redirect worker exceptions directly to your `Rollbar <https://rollbar.com/>`__ dashboard by installing the python notifier with ``pip install rollbar`` and adding this configuration dictionary to your config::
-
-    # rollbar config
-    Q_CLUSTER = {
-        'rollbar': {
-            'access_token': '32we33a92a5224jiww8982',
-            'environment': 'Django-Q'
-        }
-    }
-
-Please check the Pyrollbar `configuration reference <https://github.com/rollbar/pyrollbar#configuration-reference>`__ for more options.
-Note that you will need a `Rollbar <https://rollbar.com/>`__ account and access token to use this feature.
-
-
-.. note::
-    The ``rollbar`` setting is included for backwards compatibility, for those who utilized rollbar configuration before the ``error_reporter`` interface was introduced. Note that Rollbar support can be configured either via the ``rollbar`` setting, or via the ``django-q-rollbar`` package and enabled via the ``error_reporter`` setting above.
 
 cpu_affinity
 ~~~~~~~~~~~~

@@ -4,32 +4,31 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from time import sleep
+
+# external
+import arrow
+import ast
 # Standard
 import importlib
 import signal
 import socket
-import ast
-from time import sleep
-from multiprocessing import Event, Process, Value, current_process
-
-# external
-import arrow
-
+import traceback
 # Django
+from django import db
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from django import db
+from multiprocessing import Event, Process, Value, current_process
 
 # Local
 from django_q import tasks
-from django_q.compat import range
-from django_q.conf import Conf, logger, psutil, get_ppid, error_reporter, rollbar
+from django_q.brokers import get_broker
+from django_q.conf import Conf, logger, psutil, get_ppid, error_reporter
 from django_q.models import Task, Success, Schedule
+from django_q.queues import Queue
+from django_q.signals import pre_execute
 from django_q.signing import SignedPackage, BadSignature
 from django_q.status import Stat, Status
-from django_q.brokers import get_broker
-from django_q.signals import pre_execute
-from django_q.queues import Queue
 
 
 class Cluster(object):
@@ -287,7 +286,7 @@ def pusher(task_queue, event, broker=None):
         try:
             task_set = broker.dequeue()
         except Exception as e:
-            logger.error(e)
+            logger.error(e, traceback.format_exc())
             # broker probably crashed. Let the sentinel handle it.
             sleep(10)
             break
@@ -298,7 +297,7 @@ def pusher(task_queue, event, broker=None):
                 try:
                     task = SignedPackage.loads(task[1])
                 except (TypeError, BadSignature) as e:
-                    logger.error(e)
+                    logger.error(e, traceback.format_exc())
                     broker.fail(ack_id)
                     continue
                 task['ack_id'] = ack_id
@@ -366,8 +365,6 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
                 result = (e, False)
                 if error_reporter:
                     error_reporter.report()
-                if rollbar:
-                    rollbar.report_exc_info()
         # We're still going
         if not result:
             db.close_old_connections()
@@ -380,11 +377,9 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
                 res = f(*task['args'], **task['kwargs'])
                 result = (res, True)
             except Exception as e:
-                result = ('{}'.format(e), False)
+                result = ('{} : {}'.format(e, traceback.format_exc()), False)
                 if error_reporter:
                     error_reporter.report()
-                if rollbar:
-                    rollbar.report_exc_info()
         # Process result
         task['result'] = result[0]
         task['success'] = result[1]
@@ -405,7 +400,7 @@ def save_task(task, broker):
     # SAVE LIMIT < 0 : Don't save success
     if not task.get('save', Conf.SAVE_LIMIT >= 0) and task['success']:
         return
-    # async next in a chain
+    # enqueues next in a chain
     if task.get('chain', None):
         tasks.async_chain(task['chain'], group=task['group'], cached=task['cached'], sync=task['sync'], broker=broker)
     # SAVE LIMIT > 0: Prune database, SAVE_LIMIT 0: No pruning
@@ -473,7 +468,7 @@ def save_cached(task, broker):
             # save the group list
             group_list.append(task_key)
             broker.cache.set(group_key, group_list, timeout)
-            # async next in a chain
+            # async_task next in a chain
             if task.get('chain', None):
                 tasks.async_chain(task['chain'], group=group, cached=task['cached'], sync=task['sync'], broker=broker)
         # save the task
@@ -536,15 +531,15 @@ def scheduler(broker=None):
             q_options['broker'] = broker
             q_options['group'] = q_options.get('group', s.name or s.id)
             kwargs['q_options'] = q_options
-            s.task = tasks.async(s.func, *args, **kwargs)
+            s.task = tasks.async_task(s.func, *args, **kwargs)
             # log it
             if not s.task:
                 logger.error(
-                        _('{} failed to create a task from schedule [{}]').format(current_process().name,
-                                                                                  s.name or s.id))
+                    _('{} failed to create a task from schedule [{}]').format(current_process().name,
+                                                                              s.name or s.id))
             else:
                 logger.info(
-                        _('{} created a task from schedule [{}]').format(current_process().name, s.name or s.id))
+                    _('{} created a task from schedule [{}]').format(current_process().name, s.name or s.id))
             # default behavior is to delete a ONCE schedule
             if s.schedule_type == s.ONCE:
                 if s.repeats < 0:

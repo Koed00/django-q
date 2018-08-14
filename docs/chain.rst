@@ -6,13 +6,13 @@ Sometimes you want to run tasks sequentially. For that you can use the :func:`as
 
 .. code-block:: python
 
-    # Async a chain of tasks
+    # async a chain of tasks
     from django_q.tasks import async_chain, result_group
 
     # the chain must be in the format
     # [(func,(args),{kwargs}),(func,(args),{kwargs}),..]
     group_id = async_chain([('math.copysign', (1, -1)),
-                            ('math.floor', (1,))])
+                              ('math.floor', (1,))])
 
     # get group result
     result_group(group_id, count=2)
@@ -63,7 +63,7 @@ Reference
 
     .. py:method:: append(func, *args, **kwargs)
 
-    Append a task to the chain. Takes the same arguments as :func:`async`
+    Append a task to the chain. Takes the same arguments as :func:`async_task`
 
         :return: the current number of tasks in the chain
         :rtype: int

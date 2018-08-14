@@ -26,12 +26,12 @@ Features
 Requirements
 ~~~~~~~~~~~~
 
--  `Django <https://www.djangoproject.com>`__ > = 1.8
+-  `Django <https://www.djangoproject.com>`__ > = 1.11.11
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
 -  `Arrow <https://github.com/crsmithdev/arrow>`__
 -  `Blessed <https://github.com/jquast/blessed>`__
 
-Tested with: Python 2.7 & 3.6. Django 1.8.19, 1.11.11 and 2.0.x
+Tested with: Python 3.6. 3.7 Django 1.11.11 and 2.0.x
 
 Brokers
 ~~~~~~~
@@ -110,19 +110,19 @@ Check overall statistics with::
 Creating Tasks
 ~~~~~~~~~~~~~~
 
-Use `async` from your code to quickly offload tasks:
+Use `async_task` from your code to quickly offload tasks:
 
 .. code:: python
 
-    from django_q.tasks import async, result
+    from django_q.tasks import async_task, result
 
     # create the task
-    async('math.copysign', 2, -2)
+    async_task('math.copysign', 2, -2)
 
     # or with a reference
     import math.copysign
 
-    task_id = async(copysign, 2, -2)
+    task_id = async_task(copysign, 2, -2)
 
     # get the result
     task_result = result(task_id)
@@ -133,7 +133,7 @@ Use `async` from your code to quickly offload tasks:
 
     # but in most cases you will want to use a hook:
 
-    async('math.modf', 2.5, hook='hooks.print_result')
+    async_task('math.modf', 2.5, hook='hooks.print_result')
 
     # hooks.py
     def print_result(task):

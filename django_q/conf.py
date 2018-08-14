@@ -150,9 +150,6 @@ class Conf(object):
     # The redis stats key
     Q_STAT = 'django_q:{}:cluster'.format(PREFIX)
 
-    # Optional rollbar key
-    ROLLBAR = conf.get('rollbar', {})
-
     # Optional error reporting setup
     ERROR_REPORTER = conf.get('error_reporter', {})
 
@@ -188,19 +185,6 @@ if not logger.handlers:
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-
-
-# rollbar
-if Conf.ROLLBAR:
-    rollbar_conf = deepcopy(Conf.ROLLBAR)
-    try:
-        import rollbar
-        rollbar.init(rollbar_conf.pop('access_token'), environment=rollbar_conf.pop('environment'), **rollbar_conf)
-    except ImportError:
-        rollbar = None
-
-else:
-    rollbar = None
 
 
 # Error Reporting Interface

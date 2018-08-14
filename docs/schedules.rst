@@ -27,7 +27,7 @@ You can manage them through the :ref:`admin_page` or directly from your code wit
                             schedule_type=Schedule.DAILY
                             )
 
-    # In case you want to use async options
+    # In case you want to use q_options
     schedule('math.sqrt',
              9,
              hook='hooks.print_result',
@@ -103,7 +103,7 @@ Reference
     :param int minutes: Number of minutes for the Minutes type.
     :param int repeats: Number of times to repeat schedule. -1=Always, 0=Never, n =n.
     :param datetime next_run: Next or first scheduled execution datetime.
-    :param dict q_options: async options to use for this schedule
+    :param dict q_options: options passed to async_task for this schedule
     :param kwargs: optional keyword arguments for the scheduled function.
 
 .. class:: Schedule

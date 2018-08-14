@@ -1,26 +1,28 @@
 """Provides task functionality."""
 # Standard
 from time import sleep, time
-from multiprocessing import Value
 
 # django
 from django.db import IntegrityError
 from django.utils import timezone
+from multiprocessing import Value
 
-# local
-from django_q.signing import SignedPackage
-from django_q.conf import Conf, logger
-from django_q.models import Schedule, Task
-from django_q.humanhash import uuid
 from django_q.brokers import get_broker
-from django_q.signals import pre_enqueue
+# local
+from django_q.cluster import worker, monitor
+from django_q.conf import Conf, logger
+from django_q.humanhash import uuid
+from django_q.models import Schedule, Task
 from django_q.queues import Queue
+from django_q.signals import pre_enqueue
+from django_q.signing import SignedPackage
 
 
-def async(func, *args, **kwargs):
+def async_task(func, *args, **kwargs):
     """Queue a task for the cluster."""
     keywords = kwargs.copy()
-    opt_keys = ('hook', 'group', 'save', 'sync', 'cached', 'ack_failure', 'iter_count', 'iter_cached', 'chain', 'broker')
+    opt_keys = (
+    'hook', 'group', 'save', 'sync', 'cached', 'ack_failure', 'iter_count', 'iter_cached', 'chain', 'broker')
     q_options = keywords.pop('q_options', {})
     # get an id
     tag = uuid()
@@ -392,7 +394,7 @@ def queue_size(broker=None):
 
 def async_iter(func, args_iter, **kwargs):
     """
-    async a function with iterable arguments
+    enqueues a function with iterable arguments
     """
     iter_count = len(args_iter)
     iter_group = uuid()[1]
@@ -409,15 +411,15 @@ def async_iter(func, args_iter, **kwargs):
     broker = options['broker']
     broker.cache.set('{}:{}:args'.format(broker.list_key, iter_group), SignedPackage.dumps(args_iter))
     for args in args_iter:
-        if type(args) is not tuple:
+        if not isinstance(args, tuple):
             args = (args,)
-        async(func, *args, **options)
+        async_task(func, *args, **options)
     return iter_group
 
 
 def async_chain(chain, group=None, cached=Conf.CACHED, sync=Conf.SYNC, broker=None):
     """
-    async a chain of tasks
+    enqueues a chain of tasks
     the chain must be in the format [(func,(args),{kwargs}),(func,(args),{kwargs})]
     """
     if not group:
@@ -436,7 +438,7 @@ def async_chain(chain, group=None, cached=Conf.CACHED, sync=Conf.SYNC, broker=No
     kwargs['cached'] = cached
     kwargs['sync'] = sync
     kwargs['broker'] = broker or get_broker()
-    async(task[0], *args, **kwargs)
+    async_task(task[0], *args, **kwargs)
     return group
 
 
@@ -518,7 +520,7 @@ class Chain(object):
     def append(self, func, *args, **kwargs):
         """
         add a task to the chain
-        takes the same parameters as async()
+        takes the same parameters as async_task()
         """
         self.chain.append((func, args, kwargs))
         # remove existing results
@@ -573,7 +575,7 @@ class Chain(object):
         return len(self.chain)
 
 
-class Async(object):
+class AsyncTask(object):
     """
     an async task
     """
@@ -647,7 +649,7 @@ class Async(object):
             return self.kwargs.get(key, default)
 
     def run(self):
-        self.id = async(self.func, *self.args, **self.kwargs)
+        self.id = async_task(self.func, *self.args, **self.kwargs)
         self.started = True
         return self.id
 
@@ -673,10 +675,6 @@ class Async(object):
 
 
 def _sync(pack):
-    # Python 2.6 is unable to handle this import on top of the file
-    # because it creates a circular dependency between tasks and cluster
-    from django_q.cluster import worker, monitor
-
     """Simulate a package travelling through the cluster."""
     task_queue = Queue()
     result_queue = Queue()
@@ -686,4 +684,8 @@ def _sync(pack):
     worker(task_queue, result_queue, Value('f', -1))
     result_queue.put('STOP')
     monitor(result_queue)
+    task_queue.close()
+    task_queue.join_thread()
+    result_queue.close()
+    result_queue.join_thread()
     return task['id']

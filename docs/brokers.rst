@@ -140,7 +140,7 @@ You can override this class if you want to contribute and support your own broke
 
 .. py:class:: Broker
 
-   .. py:method:: enqueue(task)
+   .. py:method:: async_task(task)
 
       Sends a task package to the broker queue and returns a tracking id if available.
 
