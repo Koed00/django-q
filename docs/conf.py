@@ -134,8 +134,6 @@ html_theme_options = {
     'logo': 'logo.png',
     'github_user': 'Koed00',
     'github_repo': 'django-q',
-    'gittip_user': 'koed00',
-    'gratipay_user': 'koed00',
     'github_banner': True,
     'travis_button': True,
     'analytics_id': 'UA-64807059-1'
@@ -146,7 +144,6 @@ html_sidebars = {
         'navigation.html',
         'relations.html',
         'searchbox.html',
-        'donate.html',
     ]
 }
 # Add any paths that contain custom themes here, relative to this directory.
