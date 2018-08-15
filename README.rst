@@ -189,6 +189,12 @@ Testing
 To run the tests you will need `py.test <http://pytest.org/latest/>`__ and `pytest-django <https://github.com/pytest-dev/pytest-django>`__
 
 
+Locale
+~~~~~~
+
+Currently available in English and French.
+Translation pull requests are always welcome.
+
 Todo
 ~~~~
 
