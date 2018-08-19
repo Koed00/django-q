@@ -6,8 +6,8 @@
 #
 arrow==0.12.1
 blessed==1.15.0
-boto3==1.7.78
-botocore==1.10.78         # via boto3, s3transfer
+boto3==1.7.80
+botocore==1.10.80         # via boto3, s3transfer
 certifi==2018.8.13        # via requests
 chardet==3.0.4            # via requests
 django-picklefield==1.0.0
