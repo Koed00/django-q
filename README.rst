@@ -31,7 +31,7 @@ Requirements
 -  `Arrow <https://github.com/crsmithdev/arrow>`__
 -  `Blessed <https://github.com/jquast/blessed>`__
 
-Tested with: Python 3.6. 3.7 Django 1.11.11 and 2.0.x
+Tested with: Python 3.6. 3.7 Django 1.11.x and 2.1.x
 
 .. warning:: Since Python 3.7 `async` became a reserved keyword and was refactored to `async_task`
 
