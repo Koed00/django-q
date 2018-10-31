@@ -6,26 +6,26 @@
 #
 arrow==0.12.1
 blessed==1.15.0
-boto3==1.8.3
-botocore==1.11.3          # via boto3, s3transfer
-certifi==2018.8.24        # via requests
+boto3==1.9.34
+botocore==1.12.34         # via boto3, s3transfer
+certifi==2018.10.15       # via requests
 chardet==3.0.4            # via requests
 django-picklefield==1.1.0
 django-redis==4.9.0
-django==2.1               # via django-redis
+django==2.1.2             # via django-redis
 docutils==0.14            # via botocore
 hiredis==0.2.0
 idna==2.7                 # via requests
 iron-core==1.2.0          # via iron-mq
 iron-mq==0.9
 jmespath==0.9.3           # via boto3, botocore
-psutil==5.4.7
-pymongo==3.7.1
-python-dateutil==2.7.3    # via arrow, botocore, iron-core
-pytz==2018.5              # via django
+psutil==5.4.8
+pymongo==3.7.2
+python-dateutil==2.7.5    # via arrow, botocore, iron-core
+pytz==2018.7              # via django
 redis==2.10.6
-requests==2.19.1          # via iron-core
+requests==2.20.0          # via iron-core
 s3transfer==0.1.13        # via boto3
 six==1.11.0               # via blessed, python-dateutil
-urllib3==1.23             # via botocore, requests
+urllib3==1.24             # via botocore, requests
 wcwidth==0.1.7            # via blessed
