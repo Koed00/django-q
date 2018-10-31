@@ -32,7 +32,7 @@ Django Q is tested for Python 3.6 and 3.7
 -  `Django <https://www.djangoproject.com>`__
 
     Django Q aims to use as much of Django's standard offerings as possible
-    The code is tested against Django versions `1.11.11 LTS` and `2.0.x`.
+    The code is tested against Django versions `1.11.x LTS` and `2.1.x`.
     Please note that Django versions below 2.0 do not support Python 3.7
 
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
@@ -88,8 +88,8 @@ Optional
 
 
 
-Extras
-------
+Add-ons
+-------
 - `django-q-rollbar <https://github.com/danielwelch/django-q-rollbar>`__ is a Rollbar error reporter::
 
     $ pip install django-q[rollbar]
@@ -97,6 +97,8 @@ Extras
 - `django-q-sentry <https://github.com/danielwelch/django-q-sentry>`__ is a Sentry error reporter::
 
     $ pip install django-q[sentry]
+
+- `django-q-email <https://github.com/joeyespo/django-q-email>`__ is a compatible Django email backend that will automatically async queue your emails.
 
 Compatibility
 -------------
@@ -140,7 +142,7 @@ You can reference the `requirements <https://github.com/Koed00/django-q/blob/mas
 Django
 ~~~~~~
 We strive to be compatible with last two major version of Django.
-At the moment this means we support the 1.11.11 and 2.0.x releases.
+At the moment this means we support the 1.11.x and 2.1.x releases.
 
 Since we are now no longer supporting Python 2, we can also not support older versions of Django that do not support Python 3.
 For this you can always use the pre 1.0 release, but it's no longer maintained.
