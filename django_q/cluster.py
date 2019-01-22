@@ -368,7 +368,7 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
         # We're still going
         if not result:
             db.close_old_connections()
-            timer_value = task['kwargs'].pop('timeout', timeout or 0)
+            timer_value = task.pop('timeout', timeout or 0)
             # signal execution
             pre_execute.send(sender="django_q", func=f, task=task)
             # execute the payload
