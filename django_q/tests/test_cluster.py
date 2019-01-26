@@ -252,7 +252,7 @@ def test_timeout(broker, cluster_config_timeout, async_task_kwargs):
     # set up the Sentinel
     broker.list_key = 'timeout_test:q'
     broker.purge_queue()
-    async_task('django_q.tests.tasks.count_forever', broker=broker, **async_task_kwargs)
+    async_task('time.sleep', 5, broker=broker, **async_task_kwargs)
     start_event = Event()
     stop_event = Event()
     # Set a timer to stop the Sentinel
