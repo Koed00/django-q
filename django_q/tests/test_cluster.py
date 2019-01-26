@@ -244,32 +244,20 @@ def test_enqueue(broker, admin_user):
 
 
 @pytest.mark.django_db
-def test_timeout(broker):
+@pytest.mark.parametrize('cluster_config_timeout, async_task_kwargs', (
+    (1, {}),
+    (10, {'timeout': 1}),
+))
+def test_timeout(broker, cluster_config_timeout, async_task_kwargs):
     # set up the Sentinel
     broker.list_key = 'timeout_test:q'
     broker.purge_queue()
-    async_task('django_q.tests.tasks.count_forever', broker=broker)
+    async_task('django_q.tests.tasks.count_forever', broker=broker, **async_task_kwargs)
     start_event = Event()
     stop_event = Event()
     # Set a timer to stop the Sentinel
     threading.Timer(3, stop_event.set).start()
-    s = Sentinel(stop_event, start_event, broker=broker, timeout=1)
-    assert start_event.is_set()
-    assert s.status() == Conf.STOPPED
-    assert s.reincarnations == 1
-    broker.delete_queue()
-
-
-@pytest.mark.django_db
-def test_timeout_override(broker):
-    # set up the Sentinel
-    broker.list_key = 'timeout_override_test:q'
-    async_task('django_q.tests.tasks.count_forever', broker=broker, timeout=1)
-    start_event = Event()
-    stop_event = Event()
-    # Set a timer to stop the Sentinel
-    threading.Timer(3, stop_event.set).start()
-    s = Sentinel(stop_event, start_event, broker=broker, timeout=10)
+    s = Sentinel(stop_event, start_event, broker=broker, timeout=cluster_config_timeout)
     assert start_event.is_set()
     assert s.status() == Conf.STOPPED
     assert s.reincarnations == 1
