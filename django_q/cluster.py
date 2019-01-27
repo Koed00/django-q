@@ -172,7 +172,7 @@ class Sentinel(object):
         else:
             self.pool.remove(process)
             self.spawn_worker()
-            if self.timeout and int(process.timer.value) == 0:
+            if process.timer.value == 0:
                 # only need to terminate on timeout, otherwise we risk destabilizing the queues
                 process.terminate()
                 logger.warn(_("reincarnated worker {} after timeout").format(process.name))
@@ -210,11 +210,11 @@ class Sentinel(object):
             # Check Workers
             for p in self.pool:
                 # Are you alive?
-                if not p.is_alive() or (self.timeout and p.timer.value == 0):
+                if not p.is_alive() or p.timer.value == 0:
                     self.reincarnate(p)
                     continue
                 # Decrement timer if work is being done
-                if self.timeout and p.timer.value > 0:
+                if p.timer.value > 0:
                     p.timer.value -= cycle
             # Check Monitor
             if not self.monitor.is_alive():
@@ -347,6 +347,8 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
     name = current_process().name
     logger.info(_('{} ready for work at {}').format(name, current_process().pid))
     task_count = 0
+    if timeout is None:
+        timeout = -1
     # Start reading the task queue
     for task in iter(task_queue.get, 'STOP'):
         result = None
@@ -368,7 +370,7 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
         # We're still going
         if not result:
             db.close_old_connections()
-            timer_value = task['kwargs'].pop('timeout', timeout or 0)
+            timer_value = task['kwargs'].pop('timeout', timeout)
             # signal execution
             pre_execute.send(sender="django_q", func=f, task=task)
             # execute the payload

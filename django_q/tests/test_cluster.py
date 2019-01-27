@@ -247,6 +247,7 @@ def test_enqueue(broker, admin_user):
 @pytest.mark.parametrize('cluster_config_timeout, async_task_kwargs', (
     (1, {}),
     (10, {'timeout': 1}),
+    (None, {'timeout': 1}),
 ))
 def test_timeout(broker, cluster_config_timeout, async_task_kwargs):
     # set up the Sentinel
@@ -269,6 +270,7 @@ def test_timeout(broker, cluster_config_timeout, async_task_kwargs):
     (5, {}),
     (10, {'timeout': 5}),
     (1, {'timeout': 5}),
+    (None, {'timeout': 5}),
 ))
 def test_timeout_task_finishes(broker, cluster_config_timeout, async_task_kwargs):
     # set up the Sentinel
