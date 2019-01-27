@@ -21,7 +21,7 @@ from django.utils.translation import ugettext_lazy as _
 from multiprocessing import Event, Process, Value, current_process
 
 # Local
-from django_q import tasks
+import django_q.tasks
 from django_q.brokers import get_broker
 from django_q.conf import Conf, logger, psutil, get_ppid, error_reporter
 from django_q.models import Task, Success, Schedule
@@ -404,7 +404,7 @@ def save_task(task, broker):
         return
     # enqueues next in a chain
     if task.get('chain', None):
-        tasks.async_chain(task['chain'], group=task['group'], cached=task['cached'], sync=task['sync'], broker=broker)
+        django_q.tasks.async_chain(task['chain'], group=task['group'], cached=task['cached'], sync=task['sync'], broker=broker)
     # SAVE LIMIT > 0: Prune database, SAVE_LIMIT 0: No pruning
     db.close_old_connections()
     try:
@@ -472,7 +472,7 @@ def save_cached(task, broker):
             broker.cache.set(group_key, group_list, timeout)
             # async_task next in a chain
             if task.get('chain', None):
-                tasks.async_chain(task['chain'], group=group, cached=task['cached'], sync=task['sync'], broker=broker)
+                django_q.tasks.async_chain(task['chain'], group=group, cached=task['cached'], sync=task['sync'], broker=broker)
         # save the task
         broker.cache.set(task_key,
                          SignedPackage.dumps(task),
@@ -533,7 +533,7 @@ def scheduler(broker=None):
             q_options['broker'] = broker
             q_options['group'] = q_options.get('group', s.name or s.id)
             kwargs['q_options'] = q_options
-            s.task = tasks.async_task(s.func, *args, **kwargs)
+            s.task = django_q.tasks.async_task(s.func, *args, **kwargs)
             # log it
             if not s.task:
                 logger.error(
