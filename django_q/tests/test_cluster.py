@@ -265,6 +265,28 @@ def test_timeout(broker, cluster_config_timeout, async_task_kwargs):
 
 
 @pytest.mark.django_db
+@pytest.mark.parametrize('cluster_config_timeout, async_task_kwargs', (
+    (5, {}),
+    (10, {'timeout': 5}),
+    (1, {'timeout': 5}),
+))
+def test_timeout_task_finishes(broker, cluster_config_timeout, async_task_kwargs):
+    # set up the Sentinel
+    broker.list_key = 'timeout_test:q'
+    broker.purge_queue()
+    async_task('time.sleep', 3, broker=broker, **async_task_kwargs)
+    start_event = Event()
+    stop_event = Event()
+    # Set a timer to stop the Sentinel
+    threading.Timer(6, stop_event.set).start()
+    s = Sentinel(stop_event, start_event, broker=broker, timeout=cluster_config_timeout)
+    assert start_event.is_set()
+    assert s.status() == Conf.STOPPED
+    assert s.reincarnations == 0
+    broker.delete_queue()
+
+
+@pytest.mark.django_db
 def test_recycle(broker, monkeypatch):
     # set up the Sentinel
     broker.list_key = 'test_recycle_test:q'
