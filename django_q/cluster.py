@@ -209,13 +209,14 @@ class Sentinel(object):
         while not self.stop_event.is_set() or not counter:
             # Check Workers
             for p in self.pool:
-                # Are you alive?
-                if not p.is_alive() or p.timer.value == 0:
-                    self.reincarnate(p)
-                    continue
-                # Decrement timer if work is being done
-                if p.timer.value > 0:
-                    p.timer.value -= cycle
+                with p.timer.get_lock():
+                    # Are you alive?
+                    if not p.is_alive() or p.timer.value == 0:
+                        self.reincarnate(p)
+                        continue
+                    # Decrement timer if work is being done
+                    if p.timer.value > 0:
+                        p.timer.value -= cycle
             # Check Monitor
             if not self.monitor.is_alive():
                 self.reincarnate(self.monitor)
@@ -382,16 +383,17 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
                 result = ('{} : {}'.format(e, traceback.format_exc()), False)
                 if error_reporter:
                     error_reporter.report()
-        # Process result
-        task['result'] = result[0]
-        task['success'] = result[1]
-        task['stopped'] = timezone.now()
-        result_queue.put(task)
-        timer.value = -1  # Idle
-        # Recycle
-        if task_count == Conf.RECYCLE:
-            timer.value = -2  # Recycled
-            break
+        with timer.get_lock():
+            # Process result
+            task['result'] = result[0]
+            task['success'] = result[1]
+            task['stopped'] = timezone.now()
+            result_queue.put(task)
+            timer.value = -1  # Idle
+            # Recycle
+            if task_count == Conf.RECYCLE:
+                timer.value = -2  # Recycled
+                break
     logger.info(_('{} stopped doing work').format(name))
 
 
