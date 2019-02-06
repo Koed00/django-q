@@ -57,6 +57,8 @@ timeout
 """""""
 Overrides the cluster's timeout setting for this task.
 
+See :ref:`retry` for details how to set values for timeout.
+
 ack_failure
 """""""""""
 Overrides the cluster's :ref:`ack_failures` setting for this task.

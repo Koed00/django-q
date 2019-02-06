@@ -59,6 +59,8 @@ timeout
 The number of seconds a worker is allowed to spend on a task before it's terminated. Defaults to ``None``, meaning it will never time out.
 Set this to something that makes sense for your project. Can be overridden for individual tasks.
 
+See :ref:`retry` for details how to set values for timeout and retry.
+
 .. _ack_failures:
 
 ack_failures
@@ -73,6 +75,37 @@ retry
 
 The number of seconds a broker will wait for a cluster to finish a task, before it's presented again.
 Only works with brokers that support delivery receipts. Defaults to 60 seconds.
+
+The value must be bigger than the time it takes to complete longest task, i.e. :ref:`timeout` must be less than retry value and all tasks must complete
+in less time than the selected retry time. If this does not hold, i.e. the retry value is less than timeout or less than it takes to finish a task,
+Django-Q will start the task again if the used broker supports receipts.
+
+For example, with the following code
+
+.. code:: python
+
+   # settings.py
+   Q_CLUSTER = {
+      'retry': 5
+      'workers': 4,
+      'orm': 'default',
+   }
+
+   # example.py
+
+   from django_q.tasks import async_task
+
+   async_task('time.sleep', 22)
+
+First, ``time.sleep`` is called by the first worker. After 5 seconds second worker will also call ``time.sleep`` because retry time has exceeded and the
+broker return the task again for the cluster. After 21 seconds from the call to ``async_task`` all four workers are running the ``time.sleep(22)`` call
+and there is one retry in queue; tasks are started after 0, 5, 10, 15 and 20 seconds after the ``async_task`` was called. After 22 seconds the first
+worker completes and the task is acknowledged in the broker and the task is not added to task queue anymore but the task that was already in the run queue
+will run also. So in this example, ``time.sleep`` was called 5 times.
+
+Note also that the above issue might cause all workers to run the same long running task preventing new tasks from starting shortly after the task has been
+started by ``async_task``. In this case the retry time handling could cause the task that has not been started by any worker to be put on work queue again
+(even multiple times).
 
 compress
 ~~~~~~~~
