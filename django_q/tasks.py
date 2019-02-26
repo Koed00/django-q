@@ -9,7 +9,7 @@ from multiprocessing import Value
 
 from django_q.brokers import get_broker
 # local
-from django_q.cluster import worker, monitor
+from django_q.cluster import *
 from django_q.conf import Conf, logger
 from django_q.humanhash import uuid
 from django_q.models import Schedule, Task
