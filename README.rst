@@ -211,13 +211,13 @@ python -m venv .venv
 
 
 # Run required services (you need to have docker-compose installed)
-docker-compose -f test-services-docker-compose.yaml up -d
+docker-compose --project-name django-q -f test-services-docker-compose.yaml up -d
 
 # Run tests
 .venv/bin/pytest
 
 # Stop the services required by tests (when you no longer plan to run tests)
-docker-compose -f test-services-docker-compose.yaml down
+docker-compose --project-name django-q -f test-services-docker-compose.yaml down
 
 ```
 
