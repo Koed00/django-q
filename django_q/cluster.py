@@ -410,8 +410,9 @@ def save_task(task, broker):
     # SAVE LIMIT > 0: Prune database, SAVE_LIMIT 0: No pruning
     db.close_old_connections()
     try:
-        if task['success'] and 0 < Conf.SAVE_LIMIT <= Success.objects.count():
-            Success.objects.last().delete()
+        # race condition in original code, fixed below
+        #if task['success'] and 0 < Conf.SAVE_LIMIT <= Success.objects.count():
+        #    Success.objects.last().delete()
         # check if this task has previous results
         if Task.objects.filter(id=task['id'], name=task['name']).exists():
             existing_task = Task.objects.get(id=task['id'], name=task['name'])
@@ -434,6 +435,31 @@ def save_task(task, broker):
                                 group=task.get('group'),
                                 success=task['success']
                                 )
+        # fix for multiple clusters: clean old successful tasks after succeeding a new one
+        # with a separate solution for MySQL (to avoid limit in subquery)
+        if db.connection.vendor == 'mysql':
+            with db.connection.cursor() as cursor:
+                cursor.execute(
+                    '''
+                        DELETE  d
+                        FROM    django_q_task AS d
+                        LEFT JOIN
+                                (
+                                SELECT  id
+                                FROM    django_q_task
+                                WHERE success IS TRUE
+                                ORDER BY
+                                        stopped DESC
+                                LIMIT %s
+                                ) AS q
+                        ON      d.id = q.id
+                        WHERE   d.success IS TRUE AND q.id IS NULL
+                    ''',
+                    [Conf.SAVE_LIMIT]
+                )
+        else:
+            Success.objects.exclude(id__in=Success.objects.all()[:Conf.SAVE_LIMIT]).delete()
+
     except Exception as e:
         logger.error(e)
 
@@ -489,8 +515,13 @@ def scheduler(broker=None):
     """
     if not broker:
         broker = get_broker()
+    key = 'django_q:{}:scheduler'.format(Conf.PREFIX)
+    import uuid
+    value = uuid.uuid1().hex
     db.close_old_connections()
     try:
+        if not broker.cache.add(key, value, Conf.TIMEOUT):
+            return
         for s in Schedule.objects.exclude(repeats=0).filter(next_run__lt=timezone.now()):
             args = ()
             kwargs = {}
@@ -555,6 +586,9 @@ def scheduler(broker=None):
             s.save()
     except Exception as e:
         logger.error(e)
+    finally:
+        if broker.cache.get(key) == value:
+            broker.cache.delete(key)
 
 
 def set_cpu_affinity(n, process_ids, actual=not Conf.TESTING):
