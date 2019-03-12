@@ -203,7 +203,6 @@ class Sentinel(object):
         self.start_event.set()
         Stat(self).save()
         logger.info(_('Q Cluster-{} running.').format(self.parent_pid))
-        scheduler(broker=self.broker)
         counter = 0
         cycle = Conf.GUARD_CYCLE  # guard loop sleep in seconds
         # Guard loop. Runs at least once
