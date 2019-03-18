@@ -1,4 +1,5 @@
 import logging
+import importlib
 from copy import deepcopy
 from signal import signal
 from multiprocessing import cpu_count
@@ -97,6 +98,13 @@ class Conf(object):
 
     # Option to undaemonize the workers and allow them to spawn child processes
     DAEMONIZE_WORKERS = conf.get('daemonize_workers', True)
+
+    # Makes possible to decorate all task functions similarly
+    WORKER_FUNC_DECORATOR = conf.get('worker_func_decorator', None)
+    if WORKER_FUNC_DECORATOR:
+        module, func = WORKER_FUNC_DECORATOR.rsplit('.', 1)
+        m = importlib.import_module(module)
+        WORKER_FUNC_DECORATOR = getattr(m, func)
 
     # Maximum number of tasks that each cluster can work on
     QUEUE_LIMIT = conf.get('queue_limit', int(WORKERS) ** 2)

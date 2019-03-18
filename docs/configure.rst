@@ -46,6 +46,13 @@ daemonize_workers
 Set the daemon flag when spawning workers. You may need to disable this flag if your worker needs to spawn child process but be careful with orphaned child processes in case of sudden termination of the main process.
 Defaults to ``True``.
 
+worker_func_decorator
+~~~~~~~~~~~~~~~~~~~~~
+
+Can be used to decorate all task functions before calling. Should be a string in the form 'package.module.my_function'.
+The function gets ``func`` as parameter and must return decorated function.
+Defaults to ``None``.
+
 recycle
 ~~~~~~~
 
