@@ -196,30 +196,29 @@ To run the tests you will need the following in addition to install requirements
 
 The following commands can be used to run the tests:
 
-```
-# Create virtual environment
-python -m venv venv
+.. code::
 
-# Install requirements
-venv/bin/pip install -r requirements.txt
+    # Create virtual environment
+    python -m venv venv
 
-# Install test dependencies
-venv/bin/pip install pytest pytest-django
+    # Install requirements
+    venv/bin/pip install -r requirements.txt
 
-# Install django-q
-venv/bin/python setup.py develop
+    # Install test dependencies
+    venv/bin/pip install pytest pytest-django
+
+    # Install django-q
+    venv/bin/python setup.py develop
 
 
-# Run required services (you need to have docker-compose installed)
-docker-compose -f test-services-docker-compose.yaml up -d
+    # Run required services (you need to have docker-compose installed)
+    docker-compose -f test-services-docker-compose.yaml up -d
 
-# Run tests
-venv/bin/pytest
+    # Run tests
+    venv/bin/pytest
 
-# Stop the services required by tests (when you no longer plan to run tests)
-docker-compose -f test-services-docker-compose.yaml down
-
-```
+    # Stop the services required by tests (when you no longer plan to run tests)
+    docker-compose -f test-services-docker-compose.yaml down
 
 
 Locale
