@@ -112,11 +112,9 @@ def test_disque(monkeypatch):
         broker.get_connection()
 
 
-@pytest.mark.skipif(not os.getenv('IRON_MQ_TOKEN'),
-                    reason="requires IronMQ credentials")
-def test_ironmq(monkeypatch):
-    monkeypatch.setattr(Conf, 'IRON_MQ', {'token': os.getenv('IRON_MQ_TOKEN'),
-                                          'project_id': os.getenv('IRON_MQ_PROJECT_ID')})
+def test_ironmq(ironmq_config, monkeypatch):
+    monkeypatch.setattr(Conf, 'IRON_MQ', ironmq_config)
+
     # check broker
     broker = get_broker(list_key=uuid()[0])
     assert broker.ping() is True

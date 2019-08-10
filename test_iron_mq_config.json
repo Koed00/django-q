@@ -1,0 +1,45 @@
+{
+  "license": {
+    "description": "This is your license key provided by Iron.io",
+    "key": "abcdef123456"
+  },
+  "api": {
+    "http_port": 8080
+  },
+  "auth": {
+    "host": "http://ironauth:8090"
+  },
+  "logging": {
+    "to": "",
+    "level": "info",
+    "prefix": ""
+  },
+  "push" : {
+    "api_host": "http://localhost:8080",
+    "base_url": "http://localhost:8080",
+    "auth_token":"adminToken"
+  },
+  "data": {
+    "aes_key_description": "Key for generating id's.",
+    "aes_key": "770A8A65DA156D24EE2A093277530142",
+    "dir_description": "Where data files will be stored",
+    "dir": "../data",
+    "cache_size_description": "Size of cache in MB -- don't get carried away",
+    "cache_size": 128
+  },
+  "stats": {
+    "interval":0,
+    "DataDog" : {
+      "target": "",
+      "threshold":0
+    },
+    "NewRelic" : {
+        "license_key" : ""
+    },
+    "stathat":{
+      "email":"",
+      "prefix":""
+    },
+    "Log15":[]
+  }
+}

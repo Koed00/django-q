@@ -1,5 +1,9 @@
 version: '2.2'
 
+networks:
+  test:
+    driver: bridge
+
 services:
   disque:
     image: efrecon/disque:1.0-rc1
@@ -15,3 +19,17 @@ services:
     image: mongo:4
     ports:
       - '27017:27017/tcp'
+
+  ironmq:
+    image: iron/mq:latest
+    networks:
+      - test
+    ports:
+      - '8080:8080/tcp'
+    volumes:
+      - ./test_iron_mq_config.json:/ironmq/ironmq/config.json
+
+  ironauth:
+    image: iron/auth:latest
+    networks:
+      - test
