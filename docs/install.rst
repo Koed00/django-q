@@ -142,7 +142,7 @@ You can reference the `requirements <https://github.com/Koed00/django-q/blob/mas
 Django
 ~~~~~~
 We strive to be compatible with last two major version of Django.
-At the moment this means we support the 1.11.x and 2.1.x releases.
+At the moment this means we support the 1.11.x and 2.2.x releases.
 
 Since we are now no longer supporting Python 2, we can also not support older versions of Django that do not support Python 3.
 For this you can always use the pre 1.0 release, but it's no longer maintained.

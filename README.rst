@@ -26,12 +26,12 @@ Features
 Requirements
 ~~~~~~~~~~~~
 
--  `Django <https://www.djangoproject.com>`__ > = 1.11.11
+-  `Django <https://www.djangoproject.com>`__ > = 1.11.23
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
 -  `Arrow <https://github.com/crsmithdev/arrow>`__
 -  `Blessed <https://github.com/jquast/blessed>`__
 
-Tested with: Python 3.6. 3.7 Django 1.11.x and 2.1.x
+Tested with: Python 3.6. 3.7 Django 1.11.x and 2.2.x
 
 .. warning:: Since Python 3.7 `async` became a reserved keyword and was refactored to `async_task`
 
