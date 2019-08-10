@@ -9,7 +9,6 @@ from multiprocessing import Value
 
 from django_q.brokers import get_broker
 # local
-from django_q.cluster import worker, monitor
 from django_q.conf import Conf, logger
 from django_q.humanhash import uuid
 from django_q.models import Schedule, Task
@@ -676,6 +675,7 @@ class AsyncTask(object):
 
 def _sync(pack):
     """Simulate a package travelling through the cluster."""
+    from django_q.cluster import worker, monitor
     task_queue = Queue()
     result_queue = Queue()
     task = SignedPackage.loads(pack)
