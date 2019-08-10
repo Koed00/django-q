@@ -1,4 +1,4 @@
-VERSION = (1, 0, 1)
+VERSION = (1, 0, 2)
 
 default_app_config = 'django_q.apps.DjangoQConfig'
 
