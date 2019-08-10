@@ -514,19 +514,19 @@ def scheduler(broker=None):
                 next_run = arrow.get(s.next_run)
                 while True:
                     if s.schedule_type == s.MINUTES:
-                        next_run = next_run.replace(minutes=+(s.minutes or 1))
+                        next_run = next_run.shift(minutes=+(s.minutes or 1))
                     elif s.schedule_type == s.HOURLY:
-                        next_run = next_run.replace(hours=+1)
+                        next_run = next_run.shift(hours=+1)
                     elif s.schedule_type == s.DAILY:
-                        next_run = next_run.replace(days=+1)
+                        next_run = next_run.shift(days=+1)
                     elif s.schedule_type == s.WEEKLY:
-                        next_run = next_run.replace(weeks=+1)
+                        next_run = next_run.shift(weeks=+1)
                     elif s.schedule_type == s.MONTHLY:
-                        next_run = next_run.replace(months=+1)
+                        next_run = next_run.shift(months=+1)
                     elif s.schedule_type == s.QUARTERLY:
-                        next_run = next_run.replace(months=+3)
+                        next_run = next_run.shift(months=+3)
                     elif s.schedule_type == s.YEARLY:
-                        next_run = next_run.replace(years=+1)
+                        next_run = next_run.shift(years=+1)
                     if Conf.CATCH_UP or next_run > arrow.utcnow():
                         break
                 s.next_run = next_run.datetime

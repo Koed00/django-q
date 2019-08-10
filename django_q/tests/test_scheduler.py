@@ -61,7 +61,7 @@ def test_scheduler(broker, monkeypatch):
     assert schedule.repeats == 0
     assert schedule.last_run() is not None
     assert schedule.success() is True
-    assert schedule.next_run < arrow.get(timezone.now()).replace(hours=+1)
+    assert schedule.next_run < arrow.get(timezone.now()).shift(hours=+1)
     task = fetch(schedule.task)
     assert task is not None
     assert task.success is True
