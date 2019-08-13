@@ -21,7 +21,7 @@ def async_task(func, *args, **kwargs):
     """Queue a task for the cluster."""
     keywords = kwargs.copy()
     opt_keys = (
-    'hook', 'group', 'save', 'sync', 'cached', 'ack_failure', 'iter_count', 'iter_cached', 'chain', 'broker')
+    'hook', 'group', 'save', 'sync', 'cached', 'ack_failure', 'iter_count', 'iter_cached', 'chain', 'broker', 'timeout')
     q_options = keywords.pop('q_options', {})
     # get an id
     tag = uuid()
