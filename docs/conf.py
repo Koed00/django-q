@@ -44,8 +44,8 @@ extensions = [
 ]
 
 intersphinx_mapping = {'python': ('https://docs.python.org/3.5', None),
-                       'django': ('https://docs.djangoproject.com/en/1.8/',
-                                  'https://docs.djangoproject.com/en/1.8//_objects/')}
+                       'django': ('https://docs.djangoproject.com/en/2.2/',
+                                  'https://docs.djangoproject.com/en/2.2/_objects/')}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
