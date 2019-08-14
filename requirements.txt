@@ -6,8 +6,8 @@
 #
 arrow==0.14.5
 blessed==1.15.0
-boto3==1.9.205
-botocore==1.12.205        # via boto3, s3transfer
+boto3==1.9.207
+botocore==1.12.207        # via boto3, s3transfer
 certifi==2019.6.16        # via requests
 chardet==3.0.4            # via requests
 django-picklefield==2.0
@@ -20,10 +20,10 @@ iron-core==1.2.0          # via iron-mq
 iron-mq==0.9
 jmespath==0.9.4           # via boto3, botocore
 psutil==5.6.3
-pymongo==3.8.0
+pymongo==3.9.0
 python-dateutil==2.8.0    # via arrow, botocore, iron-core
 pytz==2019.2              # via django
-redis==3.3.6
+redis==3.3.7
 requests==2.22.0          # via iron-core
 s3transfer==0.2.1         # via boto3
 six==1.12.0               # via blessed, python-dateutil
