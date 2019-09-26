@@ -1,5 +1,76 @@
 # Change Log
 
+## [Unreleased](https://github.com/koed00/django-q/tree/HEAD)
+
+[Full Changelog](https://github.com/koed00/django-q/compare/v1.0.2...HEAD)
+
+**Closed issues:**
+
+- Timeout override is lost when sent to broker [\#332](https://github.com/Koed00/django-q/issues/332)
+- scheduler creating duplicate tasks in multiple cluster environment [\#231](https://github.com/Koed00/django-q/issues/231)
+
+**Merged pull requests:**
+
+- Fix scheduler concurrency with multiple clusters [\#347](https://github.com/Koed00/django-q/pull/347) ([maerteijn](https://github.com/maerteijn))
+
+## [v1.0.2](https://github.com/koed00/django-q/tree/v1.0.2) (2019-08-10)
+[Full Changelog](https://github.com/koed00/django-q/compare/v1.0.1...v1.0.2)
+
+**Closed issues:**
+
+- Is django-q dead? [\#375](https://github.com/Koed00/django-q/issues/375)
+- Cluster shuts down immediately after processing tasks [\#367](https://github.com/Koed00/django-q/issues/367)
+- Why is django\_q hitting redis so hard? [\#359](https://github.com/Koed00/django-q/issues/359)
+- ERROR MySQL backend does not support timezone-aware datetimes when USE\_TZ is False. [\#350](https://github.com/Koed00/django-q/issues/350)
+- from django\_q.tasks import async - ImportError: cannot import name 'async' [\#346](https://github.com/Koed00/django-q/issues/346)
+- Timeouts given for async\_task do not work if timeout value for cluster is None \(the default\) [\#335](https://github.com/Koed00/django-q/issues/335)
+- Import Error running qcluster command Python 3.7 Django 2.1.5 [\#331](https://github.com/Koed00/django-q/issues/331)
+- Periodic tasks add only if [\#320](https://github.com/Koed00/django-q/issues/320)
+- async\_task not in docs?!? [\#317](https://github.com/Koed00/django-q/issues/317)
+- django\_q 1.0 fails in ./manage.py check on python 3.4 django 2.0.8 [\#315](https://github.com/Koed00/django-q/issues/315)
+- Long-running tasks are duplicated multiple times in multi-cluster environment when no timeout is set [\#307](https://github.com/Koed00/django-q/issues/307)
+- log name used to configure logging in django [\#268](https://github.com/Koed00/django-q/issues/268)
+- RFC - Interval for schedules [\#265](https://github.com/Koed00/django-q/issues/265)
+- The error traceback  [\#259](https://github.com/Koed00/django-q/issues/259)
+- Mention Django Q Email in the docs? [\#215](https://github.com/Koed00/django-q/issues/215)
+
+**Merged pull requests:**
+
+- Remove and re-add task.id field instead of alter [\#363](https://github.com/Koed00/django-q/pull/363) ([wgordon17](https://github.com/wgordon17))
+- Fix test section format in readme [\#358](https://github.com/Koed00/django-q/pull/358) ([vkaracic](https://github.com/vkaracic))
+- Inline import to prevent circular imports under some toolchain combinations [\#356](https://github.com/Koed00/django-q/pull/356) ([lamby](https://github.com/lamby))
+- fix spelling of careful [\#355](https://github.com/Koed00/django-q/pull/355) ([tylerharper](https://github.com/tylerharper))
+- Fix issue when using USE\_TZ=False with MySQL [\#353](https://github.com/Koed00/django-q/pull/353) ([maerteijn](https://github.com/maerteijn))
+- Document the behaviour of retry value properly [\#340](https://github.com/Koed00/django-q/pull/340) ([jannero](https://github.com/jannero))
+- Fix concurrency issue in timeout timer value processing [\#337](https://github.com/Koed00/django-q/pull/337) ([jannero](https://github.com/jannero))
+- Timeout handling fix and improvements to related tests  [\#336](https://github.com/Koed00/django-q/pull/336) ([jannero](https://github.com/jannero))
+- Document how to run tests on your computer [\#334](https://github.com/Koed00/django-q/pull/334) ([jannero](https://github.com/jannero))
+- Fix timeout override [\#333](https://github.com/Koed00/django-q/pull/333) ([tremby](https://github.com/tremby))
+- Updates django version and packages [\#330](https://github.com/Koed00/django-q/pull/330) ([Koed00](https://github.com/Koed00))
+- Modified django\_q imports to support Python 3.4 again in cluster.py. … [\#327](https://github.com/Koed00/django-q/pull/327) ([mattaw](https://github.com/mattaw))
+
+## [v1.0.1](https://github.com/koed00/django-q/tree/v1.0.1) (2018-08-29)
+[Full Changelog](https://github.com/koed00/django-q/compare/v1.0.0...v1.0.1)
+
+**Merged pull requests:**
+
+- Add locale directory with fr translation [\#312](https://github.com/Koed00/django-q/pull/312) ([tboulogne](https://github.com/tboulogne))
+
+## [v1.0.0](https://github.com/koed00/django-q/tree/v1.0.0) (2018-08-14)
+[Full Changelog](https://github.com/koed00/django-q/compare/v0.9.4...v1.0.0)
+
+**Closed issues:**
+
+- Deleted broken schedules still run [\#308](https://github.com/Koed00/django-q/issues/308)
+- Python3.7 not supported [\#304](https://github.com/Koed00/django-q/issues/304)
+- Avoid retrying failed tasks [\#238](https://github.com/Koed00/django-q/issues/238)
+
+**Merged pull requests:**
+
+- Python 3.7 [\#310](https://github.com/Koed00/django-q/pull/310) ([Koed00](https://github.com/Koed00))
+- Fix a typo I introduced in groups.rst [\#309](https://github.com/Koed00/django-q/pull/309) ([P-EB](https://github.com/P-EB))
+- Replaces async occurrences with alternatives [\#306](https://github.com/Koed00/django-q/pull/306) ([P-EB](https://github.com/P-EB))
+
 ## [v0.9.4](https://github.com/koed00/django-q/tree/v0.9.4) (2018-03-13)
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.9.3...v0.9.4)
 

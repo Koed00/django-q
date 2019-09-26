@@ -26,7 +26,7 @@ Features
 Requirements
 ~~~~~~~~~~~~
 
--  `Django <https://www.djangoproject.com>`__ > = 1.11.23
+-  `Django <https://www.djangoproject.com>`__ > = 1.11.24
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
 -  `Arrow <https://github.com/crsmithdev/arrow>`__
 -  `Blessed <https://github.com/jquast/blessed>`__
