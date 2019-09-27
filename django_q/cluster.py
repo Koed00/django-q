@@ -370,7 +370,8 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
                     error_reporter.report()
         # We're still going
         if not result:
-            db.close_old_connections()
+            if db.transaction.get_autocommit():
+                db.close_old_connections()
             timer_value = task.pop('timeout', timeout)
             # signal execution
             pre_execute.send(sender="django_q", func=f, task=task)
@@ -408,7 +409,8 @@ def save_task(task, broker):
     if task.get('chain', None):
         django_q.tasks.async_chain(task['chain'], group=task['group'], cached=task['cached'], sync=task['sync'], broker=broker)
     # SAVE LIMIT > 0: Prune database, SAVE_LIMIT 0: No pruning
-    db.close_old_connections()
+    if db.transaction.get_autocommit():
+         db.close_old_connections()
     try:
         if task['success'] and 0 < Conf.SAVE_LIMIT <= Success.objects.count():
             Success.objects.last().delete()
@@ -489,7 +491,8 @@ def scheduler(broker=None):
     """
     if not broker:
         broker = get_broker()
-    db.close_old_connections()
+    if db.transaction.get_autocommit():
+        db.close_old_connections()
     try:
         with db.transaction.atomic():
             for s in Schedule.objects.select_for_update().exclude(repeats=0).filter(next_run__lt=timezone.now()):
