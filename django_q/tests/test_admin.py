@@ -1,5 +1,6 @@
 from django.urls import reverse
 from django.utils import timezone
+from django.conf import settings
 
 import pytest
 
@@ -33,33 +34,69 @@ def test_admin_views(admin_client, monkeypatch):
     q = OrmQ.objects.create(
         key='test',
         payload=SignedPackage.dumps({'id': 1, 'func': 'test', 'name': 'test'}))
-    admin_urls = (
+
+    # these should always be accessible
+    admin_urls_always = (
         # schedule
         reverse('admin:django_q_schedule_changelist'),
-        reverse('admin:django_q_schedule_add'),
         reverse('admin:django_q_schedule_change', args=(s.id,)),
         reverse('admin:django_q_schedule_history', args=(s.id,)),
-        reverse('admin:django_q_schedule_delete', args=(s.id,)),
         # success
         reverse('admin:django_q_success_changelist'),
         reverse('admin:django_q_success_change', args=(t.id,)),
         reverse('admin:django_q_success_history', args=(t.id,)),
-        reverse('admin:django_q_success_delete', args=(t.id,)),
         # failure
         reverse('admin:django_q_failure_changelist'),
         reverse('admin:django_q_failure_change', args=(f.id,)),
         reverse('admin:django_q_failure_history', args=(f.id,)),
-        reverse('admin:django_q_failure_delete', args=(f.id,)),
         # orm queue
         reverse('admin:django_q_ormq_changelist'),
         reverse('admin:django_q_ormq_change', args=(q.id,)),
         reverse('admin:django_q_ormq_history', args=(q.id,)),
-        reverse('admin:django_q_ormq_delete', args=(q.id,)),
-
     )
-    for url in admin_urls:
+    # these should only be accessible when debug = True
+    admin_urls_debug_only = (
+        # schedule
+        reverse('admin:django_q_schedule_add'),
+        reverse('admin:django_q_schedule_delete', args=(s.id,)),
+        # success
+        reverse('admin:django_q_success_delete', args=(t.id,)),
+        # failure
+        reverse('admin:django_q_failure_delete', args=(f.id,)),
+        # orm queue
+        reverse('admin:django_q_ormq_delete', args=(q.id,)),
+    )
+    # these should never be accessible
+    admin_urls_never = (
+        # schedule
+        # success
+        reverse('admin:django_q_success_add'),
+        # failure
+        reverse('admin:django_q_failure_add'),
+        # orm queue
+        reverse('admin:django_q_ormq_add'),
+    )
+
+    # testing access with DEBUG=True
+    monkeypatch.setattr(settings, 'DEBUG', True)
+    for url in admin_urls_always + admin_urls_debug_only:
         response = admin_client.get(url)
         assert response.status_code == 200
+    for url in admin_urls_never :
+        response = admin_client.get(url)
+        assert response.status_code == 403
+
+    # testing access with DEBUG=False
+    monkeypatch.setattr(settings, 'DEBUG', False)
+    for url in admin_urls_always:
+        response = admin_client.get(url)
+        assert response.status_code == 200
+    for url in admin_urls_never + admin_urls_debug_only:
+        response = admin_client.get(url)
+        assert response.status_code == 403
+
+    # following lines assume DEBUG is True we test interactions with the admin
+    monkeypatch.setattr(settings, 'DEBUG', True)
 
     # resubmit the failure
     url = reverse('admin:django_q_failure_changelist')

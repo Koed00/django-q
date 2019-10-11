@@ -1,4 +1,5 @@
 """Admin module for Django."""
+from django.conf import settings
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
@@ -22,6 +23,18 @@ class TaskAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         """Don't allow adds."""
         return False
+
+    def has_change_permission(self, request, obj=None):
+        """Don't allow change unless DEBUG mode is on"""
+        if not settings.DEBUG:
+            return False
+        return super(TaskAdmin, self).has_change_permission(request, obj=None)
+
+    def has_delete_permission(self, request, obj=None):
+        """Don't allow delete unless DEBUG mode is on"""
+        if not settings.DEBUG:
+            return False
+        return super(TaskAdmin, self).has_delete_permission(request, obj=None)
 
     def get_queryset(self, request):
         """Only show successes."""
@@ -62,6 +75,18 @@ class FailAdmin(admin.ModelAdmin):
         """Don't allow adds."""
         return False
 
+    def has_change_permission(self, request, obj=None):
+        """Don't allow change unless DEBUG mode is on"""
+        if not settings.DEBUG:
+            return False
+        return super(FailAdmin, self).has_change_permission(request, obj=None)
+
+    def has_delete_permission(self, request, obj=None):
+        """Don't allow delete unless DEBUG mode is on"""
+        if not settings.DEBUG:
+            return False
+        return super(FailAdmin, self).has_delete_permission(request, obj=None)
+
     actions = [retry_failed]
     search_fields = ('name', 'func')
     list_filter = ('group',)
@@ -90,6 +115,24 @@ class ScheduleAdmin(admin.ModelAdmin):
     search_fields = ('func',)
     list_display_links = ('id', 'name')
 
+    def has_add_permission(self, request):
+        """Don't allow add unless DEBUG mode is on"""
+        if not settings.DEBUG:
+            return False
+        return super(ScheduleAdmin, self).has_add_permission(request)
+
+    def has_change_permission(self, request, obj=None):
+        """Don't allow change unless DEBUG mode is on"""
+        if not settings.DEBUG:
+            return False
+        return super(ScheduleAdmin, self).has_change_permission(request, obj=None)
+
+    def has_delete_permission(self, request, obj=None):
+        """Don't allow delete unless DEBUG mode is on"""
+        if not settings.DEBUG:
+            return False
+        return super(ScheduleAdmin, self).has_delete_permission(request, obj=None)
+
 
 class QueueAdmin(admin.ModelAdmin):
     """  queue admin for ORM broker """
@@ -114,6 +157,18 @@ class QueueAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         """Don't allow adds."""
         return False
+
+    def has_change_permission(self, request, obj=None):
+        """Don't allow change unless DEBUG mode is on"""
+        if not settings.DEBUG:
+            return False
+        return super(QueueAdmin, self).has_change_permission(request, obj=None)
+
+    def has_delete_permission(self, request, obj=None):
+        """Don't allow delete unless DEBUG mode is on"""
+        if not settings.DEBUG:
+            return False
+        return super(QueueAdmin, self).has_delete_permission(request, obj=None)
 
 
 admin.site.register(Schedule, ScheduleAdmin)

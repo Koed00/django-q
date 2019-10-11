@@ -5,7 +5,8 @@ Admin pages
 ===========
 
 Django Q does not use custom pages, but instead leverages what is offered by Django's model admin by default.
-When you open Django Q's admin pages you will see three models:
+When you open Django Q's admin pages you will see three models. When DEBUG is False, all permissions but
+view are disabled.
 
 Successful tasks
 ----------------
