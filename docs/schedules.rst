@@ -72,6 +72,9 @@ such as `schedule_type` or `repeats`.
     def test_function():
         return "result"
 
+In the case you register one callable several times (e.g. with different kwargs), you need to manually
+provide a different task name each time. 
+
 Auto-discovering of `schedules.py`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

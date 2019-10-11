@@ -10,7 +10,7 @@ def register_schedule(**kwargs):
         kwargs['from_registry'] = True
         if "name" not in kwargs:
             kwargs["name"] = func_name
-        registry[func_name] = kwargs
-        logger.debug("Registered {}".format(func_name))
+        registry[kwargs["name"]] = kwargs
+        logger.debug("Registered {} ({})".format(kwargs["name"], func_name))
         return func
     return inner
