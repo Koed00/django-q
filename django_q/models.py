@@ -157,6 +157,7 @@ class Schedule(models.Model):
     repeats = models.IntegerField(default=-1, verbose_name=_('Repeats'), help_text=_('n = n times, -1 = forever'))
     next_run = models.DateTimeField(verbose_name=_('Next Run'), default=timezone.now, null=True)
     task = models.CharField(max_length=100, null=True, editable=False)
+    from_registry = models.BooleanField(default=False)
 
     def success(self):
         if self.task and Task.objects.filter(id=self.task):

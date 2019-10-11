@@ -45,6 +45,47 @@ You can manage them through the :ref:`admin_page` or directly from your code wit
              repeats=24,
              next_run=arrow.utcnow().replace(hour=18, minute=0))
 
+Registering schedules from code
+-------------------------------
+
+Registering schedules from your code is very useful for cron-like functions. It is not
+easy to get right however : you can only do so once the models are properly initalised,
+you need to make sure the schedule is only added once, etc.
+
+Two helpers are provided for this :
+
+The `register_schedule` decorator
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+After migrations, all callables decorated with this decorator will be added as schedules.
+The library takes care of making sure there is no duplicate and that stale schedules are deleted.
+
+The decorator kwargs are passed to the schedule instance, allowing to configure freely parameters
+such as `schedule_type` or `repeats`.
+
+.. code:: python
+
+    from django_q.registry import register_schedule
+    from django_q.models import Schedule
+
+    @register_schedule(schedule_type=Schedule.HOURLY)
+    def test_function():
+        return "result"
+
+Auto-discovering of `schedules.py`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+After migrations, all `schedules.py` modules from installed apps are imported. By placing your
+decorated functions in `your_app/schedules.py`, you make sure they will be loaded. It also helps
+keeping your code well organized.
+
+Manual reloading
+~~~~~~~~~~~~~~~~
+
+The recreation of registered modules is done automatically after migrations. If you want to trigger
+it manually, you may use the `qschedules` management command::
+
+    $ python manage.py qschedules
 
 Missed schedules
 ----------------
