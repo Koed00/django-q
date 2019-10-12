@@ -33,8 +33,10 @@ class Conf(object):
     # Redis server configuration . Follows standard redis keywords
     REDIS = conf.get('redis', {})
 
-    # Support for Django-Redis connections
+    # Support for Redis connection
+    REDIS_CONN = conf.get('redis_conn', None)
 
+    # Support for Django-Redis connections
     DJANGO_REDIS = conf.get('django_redis', None)
 
     # Disque broker
@@ -58,6 +60,9 @@ class Conf(object):
     # Custom broker class
     BROKER_CLASS = conf.get('broker_class', None)
 
+    # Connection Pool
+    POOL = conf.get('pool', True)
+
     # Database Poll
     POLL = conf.get('poll', 0.2)
 
@@ -77,7 +82,7 @@ class Conf(object):
 
     # Guard loop sleep in seconds. Should be between 0 and 60 seconds.
     GUARD_CYCLE = conf.get('guard_cycle', 0.5)
-    
+
     # Disable the scheduler
     SCHEDULER = conf.get('scheduler', True)
 

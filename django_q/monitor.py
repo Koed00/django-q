@@ -5,7 +5,7 @@ from blessed import Terminal
 
 # django
 from django.db import connection
-from django.db.models import Sum, F
+from django.db.models import Sum, F, FloatField
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 
@@ -124,8 +124,8 @@ def info(broker=None):
     if tasks_per_day > 0:
         # average execution time over the last 24 hours
         if not connection.vendor == 'sqlite':
-            exec_time = last_tasks.aggregate(time_taken=Sum(F('stopped') - F('started')))
-            exec_time = exec_time['time_taken'].total_seconds() / tasks_per_day
+            exec_time = last_tasks.aggregate(time_taken=Sum(F('stopped') - F('started'), output_field=FloatField()))
+            exec_time = exec_time['time_taken'] / tasks_per_day
         else:
             # can't sum timedeltas on sqlite
             for t in last_tasks:
