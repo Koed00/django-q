@@ -164,12 +164,6 @@ class QueueAdmin(admin.ModelAdmin):
             return False
         return super(QueueAdmin, self).has_change_permission(request, obj=None)
 
-    def has_delete_permission(self, request, obj=None):
-        """Don't allow delete unless DEBUG mode is on"""
-        if not settings.DEBUG:
-            return False
-        return super(QueueAdmin, self).has_delete_permission(request, obj=None)
-
 
 admin.site.register(Schedule, ScheduleAdmin)
 admin.site.register(Success, TaskAdmin)
