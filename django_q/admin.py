@@ -80,6 +80,7 @@ class ScheduleAdmin(admin.ModelAdmin):
         'name',
         'func',
         'schedule_type',
+        'from_registry',
         'repeats',
         'next_run',
         'last_run',
