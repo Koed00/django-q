@@ -11,7 +11,7 @@ class TaskAdmin(admin.ModelAdmin):
     """model admin for success tasks."""
 
     list_display = (
-        u'name',
+        'name',
         'func',
         'started',
         'stopped',
