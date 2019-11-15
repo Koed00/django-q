@@ -5,8 +5,9 @@ services:
   - mongodb
 
 python:
-  - "3.7"
-  - "3.8"
+  - 3.6
+  - 3.7
+  - 3.8
 
 env:
   - DJANGO=3.0.2
