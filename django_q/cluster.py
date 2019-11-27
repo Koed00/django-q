@@ -16,7 +16,6 @@ import socket
 import traceback
 # Django
 from django import db
-from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from multiprocessing import Event, Process, Value, current_process
@@ -163,7 +162,7 @@ class Sentinel(object):
         :param process: the process to reincarnate
         :type process: Process or None
         """
-        db.connections.close_all()  # Close any old connections
+        close_old_django_connections()
         if process == self.monitor:
             self.monitor = self.spawn_monitor()
             logger.error(_("reincarnated monitor {} after sudden death").format(process.name))
@@ -187,7 +186,7 @@ class Sentinel(object):
     def spawn_cluster(self):
         self.pool = []
         Stat(self).save()
-        db.connection.close()
+        close_old_django_connections()
         # spawn worker pool
         for __ in range(self.pool_size):
             self.spawn_worker()
@@ -370,7 +369,7 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
                     error_reporter.report()
         # We're still going
         if not result:
-            db.close_old_connections()
+            close_old_django_connections()
             timer_value = task.pop('timeout', timeout)
             # signal execution
             pre_execute.send(sender="django_q", func=f, task=task)
@@ -408,7 +407,7 @@ def save_task(task, broker):
     if task.get('chain', None):
         django_q.tasks.async_chain(task['chain'], group=task['group'], cached=task['cached'], sync=task['sync'], broker=broker)
     # SAVE LIMIT > 0: Prune database, SAVE_LIMIT 0: No pruning
-    db.close_old_connections()
+    close_old_django_connections()
     try:
         if task['success'] and 0 < Conf.SAVE_LIMIT <= Success.objects.count():
             Success.objects.last().delete()
@@ -489,7 +488,7 @@ def scheduler(broker=None):
     """
     if not broker:
         broker = get_broker()
-    db.close_old_connections()
+    close_old_django_connections()
     try:
         with db.transaction.atomic():
             for s in Schedule.objects.select_for_update().exclude(repeats=0).filter(next_run__lt=timezone.now()):
@@ -556,6 +555,19 @@ def scheduler(broker=None):
                 s.save()
     except Exception as e:
         logger.error(e)
+
+
+def close_old_django_connections():
+    '''
+    Close django connections unless running with sync=True.
+    '''
+    if Conf.SYNC:
+        logger.warning(
+            'Preserving django database connections because sync=True. Beware '
+            'that tasks are now injected in the calling context/transactions '
+            'which may result in unexpected bahaviour.')
+    else:
+        db.close_old_connections()
 
 
 def set_cpu_affinity(n, process_ids, actual=not Conf.TESTING):
