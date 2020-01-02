@@ -209,8 +209,8 @@ def test_sqs_local(monkeypatch):
     # fail
     broker.enqueue('test')
     while task is None:
-        task = broker.dequeue()[0]
-    broker.fail(task[0])
+        task = broker.dequeue()
+    broker.fail(task[0][0])
     # bulk test
     for i in range(10):
         broker.enqueue('test')
@@ -271,8 +271,8 @@ def canceled_sqs(monkeypatch):
     # fail
     broker.enqueue('test')
     while task is None:
-        task = broker.dequeue()[0]
-    broker.fail(task[0])
+        task = broker.dequeue()
+    broker.fail(task[0][0])
     # bulk test
     for i in range(10):
         broker.enqueue('test')

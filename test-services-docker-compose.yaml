@@ -1,7 +1,7 @@
 version: '2.2'
 
 services:
-  test:
+  djangoq:
     build:
       context: .
       dockerfile: Dockerfile.test
