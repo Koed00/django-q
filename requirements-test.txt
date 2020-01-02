@@ -1,0 +1,4 @@
+-r /code/requirements.txt
+
+pytest
+pytest-django
