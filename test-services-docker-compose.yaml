@@ -44,5 +44,6 @@ services:
     image: roribio16/alpine-sqs
     ports:
       - '9324:9324/tcp'
+      - '9325:9325/tcp'
     expose:
       - 9324

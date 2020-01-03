@@ -283,7 +283,8 @@ To use Amazon SQS as a broker you need to provide the AWS region and credentials
         'sqs': {
             'aws_region': 'us-east-1',  # optional
             'aws_access_key_id': 'ac-Idr.....YwflZBaaxI',  # optional
-            'aws_secret_access_key': '500f7b....b0f302e9'  # optional
+            'aws_secret_access_key': '500f7b....b0f302e9',  # optional
+            'aws_sqs_url': 'http://localhost:9324',  # optional
         }
     }
 
