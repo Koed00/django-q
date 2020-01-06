@@ -339,7 +339,6 @@ def test_bad_secret(broker, monkeypatch):
     monkeypatch.setattr(Conf, "SECRET_KEY", "OOPS")
     stat = Stat.get_all()
     assert len(stat) == 0
-    assert Stat.get(s.parent_pid) is None
     task_queue = Queue()
     pusher(task_queue, stop_event, broker=broker)
     result_queue = Queue()
