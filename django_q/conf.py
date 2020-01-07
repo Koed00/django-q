@@ -4,7 +4,7 @@ from signal import signal
 from multiprocessing import cpu_count
 
 # django
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 
 # external
@@ -77,7 +77,7 @@ class Conf(object):
 
     # Guard loop sleep in seconds. Should be between 0 and 60 seconds.
     GUARD_CYCLE = conf.get('guard_cycle', 0.5)
-    
+
     # Disable the scheduler
     SCHEDULER = conf.get('scheduler', True)
 
