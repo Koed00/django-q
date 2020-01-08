@@ -1,16 +1,15 @@
 language: python
 
 services:
-  - redis-server
-  - mongodb
+  - docker
 
 python:
   - "3.6"
   - "3.7"
 
 env:
-    - DJANGO=2.2.5
-    - DJANGO=1.11.24
+  - DJANGO=2.2.5
+  - DJANGO=1.11.24
 
 matrix:
   exclude:
@@ -25,22 +24,16 @@ addons:
     packages:
       - tcl8.5
 
-before_script:
-  - git clone https://github.com/antirez/disque.git disque_server
-  - "cd disque_server/src && make && PREFIX=../ make install && cd -"
-  - "./disque_server/bin/disque-server &"
-  - ./disque_server/bin/disque PING
-
 install:
-  - pip install -q django==$DJANGO
-  - pip install -r requirements.txt
-  - pip install pytest --upgrade
-  - pip install pytest-django codecov sphinx
-  - python setup.py install
+  - PYTHON_VERSION="$(python --version | awk '{print $2}' | sed 's/\.[^.]*$//')"
+  - sed -i 's/[0-9]*\.[0-9]*-buster/'${PYTHON_VERSION}-buster/g Dockerfile.test
+  - docker-compose -f test-services-docker-compose.yaml build
+  - docker-compose -f test-services-docker-compose.yaml run djangoq pip install django==$DJANGO
+  - docker-compose -f test-services-docker-compose.yaml run djangoq pip install codecov sphinx
 
 script:
-  - coverage run --source=django_q -m py.test
-  - sphinx-build -b html -d docs/_build/doctrees  -nW docs docs/_build/html
+  - docker-compose -f test-services-docker-compose.yaml run djangoq coverage run --source=django_q -m py.test
+  - docker-compose -f test-services-docker-compose.yaml run sphinx-build -b html -d docs/_build/doctrees  -nW docs docs/_build/html
 
 after_success:
   - codecov
