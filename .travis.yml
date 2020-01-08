@@ -19,14 +19,10 @@ matrix:
 sudo: true
 dist: xenial
 
-addons:
-  apt:
-    packages:
-      - tcl8.5
-
 install:
-  - PYTHON_VERSION="$(python --version | awk '{print $2}' | sed 's/\.[^.]*$//')"
+  - PYTHON_VERSION="$(pip -V | awk '{print $6}' | sed 's/)//')"
   - sed -i 's/[0-9]*\.[0-9]*-buster/'${PYTHON_VERSION}-buster/g Dockerfile.test
+  - cp .env.tmpl .env
   - docker-compose -f test-services-docker-compose.yaml build
   - docker-compose -f test-services-docker-compose.yaml run djangoq pip install django==$DJANGO
   - docker-compose -f test-services-docker-compose.yaml run djangoq pip install codecov sphinx
