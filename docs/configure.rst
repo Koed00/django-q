@@ -180,7 +180,7 @@ Connection settings for Redis. Defaults::
         }
     }
 
-It's also possible to use a Redis connection URI:
+It's also possible to use a Redis connection URI::
 
     Q_CLUSTER = {
         'redis': 'redis://h:asdfqwer1234asdf@ec2-111-1-1-1.compute-1.amazonaws.com:111'
