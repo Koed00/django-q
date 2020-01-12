@@ -180,6 +180,12 @@ Connection settings for Redis. Defaults::
         }
     }
 
+It's also possible to use a Redis connection URI:
+
+    Q_CLUSTER = {
+        'redis': 'redis://h:asdfqwer1234asdf@ec2-111-1-1-1.compute-1.amazonaws.com:111'
+    }
+
 For more information on these settings please refer to the `Redis-py <https://github.com/andymccurdy/redis-py>`__ documentation
 
 .. _django_redis:
