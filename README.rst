@@ -188,36 +188,20 @@ Testing
 
 To run the tests you will need the following in addition to install requirements:
 
-* `py.test <http://pytest.org/latest/>`__
-* `pytest-django <https://github.com/pytest-dev/pytest-django>`__
-* disque from https://github.com/antirez/disque.git
-* Redis
-* MongoDB
+* `docker-compose <https://docs.docker.com/compose/>`__
 
 The following commands can be used to run the tests:
 
 .. code:: bash
 
-    # Create virtual environment
-    python -m venv venv
+    # Create .env file, uncomment and supply any desired environment settings
+    cp .env.tmpl .env
 
-    # Install requirements
-    venv/bin/pip install -r requirements.txt
-
-    # Install test dependencies
-    venv/bin/pip install pytest pytest-django
-
-    # Install django-q
-    venv/bin/python setup.py develop
-
-    # Run required services (you need to have docker-compose installed)
-    docker-compose -f test-services-docker-compose.yaml up -d
+    # Build Docker container with services and pytest
+    docker-compose -f test-services-docker-compose.yaml build
 
     # Run tests
-    venv/bin/pytest
-
-    # Stop the services required by tests (when you no longer plan to run tests)
-    docker-compose -f test-services-docker-compose.yaml down
+    docker-compose -f test-services-docker-compose.yaml run djangoq pytest
 
 Locale
 ~~~~~~

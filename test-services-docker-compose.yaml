@@ -1,17 +1,49 @@
 version: '2.2'
 
 services:
+  djangoq:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    env_file: .env
+    depends_on:
+      - disque
+      - redis
+      - mongo
+      - sqs
+    links:
+      - disque:disque
+      - redis:redis
+      - mongo:mongo
+      - sqs:sqs
+    volumes:
+      - .:/code
+
   disque:
     image: efrecon/disque:1.0-rc1
     ports:
       - '7711:7711/tcp'
+    expose:
+      - 7711
 
   redis:
     image: redis:latest
     ports:
       - '6379:6379/tcp'
+    expose:
+      - 6379
 
   mongo:
     image: mongo:4
     ports:
       - '27017:27017/tcp'
+    expose:
+      - 27017
+
+  sqs:
+    image: roribio16/alpine-sqs
+    ports:
+      - '9324:9324/tcp'
+      - '9325:9325/tcp'
+    expose:
+      - 9324

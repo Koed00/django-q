@@ -1,0 +1,4 @@
+FROM python:3.7-buster
+COPY . /code/
+RUN pip install -r /code/requirements-test.txt; python /code/setup.py develop
+WORKDIR /code

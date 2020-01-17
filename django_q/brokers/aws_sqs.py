@@ -1,3 +1,4 @@
+import copy
 from django_q.conf import Conf
 from django_q.brokers import Broker
 from boto3 import Session
@@ -55,9 +56,16 @@ class Sqs(Broker):
         if 'aws_region' in config:
             config['region_name'] = config['aws_region']
             del(config['aws_region'])
+        # This parameter is for our use, not Boto's, so copy config and remove it if present
+        if 'aws_sqs_url' in config:
+            config = copy.deepcopy(config)
+            del(config['aws_sqs_url'])
         return Session(**config)
 
-
     def get_queue(self):
-        self.sqs = self.connection.resource('sqs')
+        config = Conf.SQS
+        if 'aws_sqs_url' in config:
+            self.sqs = self.connection.resource('sqs', endpoint_url=config['aws_sqs_url'])
+        else:
+            self.sqs = self.connection.resource('sqs')
         return self.sqs.create_queue(QueueName=self.list_key)

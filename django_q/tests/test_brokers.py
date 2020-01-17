@@ -40,7 +40,7 @@ def test_redis(monkeypatch):
     broker = get_broker()
     assert broker.ping() is True
     assert broker.info() is not None
-    monkeypatch.setattr(Conf, 'REDIS', {'host': '127.0.0.1', 'port': 7799})
+    monkeypatch.setattr(Conf, 'REDIS', {'host': 'redis', 'port': 7799})
     broker = get_broker()
     with pytest.raises(Exception):
         broker.ping()
@@ -59,7 +59,7 @@ def test_custom(monkeypatch):
 
 
 def test_disque(monkeypatch):
-    monkeypatch.setattr(Conf, 'DISQUE_NODES', ['127.0.0.1:7711'])
+    monkeypatch.setattr(Conf, 'DISQUE_NODES', ['disque:7711'])
     # check broker
     broker = get_broker(list_key='disque_test')
     assert broker.ping() is True
@@ -111,7 +111,7 @@ def test_disque(monkeypatch):
     broker.delete_queue()
     assert broker.queue_size() == 0
     # connection test
-    monkeypatch.setattr(Conf, 'DISQUE_NODES', ['127.0.0.1:7798', '127.0.0.1:7799'])
+    monkeypatch.setattr(Conf, 'DISQUE_NODES', ['disque:7798', 'disque:7799'])
     with pytest.raises(redis.exceptions.ConnectionError):
         broker.get_connection()
 
@@ -172,6 +172,66 @@ def test_ironmq(monkeypatch):
     broker.delete_queue()
 
 
+def test_sqs_local(monkeypatch):
+    monkeypatch.setattr(Conf, 'SQS', {'aws_region': 'fake-region',
+                                      'aws_sqs_url': 'http://sqs:9324',
+                                      'aws_access_key_id': 'fake-id',
+                                      'aws_secret_access_key': 'fake-key'})
+    broker = get_broker(list_key=uuid()[0])
+    assert broker.ping() is True
+    assert broker.ping() is not None
+    assert broker.queue_size() == 0
+    # async_task
+    broker.enqueue('test')
+    # dequeue
+    task = broker.dequeue()[0]
+    assert task[1] == 'test'
+    broker.acknowledge(task[0])
+    assert broker.dequeue() is None
+    # Retry test
+    monkeypatch.setattr(Conf, 'RETRY', 1)
+    broker.enqueue('test')
+    sleep(2)
+    # Sometimes SQS is not linear
+    task = broker.dequeue()
+    if not task:
+        pytest.skip('SQS being weird')
+    task = task[0]
+    assert len(task) > 0
+    broker.acknowledge(task[0])
+    sleep(2)
+    # delete job
+    monkeypatch.setattr(Conf, 'RETRY', 60)
+    broker.enqueue('test')
+    sleep(1)
+    task = broker.dequeue()
+    if not task:
+        pytest.skip('SQS being weird')
+    task_id = task[0][0]
+    broker.delete(task_id)
+    assert broker.dequeue() is None
+    # fail
+    broker.enqueue('test')
+    while task is None:
+        task = broker.dequeue()
+    broker.fail(task[0][0])
+    # bulk test
+    for i in range(10):
+        broker.enqueue('test')
+    monkeypatch.setattr(Conf, 'BULK', 12)
+    tasks = broker.dequeue()
+    for task in tasks:
+        assert task is not None
+        broker.acknowledge(task[0])
+    # duplicate acknowledge
+    broker.acknowledge(task[0])
+    assert broker.lock_size() == 0
+    # delete queue
+    broker.enqueue('test')
+    broker.purge_queue()
+    broker.delete_queue()
+
+
 @pytest.mark.skipif(not os.getenv('AWS_ACCESS_KEY_ID'),
                     reason="requires AWS credentials")
 def canceled_sqs(monkeypatch):
@@ -215,8 +275,8 @@ def canceled_sqs(monkeypatch):
     # fail
     broker.enqueue('test')
     while task is None:
-        task = broker.dequeue()[0]
-    broker.fail(task[0])
+        task = broker.dequeue()
+    broker.fail(task[0][0])
     # bulk test
     for i in range(10):
         broker.enqueue('test')
@@ -293,7 +353,7 @@ def test_orm(monkeypatch):
 
 @pytest.mark.django_db
 def test_mongo(monkeypatch):
-    monkeypatch.setattr(Conf, 'MONGO', {'host': '127.0.0.1', 'port': 27017})
+    monkeypatch.setattr(Conf, 'MONGO', {'host': 'mongo', 'port': 27017})
     # check broker
     broker = get_broker(list_key='mongo_test')
     assert broker.ping() is True
