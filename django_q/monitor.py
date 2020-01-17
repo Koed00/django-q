@@ -7,7 +7,7 @@ from blessed import Terminal
 from django.db import connection
 from django.db.models import Sum, F
 from django.utils import timezone
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 # local
 from django_q.conf import Conf

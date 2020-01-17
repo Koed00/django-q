@@ -2,7 +2,7 @@ import importlib
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver, Signal
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django_q.conf import logger
 from django_q.models import Task
