@@ -27,12 +27,12 @@ Installation
 Requirements
 ------------
 
-Django Q is tested for Python 3.6 and 3.7
+Django Q is tested for Python 3.7 and 3.8
 
 -  `Django <https://www.djangoproject.com>`__
 
     Django Q aims to use as much of Django's standard offerings as possible
-    The code is tested against Django versions `1.11.x LTS` and `2.1.x`.
+    The code is tested against Django versions `2.2.x` and `3.0.x`.
     Please note that Django versions below 2.0 do not support Python 3.7
 
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
@@ -126,12 +126,12 @@ Other known issues are:
 Python
 ~~~~~~
 The code is always tested against the latest version Python 3 and we try to stay compatible with the last two versions of each.
-Current tests are performed with 3.6 and 3.7
+Current tests are performed with 3.7 and 3.8
 If you do encounter any regressions with earlier versions, please submit an issue on `github <https://github.com/Koed00/django-q>`__
 
 .. note::
 
-    Django releases before 1.11 are not officially supported on Python 3.6
+    Django releases before 1.11 are not supported on Python 3.6
     Django releases before 2.0 are not supported on Python 3.7
 
 Open-source packages
@@ -142,10 +142,10 @@ You can reference the `requirements <https://github.com/Koed00/django-q/blob/mas
 Django
 ~~~~~~
 We strive to be compatible with last two major version of Django.
-At the moment this means we support the 1.11.x and 2.2.x releases.
+At the moment this means we support the 2.2.x and 3.0.x releases.
 
-Since we are now no longer supporting Python 2, we can also not support older versions of Django that do not support Python 3.
-For this you can always use the pre 1.0 release, but it's no longer maintained.
+Since we are now no longer supporting Python 2, we can also not support older versions of Django that do not support Python >= 3.6
+For this you can always use older releases, but they are no longer maintained.
 
 
 
