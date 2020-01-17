@@ -59,4 +59,6 @@ class Redis(Broker):
     def get_connection(list_key=Conf.PREFIX):
         if django_redis and Conf.DJANGO_REDIS:
             return django_redis.get_redis_connection(Conf.DJANGO_REDIS)
+        if isinstance(Conf.REDIS, str):
+            return redis.from_url(Conf.REDIS)
         return redis.StrictRedis(**Conf.REDIS)

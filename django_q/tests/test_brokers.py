@@ -44,6 +44,10 @@ def test_redis(monkeypatch):
     broker = get_broker()
     with pytest.raises(Exception):
         broker.ping()
+    monkeypatch.setattr(Conf, 'REDIS', 'redis://127.0.0.1:7799')
+    broker = get_broker()
+    with pytest.raises(Exception):
+        broker.ping()
 
 
 def test_custom(monkeypatch):
