@@ -9,13 +9,14 @@ python:
   - "3.7"
 
 env:
-    - DJANGO=2.2.5
-    - DJANGO=1.11.24
+  - DJANGO=3.0
+  - DJANGO=2.2
+  - DJANGO=1.11
 
 matrix:
   exclude:
     - python: "3.7"
-      env: DJANGO=1.11.24
+      env: DJANGO=1.11
 
 sudo: true
 dist: xenial
