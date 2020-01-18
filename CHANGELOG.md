@@ -1,19 +1,31 @@
-# Change Log
+# Changelog
 
-## [Unreleased](https://github.com/koed00/django-q/tree/HEAD)
+## [v.1.1.0](https://github.com/koed00/django-q/tree/v.1.1.0) (2020-01-18)
 
-[Full Changelog](https://github.com/koed00/django-q/compare/v1.0.2...HEAD)
+[Full Changelog](https://github.com/koed00/django-q/compare/v1.0.2...v.1.1.0)
 
 **Closed issues:**
 
+- Ability to use a Redis URI [\#402](https://github.com/Koed00/django-q/issues/402)
+- worker\_1   | 16:15:08 \[Q\] ERROR malformed node or string: \<\_ast.Name object at 0x7fb952093130\> [\#400](https://github.com/Koed00/django-q/issues/400)
+- Latest versions of Arrow will break django-q [\#377](https://github.com/Koed00/django-q/issues/377)
+- How to deal with failed tasks? [\#365](https://github.com/Koed00/django-q/issues/365)
 - Timeout override is lost when sent to broker [\#332](https://github.com/Koed00/django-q/issues/332)
+- "InterfaceError: connection already closed" being raised when a test is run [\#326](https://github.com/Koed00/django-q/issues/326)
 - scheduler creating duplicate tasks in multiple cluster environment [\#231](https://github.com/Koed00/django-q/issues/231)
 
 **Merged pull requests:**
 
+- Django 3 support [\#404](https://github.com/Koed00/django-q/pull/404) ([Koed00](https://github.com/Koed00))
+- ability to use a Redis connection URI - closes \#402 [\#403](https://github.com/Koed00/django-q/pull/403) ([valentinogagliardi](https://github.com/valentinogagliardi))
+- Replacing `ugettext\_` functions with `gettext\_` for Django 3 [\#399](https://github.com/Koed00/django-q/pull/399) ([theunraveler](https://github.com/theunraveler))
+- Bump django from 2.2.5 to 2.2.8 [\#395](https://github.com/Koed00/django-q/pull/395) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Preserve database connection when sync=True [\#393](https://github.com/Koed00/django-q/pull/393) ([Urth](https://github.com/Urth))
 - Fix scheduler concurrency with multiple clusters [\#347](https://github.com/Koed00/django-q/pull/347) ([maerteijn](https://github.com/maerteijn))
+- Fix timeout override [\#333](https://github.com/Koed00/django-q/pull/333) ([tremby](https://github.com/tremby))
 
 ## [v1.0.2](https://github.com/koed00/django-q/tree/v1.0.2) (2019-08-10)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v1.0.1...v1.0.2)
 
 **Closed issues:**
@@ -45,11 +57,11 @@
 - Fix concurrency issue in timeout timer value processing [\#337](https://github.com/Koed00/django-q/pull/337) ([jannero](https://github.com/jannero))
 - Timeout handling fix and improvements to related tests  [\#336](https://github.com/Koed00/django-q/pull/336) ([jannero](https://github.com/jannero))
 - Document how to run tests on your computer [\#334](https://github.com/Koed00/django-q/pull/334) ([jannero](https://github.com/jannero))
-- Fix timeout override [\#333](https://github.com/Koed00/django-q/pull/333) ([tremby](https://github.com/tremby))
 - Updates django version and packages [\#330](https://github.com/Koed00/django-q/pull/330) ([Koed00](https://github.com/Koed00))
 - Modified django\_q imports to support Python 3.4 again in cluster.py. … [\#327](https://github.com/Koed00/django-q/pull/327) ([mattaw](https://github.com/mattaw))
 
 ## [v1.0.1](https://github.com/koed00/django-q/tree/v1.0.1) (2018-08-29)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v1.0.0...v1.0.1)
 
 **Merged pull requests:**
@@ -57,6 +69,7 @@
 - Add locale directory with fr translation [\#312](https://github.com/Koed00/django-q/pull/312) ([tboulogne](https://github.com/tboulogne))
 
 ## [v1.0.0](https://github.com/koed00/django-q/tree/v1.0.0) (2018-08-14)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.9.4...v1.0.0)
 
 **Closed issues:**
@@ -72,9 +85,11 @@
 - Replaces async occurrences with alternatives [\#306](https://github.com/Koed00/django-q/pull/306) ([P-EB](https://github.com/P-EB))
 
 ## [v0.9.4](https://github.com/koed00/django-q/tree/v0.9.4) (2018-03-13)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.9.3...v0.9.4)
 
 ## [v0.9.3](https://github.com/koed00/django-q/tree/v0.9.3) (2018-03-13)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.9.2...v0.9.3)
 
 **Closed issues:**
@@ -88,6 +103,7 @@
 - Changing the path location where Django-Q is inserted. [\#297](https://github.com/Koed00/django-q/pull/297) ([Eagllus](https://github.com/Eagllus))
 
 ## [v0.9.2](https://github.com/koed00/django-q/tree/v0.9.2) (2018-02-13)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.9.1...v0.9.2)
 
 **Closed issues:**
@@ -115,6 +131,7 @@
 - Fix python3 only code [\#292](https://github.com/Koed00/django-q/pull/292) ([Eagllus](https://github.com/Eagllus))
 
 ## [v0.9.1](https://github.com/koed00/django-q/tree/v0.9.1) (2018-02-02)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/0.9.0...v0.9.1)
 
 **Closed issues:**
@@ -129,9 +146,11 @@
 - Allow SQS to use environment variables [\#283](https://github.com/Koed00/django-q/pull/283) ([svdgraaf](https://github.com/svdgraaf))
 
 ## [0.9.0](https://github.com/koed00/django-q/tree/0.9.0) (2018-01-08)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.9.0...0.9.0)
 
 ## [v0.9.0](https://github.com/koed00/django-q/tree/v0.9.0) (2018-01-08)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.8.1...v0.9.0)
 
 **Closed issues:**
@@ -146,6 +165,7 @@
 - Django 2.0 compatibility [\#269](https://github.com/Koed00/django-q/pull/269) ([achidlow](https://github.com/achidlow))
 
 ## [v0.8.1](https://github.com/koed00/django-q/tree/v0.8.1) (2017-10-12)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.8.0...v0.8.1)
 
 **Closed issues:**
@@ -170,6 +190,7 @@
 - Remove dependency `future` [\#247](https://github.com/Koed00/django-q/pull/247) ([benjaoming](https://github.com/benjaoming))
 
 ## [v0.8.0](https://github.com/koed00/django-q/tree/v0.8.0) (2017-04-05)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.7.18...v0.8.0)
 
 **Closed issues:**
@@ -203,6 +224,7 @@
 - Log id returned by broker [\#148](https://github.com/Koed00/django-q/pull/148) ([k4ml](https://github.com/k4ml))
 
 ## [v0.7.18](https://github.com/koed00/django-q/tree/v0.7.18) (2016-06-07)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.7.17...v0.7.18)
 
 **Closed issues:**
@@ -216,6 +238,7 @@
 - Updates Django and some packages [\#169](https://github.com/Koed00/django-q/pull/169) ([Koed00](https://github.com/Koed00))
 
 ## [v0.7.17](https://github.com/koed00/django-q/tree/v0.7.17) (2016-04-24)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.7.16...v0.7.17)
 
 **Closed issues:**
@@ -233,6 +256,7 @@
 - Fixes typo in custom broker handler [\#159](https://github.com/Koed00/django-q/pull/159) ([Koed00](https://github.com/Koed00))
 
 ## [v0.7.16](https://github.com/koed00/django-q/tree/v0.7.16) (2016-03-07)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.7.15...v0.7.16)
 
 **Fixed bugs:**
@@ -254,6 +278,7 @@
 - Updates to Django 1.8.9 and 1.9.2 [\#143](https://github.com/Koed00/django-q/pull/143) ([Koed00](https://github.com/Koed00))
 
 ## [v0.7.15](https://github.com/koed00/django-q/tree/v0.7.15) (2016-01-27)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.7.14...v0.7.15)
 
 **Closed issues:**
@@ -266,6 +291,7 @@
 - Adds poll option for database brokers [\#140](https://github.com/Koed00/django-q/pull/140) ([Koed00](https://github.com/Koed00))
 
 ## [v0.7.14](https://github.com/koed00/django-q/tree/v0.7.14) (2016-01-24)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.7.13...v0.7.14)
 
 **Closed issues:**
@@ -280,9 +306,11 @@
 - Removes duplicate test [\#134](https://github.com/Koed00/django-q/pull/134) ([Koed00](https://github.com/Koed00))
 
 ## [v0.7.13](https://github.com/koed00/django-q/tree/v0.7.13) (2016-01-08)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.7.12...v0.7.13)
 
 ## [v0.7.12](https://github.com/koed00/django-q/tree/v0.7.12) (2016-01-08)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.7.11...v0.7.12)
 
 **Closed issues:**
@@ -310,6 +338,7 @@
 - Updates botocore for testing [\#108](https://github.com/Koed00/django-q/pull/108) ([Koed00](https://github.com/Koed00))
 
 ## [v0.7.11](https://github.com/koed00/django-q/tree/v0.7.11) (2015-10-28)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.7.10...v0.7.11)
 
 **Closed issues:**
@@ -323,6 +352,7 @@
 - Adds timeout to group key cache object [\#98](https://github.com/Koed00/django-q/pull/98) ([Koed00](https://github.com/Koed00))
 
 ## [v0.7.10](https://github.com/koed00/django-q/tree/v0.7.10) (2015-10-19)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.7.9...v0.7.10)
 
 **Merged pull requests:**
@@ -334,6 +364,7 @@
 - Updates botocore for testing [\#92](https://github.com/Koed00/django-q/pull/92) ([Koed00](https://github.com/Koed00))
 
 ## [v0.7.9](https://github.com/koed00/django-q/tree/v0.7.9) (2015-10-08)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.7.8...v0.7.9)
 
 **Merged pull requests:**
@@ -347,6 +378,7 @@
 - Updates psutil to 3.2.2 [\#85](https://github.com/Koed00/django-q/pull/85) ([Koed00](https://github.com/Koed00))
 
 ## [v0.7.8](https://github.com/koed00/django-q/tree/v0.7.8) (2015-10-04)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.7.7...v0.7.8)
 
 **Merged pull requests:**
@@ -356,9 +388,11 @@
 - updates botocore to 1.2.6 for testing [\#81](https://github.com/Koed00/django-q/pull/81) ([Koed00](https://github.com/Koed00))
 
 ## [v0.7.7](https://github.com/koed00/django-q/tree/v0.7.7) (2015-09-29)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.7.6...v0.7.7)
 
 ## [v0.7.6](https://github.com/koed00/django-q/tree/v0.7.6) (2015-09-29)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.7.5...v0.7.6)
 
 **Closed issues:**
@@ -370,6 +404,7 @@
 - \#79  close django db connection before fork [\#80](https://github.com/Koed00/django-q/pull/80) ([Koed00](https://github.com/Koed00))
 
 ## [v0.7.5](https://github.com/koed00/django-q/tree/v0.7.5) (2015-09-28)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.7.4...v0.7.5)
 
 **Closed issues:**
@@ -382,6 +417,7 @@
 - Adds stale db connection check before every transaction [\#77](https://github.com/Koed00/django-q/pull/77) ([Koed00](https://github.com/Koed00))
 
 ## [v0.7.4](https://github.com/koed00/django-q/tree/v0.7.4) (2015-09-26)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.7.3...v0.7.4)
 
 **Merged pull requests:**
@@ -395,6 +431,7 @@
 - docs: Replaced redis pooling with broker pooling example. [\#69](https://github.com/Koed00/django-q/pull/69) ([Koed00](https://github.com/Koed00))
 
 ## [v0.7.3](https://github.com/koed00/django-q/tree/v0.7.3) (2015-09-18)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.7.2...v0.7.3)
 
 **Merged pull requests:**
@@ -402,6 +439,7 @@
 - Adds a wait option for results. [\#68](https://github.com/Koed00/django-q/pull/68) ([Koed00](https://github.com/Koed00))
 
 ## [v0.7.2](https://github.com/koed00/django-q/tree/v0.7.2) (2015-09-17)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.7.1...v0.7.2)
 
 **Merged pull requests:**
@@ -411,6 +449,7 @@
 - Adds remote orm admin view [\#65](https://github.com/Koed00/django-q/pull/65) ([Koed00](https://github.com/Koed00))
 
 ## [v0.7.1](https://github.com/koed00/django-q/tree/v0.7.1) (2015-09-16)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.7.0...v0.7.1)
 
 **Merged pull requests:**
@@ -418,6 +457,7 @@
 - Adds configuration output and other enhancements [\#64](https://github.com/Koed00/django-q/pull/64) ([Koed00](https://github.com/Koed00))
 
 ## [v0.7.0](https://github.com/koed00/django-q/tree/v0.7.0) (2015-09-14)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.6.4...v0.7.0)
 
 **Merged pull requests:**
@@ -428,6 +468,7 @@
 - Updates test dependencies [\#60](https://github.com/Koed00/django-q/pull/60) ([Koed00](https://github.com/Koed00))
 
 ## [v0.6.4](https://github.com/koed00/django-q/tree/v0.6.4) (2015-09-10)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.6.3...v0.6.4)
 
 **Closed issues:**
@@ -441,6 +482,7 @@
 - docs: `cache` option [\#55](https://github.com/Koed00/django-q/pull/55) ([Koed00](https://github.com/Koed00))
 
 ## [v0.6.3](https://github.com/koed00/django-q/tree/v0.6.3) (2015-09-08)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.6.2...v0.6.3)
 
 **Merged pull requests:**
@@ -448,6 +490,7 @@
 - Adds IronMQ broker [\#54](https://github.com/Koed00/django-q/pull/54) ([Koed00](https://github.com/Koed00))
 
 ## [v0.6.2](https://github.com/koed00/django-q/tree/v0.6.2) (2015-09-07)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.6.1...v0.6.2)
 
 **Merged pull requests:**
@@ -455,9 +498,11 @@
 - Fixes backward compatibility problems with django-picklefield [\#53](https://github.com/Koed00/django-q/pull/53) ([Koed00](https://github.com/Koed00))
 
 ## [v0.6.1](https://github.com/koed00/django-q/tree/v0.6.1) (2015-09-07)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.6.0...v0.6.1)
 
 ## [v0.6.0](https://github.com/koed00/django-q/tree/v0.6.0) (2015-09-06)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.5.3...v0.6.0)
 
 **Merged pull requests:**
@@ -466,6 +511,7 @@
 - \#50 adds psutil as alternative os.getppid provider [\#51](https://github.com/Koed00/django-q/pull/51) ([Koed00](https://github.com/Koed00))
 
 ## [v0.5.3](https://github.com/koed00/django-q/tree/v0.5.3) (2015-08-19)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.5.2...v0.5.3)
 
 **Merged pull requests:**
@@ -475,6 +521,7 @@
 - consolidates redis ping [\#47](https://github.com/Koed00/django-q/pull/47) ([Koed00](https://github.com/Koed00))
 
 ## [v0.5.2](https://github.com/koed00/django-q/tree/v0.5.2) (2015-08-13)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.5.1...v0.5.2)
 
 **Merged pull requests:**
@@ -482,6 +529,7 @@
 - Adds global `sync` configuration option [\#46](https://github.com/Koed00/django-q/pull/46) ([Koed00](https://github.com/Koed00))
 
 ## [v0.5.1](https://github.com/koed00/django-q/tree/v0.5.1) (2015-08-12)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.5.0...v0.5.1)
 
 **Merged pull requests:**
@@ -489,6 +537,7 @@
 - Adds `qinfo` management command [\#45](https://github.com/Koed00/django-q/pull/45) ([Koed00](https://github.com/Koed00))
 
 ## [v0.5.0](https://github.com/koed00/django-q/tree/v0.5.0) (2015-08-06)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.4.6...v0.5.0)
 
 **Closed issues:**
@@ -500,6 +549,7 @@
 - Adds a n-minutes option to the scheduler [\#44](https://github.com/Koed00/django-q/pull/44) ([Koed00](https://github.com/Koed00))
 
 ## [v0.4.6](https://github.com/koed00/django-q/tree/v0.4.6) (2015-08-04)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.4.5...v0.4.6)
 
 **Closed issues:**
@@ -512,6 +562,7 @@
 - Workaround for osx implementation [\#41](https://github.com/Koed00/django-q/pull/41) ([Koed00](https://github.com/Koed00))
 
 ## [v0.4.5](https://github.com/koed00/django-q/tree/v0.4.5) (2015-08-01)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.4.4...v0.4.5)
 
 **Closed issues:**
@@ -525,6 +576,7 @@
 - Moves unpacking task from Worker to Pusher [\#36](https://github.com/Koed00/django-q/pull/36) ([Koed00](https://github.com/Koed00))
 
 ## [v0.4.4](https://github.com/koed00/django-q/tree/v0.4.4) (2015-07-27)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.4.3...v0.4.4)
 
 **Merged pull requests:**
@@ -534,6 +586,7 @@
 - Group filter and queue limit indicator [\#33](https://github.com/Koed00/django-q/pull/33) ([Koed00](https://github.com/Koed00))
 
 ## [v0.4.3](https://github.com/koed00/django-q/tree/v0.4.3) (2015-07-24)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.4.2...v0.4.3)
 
 **Merged pull requests:**
@@ -542,6 +595,7 @@
 - adds Haystack example [\#31](https://github.com/Koed00/django-q/pull/31) ([Koed00](https://github.com/Koed00))
 
 ## [v0.4.2](https://github.com/koed00/django-q/tree/v0.4.2) (2015-07-22)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.4.1...v0.4.2)
 
 **Closed issues:**
@@ -554,6 +608,7 @@
 - timeout as float [\#29](https://github.com/Koed00/django-q/pull/29) ([Koed00](https://github.com/Koed00))
 
 ## [v0.4.1](https://github.com/koed00/django-q/tree/v0.4.1) (2015-07-21)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.4.0...v0.4.1)
 
 **Merged pull requests:**
@@ -562,6 +617,7 @@
 - Expanding coverage [\#26](https://github.com/Koed00/django-q/pull/26) ([Koed00](https://github.com/Koed00))
 
 ## [v0.4.0](https://github.com/koed00/django-q/tree/v0.4.0) (2015-07-19)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.3.5...v0.4.0)
 
 **Merged pull requests:**
@@ -573,9 +629,11 @@
 - Adds task groups [\#21](https://github.com/Koed00/django-q/pull/21) ([Koed00](https://github.com/Koed00))
 
 ## [v0.3.5](https://github.com/koed00/django-q/tree/v0.3.5) (2015-07-17)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.3.6...v0.3.5)
 
 ## [v0.3.6](https://github.com/koed00/django-q/tree/v0.3.6) (2015-07-17)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/0.3.5...v0.3.6)
 
 **Merged pull requests:**
@@ -587,6 +645,7 @@
 - Docs: Added a report example [\#16](https://github.com/Koed00/django-q/pull/16) ([Koed00](https://github.com/Koed00))
 
 ## [0.3.5](https://github.com/koed00/django-q/tree/0.3.5) (2015-07-15)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.3.4...0.3.5)
 
 **Merged pull requests:**
@@ -597,6 +656,7 @@
 - Adding examples to the docs [\#12](https://github.com/Koed00/django-q/pull/12) ([Koed00](https://github.com/Koed00))
 
 ## [v0.3.4](https://github.com/koed00/django-q/tree/v0.3.4) (2015-07-12)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.3.3...v0.3.4)
 
 **Merged pull requests:**
@@ -605,6 +665,7 @@
 - Schedules of type ONCE will selfdestruct with negative repeats [\#10](https://github.com/Koed00/django-q/pull/10) ([Koed00](https://github.com/Koed00))
 
 ## [v0.3.3](https://github.com/koed00/django-q/tree/v0.3.3) (2015-07-10)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.3.2...v0.3.3)
 
 **Closed issues:**
@@ -616,6 +677,7 @@
 - Fixes save pruning bug [\#9](https://github.com/Koed00/django-q/pull/9) ([Koed00](https://github.com/Koed00))
 
 ## [v0.3.2](https://github.com/koed00/django-q/tree/v0.3.2) (2015-07-09)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.3.1...v0.3.2)
 
 **Closed issues:**
@@ -628,9 +690,11 @@
 - Added 'future' to setup.py dependencies [\#5](https://github.com/Koed00/django-q/pull/5) ([nickpolet](https://github.com/nickpolet))
 
 ## [v0.3.1](https://github.com/koed00/django-q/tree/v0.3.1) (2015-07-08)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.3.0...v0.3.1)
 
 ## [v0.3.0](https://github.com/koed00/django-q/tree/v0.3.0) (2015-07-08)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.2.2...v0.3.0)
 
 **Merged pull requests:**
@@ -638,6 +702,7 @@
 - Switched to uuid4 instead of luid [\#3](https://github.com/Koed00/django-q/pull/3) ([Koed00](https://github.com/Koed00))
 
 ## [v0.2.2](https://github.com/koed00/django-q/tree/v0.2.2) (2015-07-07)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.2.1.1...v0.2.2)
 
 **Merged pull requests:**
@@ -645,30 +710,41 @@
 - Stabilizing stop procedures [\#2](https://github.com/Koed00/django-q/pull/2) ([Koed00](https://github.com/Koed00))
 
 ## [v0.2.1.1](https://github.com/koed00/django-q/tree/v0.2.1.1) (2015-07-06)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.2.1...v0.2.1.1)
 
 ## [v0.2.1](https://github.com/koed00/django-q/tree/v0.2.1) (2015-07-06)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.2.0...v0.2.1)
 
 ## [v0.2.0](https://github.com/koed00/django-q/tree/v0.2.0) (2015-07-04)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.1.4.1...v0.2.0)
 
 ## [v0.1.4.1](https://github.com/koed00/django-q/tree/v0.1.4.1) (2015-07-02)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.1.4...v0.1.4.1)
 
 ## [v0.1.4](https://github.com/koed00/django-q/tree/v0.1.4) (2015-07-01)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.1.3...v0.1.4)
 
 ## [v0.1.3](https://github.com/koed00/django-q/tree/v0.1.3) (2015-06-30)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.1.2...v0.1.3)
 
 ## [v0.1.2](https://github.com/koed00/django-q/tree/v0.1.2) (2015-06-30)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.1.1...v0.1.2)
 
 ## [v0.1.1](https://github.com/koed00/django-q/tree/v0.1.1) (2015-06-28)
+
 [Full Changelog](https://github.com/koed00/django-q/compare/v0.1.0...v0.1.1)
 
 ## [v0.1.0](https://github.com/koed00/django-q/tree/v0.1.0) (2015-06-28)
 
+[Full Changelog](https://github.com/koed00/django-q/compare/c74f931930f9124205c1a4d9ba51700909d43b88...v0.1.0)
 
-\* *This Change Log was automatically generated by [github_changelog_generator](https://github.com/skywinder/Github-Changelog-Generator)*
+
+
+\* *This Changelog was automatically generated by [github_changelog_generator](https://github.com/github-changelog-generator/github-changelog-generator)*
