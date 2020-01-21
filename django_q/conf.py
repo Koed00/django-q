@@ -156,7 +156,7 @@ class Conf(object):
     # OSX doesn't implement qsize because of missing sem_getvalue()
     try:
         QSIZE = Queue().qsize() == 0
-    except NotImplementedError:
+    except (NotImplementedError, OSError):
         QSIZE = False
 
     # Getting the signal names
