@@ -5,7 +5,6 @@ import sys
 
 import multiprocessing
 import multiprocessing.queues
-from multiprocessing import current_process
 
 
 class SharedCounter(object):
