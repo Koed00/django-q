@@ -169,17 +169,27 @@ class Sentinel(object):
             pusher,
             self.task_queue,
             self.event_out,
-            None if start_method == SPAWN else self.broker
+            None if start_method == SPAWN else self.broker,
+            self.task_queue.size if start_method == SPAWN else None
         )
 
     def spawn_worker(self):
-        self.spawn_process(worker, self.task_queue, self.result_queue, Value('f', -1), self.timeout)
+        self.spawn_process(
+            worker,
+            self.task_queue,
+            self.result_queue,
+            Value('f', -1),
+            self.timeout,
+            self.task_queue.size if start_method == SPAWN else None,
+            self.result_queue.size if start_method == SPAWN else None
+        )
 
     def spawn_monitor(self):
         return self.spawn_process(
             monitor,
             self.result_queue,
-            None if start_method == SPAWN else self.broker
+            None if start_method == SPAWN else self.broker,
+            self.result_queue.size if start_method == SPAWN else None
         )
 
     def reincarnate(self, process):
@@ -306,10 +316,11 @@ class Sentinel(object):
         self.stop_event.set()
 
 
-def pusher(task_queue, event, broker=None):
+def pusher(task_queue, event, broker=None, task_queue_size=None):
     if start_method == SPAWN:
         signal.signal(signal.SIGTERM, signal.SIG_IGN)
         signal.signal(signal.SIGINT, signal.SIG_IGN)
+        task_queue.size = task_queue_size
     """
     Pulls tasks of the broker and puts them in the task queue
     :type task_queue: multiprocessing.Queue
@@ -344,10 +355,11 @@ def pusher(task_queue, event, broker=None):
     logger.info(_("{} stopped pushing tasks").format(current_process().name))
 
 
-def monitor(result_queue, broker=None):
+def monitor(result_queue, broker=None, result_queue_size=None):
     if start_method == SPAWN:
         signal.signal(signal.SIGTERM, signal.SIG_IGN)
         signal.signal(signal.SIGINT, signal.SIG_IGN)
+        result_queue.size = result_queue_size
     """
     Gets finished tasks from the result queue and saves them to Django
     :type result_queue: multiprocessing.Queue
@@ -376,10 +388,19 @@ def monitor(result_queue, broker=None):
     logger.info(_("{} stopped monitoring results").format(name))
 
 
-def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
+def worker(
+    task_queue,
+    result_queue,
+    timer,
+    timeout=Conf.TIMEOUT,
+    task_queue_size=None,
+    result_queue_size=None
+):
     if start_method == SPAWN:
         signal.signal(signal.SIGTERM, signal.SIG_IGN)
         signal.signal(signal.SIGINT, signal.SIG_IGN)
+        task_queue.size = task_queue_size
+        result_queue.size = result_queue_size
     """
     Takes a task from the task queue, tries to execute it and puts the result back in the result queue
     :type task_queue: multiprocessing.Queue

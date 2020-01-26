@@ -58,21 +58,15 @@ class Queue(multiprocessing.queues.Queue):
 
     def put(self, *args, **kwargs):
         super(Queue, self).put(*args, **kwargs)
-        if not hasattr(self, 'size'):
-            self.size = SharedCounter(0)
         self.size.increment(1)
 
     def get(self, *args, **kwargs):
         x = super(Queue, self).get(*args, **kwargs)
-        if not hasattr(self, 'size'):
-            self.size = SharedCounter(1)
         self.size.increment(-1)
         return x
 
     def qsize(self):
         """ Reliable implementation of multiprocessing.Queue.qsize() """
-        if not hasattr(self, 'size'):
-            self.size = SharedCounter(0)
         return self.size.value
 
     def empty(self):
