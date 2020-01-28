@@ -367,6 +367,8 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
                 result = (e, False)
                 if error_reporter:
                     error_reporter.report()
+        if Conf.WORKER_FUNC_DECORATOR:
+            f = Conf.WORKER_FUNC_DECORATOR(f)
         # We're still going
         if not result:
             close_old_django_connections()
