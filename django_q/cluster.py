@@ -21,12 +21,12 @@ from django.apps.registry import apps
 try:
     SPAWN = 'spawn'
     start_method = None
-    apps.check_apps_ready()
-except core.exceptions.AppRegistryNotReady:
     if multiprocessing.get_start_method() == SPAWN:
         start_method = SPAWN
-        import django
-        django.setup()
+    apps.check_apps_ready()
+except core.exceptions.AppRegistryNotReady:
+    import django
+    django.setup()
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from multiprocessing import Event, Process, Value, current_process
@@ -43,8 +43,10 @@ from django_q.status import Stat, Status
 
 
 class Cluster(object):
-    def __init__(self, broker=None):
-        self.broker = broker
+    def __init__(self, broker=None, list_key=None):
+        self.broker = broker or get_broker()
+        if list_key:
+            self.broker.list_key = list_key
         self.sentinel = None
         self.stop_event = None
         self.start_event = None
@@ -58,8 +60,18 @@ class Cluster(object):
         # Start Sentinel
         self.stop_event = Event()
         self.start_event = Event()
-        self.sentinel = Process(target=Sentinel,
-                                args=(self.stop_event, self.start_event, self.broker, self.timeout))
+        self.sentinel = Process(
+            target=Sentinel,
+            args=(
+                self.stop_event,
+                self.start_event,
+                None if start_method == SPAWN else self.broker,
+                self.timeout,
+                True,
+                self.broker.list_key if start_method == SPAWN else None,
+                get_conf_dict() if start_method == SPAWN else None,
+            )
+        )
         self.sentinel.start()
         logger.info(_('Q Cluster-{} starting.').format(self.pid))
         while not self.start_event.is_set():
@@ -107,11 +119,24 @@ class Cluster(object):
 
 
 class Sentinel(object):
-    def __init__(self, stop_event, start_event, broker=None, timeout=Conf.TIMEOUT, start=True):
+    def __init__(
+        self,
+        stop_event,
+        start_event,
+        broker=None,
+        timeout=Conf.TIMEOUT,
+        start=True,
+        list_key=None,
+        Conf_=None,
+    ):
         # Make sure we catch signals for the pool
-        if start_method == SPAWN:
+        name = current_process().name
+        if start_method == SPAWN and name != 'MainProcess':
             signal.signal(signal.SIGINT, self.sig_handler)
             signal.signal(signal.SIGTERM, signal.SIG_IGN)
+            if Conf_:
+                for key in Conf_:
+                    setattr(Conf, key, Conf_[key])
         else:
             signal.signal(signal.SIGINT, signal.SIG_IGN)
             signal.signal(signal.SIGTERM, signal.SIG_DFL)
@@ -119,6 +144,8 @@ class Sentinel(object):
         self.parent_pid = get_ppid()
         self.name = current_process().name
         self.broker = broker or get_broker()
+        if list_key:
+            self.broker.list_key = list_key
         self.reincarnations = 0
         self.tob = timezone.now()
         self.stop_event = stop_event
@@ -170,7 +197,9 @@ class Sentinel(object):
             self.task_queue,
             self.event_out,
             None if start_method == SPAWN else self.broker,
-            self.task_queue.size if start_method == SPAWN else None
+            self.broker.list_key if start_method == SPAWN else None,
+            self.task_queue.size if start_method == SPAWN else None,
+            get_conf_dict() if start_method == SPAWN else None,
         )
 
     def spawn_worker(self):
@@ -181,7 +210,8 @@ class Sentinel(object):
             Value('f', -1),
             self.timeout,
             self.task_queue.size if start_method == SPAWN else None,
-            self.result_queue.size if start_method == SPAWN else None
+            self.result_queue.size if start_method == SPAWN else None,
+            get_conf_dict() if start_method == SPAWN else None,
         )
 
     def spawn_monitor(self):
@@ -189,7 +219,9 @@ class Sentinel(object):
             monitor,
             self.result_queue,
             None if start_method == SPAWN else self.broker,
-            self.result_queue.size if start_method == SPAWN else None
+            self.broker.list_key if start_method == SPAWN else None,
+            self.result_queue.size if start_method == SPAWN else None,
+            get_conf_dict() if start_method == SPAWN else None,
         )
 
     def reincarnate(self, process):
@@ -316,18 +348,30 @@ class Sentinel(object):
         self.stop_event.set()
 
 
-def pusher(task_queue, event, broker=None, task_queue_size=None):
-    if start_method == SPAWN:
+def pusher(
+    task_queue,
+    event,
+    broker=None,
+    list_key=None,
+    task_queue_size=None,
+    Conf_=None,
+):
+    name = current_process().name
+    if start_method == SPAWN and name != 'MainProcess':
         signal.signal(signal.SIGTERM, signal.SIG_IGN)
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         task_queue.size = task_queue_size
+        if Conf_:
+            for key in Conf_:
+                setattr(Conf, key, Conf_[key])
     """
     Pulls tasks of the broker and puts them in the task queue
     :type task_queue: multiprocessing.Queue
     :type event: multiprocessing.Event
     """
-    if not broker:
-        broker = get_broker()
+    broker = broker or get_broker()
+    if list_key:
+        broker.list_key = list_key
     logger.info(_('{} pushing tasks at {}').format(current_process().name, current_process().pid))
     while True:
         try:
@@ -355,18 +399,28 @@ def pusher(task_queue, event, broker=None, task_queue_size=None):
     logger.info(_("{} stopped pushing tasks").format(current_process().name))
 
 
-def monitor(result_queue, broker=None, result_queue_size=None):
-    if start_method == SPAWN:
+def monitor(
+    result_queue,
+    broker=None,
+    list_key=None,
+    result_queue_size=None,
+    Conf_=None,
+):
+    name = current_process().name
+    if start_method == SPAWN and name != 'MainProcess':
         signal.signal(signal.SIGTERM, signal.SIG_IGN)
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         result_queue.size = result_queue_size
+        if Conf_:
+            for key in Conf_:
+                setattr(Conf, key, Conf_[key])
     """
     Gets finished tasks from the result queue and saves them to Django
     :type result_queue: multiprocessing.Queue
     """
-    if not broker:
-        broker = get_broker()
-    name = current_process().name
+    broker = broker or get_broker()
+    if list_key:
+        broker.list_key = list_key
     logger.info(_("{} monitoring at {}").format(name, current_process().pid))
     for task in iter(result_queue.get, 'STOP'):
         # save the result
@@ -394,20 +448,24 @@ def worker(
     timer,
     timeout=Conf.TIMEOUT,
     task_queue_size=None,
-    result_queue_size=None
+    result_queue_size=None,
+    Conf_=None,
 ):
-    if start_method == SPAWN:
+    name = current_process().name
+    if start_method == SPAWN and name != 'MainProcess':
         signal.signal(signal.SIGTERM, signal.SIG_IGN)
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         task_queue.size = task_queue_size
         result_queue.size = result_queue_size
+        if Conf_:
+            for key in Conf_:
+                setattr(Conf, key, Conf_[key])
     """
     Takes a task from the task queue, tries to execute it and puts the result back in the result queue
     :type task_queue: multiprocessing.Queue
     :type result_queue: multiprocessing.Queue
     :type timer: multiprocessing.Value
     """
-    name = current_process().name
     logger.info(_('{} ready for work at {}').format(name, current_process().pid))
     task_count = 0
     if timeout is None:
@@ -681,3 +739,12 @@ def get_sig_name(signum):
         sig_name = 'UNKNOWN'
 
     return sig_name
+
+
+def get_conf_dict():
+    conf_dict = {}
+    for key, val in vars(Conf).items():
+        if not key.startswith('__'):
+            conf_dict[key] = val
+
+    return conf_dict

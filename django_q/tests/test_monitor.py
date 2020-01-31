@@ -1,3 +1,4 @@
+import time
 import pytest
 
 from django_q.tasks import async_task
@@ -28,6 +29,7 @@ def test_monitor(monkeypatch):
     monkeypatch.setattr(Conf, 'ORM', 'default')
     b = get_broker('monitor_test')
     b.enqueue('test')
+    time.sleep(0.1)  # seems to be a timing issue that requires this
     b.dequeue()
     assert b.lock_size() == 1
     monitor(run_once=True, broker=b)
