@@ -14,17 +14,17 @@ def task(test_arg):
 
 def add_async_task(request):
     print('Adding async task')
-    id = tasks.async_task(task, 'test-arg')
+    task_id = tasks.async_task(task, 'test-arg')
     return http.HttpResponse(
         'Added async task with <a href="{}">id</a>'.format(
-            urls.reverse('get_async_task_result', args=(id,))
+            urls.reverse('get_async_task_result', args=(task_id,))
         )
     )
 
 
-def get_async_task_result(request, id):
+def get_async_task_result(request, task_id):
     print('Fetching async task result')
-    task = tasks.fetch(id)
+    task = tasks.fetch(task_id)
     if not task:
         msg = 'Task running, please wait and refresh'
     else:

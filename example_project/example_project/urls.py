@@ -23,7 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('add_async_task', views.add_async_task),
     path(
-        'get_async_task_result/<id>',
+        'get_async_task_result/<task_id>',
         views.get_async_task_result,
         name='get_async_task_result'
     ),
