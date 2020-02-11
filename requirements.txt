@@ -13,7 +13,7 @@ certifi==2019.11.28       # via requests
 chardet==3.0.4            # via requests
 django-picklefield==2.0
 django-redis==4.11.0
-django==3.0.2             # via django-picklefield, django-redis
+django==3.0.3             # via django-picklefield, django-redis
 docutils==0.15.2          # via botocore
 hiredis==1.0.1
 idna==2.8                 # via requests
