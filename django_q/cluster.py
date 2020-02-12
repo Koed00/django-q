@@ -50,7 +50,7 @@ class Cluster(object):
         self.stop_event = Event()
         self.start_event = Event()
         self.sentinel = Process(target=Sentinel,
-                                args=(self.stop_event, self.start_event, self.broker, self.timeout))
+                                args=(self.stop_event, self.start_event, self.cluster_id, self.broker, self.timeout))
         self.sentinel.start()
         logger.info(_('Q Cluster-{} starting.').format(self.pid))
         while not self.start_event.is_set():
@@ -97,11 +97,12 @@ class Cluster(object):
 
 
 class Sentinel(object):
-    def __init__(self, stop_event, start_event, broker=None, timeout=Conf.TIMEOUT, start=True):
+    def __init__(self, stop_event, start_event, cluster_id, broker=None, timeout=Conf.TIMEOUT, start=True):
         # Make sure we catch signals for the pool
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         signal.signal(signal.SIGTERM, signal.SIG_DFL)
         self.pid = current_process().pid
+        self.cluster_id = cluster_id
         self.parent_pid = get_ppid()
         self.name = current_process().name
         self.broker = broker or get_broker()
