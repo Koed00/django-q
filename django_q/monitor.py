@@ -25,14 +25,13 @@ def monitor(run_once=False, broker=None):
         val = None
         start_width = int(term.width / 8)
         while val not in (u'q', u'Q',):
-            cluster_id_width = 36  # UUID4
-            col_width = int((term.width - cluster_id_width) / 7)
+            col_width = int(term.width / 8)
             # In case of resize
             if col_width != start_width:
                 print(term.clear())
                 start_width = col_width
             print(term.move(0, 0) + term.black_on_green(term.center(_('Host'), width=col_width - 1)))
-            print(term.move(0, 1 * col_width) + term.black_on_green(term.center(_('Id'), width=cluster_id_width - 1)))
+            print(term.move(0, 1 * col_width) + term.black_on_green(term.center(_('Id'), width=col_width - 1)))
             print(term.move(0, 2 * col_width) + term.black_on_green(term.center(_('State'), width=col_width - 1)))
             print(term.move(0, 3 * col_width) + term.black_on_green(term.center(_('Pool'), width=col_width - 1)))
             print(term.move(0, 4 * col_width) + term.black_on_green(term.center(_('TQ'), width=col_width - 1)))
@@ -73,7 +72,7 @@ def monitor(run_once=False, broker=None):
                 uptime = '%d:%02d:%02d' % (hours, minutes, seconds)
                 # print to the terminal
                 print(term.move(i, 0) + term.center(stat.host[:col_width - 1], width=col_width - 1))
-                print(term.move(i, 1 * col_width) + term.center(str(stat.cluster_id), width=cluster_id_width - 1))
+                print(term.move(i, 1 * col_width) + term.center(stat.cluster_id[:8], width=col_width - 1))
                 print(term.move(i, 2 * col_width) + term.center(status, width=col_width - 1))
                 print(term.move(i, 3 * col_width) + term.center(workers, width=col_width - 1))
                 print(term.move(i, 4 * col_width) + term.center(tasks, width=col_width - 1))
