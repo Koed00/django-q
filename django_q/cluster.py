@@ -14,6 +14,7 @@ import importlib
 import signal
 import socket
 import traceback
+import uuid
 # Django
 from django import db
 from django.utils import timezone
@@ -38,6 +39,7 @@ class Cluster(object):
         self.stop_event = None
         self.start_event = None
         self.pid = current_process().pid
+        self.cluster_id = uuid.uuid4()
         self.host = socket.gethostname()
         self.timeout = Conf.TIMEOUT
         signal.signal(signal.SIGTERM, self.sig_handler)
