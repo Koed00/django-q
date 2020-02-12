@@ -76,8 +76,8 @@ class Cluster(object):
     @property
     def stat(self):
         if self.sentinel:
-            return Stat.get(self.pid)
-        return Status(self.pid)
+            return Stat.get(pid=self.pid, cluster_id=self.cluster_id)
+        return Status(pid=self.pid, cluster_id=self.cluster_id)
 
     @property
     def is_starting(self):
