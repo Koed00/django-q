@@ -74,7 +74,7 @@ def monitor(run_once=False, broker=None):
                 # print to the terminal
                 print(term.move(i, 0) + term.center(stat.host[:col_width - 1], width=col_width - 1))
                 print(term.move(i, 1 * col_width) + term.center(str(stat.cluster_id), width=cluster_id_width - 1))
-                print(term.move(i, 2 * cluster_id_width) + term.center(status, width=col_width - 1))
+                print(term.move(i, 2 * col_width) + term.center(status, width=col_width - 1))
                 print(term.move(i, 3 * col_width) + term.center(workers, width=col_width - 1))
                 print(term.move(i, 4 * col_width) + term.center(tasks, width=col_width - 1))
                 print(term.move(i, 5 * col_width) + term.center(results, width=col_width - 1))
