@@ -52,7 +52,7 @@ class Cluster(object):
         self.sentinel = Process(target=Sentinel,
                                 args=(self.stop_event, self.start_event, self.cluster_id, self.broker, self.timeout))
         self.sentinel.start()
-        logger.info(_('Q Cluster-{} starting.').format(self.pid))
+        logger.info(_('Q Cluster-{} starting.').format(self.cluster_id))
         while not self.start_event.is_set():
             sleep(0.1)
         return self.pid
@@ -60,10 +60,10 @@ class Cluster(object):
     def stop(self):
         if not self.sentinel.is_alive():
             return False
-        logger.info(_('Q Cluster-{} stopping.').format(self.pid))
+        logger.info(_('Q Cluster-{} stopping.').format(self.cluster_id))
         self.stop_event.set()
         self.sentinel.join()
-        logger.info(_('Q Cluster-{} has stopped.').format(self.pid))
+        logger.info(_('Q Cluster-{} has stopped.').format(self.cluster_id))
         self.start_event = None
         self.stop_event = None
         return True
