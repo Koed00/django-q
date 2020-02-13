@@ -12,7 +12,7 @@ from django_q.conf import Conf
 @pytest.mark.django_db
 def test_monitor(monkeypatch):
     cluster_id = uuid.uuid4()
-    assert Stat.get(pid=0, cluster_id=4).sentinel == 0
+    assert Stat.get(pid=0, cluster_id=cluster_id).sentinel == 0
     c = Cluster()
     c.start()
     stats = monitor(run_once=True)
