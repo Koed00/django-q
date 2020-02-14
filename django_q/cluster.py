@@ -14,6 +14,7 @@ import importlib
 import signal
 import socket
 import traceback
+import uuid
 # Django
 from django import db
 from django.utils import timezone
@@ -38,6 +39,7 @@ class Cluster(object):
         self.stop_event = None
         self.start_event = None
         self.pid = current_process().pid
+        self.cluster_id = uuid.uuid4()
         self.host = socket.gethostname()
         self.timeout = Conf.TIMEOUT
         signal.signal(signal.SIGTERM, self.sig_handler)
@@ -48,9 +50,9 @@ class Cluster(object):
         self.stop_event = Event()
         self.start_event = Event()
         self.sentinel = Process(target=Sentinel,
-                                args=(self.stop_event, self.start_event, self.broker, self.timeout))
+                                args=(self.stop_event, self.start_event, self.cluster_id, self.broker, self.timeout))
         self.sentinel.start()
-        logger.info(_('Q Cluster-{} starting.').format(self.pid))
+        logger.info(_('Q Cluster-{} starting.').format(self.cluster_id))
         while not self.start_event.is_set():
             sleep(0.1)
         return self.pid
@@ -58,10 +60,10 @@ class Cluster(object):
     def stop(self):
         if not self.sentinel.is_alive():
             return False
-        logger.info(_('Q Cluster-{} stopping.').format(self.pid))
+        logger.info(_('Q Cluster-{} stopping.').format(self.cluster_id))
         self.stop_event.set()
         self.sentinel.join()
-        logger.info(_('Q Cluster-{} has stopped.').format(self.pid))
+        logger.info(_('Q Cluster-{} has stopped.').format(self.cluster_id))
         self.start_event = None
         self.stop_event = None
         return True
@@ -74,8 +76,8 @@ class Cluster(object):
     @property
     def stat(self):
         if self.sentinel:
-            return Stat.get(self.pid)
-        return Status(self.pid)
+            return Stat.get(pid=self.pid, cluster_id=self.cluster_id)
+        return Status(pid=self.pid, cluster_id=self.cluster_id)
 
     @property
     def is_starting(self):
@@ -95,11 +97,12 @@ class Cluster(object):
 
 
 class Sentinel(object):
-    def __init__(self, stop_event, start_event, broker=None, timeout=Conf.TIMEOUT, start=True):
+    def __init__(self, stop_event, start_event, cluster_id, broker=None, timeout=Conf.TIMEOUT, start=True):
         # Make sure we catch signals for the pool
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         signal.signal(signal.SIGTERM, signal.SIG_DFL)
         self.pid = current_process().pid
+        self.cluster_id = cluster_id
         self.parent_pid = get_ppid()
         self.name = current_process().name
         self.broker = broker or get_broker()

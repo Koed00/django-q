@@ -72,7 +72,7 @@ def monitor(run_once=False, broker=None):
                 uptime = '%d:%02d:%02d' % (hours, minutes, seconds)
                 # print to the terminal
                 print(term.move(i, 0) + term.center(stat.host[:col_width - 1], width=col_width - 1))
-                print(term.move(i, 1 * col_width) + term.center(stat.cluster_id, width=col_width - 1))
+                print(term.move(i, 1 * col_width) + term.center(str(stat.cluster_id)[-8:], width=col_width - 1))
                 print(term.move(i, 2 * col_width) + term.center(status, width=col_width - 1))
                 print(term.move(i, 3 * col_width) + term.center(workers, width=col_width - 1))
                 print(term.move(i, 4 * col_width) + term.center(tasks, width=col_width - 1))
