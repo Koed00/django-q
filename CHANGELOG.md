@@ -1,5 +1,21 @@
 # Changelog
 
+## [v1.2.0](https://github.com/koed00/django-q/tree/v1.2.0) (2020-02-17)
+
+[Full Changelog](https://github.com/koed00/django-q/compare/v.1.1.0...v1.2.0)
+
+**Closed issues:**
+
+- Run task at a specific time [\#407](https://github.com/Koed00/django-q/issues/407)
+- Question about Multiple Clusters [\#401](https://github.com/Koed00/django-q/issues/401)
+
+**Merged pull requests:**
+
+- Differentiate between PID and unique cluster ID [\#414](https://github.com/Koed00/django-q/pull/414) ([jmcvetta](https://github.com/jmcvetta))
+- Bump django from 3.0.2 to 3.0.3 [\#411](https://github.com/Koed00/django-q/pull/411) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Fix startup error in AWS Lambda [\#405](https://github.com/Koed00/django-q/pull/405) ([lordkev](https://github.com/lordkev))
+- \[py27\] Remove last traces of py27 [\#392](https://github.com/Koed00/django-q/pull/392) ([Djailla](https://github.com/Djailla))
+
 ## [v.1.1.0](https://github.com/koed00/django-q/tree/v.1.1.0) (2020-01-18)
 
 [Full Changelog](https://github.com/koed00/django-q/compare/v1.0.2...v.1.1.0)
@@ -615,6 +631,7 @@
 
 - Adds `save` override options for tasks [\#27](https://github.com/Koed00/django-q/pull/27) ([Koed00](https://github.com/Koed00))
 - Expanding coverage [\#26](https://github.com/Koed00/django-q/pull/26) ([Koed00](https://github.com/Koed00))
+- Adds task groups [\#21](https://github.com/Koed00/django-q/pull/21) ([Koed00](https://github.com/Koed00))
 
 ## [v0.4.0](https://github.com/koed00/django-q/tree/v0.4.0) (2015-07-19)
 
@@ -626,7 +643,6 @@
 - Adds failure filtering to group functions [\#24](https://github.com/Koed00/django-q/pull/24) ([Koed00](https://github.com/Koed00))
 - Adds count\_group\(\) and delete\_group\(\) [\#23](https://github.com/Koed00/django-q/pull/23) ([Koed00](https://github.com/Koed00))
 - decoding values\_list on a picklefield is faster [\#22](https://github.com/Koed00/django-q/pull/22) ([Koed00](https://github.com/Koed00))
-- Adds task groups [\#21](https://github.com/Koed00/django-q/pull/21) ([Koed00](https://github.com/Koed00))
 
 ## [v0.3.5](https://github.com/koed00/django-q/tree/v0.3.5) (2015-07-17)
 
