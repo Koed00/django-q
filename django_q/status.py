@@ -28,7 +28,9 @@ class Stat(Status):
     """Status object for Cluster monitoring."""
 
     def __init__(self, sentinel):
-        super(Stat, self).__init__(sentinel.parent_pid or sentinel.pid, cluster_id=sentinel.cluster_id)
+        super(Stat, self).__init__(
+            sentinel.parent_pid or sentinel.pid, cluster_id=sentinel.cluster_id
+        )
         self.broker = sentinel.broker or get_broker()
         self.tob = sentinel.tob
         self.reincarnations = sentinel.reincarnations
@@ -61,7 +63,7 @@ class Stat(Status):
         :param cluster_id: cluster ID
         :return: redis key for the cluster statistic
         """
-        return '{}:{}'.format(Conf.Q_STAT, cluster_id)
+        return f"{Conf.Q_STAT}:{cluster_id}"
 
     def save(self):
         try:
@@ -99,7 +101,7 @@ class Stat(Status):
         if not broker:
             broker = get_broker()
         stats = []
-        packs = broker.get_stats('{}:*'.format(Conf.Q_STAT)) or []
+        packs = broker.get_stats(f"{Conf.Q_STAT}:*") or []
         for pack in packs:
             try:
                 stats.append(SignedPackage.loads(pack))
@@ -110,5 +112,5 @@ class Stat(Status):
     def __getstate__(self):
         # Don't pickle the redis connection
         state = dict(self.__dict__)
-        del state['broker']
+        del state["broker"]
         return state
