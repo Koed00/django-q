@@ -63,7 +63,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Django Q'
-copyright = '2015-2018, Ilan Steemers'
+copyright = '2015-2020, Ilan Steemers'
 author = 'Ilan Steemers'
 
 # The version info for the project you're documenting, acts as replacement for

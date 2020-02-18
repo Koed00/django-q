@@ -4,27 +4,30 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from time import sleep
-
-# external
-import arrow
 import ast
+
 # Standard
 import importlib
 import signal
 import socket
 import traceback
 import uuid
+from multiprocessing import Event, Process, Value, current_process
+from time import sleep
+
+# external
+import arrow
+
 # Django
 from django import db
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from multiprocessing import Event, Process, Value, current_process
 
 # Local
 import django_q.tasks
 from django_q.brokers import get_broker
 from django_q.conf import Conf, logger, psutil, get_ppid, error_reporter
+from django_q.humanhash import humanize
 from django_q.models import Task, Success, Schedule
 from django_q.queues import Queue
 from django_q.signals import pre_execute
@@ -49,10 +52,18 @@ class Cluster(object):
         # Start Sentinel
         self.stop_event = Event()
         self.start_event = Event()
-        self.sentinel = Process(target=Sentinel,
-                                args=(self.stop_event, self.start_event, self.cluster_id, self.broker, self.timeout))
+        self.sentinel = Process(
+            target=Sentinel,
+            args=(
+                self.stop_event,
+                self.start_event,
+                self.cluster_id,
+                self.broker,
+                self.timeout,
+            ),
+        )
         self.sentinel.start()
-        logger.info(_('Q Cluster-{} starting.').format(self.cluster_id))
+        logger.info(_(f"Q Cluster {self.name} starting."))
         while not self.start_event.is_set():
             sleep(0.1)
         return self.pid
@@ -60,17 +71,20 @@ class Cluster(object):
     def stop(self):
         if not self.sentinel.is_alive():
             return False
-        logger.info(_('Q Cluster-{} stopping.').format(self.cluster_id))
+        logger.info(_(f"Q Cluster {self.name} stopping."))
         self.stop_event.set()
         self.sentinel.join()
-        logger.info(_('Q Cluster-{} has stopped.').format(self.cluster_id))
+        logger.info(_(f"Q Cluster {self.name} has stopped."))
         self.start_event = None
         self.stop_event = None
         return True
 
     def sig_handler(self, signum, frame):
-        logger.debug(_('{} got signal {}').format(current_process().name,
-                                                  Conf.SIGNAL_NAMES.get(signum, 'UNKNOWN')))
+        logger.debug(
+            _(
+                f'{current_process().name} got signal {Conf.SIGNAL_NAMES.get(signum, "UNKNOWN")}'
+            )
+        )
         self.stop()
 
     @property
@@ -78,6 +92,10 @@ class Cluster(object):
         if self.sentinel:
             return Stat.get(pid=self.pid, cluster_id=self.cluster_id)
         return Status(pid=self.pid, cluster_id=self.cluster_id)
+
+    @property
+    def name(self):
+        return humanize(self.cluster_id.hex)
 
     @property
     def is_starting(self):
@@ -89,7 +107,12 @@ class Cluster(object):
 
     @property
     def is_stopping(self):
-        return self.stop_event and self.start_event and self.start_event.is_set() and self.stop_event.is_set()
+        return (
+            self.stop_event
+            and self.start_event
+            and self.start_event.is_set()
+            and self.stop_event.is_set()
+        )
 
     @property
     def has_stopped(self):
@@ -97,7 +120,15 @@ class Cluster(object):
 
 
 class Sentinel(object):
-    def __init__(self, stop_event, start_event, cluster_id, broker=None, timeout=Conf.TIMEOUT, start=True):
+    def __init__(
+        self,
+        stop_event,
+        start_event,
+        cluster_id,
+        broker=None,
+        timeout=Conf.TIMEOUT,
+        start=True,
+    ):
         # Make sure we catch signals for the pool
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         signal.signal(signal.SIGTERM, signal.SIG_DFL)
@@ -113,7 +144,9 @@ class Sentinel(object):
         self.pool_size = Conf.WORKERS
         self.pool = []
         self.timeout = timeout
-        self.task_queue = Queue(maxsize=Conf.QUEUE_LIMIT) if Conf.QUEUE_LIMIT else Queue()
+        self.task_queue = (
+            Queue(maxsize=Conf.QUEUE_LIMIT) if Conf.QUEUE_LIMIT else Queue()
+        )
         self.result_queue = Queue()
         self.event_out = Event()
         self.monitor = None
@@ -155,7 +188,9 @@ class Sentinel(object):
         return self.spawn_process(pusher, self.task_queue, self.event_out, self.broker)
 
     def spawn_worker(self):
-        self.spawn_process(worker, self.task_queue, self.result_queue, Value('f', -1), self.timeout)
+        self.spawn_process(
+            worker, self.task_queue, self.result_queue, Value("f", -1), self.timeout
+        )
 
     def spawn_monitor(self):
         return self.spawn_process(monitor, self.result_queue, self.broker)
@@ -168,21 +203,21 @@ class Sentinel(object):
         close_old_django_connections()
         if process == self.monitor:
             self.monitor = self.spawn_monitor()
-            logger.error(_("reincarnated monitor {} after sudden death").format(process.name))
+            logger.error(_(f"reincarnated monitor {process.name} after sudden death"))
         elif process == self.pusher:
             self.pusher = self.spawn_pusher()
-            logger.error(_("reincarnated pusher {} after sudden death").format(process.name))
+            logger.error(_(f"reincarnated pusher {process.name} after sudden death"))
         else:
             self.pool.remove(process)
             self.spawn_worker()
             if process.timer.value == 0:
                 # only need to terminate on timeout, otherwise we risk destabilizing the queues
                 process.terminate()
-                logger.warn(_("reincarnated worker {} after timeout").format(process.name))
+                logger.warn(_(f"reincarnated worker {process.name} after timeout"))
             elif int(process.timer.value) == -2:
-                logger.info(_("recycled worker {}").format(process.name))
+                logger.info(_(f"recycled worker {process.name}"))
             else:
-                logger.error(_("reincarnated worker {} after death").format(process.name))
+                logger.error(_(f"reincarnated worker {process.name} after death"))
 
         self.reincarnations += 1
 
@@ -201,10 +236,14 @@ class Sentinel(object):
             set_cpu_affinity(Conf.CPU_AFFINITY, [w.pid for w in self.pool])
 
     def guard(self):
-        logger.info(_('{} guarding cluster at {}').format(current_process().name, self.pid))
+        logger.info(
+            _(
+                f"{current_process().name} guarding cluster {humanize(self.cluster_id.hex)}"
+            )
+        )
         self.start_event.set()
         Stat(self).save()
-        logger.info(_('Q Cluster-{} running.').format(self.parent_pid))
+        logger.info(_(f"Q Cluster {humanize(self.cluster_id.hex)} running."))
         counter = 0
         cycle = Conf.GUARD_CYCLE  # guard loop sleep in seconds
         # Guard loop. Runs at least once
@@ -238,7 +277,7 @@ class Sentinel(object):
     def stop(self):
         Stat(self).save()
         name = current_process().name
-        logger.info(_('{} stopping cluster processes').format(name))
+        logger.info(_(f"{name} stopping cluster processes"))
         # Stopping pusher
         self.event_out.set()
         # Wait for it to stop
@@ -247,7 +286,7 @@ class Sentinel(object):
             Stat(self).save()
         # Put poison pills in the queue
         for __ in range(len(self.pool)):
-            self.task_queue.put('STOP')
+            self.task_queue.put("STOP")
         self.task_queue.close()
         # wait for the task queue to empty
         self.task_queue.join_thread()
@@ -259,11 +298,11 @@ class Sentinel(object):
             sleep(0.1)
             Stat(self).save()
         # Finally stop the monitor
-        self.result_queue.put('STOP')
+        self.result_queue.put("STOP")
         self.result_queue.close()
         # Wait for the result queue to empty
         self.result_queue.join_thread()
-        logger.info(_('{} waiting for the monitor.').format(name))
+        logger.info(_(f"{name} waiting for the monitor."))
         # Wait for everything to close or time out
         count = 0
         if not self.timeout:
@@ -284,7 +323,7 @@ def pusher(task_queue, event, broker=None):
     """
     if not broker:
         broker = get_broker()
-    logger.info(_('{} pushing tasks at {}').format(current_process().name, current_process().pid))
+    logger.info(_(f"{current_process().name} pushing tasks at {current_process().pid}"))
     while True:
         try:
             task_set = broker.dequeue()
@@ -303,12 +342,12 @@ def pusher(task_queue, event, broker=None):
                     logger.error(e, traceback.format_exc())
                     broker.fail(ack_id)
                     continue
-                task['ack_id'] = ack_id
+                task["ack_id"] = ack_id
                 task_queue.put(task)
-            logger.debug(_('queueing from {}').format(broker.list_key))
+            logger.debug(_(f"queueing from {broker.list_key}"))
         if event.is_set():
             break
-    logger.info(_("{} stopped pushing tasks").format(current_process().name))
+    logger.info(_(f"{current_process().name} stopped pushing tasks"))
 
 
 def monitor(result_queue, broker=None):
@@ -319,25 +358,25 @@ def monitor(result_queue, broker=None):
     if not broker:
         broker = get_broker()
     name = current_process().name
-    logger.info(_("{} monitoring at {}").format(name, current_process().pid))
-    for task in iter(result_queue.get, 'STOP'):
+    logger.info(_(f"{name} monitoring at {current_process().pid}"))
+    for task in iter(result_queue.get, "STOP"):
         # save the result
-        if task.get('cached', False):
+        if task.get("cached", False):
             save_cached(task, broker)
         else:
             save_task(task, broker)
         # acknowledge result
-        ack_id = task.pop('ack_id', False)
-        if ack_id and (task['success'] or task.get('ack_failure', False)):
+        ack_id = task.pop("ack_id", False)
+        if ack_id and (task["success"] or task.get("ack_failure", False)):
             broker.acknowledge(ack_id)
         # log the result
-        if task['success']:
+        if task["success"]:
             # log success
-            logger.info(_("Processed [{}]").format(task['name']))
+            logger.info(_(f"Processed [{task['name']}]"))
         else:
             # log failure
-            logger.error(_("Failed [{}] - {}").format(task['name'], task['result']))
-    logger.info(_("{} stopped monitoring results").format(name))
+            logger.error(_(f"Failed [{task['name']}] - {task['result']}"))
+    logger.info(_(f"{name} stopped monitoring results"))
 
 
 def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
@@ -348,22 +387,22 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
     :type timer: multiprocessing.Value
     """
     name = current_process().name
-    logger.info(_('{} ready for work at {}').format(name, current_process().pid))
+    logger.info(_(f"{name} ready for work at {current_process().pid}"))
     task_count = 0
     if timeout is None:
         timeout = -1
     # Start reading the task queue
-    for task in iter(task_queue.get, 'STOP'):
+    for task in iter(task_queue.get, "STOP"):
         result = None
         timer.value = -1  # Idle
         task_count += 1
         # Get the function from the task
-        logger.info(_('{} processing [{}]').format(name, task['name']))
-        f = task['func']
+        logger.info(_(f'{name} processing [{task["name"]}]'))
+        f = task["func"]
         # if it's not an instance try to get it from the string
-        if not callable(task['func']):
+        if not callable(task["func"]):
             try:
-                module, func = f.rsplit('.', 1)
+                module, func = f.rsplit(".", 1)
                 m = importlib.import_module(module)
                 f = getattr(m, func)
             except (ValueError, ImportError, AttributeError) as e:
@@ -373,30 +412,30 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
         # We're still going
         if not result:
             close_old_django_connections()
-            timer_value = task.pop('timeout', timeout)
+            timer_value = task.pop("timeout", timeout)
             # signal execution
             pre_execute.send(sender="django_q", func=f, task=task)
             # execute the payload
             timer.value = timer_value  # Busy
             try:
-                res = f(*task['args'], **task['kwargs'])
+                res = f(*task["args"], **task["kwargs"])
                 result = (res, True)
             except Exception as e:
-                result = ('{} : {}'.format(e, traceback.format_exc()), False)
+                result = (f"{e} : {traceback.format_exc()}", False)
                 if error_reporter:
                     error_reporter.report()
         with timer.get_lock():
             # Process result
-            task['result'] = result[0]
-            task['success'] = result[1]
-            task['stopped'] = timezone.now()
+            task["result"] = result[0]
+            task["success"] = result[1]
+            task["stopped"] = timezone.now()
             result_queue.put(task)
             timer.value = -1  # Idle
             # Recycle
             if task_count == Conf.RECYCLE:
                 timer.value = -2  # Recycled
                 break
-    logger.info(_('{} stopped doing work').format(name))
+    logger.info(_(f"{name} stopped doing work"))
 
 
 def save_task(task, broker):
@@ -404,67 +443,77 @@ def save_task(task, broker):
     Saves the task package to Django or the cache
     """
     # SAVE LIMIT < 0 : Don't save success
-    if not task.get('save', Conf.SAVE_LIMIT >= 0) and task['success']:
+    if not task.get("save", Conf.SAVE_LIMIT >= 0) and task["success"]:
         return
     # enqueues next in a chain
-    if task.get('chain', None):
-        django_q.tasks.async_chain(task['chain'], group=task['group'], cached=task['cached'], sync=task['sync'], broker=broker)
+    if task.get("chain", None):
+        django_q.tasks.async_chain(
+            task["chain"],
+            group=task["group"],
+            cached=task["cached"],
+            sync=task["sync"],
+            broker=broker,
+        )
     # SAVE LIMIT > 0: Prune database, SAVE_LIMIT 0: No pruning
     close_old_django_connections()
     try:
-        if task['success'] and 0 < Conf.SAVE_LIMIT <= Success.objects.count():
+        if task["success"] and 0 < Conf.SAVE_LIMIT <= Success.objects.count():
             Success.objects.last().delete()
         # check if this task has previous results
-        if Task.objects.filter(id=task['id'], name=task['name']).exists():
-            existing_task = Task.objects.get(id=task['id'], name=task['name'])
+        if Task.objects.filter(id=task["id"], name=task["name"]).exists():
+            existing_task = Task.objects.get(id=task["id"], name=task["name"])
             # only update the result if it hasn't succeeded yet
             if not existing_task.success:
-                existing_task.stopped = task['stopped']
-                existing_task.result = task['result']
-                existing_task.success = task['success']
+                existing_task.stopped = task["stopped"]
+                existing_task.result = task["result"]
+                existing_task.success = task["success"]
                 existing_task.save()
         else:
-            Task.objects.create(id=task['id'],
-                                name=task['name'],
-                                func=task['func'],
-                                hook=task.get('hook'),
-                                args=task['args'],
-                                kwargs=task['kwargs'],
-                                started=task['started'],
-                                stopped=task['stopped'],
-                                result=task['result'],
-                                group=task.get('group'),
-                                success=task['success']
-                                )
+            Task.objects.create(
+                id=task["id"],
+                name=task["name"],
+                func=task["func"],
+                hook=task.get("hook"),
+                args=task["args"],
+                kwargs=task["kwargs"],
+                started=task["started"],
+                stopped=task["stopped"],
+                result=task["result"],
+                group=task.get("group"),
+                success=task["success"],
+            )
     except Exception as e:
         logger.error(e)
 
 
 def save_cached(task, broker):
-    task_key = '{}:{}'.format(broker.list_key, task['id'])
-    timeout = task['cached']
+    task_key = f'{broker.list_key}:{task["id"]}'
+    timeout = task["cached"]
     if timeout is True:
         timeout = None
     try:
-        group = task.get('group', None)
-        iter_count = task.get('iter_count', 0)
+        group = task.get("group", None)
+        iter_count = task.get("iter_count", 0)
         # if it's a group append to the group list
         if group:
-            group_key = '{}:{}:keys'.format(broker.list_key, group)
+            group_key = f"{broker.list_key}:{group}:keys"
             group_list = broker.cache.get(group_key) or []
             # if it's an iter group, check if we are ready
             if iter_count and len(group_list) == iter_count - 1:
-                group_args = '{}:{}:args'.format(broker.list_key, group)
+                group_args = f"{broker.list_key}:{group}:args"
                 # collate the results into a Task result
-                results = [SignedPackage.loads(broker.cache.get(k))['result'] for k in group_list]
-                results.append(task['result'])
-                task['result'] = results
-                task['id'] = group
-                task['args'] = SignedPackage.loads(broker.cache.get(group_args))
-                task.pop('iter_count', None)
-                task.pop('group', None)
-                if task.get('iter_cached', None):
-                    task['cached'] = task.pop('iter_cached', None)
+                results = [
+                    SignedPackage.loads(broker.cache.get(k))["result"]
+                    for k in group_list
+                ]
+                results.append(task["result"])
+                task["result"] = results
+                task["id"] = group
+                task["args"] = SignedPackage.loads(broker.cache.get(group_args))
+                task.pop("iter_count", None)
+                task.pop("group", None)
+                if task.get("iter_cached", None):
+                    task["cached"] = task.pop("iter_cached", None)
                     save_cached(task, broker=broker)
                 else:
                     save_task(task, broker)
@@ -475,12 +524,16 @@ def save_cached(task, broker):
             group_list.append(task_key)
             broker.cache.set(group_key, group_list, timeout)
             # async_task next in a chain
-            if task.get('chain', None):
-                django_q.tasks.async_chain(task['chain'], group=group, cached=task['cached'], sync=task['sync'], broker=broker)
+            if task.get("chain", None):
+                django_q.tasks.async_chain(
+                    task["chain"],
+                    group=group,
+                    cached=task["cached"],
+                    sync=task["sync"],
+                    broker=broker,
+                )
         # save the task
-        broker.cache.set(task_key,
-                         SignedPackage.dumps(task),
-                         timeout)
+        broker.cache.set(task_key, SignedPackage.dumps(task), timeout)
     except Exception as e:
         logger.error(e)
 
@@ -494,14 +547,18 @@ def scheduler(broker=None):
     close_old_django_connections()
     try:
         with db.transaction.atomic():
-            for s in Schedule.objects.select_for_update().exclude(repeats=0).filter(next_run__lt=timezone.now()):
+            for s in (
+                Schedule.objects.select_for_update()
+                .exclude(repeats=0)
+                .filter(next_run__lt=timezone.now())
+            ):
                 args = ()
                 kwargs = {}
                 # get args, kwargs and hook
                 if s.kwargs:
                     try:
                         # eval should be safe here because dict()
-                        kwargs = eval('dict({})'.format(s.kwargs))
+                        kwargs = eval(f"dict({s.kwargs})")
                     except SyntaxError:
                         kwargs = {}
                 if s.args:
@@ -509,9 +566,9 @@ def scheduler(broker=None):
                     # single value won't eval to tuple, so:
                     if type(args) != tuple:
                         args = (args,)
-                q_options = kwargs.get('q_options', {})
+                q_options = kwargs.get("q_options", {})
                 if s.hook:
-                    q_options['hook'] = s.hook
+                    q_options["hook"] = s.hook
                 # set up the next run time
                 if not s.schedule_type == s.ONCE:
                     next_run = arrow.get(s.next_run)
@@ -535,18 +592,23 @@ def scheduler(broker=None):
                     s.next_run = next_run.datetime
                     s.repeats += -1
                 # send it to the cluster
-                q_options['broker'] = broker
-                q_options['group'] = q_options.get('group', s.name or s.id)
-                kwargs['q_options'] = q_options
+                q_options["broker"] = broker
+                q_options["group"] = q_options.get("group", s.name or s.id)
+                kwargs["q_options"] = q_options
                 s.task = django_q.tasks.async_task(s.func, *args, **kwargs)
                 # log it
                 if not s.task:
                     logger.error(
-                        _('{} failed to create a task from schedule [{}]').format(current_process().name,
-                                                                                  s.name or s.id))
+                        _(
+                            f"{current_process().name} failed to create a task from schedule [{s.name or s.id}]"
+                        )
+                    )
                 else:
                     logger.info(
-                        _('{} created a task from schedule [{}]').format(current_process().name, s.name or s.id))
+                        _(
+                            f"{current_process().name} created a task from schedule [{s.name or s.id}]"
+                        )
+                    )
                 # default behavior is to delete a ONCE schedule
                 if s.schedule_type == s.ONCE:
                     if s.repeats < 0:
@@ -561,14 +623,15 @@ def scheduler(broker=None):
 
 
 def close_old_django_connections():
-    '''
+    """
     Close django connections unless running with sync=True.
-    '''
+    """
     if Conf.SYNC:
         logger.warning(
-            'Preserving django database connections because sync=True. Beware '
-            'that tasks are now injected in the calling context/transactions '
-            'which may result in unexpected bahaviour.')
+            "Preserving django database connections because sync=True. Beware "
+            "that tasks are now injected in the calling context/transactions "
+            "which may result in unexpected bahaviour."
+        )
     else:
         db.close_old_connections()
 
@@ -583,11 +646,13 @@ def set_cpu_affinity(n, process_ids, actual=not Conf.TESTING):
     """
     # check if we have the psutil module
     if not psutil:
-        logger.warning('Skipping cpu affinity because psutil was not found.')
+        logger.warning("Skipping cpu affinity because psutil was not found.")
         return
     # check if the platform supports cpu_affinity
-    if actual and not hasattr(psutil.Process(process_ids[0]), 'cpu_affinity'):
-        logger.warning('Faking cpu affinity because it is not supported on this platform')
+    if actual and not hasattr(psutil.Process(process_ids[0]), "cpu_affinity"):
+        logger.warning(
+            "Faking cpu affinity because it is not supported on this platform"
+        )
         actual = False
     # get the available processors
     cpu_list = list(range(psutil.cpu_count()))
@@ -607,4 +672,4 @@ def set_cpu_affinity(n, process_ids, actual=not Conf.TESTING):
             p = psutil.Process(pid)
             if actual:
                 p.cpu_affinity(affinity)
-            logger.info(_('{} will use cpu {}').format(pid, affinity))
+            logger.info(_(f"{pid} will use cpu {affinity}"))

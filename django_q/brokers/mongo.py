@@ -29,14 +29,14 @@ class Mongo(Broker):
             try:
                 Conf.MONGO_DB = self.connection.get_default_database().name
             except ConfigurationError:
-                Conf.MONGO_DB = 'django-q'
+                Conf.MONGO_DB = "django-q"
         return self.connection[Conf.MONGO_DB][self.list_key]
 
     def queue_size(self):
-        return self.collection.count({'lock': {'$lte': _timeout()}})
+        return self.collection.count({"lock": {"$lte": _timeout()}})
 
     def lock_size(self):
-        return self.collection.count({'lock': {'$gt': _timeout()}})
+        return self.collection.count({"lock": {"$gt": _timeout()}})
 
     def purge_queue(self):
         return self.delete_queue()
@@ -46,20 +46,24 @@ class Mongo(Broker):
 
     def info(self):
         if not self._info:
-            self._info = 'MongoDB {}'.format(self.connection.server_info()['version'])
+            self._info = f"MongoDB {self.connection.server_info()['version']}"
         return self._info
 
     def fail(self, task_id):
         self.delete(task_id)
 
     def enqueue(self, task):
-        inserted_id = self.collection.insert_one({'payload': task, 'lock': _timeout()}).inserted_id
+        inserted_id = self.collection.insert_one(
+            {"payload": task, "lock": _timeout()}
+        ).inserted_id
         return str(inserted_id)
 
     def dequeue(self):
-        task = self.collection.find_one_and_update({'lock': {'$lte': _timeout()}}, {'$set': {'lock': timezone.now()}})
+        task = self.collection.find_one_and_update(
+            {"lock": {"$lte": _timeout()}}, {"$set": {"lock": timezone.now()}}
+        )
         if task:
-            return [(str(task['_id']), task['payload'])]
+            return [(str(task["_id"]), task["payload"])]
         # empty queue, spare the cpu
         sleep(Conf.POLL)
 
@@ -67,7 +71,7 @@ class Mongo(Broker):
         return self.collection.drop()
 
     def delete(self, task_id):
-        self.collection.delete_one({'_id': ObjectId(task_id)})
+        self.collection.delete_one({"_id": ObjectId(task_id)})
 
     def acknowledge(self, task_id):
         return self.delete(task_id)
