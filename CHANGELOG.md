@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.2.1](https://github.com/koed00/django-q/tree/v1.2.1) (2020-02-18)
+
+[Full Changelog](https://github.com/koed00/django-q/compare/v1.2.0...v1.2.1)
+
+**Merged pull requests:**
+
+- Convert to f-strings [\#415](https://github.com/Koed00/django-q/pull/415) ([Koed00](https://github.com/Koed00))
+
 ## [v1.2.0](https://github.com/koed00/django-q/tree/v1.2.0) (2020-02-17)
 
 [Full Changelog](https://github.com/koed00/django-q/compare/v.1.1.0...v1.2.0)
@@ -14,6 +22,7 @@
 - Differentiate between PID and unique cluster ID [\#414](https://github.com/Koed00/django-q/pull/414) ([jmcvetta](https://github.com/jmcvetta))
 - Bump django from 3.0.2 to 3.0.3 [\#411](https://github.com/Koed00/django-q/pull/411) ([dependabot[bot]](https://github.com/apps/dependabot))
 - Fix startup error in AWS Lambda [\#405](https://github.com/Koed00/django-q/pull/405) ([lordkev](https://github.com/lordkev))
+- ability to use a Redis connection URI - closes \#402 [\#403](https://github.com/Koed00/django-q/pull/403) ([valentinogagliardi](https://github.com/valentinogagliardi))
 - \[py27\] Remove last traces of py27 [\#392](https://github.com/Koed00/django-q/pull/392) ([Djailla](https://github.com/Djailla))
 
 ## [v.1.1.0](https://github.com/koed00/django-q/tree/v.1.1.0) (2020-01-18)
@@ -33,12 +42,10 @@
 **Merged pull requests:**
 
 - Django 3 support [\#404](https://github.com/Koed00/django-q/pull/404) ([Koed00](https://github.com/Koed00))
-- ability to use a Redis connection URI - closes \#402 [\#403](https://github.com/Koed00/django-q/pull/403) ([valentinogagliardi](https://github.com/valentinogagliardi))
 - Replacing `ugettext\_` functions with `gettext\_` for Django 3 [\#399](https://github.com/Koed00/django-q/pull/399) ([theunraveler](https://github.com/theunraveler))
 - Bump django from 2.2.5 to 2.2.8 [\#395](https://github.com/Koed00/django-q/pull/395) ([dependabot[bot]](https://github.com/apps/dependabot))
 - Preserve database connection when sync=True [\#393](https://github.com/Koed00/django-q/pull/393) ([Urth](https://github.com/Urth))
 - Fix scheduler concurrency with multiple clusters [\#347](https://github.com/Koed00/django-q/pull/347) ([maerteijn](https://github.com/maerteijn))
-- Fix timeout override [\#333](https://github.com/Koed00/django-q/pull/333) ([tremby](https://github.com/tremby))
 
 ## [v1.0.2](https://github.com/koed00/django-q/tree/v1.0.2) (2019-08-10)
 
@@ -73,6 +80,7 @@
 - Fix concurrency issue in timeout timer value processing [\#337](https://github.com/Koed00/django-q/pull/337) ([jannero](https://github.com/jannero))
 - Timeout handling fix and improvements to related tests  [\#336](https://github.com/Koed00/django-q/pull/336) ([jannero](https://github.com/jannero))
 - Document how to run tests on your computer [\#334](https://github.com/Koed00/django-q/pull/334) ([jannero](https://github.com/jannero))
+- Fix timeout override [\#333](https://github.com/Koed00/django-q/pull/333) ([tremby](https://github.com/tremby))
 - Updates django version and packages [\#330](https://github.com/Koed00/django-q/pull/330) ([Koed00](https://github.com/Koed00))
 - Modified django\_q imports to support Python 3.4 again in cluster.py. … [\#327](https://github.com/Koed00/django-q/pull/327) ([mattaw](https://github.com/mattaw))
 
@@ -631,7 +639,6 @@
 
 - Adds `save` override options for tasks [\#27](https://github.com/Koed00/django-q/pull/27) ([Koed00](https://github.com/Koed00))
 - Expanding coverage [\#26](https://github.com/Koed00/django-q/pull/26) ([Koed00](https://github.com/Koed00))
-- Adds task groups [\#21](https://github.com/Koed00/django-q/pull/21) ([Koed00](https://github.com/Koed00))
 
 ## [v0.4.0](https://github.com/koed00/django-q/tree/v0.4.0) (2015-07-19)
 
@@ -643,6 +650,7 @@
 - Adds failure filtering to group functions [\#24](https://github.com/Koed00/django-q/pull/24) ([Koed00](https://github.com/Koed00))
 - Adds count\_group\(\) and delete\_group\(\) [\#23](https://github.com/Koed00/django-q/pull/23) ([Koed00](https://github.com/Koed00))
 - decoding values\_list on a picklefield is faster [\#22](https://github.com/Koed00/django-q/pull/22) ([Koed00](https://github.com/Koed00))
+- Adds task groups [\#21](https://github.com/Koed00/django-q/pull/21) ([Koed00](https://github.com/Koed00))
 
 ## [v0.3.5](https://github.com/koed00/django-q/tree/v0.3.5) (2015-07-17)
 
