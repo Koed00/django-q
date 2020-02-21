@@ -424,6 +424,8 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
                 result = (f"{e} : {traceback.format_exc()}", False)
                 if error_reporter:
                     error_reporter.report()
+                if task.get("sync", False):
+                    raise
         with timer.get_lock():
             # Process result
             task["result"] = result[0]
