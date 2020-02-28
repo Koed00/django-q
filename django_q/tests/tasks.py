@@ -1,6 +1,10 @@
 from time import sleep
 
 
+class TaskError(Exception):
+    pass
+
+
 def countdown(n):
     while n > 0:
         n -= 1
@@ -44,3 +48,7 @@ def hello():
 
 def result(obj):
     print(f"RESULT HOOK {obj.name} : {obj.result()}")
+
+
+def raise_exception():
+    raise TaskError("this is an exception!")
