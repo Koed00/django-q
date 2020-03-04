@@ -4,30 +4,30 @@
 #
 #    pip-compile requirements.in
 #
-arrow==0.15.5
+arrow==0.15.5             # via -r requirements.in
 asgiref==3.2.3            # via django
-blessed==1.17.2
-boto3==1.12.1
-botocore==1.15.1          # via boto3, s3transfer
+blessed==1.17.2           # via -r requirements.in
+boto3==1.12.13            # via -r requirements.in
+botocore==1.15.13         # via boto3, s3transfer
 certifi==2019.11.28       # via requests
 chardet==3.0.4            # via requests
-django-picklefield==2.1.1
-django-redis==4.11.0
-django==3.0.3             # via django-picklefield, django-redis
+django-picklefield==2.1.1  # via -r requirements.in
+django-redis==4.11.0      # via -r requirements.in
+django==3.0.4             # via django-picklefield, django-redis
 docutils==0.15.2          # via botocore
-hiredis==1.0.1
-idna==2.8                 # via requests
+hiredis==1.0.1            # via -r requirements.in
+idna==2.9                 # via requests
 iron-core==1.2.0          # via iron-mq
-iron-mq==0.9
-jmespath==0.9.4           # via boto3, botocore
-psutil==5.7.0
-pymongo==3.10.1
+iron-mq==0.9              # via -r requirements.in
+jmespath==0.9.5           # via boto3, botocore
+psutil==5.7.0             # via -r requirements.in
+pymongo==3.10.1           # via -r requirements.in
 python-dateutil==2.8.1    # via arrow, botocore, iron-core
 pytz==2019.3              # via django
-redis==3.4.1
-requests==2.22.0          # via iron-core
+redis==3.4.1              # via -r requirements.in, django-redis
+requests==2.23.0          # via iron-core
 s3transfer==0.3.3         # via boto3
 six==1.14.0               # via blessed, python-dateutil
-sqlparse==0.3.0           # via django
+sqlparse==0.3.1           # via django
 urllib3==1.25.8           # via botocore, requests
 wcwidth==0.1.8            # via blessed
