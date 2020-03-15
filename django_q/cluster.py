@@ -12,7 +12,7 @@ import signal
 import socket
 import traceback
 import uuid
-from multiprocessing import Event, Process, Value, current_process
+from multiprocessing import Event, Process, Value, current_process, RLock
 from time import sleep
 
 # external
@@ -189,7 +189,11 @@ class Sentinel(object):
 
     def spawn_worker(self):
         self.spawn_process(
-            worker, self.task_queue, self.result_queue, Value("f", -1), self.timeout
+            worker,
+            self.task_queue,
+            self.result_queue,
+            Value("f", -1, lock=RLock()),
+            self.timeout,
         )
 
     def spawn_monitor(self):
