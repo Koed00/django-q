@@ -11,7 +11,7 @@ except ImportError:
 
 class Redis(Broker):
     def __init__(self, list_key=Conf.PREFIX):
-        super(Redis, self).__init__(list_key='django_q:{}:q'.format(list_key))
+        super(Redis, self).__init__(list_key=f"django_q:{list_key}:q")
 
     def enqueue(self, task):
         return self.connection.rpush(self.list_key, task)
@@ -34,13 +34,13 @@ class Redis(Broker):
         try:
             return self.connection.ping()
         except redis.ConnectionError as e:
-            logger.error('Can not connect to Redis server.')
+            logger.error("Can not connect to Redis server.")
             raise e
 
     def info(self):
         if not self._info:
-            info = self.connection.info('server')
-            self._info = 'Redis {}'.format(info['redis_version'])
+            info = self.connection.info("server")
+            self._info = f"Redis {info['redis_version']}"
         return self._info
 
     def set_stat(self, key, value, timeout):

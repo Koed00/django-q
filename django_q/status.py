@@ -8,11 +8,12 @@ from django_q.signing import SignedPackage, BadSignature
 class Status(object):
     """Cluster status base class."""
 
-    def __init__(self, pid):
+    def __init__(self, pid, cluster_id):
         self.workers = []
         self.tob = None
         self.reincarnations = 0
-        self.cluster_id = pid
+        self.pid = pid
+        self.cluster_id = cluster_id
         self.sentinel = 0
         self.status = Conf.STOPPED
         self.done_q_size = 0
@@ -27,7 +28,9 @@ class Stat(Status):
     """Status object for Cluster monitoring."""
 
     def __init__(self, sentinel):
-        super(Stat, self).__init__(sentinel.parent_pid or sentinel.pid)
+        super(Stat, self).__init__(
+            sentinel.parent_pid or sentinel.pid, cluster_id=sentinel.cluster_id
+        )
         self.broker = sentinel.broker or get_broker()
         self.tob = sentinel.tob
         self.reincarnations = sentinel.reincarnations
@@ -60,7 +63,7 @@ class Stat(Status):
         :param cluster_id: cluster ID
         :return: redis key for the cluster statistic
         """
-        return '{}:{}'.format(Conf.Q_STAT, cluster_id)
+        return f"{Conf.Q_STAT}:{cluster_id}"
 
     def save(self):
         try:
@@ -72,7 +75,7 @@ class Stat(Status):
         return self.done_q_size + self.task_q_size == 0
 
     @staticmethod
-    def get(cluster_id, broker=None):
+    def get(pid, cluster_id, broker=None):
         """
         gets the current status for the cluster
         :param cluster_id: id of the cluster
@@ -86,7 +89,7 @@ class Stat(Status):
                 return SignedPackage.loads(pack)
             except BadSignature:
                 return None
-        return Status(cluster_id)
+        return Status(pid=pid, cluster_id=cluster_id)
 
     @staticmethod
     def get_all(broker=None):
@@ -98,7 +101,7 @@ class Stat(Status):
         if not broker:
             broker = get_broker()
         stats = []
-        packs = broker.get_stats('{}:*'.format(Conf.Q_STAT)) or []
+        packs = broker.get_stats(f"{Conf.Q_STAT}:*") or []
         for pack in packs:
             try:
                 stats.append(SignedPackage.loads(pack))
@@ -109,5 +112,5 @@ class Stat(Status):
     def __getstate__(self):
         # Don't pickle the redis connection
         state = dict(self.__dict__)
-        del state['broker']
+        del state["broker"]
         return state

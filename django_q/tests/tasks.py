@@ -21,7 +21,7 @@ def count_letters2(obj):
     return count_letters(obj.get_words())
 
 
-def word_multiply(x, word=''):
+def word_multiply(x, word=""):
     return len(word) * x
 
 
@@ -39,8 +39,8 @@ def get_user_id(user):
 
 
 def hello():
-    return 'hello'
+    return "hello"
 
 
 def result(obj):
-    print('RESULT HOOK {} : {}'.format(obj.name, obj.result))
+    print(f"RESULT HOOK {obj.name} : {obj.result()}")

@@ -3,6 +3,7 @@ import threading
 from multiprocessing import Event, Value
 from time import sleep
 from django.utils import timezone
+import uuid as uuidlib
 
 import os
 import pytest
@@ -72,7 +73,8 @@ def test_sentinel():
     start_event = Event()
     stop_event = Event()
     stop_event.set()
-    s = Sentinel(stop_event, start_event, broker=get_broker('sentinel_test:q'))
+    cluster_id = uuidlib.uuid4()
+    s = Sentinel(stop_event, start_event, cluster_id=cluster_id, broker=get_broker('sentinel_test:q'))
     assert start_event.is_set()
     assert s.status() == Conf.STOPPED
 
@@ -256,9 +258,10 @@ def test_timeout(broker, cluster_config_timeout, async_task_kwargs):
     async_task('time.sleep', 5, broker=broker, **async_task_kwargs)
     start_event = Event()
     stop_event = Event()
+    cluster_id = uuidlib.uuid4()
     # Set a timer to stop the Sentinel
     threading.Timer(3, stop_event.set).start()
-    s = Sentinel(stop_event, start_event, broker=broker, timeout=cluster_config_timeout)
+    s = Sentinel(stop_event, start_event, cluster_id=cluster_id, broker=broker, timeout=cluster_config_timeout)
     assert start_event.is_set()
     assert s.status() == Conf.STOPPED
     assert s.reincarnations == 1
@@ -279,9 +282,10 @@ def test_timeout_task_finishes(broker, cluster_config_timeout, async_task_kwargs
     async_task('time.sleep', 3, broker=broker, **async_task_kwargs)
     start_event = Event()
     stop_event = Event()
+    cluster_id = uuidlib.uuid4()
     # Set a timer to stop the Sentinel
     threading.Timer(6, stop_event.set).start()
-    s = Sentinel(stop_event, start_event, broker=broker, timeout=cluster_config_timeout)
+    s = Sentinel(stop_event, start_event, cluster_id=cluster_id, broker=broker, timeout=cluster_config_timeout)
     assert start_event.is_set()
     assert s.status() == Conf.STOPPED
     assert s.reincarnations == 0
@@ -297,12 +301,13 @@ def test_recycle(broker, monkeypatch):
     async_task('django_q.tests.tasks.multiply', 2, 2, broker=broker)
     start_event = Event()
     stop_event = Event()
+    cluster_id = uuidlib.uuid4()
     # override settings
     monkeypatch.setattr(Conf, 'RECYCLE', 2)
     monkeypatch.setattr(Conf, 'WORKERS', 1)
     # set a timer to stop the Sentinel
     threading.Timer(3, stop_event.set).start()
-    s = Sentinel(stop_event, start_event, broker=broker)
+    s = Sentinel(stop_event, start_event, cluster_id=cluster_id, broker=broker)
     assert start_event.is_set()
     assert s.status() == Conf.STOPPED
     assert s.reincarnations == 1
@@ -333,13 +338,14 @@ def test_bad_secret(broker, monkeypatch):
     stop_event = Event()
     stop_event.set()
     start_event = Event()
-    s = Sentinel(stop_event, start_event, broker=broker, start=False)
+    cluster_id = uuidlib.uuid4()
+    s = Sentinel(stop_event, start_event, cluster_id=cluster_id, broker=broker, start=False)
     Stat(s).save()
     # change the SECRET
     monkeypatch.setattr(Conf, "SECRET_KEY", "OOPS")
     stat = Stat.get_all()
     assert len(stat) == 0
-    assert Stat.get(s.parent_pid) is None
+    assert Stat.get(pid=s.parent_pid, cluster_id=cluster_id) is None
     task_queue = Queue()
     pusher(task_queue, stop_event, broker=broker)
     result_queue = Queue()

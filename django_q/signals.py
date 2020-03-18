@@ -14,16 +14,22 @@ def call_hook(sender, instance, **kwargs):
         f = instance.hook
         if not callable(f):
             try:
-                module, func = f.rsplit('.', 1)
+                module, func = f.rsplit(".", 1)
                 m = importlib.import_module(module)
                 f = getattr(m, func)
             except (ValueError, ImportError, AttributeError):
-                logger.error(_('malformed return hook \'{}\' for [{}]').format(instance.hook, instance.name))
+                logger.error(
+                    _(f"malformed return hook '{instance.hook}' for [{instance.name}]")
+                )
                 return
         try:
             f(instance)
         except Exception as e:
-            logger.error(_('return hook {} failed on [{}] because {}').format(instance.hook, instance.name, e))
+            logger.error(
+                _(
+                    f"return hook {instance.hook} failed on [{instance.name}] because {str(e)}"
+                )
+            )
 
 
 pre_enqueue = Signal(providing_args=["task"])
