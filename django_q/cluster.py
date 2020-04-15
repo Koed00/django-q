@@ -20,6 +20,7 @@ import arrow
 
 # Django
 from django import db
+from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -589,7 +590,9 @@ def scheduler(broker=None):
                             next_run = next_run.shift(years=+1)
                         if Conf.CATCH_UP or next_run > arrow.utcnow():
                             break
-                    s.next_run = next_run.datetime
+                    # arrow always returns a tz aware datetime, and we don't want
+                    # this when we explicitly configured django with USE_TZ=False
+                    s.next_run = next_run.datetime if settings.USE_TZ else next_run.datetime.replace(tzinfo=None)
                     s.repeats += -1
                 # send it to the cluster
                 q_options["broker"] = broker
