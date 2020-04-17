@@ -14,7 +14,7 @@ Features
 -  Multiprocessing worker pools
 -  Asynchronous tasks
 -  Scheduled and repeated tasks
--  Encrypted and compressed packages
+-  Signed and compressed packages
 -  Failure and success database or cache
 -  Result hooks, groups and chains
 -  Django Admin integration
