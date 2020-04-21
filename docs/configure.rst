@@ -33,7 +33,7 @@ On most broker types this will be used as the queue name.
 Defaults to ``'default'``.
 
 .. note::
-    Tasks are encrypted. When a worker encounters a task it can not decrypt, it will be discarded or failed.
+    Tasks are signed. When a worker encounters a task with an invalid signature, it will be discarded or failed.
 
 workers
 ~~~~~~~
@@ -207,7 +207,7 @@ of the cache connection you want to use instead of a direct Redis connection::
 
 
 .. tip::
-    Django Q uses your ``SECRET_KEY`` to encrypt task packages and prevent task crossover. So make sure you have it set up in your Django settings.
+    Django Q uses your ``SECRET_KEY`` to sign task packages and prevent task crossover. So make sure you have it set up in your Django settings.
 
 .. _disque_configuration:
 
