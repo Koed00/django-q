@@ -175,6 +175,7 @@ class Schedule(models.Model):
         verbose_name=_("Next Run"), default=timezone.now, null=True
     )
     task = models.CharField(max_length=100, null=True, editable=False)
+    from_registry = models.BooleanField(default=False)
 
     def success(self):
         if self.task and Task.objects.filter(id=self.task):
