@@ -18,7 +18,7 @@ from django_q.models import Task, Success
 from django_q.conf import Conf
 from django_q.status import Stat
 from django_q.brokers import get_broker, Broker
-from django_q.tests.tasks import multiply
+from django_q.tests.tasks import multiply, TaskError
 from django_q.queues import Queue
 
 
@@ -44,6 +44,11 @@ def test_redis_connection(broker):
 def test_sync(broker):
     task = async_task('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, broker=broker, sync=True)
     assert result(task) == 1506
+
+@pytest.mark.django_db
+def test_sync_raise_exception(broker):
+    with pytest.raises(TaskError):
+        async_task('django_q.tests.tasks.raise_exception', broker=broker, sync=True)
 
 
 @pytest.mark.django_db
