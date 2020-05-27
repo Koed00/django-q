@@ -548,7 +548,7 @@ def scheduler(broker=None):
         broker = get_broker()
     close_old_django_connections()
     try:
-        with db.transaction.atomic():
+        with db.transaction.atomic(using=Schedule.objects.db):
             for s in (
                 Schedule.objects.select_for_update()
                 .exclude(repeats=0)

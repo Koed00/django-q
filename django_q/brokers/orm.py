@@ -17,7 +17,7 @@ def _timeout():
 class ORM(Broker):
     @staticmethod
     def get_connection(list_key=Conf.PREFIX):
-        if transaction.get_autocommit():  # Only True when not in an atomic block
+        if transaction.get_autocommit(using=Conf.ORM):  # Only True when not in an atomic block
             # Make sure stale connections in the broker thread are explicitly
             #   closed before attempting DB access.
             # logger.debug("Broker thread calling close_old_connections")
