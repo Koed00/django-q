@@ -9,8 +9,8 @@ python:
   - "3.8"
 
 env:
-  - DJANGO=3.0.4
-  - DJANGO=2.2.11
+  - DJANGO=3.0.6
+  - DJANGO=2.2.12
 
 sudo: true
 dist: xenial
