@@ -26,9 +26,9 @@ class PyTest(Command):
 
 setup(
     name='django-q',
-    version='1.2.1',
+    version='1.2.2',
     author='Ilan Steemers',
-    author_email='koed0@gmail.com',
+    author_email='koed00@gmail.com',
     keywords='django distributed task queue worker scheduler cron redis disque ironmq sqs orm mongodb multiprocessing rollbar',
     packages=['django_q'],
     include_package_data=True,
