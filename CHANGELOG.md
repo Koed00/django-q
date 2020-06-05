@@ -1,5 +1,28 @@
 # Changelog
 
+## [v1.2.3](https://github.com/koed00/django-q/tree/v1.2.3) (2020-05-31)
+
+[Full Changelog](https://github.com/koed00/django-q/compare/v1.2.2...v1.2.3)
+
+## [v1.2.2](https://github.com/koed00/django-q/tree/v1.2.2) (2020-05-31)
+
+[Full Changelog](https://github.com/koed00/django-q/compare/v1.2.1...v1.2.2)
+
+**Closed issues:**
+
+- Scheduled task being executed many times [\#426](https://github.com/Koed00/django-q/issues/426)
+- schedule doesn't work  [\#416](https://github.com/Koed00/django-q/issues/416)
+- Expose list of workers and their states via API [\#364](https://github.com/Koed00/django-q/issues/364)
+- Tasks are not encrypted, only signed [\#300](https://github.com/Koed00/django-q/issues/300)
+
+**Merged pull requests:**
+
+-  Poetry [\#442](https://github.com/Koed00/django-q/pull/442) ([Koed00](https://github.com/Koed00))
+- Fix issues when using multiple databases with a database router [\#440](https://github.com/Koed00/django-q/pull/440) ([maerteijn](https://github.com/maerteijn))
+- Update documentation to say tasks are signed, not encrypted [\#429](https://github.com/Koed00/django-q/pull/429) ([asedeno](https://github.com/asedeno))
+- Fix issue when using USE\_TZ=False with MySQL [\#428](https://github.com/Koed00/django-q/pull/428) ([hhyo](https://github.com/hhyo))
+- When sync=True, re-raise exceptions from the worker. [\#417](https://github.com/Koed00/django-q/pull/417) ([rbranche](https://github.com/rbranche))
+
 ## [v1.2.1](https://github.com/koed00/django-q/tree/v1.2.1) (2020-02-18)
 
 [Full Changelog](https://github.com/koed00/django-q/compare/v1.2.0...v1.2.1)
@@ -22,7 +45,6 @@
 - Differentiate between PID and unique cluster ID [\#414](https://github.com/Koed00/django-q/pull/414) ([jmcvetta](https://github.com/jmcvetta))
 - Bump django from 3.0.2 to 3.0.3 [\#411](https://github.com/Koed00/django-q/pull/411) ([dependabot[bot]](https://github.com/apps/dependabot))
 - Fix startup error in AWS Lambda [\#405](https://github.com/Koed00/django-q/pull/405) ([lordkev](https://github.com/lordkev))
-- ability to use a Redis connection URI - closes \#402 [\#403](https://github.com/Koed00/django-q/pull/403) ([valentinogagliardi](https://github.com/valentinogagliardi))
 - \[py27\] Remove last traces of py27 [\#392](https://github.com/Koed00/django-q/pull/392) ([Djailla](https://github.com/Djailla))
 
 ## [v.1.1.0](https://github.com/koed00/django-q/tree/v.1.1.0) (2020-01-18)
@@ -42,10 +64,12 @@
 **Merged pull requests:**
 
 - Django 3 support [\#404](https://github.com/Koed00/django-q/pull/404) ([Koed00](https://github.com/Koed00))
-- Replacing `ugettext\_` functions with `gettext\_` for Django 3 [\#399](https://github.com/Koed00/django-q/pull/399) ([theunraveler](https://github.com/theunraveler))
+- ability to use a Redis connection URI - closes \#402 [\#403](https://github.com/Koed00/django-q/pull/403) ([valentinogagliardi](https://github.com/valentinogagliardi))
+- Replacing `ugettext_` functions with `gettext_` for Django 3 [\#399](https://github.com/Koed00/django-q/pull/399) ([theunraveler](https://github.com/theunraveler))
 - Bump django from 2.2.5 to 2.2.8 [\#395](https://github.com/Koed00/django-q/pull/395) ([dependabot[bot]](https://github.com/apps/dependabot))
 - Preserve database connection when sync=True [\#393](https://github.com/Koed00/django-q/pull/393) ([Urth](https://github.com/Urth))
 - Fix scheduler concurrency with multiple clusters [\#347](https://github.com/Koed00/django-q/pull/347) ([maerteijn](https://github.com/maerteijn))
+- Fix timeout override [\#333](https://github.com/Koed00/django-q/pull/333) ([tremby](https://github.com/tremby))
 
 ## [v1.0.2](https://github.com/koed00/django-q/tree/v1.0.2) (2019-08-10)
 
@@ -76,11 +100,10 @@
 - Inline import to prevent circular imports under some toolchain combinations [\#356](https://github.com/Koed00/django-q/pull/356) ([lamby](https://github.com/lamby))
 - fix spelling of careful [\#355](https://github.com/Koed00/django-q/pull/355) ([tylerharper](https://github.com/tylerharper))
 - Fix issue when using USE\_TZ=False with MySQL [\#353](https://github.com/Koed00/django-q/pull/353) ([maerteijn](https://github.com/maerteijn))
-- Document the behaviour of retry value properly [\#340](https://github.com/Koed00/django-q/pull/340) ([jannero](https://github.com/jannero))
-- Fix concurrency issue in timeout timer value processing [\#337](https://github.com/Koed00/django-q/pull/337) ([jannero](https://github.com/jannero))
-- Timeout handling fix and improvements to related tests  [\#336](https://github.com/Koed00/django-q/pull/336) ([jannero](https://github.com/jannero))
-- Document how to run tests on your computer [\#334](https://github.com/Koed00/django-q/pull/334) ([jannero](https://github.com/jannero))
-- Fix timeout override [\#333](https://github.com/Koed00/django-q/pull/333) ([tremby](https://github.com/tremby))
+- Document the behaviour of retry value properly [\#340](https://github.com/Koed00/django-q/pull/340) ([janneronkko](https://github.com/janneronkko))
+- Fix concurrency issue in timeout timer value processing [\#337](https://github.com/Koed00/django-q/pull/337) ([janneronkko](https://github.com/janneronkko))
+- Timeout handling fix and improvements to related tests  [\#336](https://github.com/Koed00/django-q/pull/336) ([janneronkko](https://github.com/janneronkko))
+- Document how to run tests on your computer [\#334](https://github.com/Koed00/django-q/pull/334) ([janneronkko](https://github.com/janneronkko))
 - Updates django version and packages [\#330](https://github.com/Koed00/django-q/pull/330) ([Koed00](https://github.com/Koed00))
 - Modified django\_q imports to support Python 3.4 again in cluster.py. … [\#327](https://github.com/Koed00/django-q/pull/327) ([mattaw](https://github.com/mattaw))
 
@@ -139,7 +162,7 @@
 - Overflow on repeats fields [\#255](https://github.com/Koed00/django-q/issues/255)
 - apps.py: Attempted relative import with no known parent package [\#249](https://github.com/Koed00/django-q/issues/249)
 - Django and Django Q on different server with Redis as broker [\#237](https://github.com/Koed00/django-q/issues/237)
-- The `django\_q/tests` directory isn't in the tarball [\#226](https://github.com/Koed00/django-q/issues/226)
+- The `django_q/tests` directory isn't in the tarball [\#226](https://github.com/Koed00/django-q/issues/226)
 - django scrapy project can't connect to redis [\#217](https://github.com/Koed00/django-q/issues/217)
 - django.core.exceptions.AppRegistryNotReady: Apps aren't loaded yet. [\#216](https://github.com/Koed00/django-q/issues/216)
 - Add Sentry support [\#210](https://github.com/Koed00/django-q/issues/210)
@@ -397,7 +420,7 @@
 - adds version info to qinfo [\#90](https://github.com/Koed00/django-q/pull/90) ([Koed00](https://github.com/Koed00))
 - Adds version and broker info to qinfo [\#89](https://github.com/Koed00/django-q/pull/89) ([Koed00](https://github.com/Koed00))
 - Updates botocore, requests and six for testing [\#88](https://github.com/Koed00/django-q/pull/88) ([Koed00](https://github.com/Koed00))
-- adds `cached` option to `async\_iter` [\#87](https://github.com/Koed00/django-q/pull/87) ([Koed00](https://github.com/Koed00))
+- adds `cached` option to `async_iter` [\#87](https://github.com/Koed00/django-q/pull/87) ([Koed00](https://github.com/Koed00))
 - moves hook signal in separate module [\#86](https://github.com/Koed00/django-q/pull/86) ([Koed00](https://github.com/Koed00))
 - Updates psutil to 3.2.2 [\#85](https://github.com/Koed00/django-q/pull/85) ([Koed00](https://github.com/Koed00))
 
@@ -541,7 +564,7 @@
 **Merged pull requests:**
 
 - v0.5.3 [\#49](https://github.com/Koed00/django-q/pull/49) ([Koed00](https://github.com/Koed00))
-- adds `catch\_up` configuration option [\#48](https://github.com/Koed00/django-q/pull/48) ([Koed00](https://github.com/Koed00))
+- adds `catch_up` configuration option [\#48](https://github.com/Koed00/django-q/pull/48) ([Koed00](https://github.com/Koed00))
 - consolidates redis ping [\#47](https://github.com/Koed00/django-q/pull/47) ([Koed00](https://github.com/Koed00))
 
 ## [v0.5.2](https://github.com/koed00/django-q/tree/v0.5.2) (2015-08-13)
