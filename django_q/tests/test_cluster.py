@@ -22,7 +22,7 @@ from django_q.tests.tasks import multiply, TaskError
 from django_q.queues import Queue
 
 
-class WordClass(object):
+class WordClass:
     def __init__(self):
         self.word_list = DEFAULT_WORDLIST
 

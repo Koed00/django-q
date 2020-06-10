@@ -480,7 +480,7 @@ def async_chain(chain, group=None, cached=Conf.CACHED, sync=Conf.SYNC, broker=No
     return group
 
 
-class Iter(object):
+class Iter:
     """
     An async task with iterable arguments
     """
@@ -550,7 +550,7 @@ class Iter(object):
         return len(self.args)
 
 
-class Chain(object):
+class Chain:
     """
     A sequential chain of tasks
     """
@@ -634,7 +634,7 @@ class Chain(object):
         return len(self.chain)
 
 
-class AsyncTask(object):
+class AsyncTask:
     """
     an async task
     """

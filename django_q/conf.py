@@ -22,7 +22,7 @@ except ImportError:
     psutil = None
 
 
-class Conf(object):
+class Conf:
     """
     Configuration class
     """
@@ -195,7 +195,7 @@ if not logger.handlers:
 
 
 # Error Reporting Interface
-class ErrorReporter(object):
+class ErrorReporter:
 
     # initialize with iterator of reporters (better name, targets?)
     def __init__(self, reporters):

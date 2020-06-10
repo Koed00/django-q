@@ -5,7 +5,7 @@ from django_q.conf import Conf, logger
 from django_q.signing import SignedPackage, BadSignature
 
 
-class Status(object):
+class Status:
     """Cluster status base class."""
 
     def __init__(self, pid, cluster_id):

@@ -5,7 +5,7 @@ from django.core.cache import caches, InvalidCacheBackendError
 from django_q.conf import Conf
 
 
-class Broker(object):
+class Broker:
     def __init__(self, list_key=Conf.PREFIX):
         self.connection = self.get_connection(list_key)
         self.list_key = list_key

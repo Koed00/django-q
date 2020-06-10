@@ -7,7 +7,7 @@ import multiprocessing
 import multiprocessing.queues
 
 
-class SharedCounter(object):
+class SharedCounter:
     """ A synchronized shared counter.
 
     The locking done by multiprocessing.Value ensures that only a single
