@@ -96,11 +96,11 @@ category = "main"
 description = "Pickled object field for Django"
 name = "django-picklefield"
 optional = false
-python-versions = "*"
-version = "2.1.1"
+python-versions = ">=3"
+version = "3.0.1"
 
 [package.dependencies]
-Django = ">=1.11"
+Django = ">=2.2"
 
 [package.extras]
 tests = ["tox"]
@@ -299,11 +299,13 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [extras]
+build-backend = []
+requires = []
 rollbar = ["django-q-rollbar"]
 sentry = []
 
 [metadata]
-content-hash = "92dde3f16d00ec787addb41f8caf677de27298e35b9b42d56c7598691956b180"
+content-hash = "c14f1d4928aae7854db39e71c407cc07581883aa9d74b4eb64fbd83b3d33895e"
 python-versions = ">=3.6"
 
 [metadata.files]
@@ -340,8 +342,8 @@ django = [
     {file = "Django-3.0.7.tar.gz", hash = "sha256:5052b34b34b3425233c682e0e11d658fd6efd587d11335a0203d827224ada8f2"},
 ]
 django-picklefield = [
-    {file = "django-picklefield-2.1.1.tar.gz", hash = "sha256:67a5e156343e3b032cac2f65565f0faa81635a99c7da74b0f07a0f5db467b646"},
-    {file = "django_picklefield-2.1.1-py2.py3-none-any.whl", hash = "sha256:e03cb181b7161af38ad6b573af127e4fe9b7cc2c455b42c1ec43eaad525ade0a"},
+    {file = "django-picklefield-3.0.1.tar.gz", hash = "sha256:15ccba592ca953b9edf9532e64640329cd47b136b7f8f10f2939caa5f9ce4287"},
+    {file = "django_picklefield-3.0.1-py3-none-any.whl", hash = "sha256:3c702a54fde2d322fe5b2f39b8f78d9f655b8f77944ab26f703be6c0ed335a35"},
 ]
 django-q-rollbar = [
     {file = "django-q-rollbar-0.1.1.tar.gz", hash = "sha256:31bd30fbdd8934e626a6ac61faf36cbb514e6ed6eb7e766ce43af0d321613f9f"},
