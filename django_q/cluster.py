@@ -1,9 +1,3 @@
-# Future
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import ast
 
 # Standard
@@ -36,7 +30,7 @@ from django_q.signing import SignedPackage, BadSignature
 from django_q.status import Stat, Status
 
 
-class Cluster(object):
+class Cluster:
     def __init__(self, broker=None):
         self.broker = broker or get_broker()
         self.sentinel = None
@@ -120,7 +114,7 @@ class Cluster(object):
         return self.start_event is None and self.stop_event is None and self.sentinel
 
 
-class Sentinel(object):
+class Sentinel:
     def __init__(
         self,
         stop_event,

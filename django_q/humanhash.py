@@ -50,7 +50,7 @@ DEFAULT_WORDLIST = (
     'zulu')
 
 
-class HumanHasher(object):
+class HumanHasher:
 
     """
     Transforms hex digests to human-readable strings.

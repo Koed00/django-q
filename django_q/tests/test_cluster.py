@@ -22,7 +22,7 @@ from django_q.tests.tasks import multiply, TaskError
 from django_q.queues import Queue
 
 
-class WordClass(object):
+class WordClass:
     def __init__(self):
         self.word_list = DEFAULT_WORDLIST
 
@@ -44,6 +44,7 @@ def test_redis_connection(broker):
 def test_sync(broker):
     task = async_task('django_q.tests.tasks.count_letters', DEFAULT_WORDLIST, broker=broker, sync=True)
     assert result(task) == 1506
+
 
 @pytest.mark.django_db
 def test_sync_raise_exception(broker):
@@ -401,6 +402,7 @@ def test_update_failed(broker):
     assert saved_task.success is True
     assert saved_task.result == 'result'
 
+
 @pytest.mark.django_db
 def test_acknowledge_failure_override():
     class VerifyAckMockBroker(Broker):
@@ -434,10 +436,12 @@ def test_acknowledge_failure_override():
 
     tag = uuid()
     task_success_ack = task_fail_ack.copy()
-    task_success_ack.update({'id': tag[1],
-                             'name': tag[0],
-                             'ack_id': 'test_success_ack_id',
-                             'success': True,})
+    task_success_ack.update({
+        'id': tag[1],
+        'name': tag[0],
+        'ack_id': 'test_success_ack_id',
+        'success': True,
+    })
     del task_success_ack['ack_failure']
 
     result_queue = Queue()
@@ -452,6 +456,7 @@ def test_acknowledge_failure_override():
     assert broker.acknowledgements.get('test_fail_ack_id') == 1
     assert broker.acknowledgements.get('test_fail_no_ack_id') is None
     assert broker.acknowledgements.get('test_success_ack_id') == 1
+
 
 @pytest.mark.django_db
 def assert_result(task):

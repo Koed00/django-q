@@ -11,7 +11,7 @@ from django_q.conf import Conf
 BadSignature = signing.BadSignature
 
 
-class SignedPackage(object):
+class SignedPackage:
 
     """Wraps Django's signing module with custom Pickle serializer."""
 
@@ -31,7 +31,7 @@ class SignedPackage(object):
                              serializer=PickleSerializer)
 
 
-class PickleSerializer(object):
+class PickleSerializer:
 
     """Simple wrapper around Pickle for signing.dumps and signing.loads."""
 

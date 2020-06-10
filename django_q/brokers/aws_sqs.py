@@ -57,7 +57,6 @@ class Sqs(Broker):
             del(config['aws_region'])
         return Session(**config)
 
-
     def get_queue(self):
         self.sqs = self.connection.resource('sqs')
         return self.sqs.create_queue(QueueName=self.list_key)
