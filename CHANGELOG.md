@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.2.4](https://github.com/koed00/django-q/tree/v1.2.4) (2020-06-10)
+
+[Full Changelog](https://github.com/koed00/django-q/compare/v1.2.3...v1.2.4)
+
+**Merged pull requests:**
+
+- Add missing migration [\#446](https://github.com/Koed00/django-q/pull/446) ([Djailla](https://github.com/Djailla))
+
 ## [v1.2.3](https://github.com/koed00/django-q/tree/v1.2.3) (2020-05-31)
 
 [Full Changelog](https://github.com/koed00/django-q/compare/v1.2.2...v1.2.3)
