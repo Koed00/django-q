@@ -7,9 +7,8 @@ from django.db import IntegrityError
 from django.utils import timezone
 from multiprocessing import Value
 
-from django_q.brokers import get_broker
-
 # local
+from django_q.brokers import get_broker
 from django_q.conf import Conf, logger
 from django_q.humanhash import uuid
 from django_q.models import Schedule, Task

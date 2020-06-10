@@ -60,7 +60,7 @@ class ORM(Broker):
 
     def dequeue(self):
         tasks = self.get_connection().filter(key=self.list_key, lock__lt=_timeout())[
-            0 : Conf.BULK
+            0: Conf.BULK
         ]
         if tasks:
             task_list = []
