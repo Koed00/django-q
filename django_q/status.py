@@ -1,6 +1,9 @@
 import socket
+from typing import Union
+
 from django.utils import timezone
-from django_q.brokers import get_broker
+
+from django_q.brokers import get_broker, Broker
 from django_q.conf import Conf, logger
 from django_q.signing import SignedPackage, BadSignature
 
@@ -47,18 +50,18 @@ class Stat(Status):
             self.pusher = sentinel.pusher.pid
         self.workers = [w.pid for w in sentinel.pool]
 
-    def uptime(self):
+    def uptime(self) -> float:
         return (timezone.now() - self.tob).total_seconds()
 
     @property
-    def key(self):
+    def key(self) -> str:
         """
         :return: redis key for this cluster statistic
         """
         return self.get_key(self.cluster_id)
 
     @staticmethod
-    def get_key(cluster_id):
+    def get_key(cluster_id) -> str:
         """
         :param cluster_id: cluster ID
         :return: redis key for the cluster statistic
@@ -71,13 +74,15 @@ class Stat(Status):
         except Exception as e:
             logger.error(e)
 
-    def empty_queues(self):
+    def empty_queues(self) -> bool:
         return self.done_q_size + self.task_q_size == 0
 
     @staticmethod
-    def get(pid, cluster_id, broker=None):
+    def get(pid: int, cluster_id: str, broker: Broker = None) -> Union[Status, None]:
         """
         gets the current status for the cluster
+        :param pid:
+        :param broker: an optional broker instance
         :param cluster_id: id of the cluster
         :return: Stat or Status
         """
@@ -92,7 +97,7 @@ class Stat(Status):
         return Status(pid=pid, cluster_id=cluster_id)
 
     @staticmethod
-    def get_all(broker=None):
+    def get_all(broker: Broker = None)->list:
         """
         Get the status for all currently running clusters with the same prefix
         and secret key.

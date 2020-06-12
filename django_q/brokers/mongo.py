@@ -4,7 +4,6 @@ from time import sleep
 from bson import ObjectId
 from django.utils import timezone
 from pymongo import MongoClient
-
 from pymongo.errors import ConfigurationError
 
 from django_q.brokers import Broker
@@ -21,7 +20,7 @@ class Mongo(Broker):
         self.collection = self.get_collection()
 
     @staticmethod
-    def get_connection(list_key=Conf.PREFIX):
+    def get_connection(list_key: str = Conf.PREFIX) -> MongoClient:
         return MongoClient(**Conf.MONGO)
 
     def get_collection(self):
@@ -41,10 +40,10 @@ class Mongo(Broker):
     def purge_queue(self):
         return self.delete_queue()
 
-    def ping(self):
+    def ping(self) -> bool:
         return self.info is not None
 
-    def info(self):
+    def info(self) -> str:
         if not self._info:
             self._info = f"MongoDB {self.connection.server_info()['version']}"
         return self._info
