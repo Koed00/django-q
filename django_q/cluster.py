@@ -1,4 +1,5 @@
 import ast
+
 # Standard
 import importlib
 import signal
@@ -10,6 +11,7 @@ from time import sleep
 
 # external
 import arrow
+
 # Django
 from django import db
 from django.conf import settings
@@ -101,10 +103,10 @@ class Cluster:
     @property
     def is_stopping(self) -> bool:
         return (
-                self.stop_event
-                and self.start_event
-                and self.start_event.is_set()
-                and self.stop_event.is_set()
+            self.stop_event
+            and self.start_event
+            and self.start_event.is_set()
+            and self.stop_event.is_set()
         )
 
     @property
@@ -114,13 +116,13 @@ class Cluster:
 
 class Sentinel:
     def __init__(
-            self,
-            stop_event,
-            start_event,
-            cluster_id,
-            broker=None,
-            timeout=Conf.TIMEOUT,
-            start=True,
+        self,
+        stop_event,
+        start_event,
+        cluster_id,
+        broker=None,
+        timeout=Conf.TIMEOUT,
+        start=True,
     ):
         # Make sure we catch signals for the pool
         signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -344,9 +346,10 @@ def pusher(task_queue: Queue, event: Event, broker: Broker = None):
     logger.info(_(f"{current_process().name} stopped pushing tasks"))
 
 
-def monitor(result_queue, broker=None):
+def monitor(result_queue: Queue, broker: Broker = None):
     """
     Gets finished tasks from the result queue and saves them to Django
+    :type broker: brokers.Broker
     :type result_queue: multiprocessing.Queue
     """
     if not broker:
@@ -373,9 +376,12 @@ def monitor(result_queue, broker=None):
     logger.info(_(f"{name} stopped monitoring results"))
 
 
-def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
+def worker(
+    task_queue: Queue, result_queue: Queue, timer: Value, timeout: int = Conf.TIMEOUT
+):
     """
     Takes a task from the task queue, tries to execute it and puts the result back in the result queue
+    :param timeout: number of seconds wait for a worker to finish.
     :type task_queue: multiprocessing.Queue
     :type result_queue: multiprocessing.Queue
     :type timer: multiprocessing.Value
@@ -434,9 +440,11 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
     logger.info(_(f"{name} stopped doing work"))
 
 
-def save_task(task, broker):
+def save_task(task, broker: Broker):
     """
     Saves the task package to Django or the cache
+    :param task: the task package
+    :type broker: brokers.Broker
     """
     # SAVE LIMIT < 0 : Don't save success
     if not task.get("save", Conf.SAVE_LIMIT >= 0) and task["success"]:
@@ -482,7 +490,7 @@ def save_task(task, broker):
         logger.error(e)
 
 
-def save_cached(task, broker):
+def save_cached(task, broker: Broker):
     task_key = f'{broker.list_key}:{task["id"]}'
     timeout = task["cached"]
     if timeout is True:
@@ -534,7 +542,7 @@ def save_cached(task, broker):
         logger.error(e)
 
 
-def scheduler(broker=None):
+def scheduler(broker: Broker = None):
     """
     Creates a task from a schedule at the scheduled time and schedules next run
     """
@@ -544,9 +552,9 @@ def scheduler(broker=None):
     try:
         with db.transaction.atomic(using=Schedule.objects.db):
             for s in (
-                    Schedule.objects.select_for_update()
-                            .exclude(repeats=0)
-                            .filter(next_run__lt=timezone.now())
+                Schedule.objects.select_for_update()
+                .exclude(repeats=0)
+                .filter(next_run__lt=timezone.now())
             ):
                 args = ()
                 kwargs = {}

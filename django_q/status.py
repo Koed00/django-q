@@ -97,7 +97,7 @@ class Stat(Status):
         return Status(pid=pid, cluster_id=cluster_id)
 
     @staticmethod
-    def get_all(broker: Broker = None)->list:
+    def get_all(broker: Broker = None) -> list:
         """
         Get the status for all currently running clusters with the same prefix
         and secret key.

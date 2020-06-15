@@ -11,7 +11,7 @@ class SignedPackage:
     """Wraps Django's signing module with custom Pickle serializer."""
 
     @staticmethod
-    def dumps(obj, compressed=Conf.COMPRESSED):
+    def dumps(obj, compressed: bool = Conf.COMPRESSED) -> str:
         return signing.dumps(
             obj,
             key=Conf.SECRET_KEY,
@@ -21,7 +21,7 @@ class SignedPackage:
         )
 
     @staticmethod
-    def loads(obj):
+    def loads(obj) -> any:
         return signing.loads(
             obj, key=Conf.SECRET_KEY, salt=Conf.PREFIX, serializer=PickleSerializer
         )
