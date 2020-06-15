@@ -74,8 +74,7 @@ The task will send a message to everyone else informing them that the users emai
     def inform_everyone(user):
         mails = []
         for u in User.objects.exclude(pk=user.pk):
-            msg = 'Dear {}, {} has a new email address: {}'
-            msg = msg.format(u.username, user.username, user.email)
+            msg = f"Dear {u.username}, {user.username} has a new email address: {user.email}"
             mails.append(('New email', msg,
                           'from@example.com', [u.email]))
         return send_mass_mail(mails)
@@ -85,8 +84,7 @@ The task will send a message to everyone else informing them that the users emai
     # or do it async again
     def inform_everyone_async(user):
         for u in User.objects.exclude(pk=user.pk):
-            msg = 'Dear {}, {} has a new email address: {}'
-            msg = msg.format(u.username, user.username, user.email)
+            msg = f"Dear {u.username}, {user.username} has a new email address: {user.email}"
             async_task('django.core.mail.send_mail',
                     'New email', msg, 'from@example.com', [u.email])
 
