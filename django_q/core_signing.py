@@ -6,7 +6,7 @@ from django.core.signing import BadSignature, SignatureExpired, b64_decode, JSON
     Signer as Sgnr, TimestampSigner as TsS, dumps
 from django.utils import baseconv
 from django.utils.crypto import constant_time_compare
-from django.utils.encoding import force_bytes, force_str, force_text
+from django.utils.encoding import force_bytes, force_str
 
 dumps = dumps
 
@@ -39,14 +39,12 @@ def loads(s, key=None, salt='django.core.signing', serializer=JSONSerializer, ma
 class Signer(Sgnr):
 
     def unsign(self, signed_value):
-        # force_str is removed in Django 2.0
         signed_value = force_str(signed_value)
         if self.sep not in signed_value:
             raise BadSignature('No "%s" found in value' % self.sep)
         value, sig = signed_value.rsplit(self.sep, 1)
         if constant_time_compare(sig, self.signature(value)):
-            # force_text is removed in Django 2.0
-            return force_text(value)
+            return force_str(value)
         raise BadSignature('Signature "%s" does not match' % sig)
 
 
