@@ -7,8 +7,8 @@
 arrow==0.15.6             # via -r requirements.in
 asgiref==3.2.7            # via django
 blessed==1.17.8           # via -r requirements.in
-boto3==1.13.26            # via -r requirements.in
-botocore==1.16.26         # via boto3, s3transfer
+boto3==1.14.1             # via -r requirements.in
+botocore==1.17.1          # via boto3, s3transfer
 certifi==2020.4.5.2       # via requests
 chardet==3.0.4            # via requests
 django-picklefield==3.0.1  # via -r requirements.in

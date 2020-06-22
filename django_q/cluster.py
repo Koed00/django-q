@@ -20,7 +20,7 @@ from django.utils.translation import gettext_lazy as _
 
 # Local
 import django_q.tasks
-from django_q.brokers import get_broker
+from django_q.brokers import get_broker, Broker
 from django_q.conf import Conf, logger, psutil, get_ppid, error_reporter
 from django_q.humanhash import humanize
 from django_q.models import Task, Success, Schedule
@@ -31,7 +31,7 @@ from django_q.status import Stat, Status
 
 
 class Cluster:
-    def __init__(self, broker=None):
+    def __init__(self, broker: Broker = None):
         self.broker = broker or get_broker()
         self.sentinel = None
         self.stop_event = None
@@ -43,7 +43,7 @@ class Cluster:
         signal.signal(signal.SIGTERM, self.sig_handler)
         signal.signal(signal.SIGINT, self.sig_handler)
 
-    def start(self):
+    def start(self) -> int:
         # Start Sentinel
         self.stop_event = Event()
         self.start_event = Event()
@@ -63,7 +63,7 @@ class Cluster:
             sleep(0.1)
         return self.pid
 
-    def stop(self):
+    def stop(self) -> bool:
         if not self.sentinel.is_alive():
             return False
         logger.info(_(f"Q Cluster {self.name} stopping."))
@@ -83,25 +83,25 @@ class Cluster:
         self.stop()
 
     @property
-    def stat(self):
+    def stat(self) -> Status:
         if self.sentinel:
             return Stat.get(pid=self.pid, cluster_id=self.cluster_id)
         return Status(pid=self.pid, cluster_id=self.cluster_id)
 
     @property
-    def name(self):
+    def name(self) -> str:
         return humanize(self.cluster_id.hex)
 
     @property
-    def is_starting(self):
+    def is_starting(self) -> bool:
         return self.stop_event and self.start_event and not self.start_event.is_set()
 
     @property
-    def is_running(self):
+    def is_running(self) -> bool:
         return self.stop_event and self.start_event and self.start_event.is_set()
 
     @property
-    def is_stopping(self):
+    def is_stopping(self) -> bool:
         return (
             self.stop_event
             and self.start_event
@@ -110,7 +110,7 @@ class Cluster:
         )
 
     @property
-    def has_stopped(self):
+    def has_stopped(self) -> bool:
         return self.start_event is None and self.stop_event is None and self.sentinel
 
 
@@ -154,7 +154,7 @@ class Sentinel:
         self.spawn_cluster()
         self.guard()
 
-    def status(self):
+    def status(self) -> str:
         if not self.start_event.is_set() and not self.stop_event.is_set():
             return Conf.STARTING
         elif self.start_event.is_set() and not self.stop_event.is_set():
@@ -166,7 +166,7 @@ class Sentinel:
                 return Conf.STOPPING
             return Conf.STOPPED
 
-    def spawn_process(self, target, *args):
+    def spawn_process(self, target, *args) -> Process:
         """
         :type target: function or class
         """
@@ -179,7 +179,7 @@ class Sentinel:
         p.start()
         return p
 
-    def spawn_pusher(self):
+    def spawn_pusher(self) -> Process:
         return self.spawn_process(pusher, self.task_queue, self.event_out, self.broker)
 
     def spawn_worker(self):
@@ -187,7 +187,7 @@ class Sentinel:
             worker, self.task_queue, self.result_queue, Value("f", -1), self.timeout
         )
 
-    def spawn_monitor(self):
+    def spawn_monitor(self) -> Process:
         return self.spawn_process(monitor, self.result_queue, self.broker)
 
     def reincarnate(self, process):
@@ -310,9 +310,10 @@ class Sentinel:
         Stat(self).save()
 
 
-def pusher(task_queue, event, broker=None):
+def pusher(task_queue: Queue, event: Event, broker: Broker = None):
     """
     Pulls tasks of the broker and puts them in the task queue
+    :type broker:
     :type task_queue: multiprocessing.Queue
     :type event: multiprocessing.Event
     """
@@ -345,9 +346,10 @@ def pusher(task_queue, event, broker=None):
     logger.info(_(f"{current_process().name} stopped pushing tasks"))
 
 
-def monitor(result_queue, broker=None):
+def monitor(result_queue: Queue, broker: Broker = None):
     """
     Gets finished tasks from the result queue and saves them to Django
+    :type broker: brokers.Broker
     :type result_queue: multiprocessing.Queue
     """
     if not broker:
@@ -374,9 +376,12 @@ def monitor(result_queue, broker=None):
     logger.info(_(f"{name} stopped monitoring results"))
 
 
-def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
+def worker(
+    task_queue: Queue, result_queue: Queue, timer: Value, timeout: int = Conf.TIMEOUT
+):
     """
     Takes a task from the task queue, tries to execute it and puts the result back in the result queue
+    :param timeout: number of seconds wait for a worker to finish.
     :type task_queue: multiprocessing.Queue
     :type result_queue: multiprocessing.Queue
     :type timer: multiprocessing.Value
@@ -435,9 +440,11 @@ def worker(task_queue, result_queue, timer, timeout=Conf.TIMEOUT):
     logger.info(_(f"{name} stopped doing work"))
 
 
-def save_task(task, broker):
+def save_task(task, broker: Broker):
     """
     Saves the task package to Django or the cache
+    :param task: the task package
+    :type broker: brokers.Broker
     """
     # SAVE LIMIT < 0 : Don't save success
     if not task.get("save", Conf.SAVE_LIMIT >= 0) and task["success"]:
@@ -483,7 +490,7 @@ def save_task(task, broker):
         logger.error(e)
 
 
-def save_cached(task, broker):
+def save_cached(task, broker: Broker):
     task_key = f'{broker.list_key}:{task["id"]}'
     timeout = task["cached"]
     if timeout is True:
@@ -535,7 +542,7 @@ def save_cached(task, broker):
         logger.error(e)
 
 
-def scheduler(broker=None):
+def scheduler(broker: Broker = None):
     """
     Creates a task from a schedule at the scheduled time and schedules next run
     """
@@ -588,7 +595,11 @@ def scheduler(broker=None):
                             break
                     # arrow always returns a tz aware datetime, and we don't want
                     # this when we explicitly configured django with USE_TZ=False
-                    s.next_run = next_run.datetime if settings.USE_TZ else next_run.datetime.replace(tzinfo=None)
+                    s.next_run = (
+                        next_run.datetime
+                        if settings.USE_TZ
+                        else next_run.datetime.replace(tzinfo=None)
+                    )
                     s.repeats += -1
                 # send it to the cluster
                 q_options["broker"] = broker
@@ -635,7 +646,7 @@ def close_old_django_connections():
         db.close_old_connections()
 
 
-def set_cpu_affinity(n, process_ids, actual=not Conf.TESTING):
+def set_cpu_affinity(n: int, process_ids: list, actual: bool = not Conf.TESTING):
     """
     Sets the cpu affinity for the supplied processes.
     Requires the optional psutil module.

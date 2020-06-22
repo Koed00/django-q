@@ -1,5 +1,8 @@
 import random
+
 import redis
+from redis import Redis
+
 from django_q.brokers import Broker
 from django_q.conf import Conf
 
@@ -25,7 +28,7 @@ class Disque(Broker):
         command = "FASTACK" if Conf.DISQUE_FASTACK else "ACKJOB"
         return self.connection.execute_command(f"{command} {task_id}")
 
-    def ping(self):
+    def ping(self) -> bool:
         return self.connection.execute_command("HELLO")[0] > 0
 
     def delete(self, task_id):
@@ -34,21 +37,21 @@ class Disque(Broker):
     def fail(self, task_id):
         return self.delete(task_id)
 
-    def delete_queue(self):
+    def delete_queue(self) -> int:
         jobs = self.connection.execute_command(f"JSCAN QUEUE {self.list_key}")[1]
         if jobs:
             job_ids = " ".join(jid.decode() for jid in jobs)
             self.connection.execute_command(f"DELJOB {job_ids}")
         return len(jobs)
 
-    def info(self):
+    def info(self) -> str:
         if not self._info:
             info = self.connection.info("server")
             self._info = f'Disque {info["disque_version"]}'
         return self._info
 
     @staticmethod
-    def get_connection(list_key=Conf.PREFIX):
+    def get_connection(list_key: str = Conf.PREFIX) -> Redis:
         # randomize nodes
         random.shuffle(Conf.DISQUE_NODES)
         # find one that works
