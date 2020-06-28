@@ -212,7 +212,7 @@ class Sentinel:
             if process.timer.value == 0:
                 # only need to terminate on timeout, otherwise we risk destabilizing the queues
                 process.terminate()
-                logger.warn(_(f"reincarnated worker {process.name} after timeout"))
+                logger.warning(_(f"reincarnated worker {process.name} after timeout"))
             elif int(process.timer.value) == -2:
                 logger.info(_(f"recycled worker {process.name}"))
             else:
