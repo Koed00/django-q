@@ -9,8 +9,8 @@ from django.utils import timezone
 from django_q.brokers import get_broker
 from django_q.cluster import pusher, worker, monitor, scheduler
 from django_q.conf import Conf
-from django_q.tasks import Schedule, fetch, schedule as create_schedule
 from django_q.queues import Queue
+from django_q.tasks import Schedule, fetch, schedule as create_schedule
 
 
 @pytest.fixture
@@ -91,8 +91,17 @@ def test_scheduler(broker, monkeypatch):
                                       schedule_type=Schedule.MINUTES,
                                       minutes=10)
     assert hasattr(minute_schedule, 'pk') is True
+    # Cron schedule
+    minute_schedule = create_schedule('django_q.tests.tasks.word_multiply',
+                                      2,
+                                      word='django',
+                                      schedule_type=Schedule.CRON,
+                                      cron="0 22 * * 1-5")
+    assert hasattr(minute_schedule, 'pk') is True
     # All other types
     for t in Schedule.TYPE:
+        if t == Schedule.CRON:
+            continue
         schedule = create_schedule('django_q.tests.tasks.word_multiply',
                                    2,
                                    word='django',
