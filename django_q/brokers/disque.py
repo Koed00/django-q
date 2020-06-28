@@ -1,8 +1,11 @@
 import random
 
+# External
 import redis
 from redis import Redis
 
+# Django
+from django.utils.translation import gettext_lazy as _
 from django_q.brokers import Broker
 from django_q.conf import Conf
 
@@ -52,6 +55,8 @@ class Disque(Broker):
 
     @staticmethod
     def get_connection(list_key: str = Conf.PREFIX) -> Redis:
+        if not Conf.DISQUE_NODES:
+            raise redis.exceptions.ConnectionError(_("No Disque nodes configured"))
         # randomize nodes
         random.shuffle(Conf.DISQUE_NODES)
         # find one that works
@@ -67,4 +72,6 @@ class Disque(Broker):
                 return redis_client
             except redis.exceptions.ConnectionError:
                 continue
-        raise redis.exceptions.ConnectionError("Could not connect to any Disque nodes")
+        raise redis.exceptions.ConnectionError(
+            _("Could not connect to any Disque nodes")
+        )
