@@ -1,6 +1,5 @@
-import ast
-
 # Standard
+import ast
 import importlib
 import signal
 import socket
@@ -9,9 +8,8 @@ import uuid
 from multiprocessing import Event, Process, Value, current_process
 from time import sleep
 
-# external
+# External
 import arrow
-
 # Django
 from django import db
 from django.conf import settings
@@ -28,6 +26,12 @@ from django_q.queues import Queue
 from django_q.signals import pre_execute
 from django_q.signing import SignedPackage, BadSignature
 from django_q.status import Stat, Status
+
+# Optional
+try:
+    from croniter import croniter
+except ImportError:
+    croniter = None
 
 
 class Cluster:
@@ -103,10 +107,10 @@ class Cluster:
     @property
     def is_stopping(self) -> bool:
         return (
-            self.stop_event
-            and self.start_event
-            and self.start_event.is_set()
-            and self.stop_event.is_set()
+                self.stop_event
+                and self.start_event
+                and self.start_event.is_set()
+                and self.stop_event.is_set()
         )
 
     @property
@@ -116,13 +120,13 @@ class Cluster:
 
 class Sentinel:
     def __init__(
-        self,
-        stop_event,
-        start_event,
-        cluster_id,
-        broker=None,
-        timeout=Conf.TIMEOUT,
-        start=True,
+            self,
+            stop_event,
+            start_event,
+            cluster_id,
+            broker=None,
+            timeout=Conf.TIMEOUT,
+            start=True,
     ):
         # Make sure we catch signals for the pool
         signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -377,7 +381,7 @@ def monitor(result_queue: Queue, broker: Broker = None):
 
 
 def worker(
-    task_queue: Queue, result_queue: Queue, timer: Value, timeout: int = Conf.TIMEOUT
+        task_queue: Queue, result_queue: Queue, timer: Value, timeout: int = Conf.TIMEOUT
 ):
     """
     Takes a task from the task queue, tries to execute it and puts the result back in the result queue
@@ -552,9 +556,9 @@ def scheduler(broker: Broker = None):
     try:
         with db.transaction.atomic(using=Schedule.objects.db):
             for s in (
-                Schedule.objects.select_for_update()
-                .exclude(repeats=0)
-                .filter(next_run__lt=timezone.now())
+                    Schedule.objects.select_for_update()
+                            .exclude(repeats=0)
+                            .filter(next_run__lt=timezone.now())
             ):
                 args = ()
                 kwargs = {}
@@ -591,6 +595,16 @@ def scheduler(broker: Broker = None):
                             next_run = next_run.shift(months=+3)
                         elif s.schedule_type == s.YEARLY:
                             next_run = next_run.shift(years=+1)
+                        elif s.schedule_type == s.CRON:
+                            if not croniter:
+                                raise ImportError(
+                                    _(
+                                        "Please install croniter to enable cron expressions"
+                                    )
+                                )
+                            next_run = arrow.get(
+                                croniter(s.cron, timezone.now()).get_next()
+                            )
                         if Conf.CATCH_UP or next_run > arrow.utcnow():
                             break
                     # arrow always returns a tz aware datetime, and we don't want

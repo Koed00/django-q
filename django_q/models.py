@@ -1,15 +1,25 @@
+# Django
 from django import get_version
+from django.core.exceptions import ValidationError
+from django.db import models
 from django.template.defaultfilters import truncatechars
-
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
-from django.db import models
-from django.utils import timezone
+
+# External
 from picklefield import PickledObjectField
 from picklefield.fields import dbsafe_decode
 
+# Local
 from django_q.signing import SignedPackage
+
+# Optional
+try:
+    from croniter import croniter
+except ImportError:
+    croniter = None
 
 
 class Task(models.Model):
@@ -131,6 +141,18 @@ class Failure(Task):
         proxy = True
 
 
+# Optional Cron validator
+def validate_cron(value):
+    if not value:
+        return
+    if not croniter:
+        raise ImportError(_("Please install croniter to enable cron expressions"))
+    try:
+        croniter.expand(value)
+    except ValueError as e:
+        raise ValidationError(e)
+
+
 class Schedule(models.Model):
     name = models.CharField(max_length=100, null=True, blank=True)
     func = models.CharField(max_length=256, help_text="e.g. module.tasks.function")
@@ -152,6 +174,7 @@ class Schedule(models.Model):
     MONTHLY = "M"
     QUARTERLY = "Q"
     YEARLY = "Y"
+    CRON = "C"
     TYPE = (
         (ONCE, _("Once")),
         (MINUTES, _("Minutes")),
@@ -161,6 +184,7 @@ class Schedule(models.Model):
         (MONTHLY, _("Monthly")),
         (QUARTERLY, _("Quarterly")),
         (YEARLY, _("Yearly")),
+        (CRON, _("Cron")),
     )
     schedule_type = models.CharField(
         max_length=1, choices=TYPE, default=TYPE[0][0], verbose_name=_("Schedule Type")
@@ -173,6 +197,13 @@ class Schedule(models.Model):
     )
     next_run = models.DateTimeField(
         verbose_name=_("Next Run"), default=timezone.now, null=True
+    )
+    cron = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        validators=[validate_cron],
+        help_text=_("Cron expression"),
     )
     task = models.CharField(max_length=100, null=True, editable=False)
 
