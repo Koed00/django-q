@@ -100,7 +100,7 @@ def test_scheduler(broker, monkeypatch):
     assert hasattr(cron_schedule, 'pk') is True
     # All other types
     for t in Schedule.TYPE:
-        if t == Schedule.CRON:
+        if t[0] == Schedule.CRON:
             continue
         schedule = create_schedule('django_q.tests.tasks.word_multiply',
                                    2,
