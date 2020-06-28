@@ -92,12 +92,12 @@ def test_scheduler(broker, monkeypatch):
                                       minutes=10)
     assert hasattr(minute_schedule, 'pk') is True
     # Cron schedule
-    minute_schedule = create_schedule('django_q.tests.tasks.word_multiply',
-                                      2,
-                                      word='django',
-                                      schedule_type=Schedule.CRON,
-                                      cron="0 22 * * 1-5")
-    assert hasattr(minute_schedule, 'pk') is True
+    cron_schedule = create_schedule('django_q.tests.tasks.word_multiply',
+                                    2,
+                                    word='django',
+                                    schedule_type=Schedule.CRON,
+                                    cron="0 22 * * 1-5")
+    assert hasattr(cron_schedule, 'pk') is True
     # All other types
     for t in Schedule.TYPE:
         if t == Schedule.CRON:
