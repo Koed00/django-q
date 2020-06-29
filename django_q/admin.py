@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django_q.conf import Conf
 from django_q.models import Success, Failure, Schedule, OrmQ
 from django_q.tasks import async_task
+from django_q import croniter
 
 
 class TaskAdmin(admin.ModelAdmin):
@@ -74,9 +75,7 @@ class ScheduleAdmin(admin.ModelAdmin):
     )
 
     # optional cron strings
-    try:
-        from croniter import croniter
-    except ImportError:
+    if not croniter:
         readonly_fields = ("cron",)
 
     list_filter = ("next_run", "schedule_type")

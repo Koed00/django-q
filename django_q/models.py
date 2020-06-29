@@ -14,12 +14,7 @@ from picklefield.fields import dbsafe_decode
 
 # Local
 from django_q.signing import SignedPackage
-
-# Optional
-try:
-    from croniter import croniter
-except ImportError:
-    croniter = None
+from django_q import croniter
 
 
 class Task(models.Model):

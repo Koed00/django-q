@@ -1,6 +1,12 @@
 VERSION = (1, 2, 4)
 
-default_app_config = 'django_q.apps.DjangoQConfig'
+default_app_config = "django_q.apps.DjangoQConfig"
 
 
-__all__ = ['conf', 'cluster', 'models', 'tasks']
+__all__ = ["conf", "cluster", "models", "tasks", "croniter"]
+
+# Optional Imports
+try:
+    from croniter import croniter
+except ImportError:
+    croniter = None

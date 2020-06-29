@@ -26,12 +26,7 @@ from django_q.queues import Queue
 from django_q.signals import pre_execute
 from django_q.signing import SignedPackage, BadSignature
 from django_q.status import Stat, Status
-
-# Optional
-try:
-    from croniter import croniter
-except ImportError:
-    croniter = None
+from django_q import croniter
 
 
 class Cluster:
