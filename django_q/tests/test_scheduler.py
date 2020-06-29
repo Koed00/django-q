@@ -98,6 +98,7 @@ def test_scheduler(broker, monkeypatch):
                                     schedule_type=Schedule.CRON,
                                     cron="0 22 * * 1-5")
     assert hasattr(cron_schedule, 'pk') is True
+    assert cron_schedule.full_clean() is None
     # All other types
     for t in Schedule.TYPE:
         if t[0] == Schedule.CRON:
