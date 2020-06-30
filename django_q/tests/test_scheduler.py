@@ -99,6 +99,7 @@ def test_scheduler(broker, monkeypatch):
                                     cron="0 22 * * 1-5")
     assert hasattr(cron_schedule, 'pk') is True
     assert cron_schedule.full_clean() is None
+    assert cron_schedule.__unicode__() == 'django_q.tests.tasks.word_multiply'
     # All other types
     for t in Schedule.TYPE:
         if t[0] == Schedule.CRON:
