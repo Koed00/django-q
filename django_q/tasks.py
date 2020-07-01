@@ -106,7 +106,7 @@ def schedule(func, *args, **kwargs):
         raise IntegrityError("A schedule with the same name already exists.")
 
     # create and return the schedule
-    return Schedule.objects.create(
+    s = Schedule(
         name=name,
         func=func,
         hook=hook,
@@ -116,8 +116,12 @@ def schedule(func, *args, **kwargs):
         minutes=minutes,
         repeats=repeats,
         next_run=next_run,
-        cron=cron
+        cron=cron,
     )
+    # make sure we trigger validation
+    s.full_clean()
+    s.save()
+    return s
 
 
 def result(task_id, wait=0, cached=Conf.CACHED):
