@@ -88,6 +88,13 @@ Optional
 
 
 
+- `Croniter <https://github.com/kiorky/croniter>`__ is an optional package that is used to parse cron expressions for the scheduler::
+
+    $ pip install croniter
+
+
+
+
 Add-ons
 -------
 - `django-q-rollbar <https://github.com/danielwelch/django-q-rollbar>`__ is a Rollbar error reporter::

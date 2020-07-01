@@ -4,7 +4,7 @@ import uuid
 from django_q.tasks import async_task
 from django_q.brokers import get_broker
 from django_q.cluster import Cluster
-from django_q.monitor import monitor, info
+from django_q.monitor import monitor, info, get_ids
 from django_q.status import Stat
 from django_q.conf import Conf
 
@@ -16,6 +16,7 @@ def test_monitor(monkeypatch):
     c = Cluster()
     c.start()
     stats = monitor(run_once=True)
+    assert get_ids() is True
     c.stop()
     assert len(stats) > 0
     found_c = False

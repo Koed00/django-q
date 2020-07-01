@@ -88,6 +88,7 @@ def schedule(func, *args, **kwargs):
     :param repeats: how many times to repeat. 0=never, -1=always.
     :param next_run: Next scheduled run.
     :type next_run: datetime.datetime
+    :param cron: optional cron expression
     :param kwargs: function keyword arguments.
     :return: the schedule object.
     :rtype: Schedule
@@ -98,13 +99,14 @@ def schedule(func, *args, **kwargs):
     minutes = kwargs.pop("minutes", None)
     repeats = kwargs.pop("repeats", -1)
     next_run = kwargs.pop("next_run", timezone.now())
+    cron = kwargs.pop("cron", None)
 
     # check for name duplicates instead of am unique constraint
     if name and Schedule.objects.filter(name=name).exists():
         raise IntegrityError("A schedule with the same name already exists.")
 
     # create and return the schedule
-    return Schedule.objects.create(
+    s = Schedule(
         name=name,
         func=func,
         hook=hook,
@@ -114,7 +116,12 @@ def schedule(func, *args, **kwargs):
         minutes=minutes,
         repeats=repeats,
         next_run=next_run,
+        cron=cron,
     )
+    # make sure we trigger validation
+    s.full_clean()
+    s.save()
+    return s
 
 
 def result(task_id, wait=0, cached=Conf.CACHED):

@@ -13,7 +13,7 @@ Features
 
 -  Multiprocessing worker pool
 -  Asynchronous tasks
--  Scheduled and repeated tasks
+-  Scheduled, cron and repeated tasks
 -  Signed and compressed packages
 -  Failure and success database or cache
 -  Result hooks, groups and chains
@@ -179,6 +179,12 @@ Admin page or directly from your code:
              minutes=5,
              repeats=24,
              next_run=arrow.utcnow().replace(hour=18, minute=0))
+
+    # Use a cron expression
+    schedule('math.hypot',
+             3, 4,
+             schedule_type=Schedule.CRON,
+             cron = '0 22 * * 1-5')
 
 For more info check the `Schedules <https://django-q.readthedocs.org/en/latest/schedules.html>`__ documentation.
 

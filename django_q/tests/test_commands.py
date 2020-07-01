@@ -16,3 +16,4 @@ def test_qmonitor():
 def test_qinfo():
     call_command('qinfo')
     call_command('qinfo', config=True)
+    call_command('qinfo', ids=True)

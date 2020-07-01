@@ -5,19 +5,13 @@ from django.utils.translation import gettext_lazy as _
 from django_q.conf import Conf
 from django_q.models import Success, Failure, Schedule, OrmQ
 from django_q.tasks import async_task
+from django_q import croniter
 
 
 class TaskAdmin(admin.ModelAdmin):
     """model admin for success tasks."""
 
-    list_display = (
-        'name',
-        'func',
-        'started',
-        'stopped',
-        'time_taken',
-        'group'
-    )
+    list_display = ("name", "func", "started", "stopped", "time_taken", "group")
 
     def has_add_permission(self, request):
         """Don't allow adds."""
@@ -28,9 +22,9 @@ class TaskAdmin(admin.ModelAdmin):
         qs = super(TaskAdmin, self).get_queryset(request)
         return qs.filter(success=True)
 
-    search_fields = ('name', 'func', 'group')
+    search_fields = ("name", "func", "group")
     readonly_fields = []
-    list_filter = ('group',)
+    list_filter = ("group",)
 
     def get_readonly_fields(self, request, obj=None):
         """Set all fields readonly."""
@@ -50,21 +44,15 @@ retry_failed.short_description = _("Resubmit selected tasks to queue")
 class FailAdmin(admin.ModelAdmin):
     """model admin for failed tasks."""
 
-    list_display = (
-        'name',
-        'func',
-        'started',
-        'stopped',
-        'short_result'
-    )
+    list_display = ("name", "func", "started", "stopped", "short_result")
 
     def has_add_permission(self, request):
         """Don't allow adds."""
         return False
 
     actions = [retry_failed]
-    search_fields = ('name', 'func')
-    list_filter = ('group',)
+    search_fields = ("name", "func")
+    list_filter = ("group",)
     readonly_fields = []
 
     def get_readonly_fields(self, request, obj=None):
@@ -76,31 +64,29 @@ class ScheduleAdmin(admin.ModelAdmin):
     """ model admin for schedules """
 
     list_display = (
-        'id',
-        'name',
-        'func',
-        'schedule_type',
-        'repeats',
-        'next_run',
-        'last_run',
-        'success'
+        "id",
+        "name",
+        "func",
+        "schedule_type",
+        "repeats",
+        "next_run",
+        "last_run",
+        "success",
     )
 
-    list_filter = ('next_run', 'schedule_type')
-    search_fields = ('func',)
-    list_display_links = ('id', 'name')
+    # optional cron strings
+    if not croniter:
+        readonly_fields = ("cron",)
+
+    list_filter = ("next_run", "schedule_type")
+    search_fields = ("func",)
+    list_display_links = ("id", "name")
 
 
 class QueueAdmin(admin.ModelAdmin):
     """  queue admin for ORM broker """
-    list_display = (
-        'id',
-        'key',
-        'task_id',
-        'name',
-        'func',
-        'lock'
-    )
+
+    list_display = ("id", "key", "task_id", "name", "func", "lock")
 
     def save_model(self, request, obj, form, change):
         obj.save(using=Conf.ORM)

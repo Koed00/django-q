@@ -1,7 +1,7 @@
 language: python
 
 services:
-  - redis-server
+  - redis
   - mongodb
 
 python:
@@ -9,8 +9,8 @@ python:
   - "3.8"
 
 env:
-  - DJANGO=3.0.7
-  - DJANGO=2.2.13
+  - DJANGO=3.0.8
+  - DJANGO=2.2.14
 
 sudo: true
 dist: xenial

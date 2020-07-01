@@ -24,11 +24,11 @@ The difference is that `this` loads function calls `TimestampSigner` and `Signer
 
 
 def loads(
-        s,
-        key=None,
-        salt: str = "django.core.signing",
-        serializer=JSONSerializer,
-        max_age=None,
+    s,
+    key=None,
+    salt: str = "django.core.signing",
+    serializer=JSONSerializer,
+    max_age=None,
 ):
     """
     Reverse of dumps(), raise BadSignature if signature fails.

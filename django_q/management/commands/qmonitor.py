@@ -10,12 +10,12 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--run-once',
-            action='store_true',
-            dest='run_once',
+            "--run-once",
+            action="store_true",
+            dest="run_once",
             default=False,
-            help='Run once and then stop.',
+            help="Run once and then stop.",
         )
 
     def handle(self, *args, **options):
-        monitor(run_once=options.get('run_once', False))
+        monitor(run_once=options.get("run_once", False))
