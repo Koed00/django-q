@@ -102,11 +102,11 @@ def test_scheduler(broker, monkeypatch):
     assert cron_schedule.full_clean() is None
     assert cron_schedule.__unicode__() == 'django_q.tests.tasks.word_multiply'
     with pytest.raises(ValidationError):
-        cron_schedule = create_schedule('django_q.tests.tasks.word_multiply',
-                                        2,
-                                        word='django',
-                                        schedule_type=Schedule.CRON,
-                                        cron="0 22 * * 1-12")
+        create_schedule('django_q.tests.tasks.word_multiply',
+                        2,
+                        word='django',
+                        schedule_type=Schedule.CRON,
+                        cron="0 22 * * 1-12")
     # All other types
     for t in Schedule.TYPE:
         if t[0] == Schedule.CRON:

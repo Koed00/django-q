@@ -138,8 +138,6 @@ class Failure(Task):
 
 # Optional Cron validator
 def validate_cron(value):
-    if not value:
-        return
     if not croniter:
         raise ImportError(_("Please install croniter to enable cron expressions"))
     try:
