@@ -1,12 +1,19 @@
 # Changelog
 
+## [v1.3.1](https://github.com/koed00/django-q/tree/v1.3.1) (2020-07-02)
+
+[Full Changelog](https://github.com/koed00/django-q/compare/v1.3.0...v1.3.1)
+
+**Closed issues:**
+
+- Ability to customize schedule creation [\#451](https://github.com/Koed00/django-q/issues/451)
+
 ## [v1.3.0](https://github.com/koed00/django-q/tree/v1.3.0) (2020-07-02)
 
 [Full Changelog](https://github.com/koed00/django-q/compare/v1.2.4...v1.3.0)
 
 **Closed issues:**
 
-- Ability to customize schedule creation [\#451](https://github.com/Koed00/django-q/issues/451)
 - ERROR: django-picklefield 3.0.1 has requirement Django\>=2.2, but you'll have django 1.11.10 which is incompatible. [\#445](https://github.com/Koed00/django-q/issues/445)
 - \[Error\] select\_for\_update cannot be used outside of a transaction. [\#434](https://github.com/Koed00/django-q/issues/434)
 
