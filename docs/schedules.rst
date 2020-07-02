@@ -95,6 +95,10 @@ Or you can make a wrapper function which you can then schedule in Django Q:
 
 Check out the :ref:`shell` examples if you want to schedule regular shell commands
 
+.. note::
+
+   Schedules needs the optional :ref:`Croniter<croniter_package>` package installed to parse cron expressions.
+
 Reference
 ---------
 
@@ -223,6 +227,6 @@ Reference
 
     .. py:attribute:: CRON
 
-    `'C'` uses the optional `croniter` package to determine a schedule based a cron expression.
+    `'C'` uses the optional `croniter` package to determine a schedule based on a cron expression.
 
 

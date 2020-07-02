@@ -88,6 +88,9 @@ Optional
 
 
 
+
+.. _croniter_package:
+
 - `Croniter <https://github.com/kiorky/croniter>`__ is an optional package that is used to parse cron expressions for the scheduler::
 
     $ pip install croniter
