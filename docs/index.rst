@@ -13,7 +13,7 @@ Features
 
 -  Multiprocessing worker pools
 -  Asynchronous tasks
--  Scheduled and repeated tasks
+-  Scheduled, cron and repeated tasks
 -  Signed and compressed packages
 -  Failure and success database or cache
 -  Result hooks, groups and chains
