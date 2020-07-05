@@ -16,6 +16,16 @@ try:
 except ImportError:
     psutil = None
 
+try:
+    from croniter import croniter
+except ImportError:
+    croniter = None
+
+try:
+    import resource
+except ModuleNotFoundError:
+    resource = None
+
 
 class Conf:
     """
