@@ -1,6 +1,7 @@
 # Standard
 import ast
 import importlib
+import resource
 import signal
 import socket
 import traceback
@@ -10,6 +11,7 @@ from time import sleep
 
 # External
 import arrow
+
 # Django
 from django import db
 from django.conf import settings
@@ -102,10 +104,10 @@ class Cluster:
     @property
     def is_stopping(self) -> bool:
         return (
-                self.stop_event
-                and self.start_event
-                and self.start_event.is_set()
-                and self.stop_event.is_set()
+            self.stop_event
+            and self.start_event
+            and self.start_event.is_set()
+            and self.stop_event.is_set()
         )
 
     @property
@@ -115,13 +117,13 @@ class Cluster:
 
 class Sentinel:
     def __init__(
-            self,
-            stop_event,
-            start_event,
-            cluster_id,
-            broker=None,
-            timeout=Conf.TIMEOUT,
-            start=True,
+        self,
+        stop_event,
+        start_event,
+        cluster_id,
+        broker=None,
+        timeout=Conf.TIMEOUT,
+        start=True,
     ):
         # Make sure we catch signals for the pool
         signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -376,7 +378,7 @@ def monitor(result_queue: Queue, broker: Broker = None):
 
 
 def worker(
-        task_queue: Queue, result_queue: Queue, timer: Value, timeout: int = Conf.TIMEOUT
+    task_queue: Queue, result_queue: Queue, timer: Value, timeout: int = Conf.TIMEOUT
 ):
     """
     Takes a task from the task queue, tries to execute it and puts the result back in the result queue
@@ -433,7 +435,7 @@ def worker(
             result_queue.put(task)
             timer.value = -1  # Idle
             # Recycle
-            if task_count == Conf.RECYCLE:
+            if task_count == Conf.RECYCLE or (Conf.MAX_RSS and resource.getrusage(resource.RUSAGE_SELF).ru_maxrss >= Conf.MAX_RSS):
                 timer.value = -2  # Recycled
                 break
     logger.info(_(f"{name} stopped doing work"))
@@ -551,9 +553,9 @@ def scheduler(broker: Broker = None):
     try:
         with db.transaction.atomic(using=Schedule.objects.db):
             for s in (
-                    Schedule.objects.select_for_update()
-                            .exclude(repeats=0)
-                            .filter(next_run__lt=timezone.now())
+                Schedule.objects.select_for_update()
+                .exclude(repeats=0)
+                .filter(next_run__lt=timezone.now())
             ):
                 args = ()
                 kwargs = {}

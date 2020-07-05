@@ -104,6 +104,9 @@ class Conf:
     # Number of tasks each worker can handle before it gets recycled. Useful for releasing memory
     RECYCLE = conf.get("recycle", 500)
 
+    # The maximum resident set size in kilobytes before a worker will recycle. Useful for limiting memory usage.
+    MAX_RSS = conf.get("max_rss", None)
+
     # Number of seconds to wait for a worker to finish.
     TIMEOUT = conf.get("timeout", None)
 
