@@ -10,3 +10,8 @@ try:
     from croniter import croniter
 except ImportError:
     croniter = None
+
+try:
+    import resource
+except ModuleNotFoundError:
+    resource = None

@@ -104,7 +104,8 @@ class Conf:
     # Number of tasks each worker can handle before it gets recycled. Useful for releasing memory
     RECYCLE = conf.get("recycle", 500)
 
-    # The maximum resident set size in kilobytes before a worker will recycle. Useful for limiting memory usage.
+    # The maximum resident set size in kilobytes before a worker will recycle. Useful for limiting memory usage
+    # Not available on all platforms
     MAX_RSS = conf.get("max_rss", None)
 
     # Number of seconds to wait for a worker to finish.
@@ -214,7 +215,7 @@ if Conf.ERROR_REPORTER:
         # and instantiate an ErrorReporter using the provided config
         for name, conf in error_conf.items():
             for entry in pkg_resources.iter_entry_points(
-                    "djangoq.errorreporters", name
+                "djangoq.errorreporters", name
             ):
                 Reporter = entry.load()
                 reporters.append(Reporter(**conf))

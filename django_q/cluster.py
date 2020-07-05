@@ -1,7 +1,6 @@
 # Standard
 import ast
 import importlib
-import resource
 import signal
 import socket
 import traceback
@@ -28,7 +27,7 @@ from django_q.queues import Queue
 from django_q.signals import pre_execute
 from django_q.signing import SignedPackage, BadSignature
 from django_q.status import Stat, Status
-from django_q import croniter
+from django_q import croniter, resource
 
 
 class Cluster:
@@ -435,7 +434,11 @@ def worker(
             result_queue.put(task)
             timer.value = -1  # Idle
             # Recycle
-            if task_count == Conf.RECYCLE or (Conf.MAX_RSS and resource.getrusage(resource.RUSAGE_SELF).ru_maxrss >= Conf.MAX_RSS):
+            if task_count == Conf.RECYCLE or (
+                resource
+                and Conf.MAX_RSS
+                and resource.getrusage(resource.RUSAGE_SELF).ru_maxrss >= Conf.MAX_RSS
+            ):
                 timer.value = -2  # Recycled
                 break
     logger.info(_(f"{name} stopped doing work"))
