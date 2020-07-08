@@ -10,6 +10,7 @@ from time import sleep
 
 # External
 import arrow
+
 # Django
 from django import db
 from django.conf import settings
@@ -19,14 +20,21 @@ from django.utils.translation import gettext_lazy as _
 # Local
 import django_q.tasks
 from django_q.brokers import get_broker, Broker
-from django_q.conf import Conf, logger, psutil, get_ppid, error_reporter
+from django_q.conf import (
+    Conf,
+    logger,
+    psutil,
+    get_ppid,
+    error_reporter,
+    croniter,
+    resource,
+)
 from django_q.humanhash import humanize
 from django_q.models import Task, Success, Schedule
 from django_q.queues import Queue
 from django_q.signals import pre_execute
 from django_q.signing import SignedPackage, BadSignature
 from django_q.status import Stat, Status
-from django_q import croniter
 
 
 class Cluster:
@@ -102,10 +110,10 @@ class Cluster:
     @property
     def is_stopping(self) -> bool:
         return (
-                self.stop_event
-                and self.start_event
-                and self.start_event.is_set()
-                and self.stop_event.is_set()
+            self.stop_event
+            and self.start_event
+            and self.start_event.is_set()
+            and self.stop_event.is_set()
         )
 
     @property
@@ -115,13 +123,13 @@ class Cluster:
 
 class Sentinel:
     def __init__(
-            self,
-            stop_event,
-            start_event,
-            cluster_id,
-            broker=None,
-            timeout=Conf.TIMEOUT,
-            start=True,
+        self,
+        stop_event,
+        start_event,
+        cluster_id,
+        broker=None,
+        timeout=Conf.TIMEOUT,
+        start=True,
     ):
         # Make sure we catch signals for the pool
         signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -376,7 +384,7 @@ def monitor(result_queue: Queue, broker: Broker = None):
 
 
 def worker(
-        task_queue: Queue, result_queue: Queue, timer: Value, timeout: int = Conf.TIMEOUT
+    task_queue: Queue, result_queue: Queue, timer: Value, timeout: int = Conf.TIMEOUT
 ):
     """
     Takes a task from the task queue, tries to execute it and puts the result back in the result queue
@@ -433,7 +441,7 @@ def worker(
             result_queue.put(task)
             timer.value = -1  # Idle
             # Recycle
-            if task_count == Conf.RECYCLE:
+            if task_count == Conf.RECYCLE or rss_check():
                 timer.value = -2  # Recycled
                 break
     logger.info(_(f"{name} stopped doing work"))
@@ -551,9 +559,9 @@ def scheduler(broker: Broker = None):
     try:
         with db.transaction.atomic(using=Schedule.objects.db):
             for s in (
-                    Schedule.objects.select_for_update()
-                            .exclude(repeats=0)
-                            .filter(next_run__lt=timezone.now())
+                Schedule.objects.select_for_update()
+                .exclude(repeats=0)
+                .filter(next_run__lt=timezone.now())
             ):
                 args = ()
                 kwargs = {}
@@ -692,3 +700,11 @@ def set_cpu_affinity(n: int, process_ids: list, actual: bool = not Conf.TESTING)
             if actual:
                 p.cpu_affinity(affinity)
             logger.info(_(f"{pid} will use cpu {affinity}"))
+
+
+def rss_check():
+    if Conf.MAX_RSS and resource:
+        return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss >= Conf.MAX_RSS
+    elif Conf.MAX_RSS and psutil:
+        return psutil.Process().memory_info().rss >= Conf.MAX_RSS * 1024
+    return False

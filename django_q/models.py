@@ -13,8 +13,8 @@ from picklefield import PickledObjectField
 from picklefield.fields import dbsafe_decode
 
 # Local
+from django_q.conf import croniter
 from django_q.signing import SignedPackage
-from django_q import croniter
 
 
 class Task(models.Model):

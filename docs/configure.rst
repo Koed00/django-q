@@ -51,6 +51,13 @@ recycle
 
 The number of tasks a worker will process before recycling . Useful to release memory resources on a regular basis. Defaults to ``500``.
 
+max_rss
+~~~~~~~
+
+The maximum resident set size in kilobytes before a worker will recycle and release resources. Useful for limiting memory usage.
+Only supported on platforms that implement the python resource module or install the :ref:`psutil<psutil_package>` module.
+Defaults to ``None``.
+
 .. _timeout:
 
 timeout
