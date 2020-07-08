@@ -358,8 +358,7 @@ def test_max_rss(broker, monkeypatch):
     async_task('django_q.tests.tasks.multiply', 2, 2, broker=broker)
     task_queue = Queue()
     result_queue = Queue()
-    # push two tasks
-    pusher(task_queue, stop_event, broker=broker)
+    # push the task
     pusher(task_queue, stop_event, broker=broker)
     # worker should exit on recycle
     worker(task_queue, result_queue, Value('f', -1))
