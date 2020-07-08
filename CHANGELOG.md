@@ -1,5 +1,18 @@
 # Changelog
 
+## [v1.3.2](https://github.com/koed00/django-q/tree/v1.3.2) (2020-07-08)
+
+[Full Changelog](https://github.com/koed00/django-q/compare/v1.3.1...v1.3.2)
+
+**Closed issues:**
+
+- Is it the maintainers' intent to support RabbitMQ in the future? [\#454](https://github.com/Koed00/django-q/issues/454)
+- Can worker/cluster resource usage be limited? [\#453](https://github.com/Koed00/django-q/issues/453)
+
+**Merged pull requests:**
+
+- Resource limits [\#457](https://github.com/Koed00/django-q/pull/457) ([Koed00](https://github.com/Koed00))
+
 ## [v1.3.1](https://github.com/koed00/django-q/tree/v1.3.1) (2020-07-02)
 
 [Full Changelog](https://github.com/koed00/django-q/compare/v1.3.0...v1.3.1)
@@ -290,7 +303,7 @@
 
 - Update to Django 1.11 & Python 3.6 [\#230](https://github.com/Koed00/django-q/pull/230) ([Koed00](https://github.com/Koed00))
 - Add django 1.11 support [\#228](https://github.com/Koed00/django-q/pull/228) ([bulv1ne](https://github.com/bulv1ne))
-- Update tasks.rst [\#222](https://github.com/Koed00/django-q/pull/222) ([wirasto](https://github.com/wirasto))
+- Update tasks.rst [\#222](https://github.com/Koed00/django-q/pull/222) ([ghost](https://github.com/ghost))
 - Add signals [\#220](https://github.com/Koed00/django-q/pull/220) ([abompard](https://github.com/abompard))
 - fix a race condition in orm broker [\#213](https://github.com/Koed00/django-q/pull/213) ([yannpom](https://github.com/yannpom))
 - Option to undaemonize workers and allows them to spawn child processes [\#212](https://github.com/Koed00/django-q/pull/212) ([yannpom](https://github.com/yannpom))
