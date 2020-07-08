@@ -338,6 +338,41 @@ def test_recycle(broker, monkeypatch):
     assert Success.objects.count() == Conf.SAVE_LIMIT
     broker.delete_queue()
 
+@pytest.mark.django_db
+def test_max_rss(broker, monkeypatch):
+    # set up the Sentinel
+    broker.list_key = 'test_max_rss_test:q'
+    async_task('django_q.tests.tasks.multiply', 2, 2, broker=broker)
+    start_event = Event()
+    stop_event = Event()
+    cluster_id = uuidlib.uuid4()
+    # override settings
+    monkeypatch.setattr(Conf, 'MAX_RSS', 40000)
+    monkeypatch.setattr(Conf, 'WORKERS', 1)
+    # set a timer to stop the Sentinel
+    threading.Timer(3, stop_event.set).start()
+    s = Sentinel(stop_event, start_event, cluster_id=cluster_id, broker=broker)
+    assert start_event.is_set()
+    assert s.status() == Conf.STOPPED
+    assert s.reincarnations == 1
+    async_task('django_q.tests.tasks.multiply', 2, 2, broker=broker)
+    task_queue = Queue()
+    result_queue = Queue()
+    # push two tasks
+    pusher(task_queue, stop_event, broker=broker)
+    pusher(task_queue, stop_event, broker=broker)
+    # worker should exit on recycle
+    worker(task_queue, result_queue, Value('f', -1))
+    # check if the work has been done
+    assert result_queue.qsize() == 1
+    # save_limit test
+    monkeypatch.setattr(Conf, 'SAVE_LIMIT', 1)
+    result_queue.put('STOP')
+    # run monitor
+    monitor(result_queue)
+    assert Success.objects.count() == Conf.SAVE_LIMIT
+    broker.delete_queue()
+
 
 @pytest.mark.django_db
 def test_bad_secret(broker, monkeypatch):
