@@ -7,8 +7,8 @@
 arrow==0.15.7             # via -r requirements.in
 asgiref==3.2.10           # via django
 blessed==1.17.8           # via -r requirements.in
-boto3==1.14.20            # via -r requirements.in
-botocore==1.17.20         # via boto3, s3transfer
+boto3==1.14.26            # via -r requirements.in
+botocore==1.17.26         # via boto3, s3transfer
 certifi==2020.6.20        # via requests
 chardet==3.0.4            # via requests
 croniter==0.3.34          # via -r requirements.in
@@ -16,13 +16,13 @@ django-picklefield==3.0.1  # via -r requirements.in
 django-redis==4.12.1      # via -r requirements.in
 django==3.0.8             # via django-picklefield, django-redis
 docutils==0.15.2          # via botocore
-hiredis==1.0.1            # via -r requirements.in
+hiredis==1.1.0            # via -r requirements.in
 idna==2.10                # via requests
 iron-core==1.2.0          # via iron-mq
 iron-mq==0.9              # via -r requirements.in
 jmespath==0.10.0          # via boto3, botocore
 natsort==7.0.1            # via croniter
-psutil==5.7.0             # via -r requirements.in
+psutil==5.7.2             # via -r requirements.in
 pymongo==3.10.1           # via -r requirements.in
 python-dateutil==2.8.1    # via arrow, botocore, croniter, iron-core
 pytz==2020.1              # via django
@@ -31,5 +31,5 @@ requests==2.24.0          # via iron-core
 s3transfer==0.3.3         # via boto3
 six==1.15.0               # via blessed, python-dateutil
 sqlparse==0.3.1           # via django
-urllib3==1.25.9           # via botocore, requests
+urllib3==1.25.10          # via botocore, requests
 wcwidth==0.2.5            # via blessed
