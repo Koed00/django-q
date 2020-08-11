@@ -398,6 +398,41 @@ def test_bad_secret(broker, monkeypatch):
 
 
 @pytest.mark.django_db
+def test_attempt_count(broker, monkeypatch):
+    monkeypatch.setattr(Conf, 'ATTEMPT_COUNT', 3)
+    tag = uuid()
+    task = {'id': tag[1],
+            'name': tag[0],
+            'func': 'math.copysign',
+            'args': (1, -1),
+            'kwargs': {},
+            'started': timezone.now(),
+            'stopped': timezone.now(),
+            'success': False,
+            'result': None}
+    # initial save - no success
+    save_task(task, broker)
+    assert Task.objects.filter(id=task['id']).exists()
+    saved_task = Task.objects.get(id=task['id'])
+    assert saved_task.attempt_count == 1
+    sleep(0.5)
+    # second save
+    old_stopped = task['stopped']
+    task['stopped'] = timezone.now()
+    save_task(task, broker)
+    saved_task = Task.objects.get(id=task['id'])
+    assert saved_task.attempt_count == 2
+    # third save -
+    task['stopped'] = timezone.now()
+    save_task(task, broker)
+    saved_task = Task.objects.get(id=task['id'])
+    assert saved_task.attempt_count == 3
+    # task should be removed from queue
+    assert broker.queue_size() == 0
+
+
+
+@pytest.mark.django_db
 def test_update_failed(broker):
     tag = uuid()
     task = {'id': tag[1],
