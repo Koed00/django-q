@@ -43,7 +43,7 @@ retry_failed.short_description = _("Resubmit selected tasks to queue")
 class FailAdmin(admin.ModelAdmin):
     """model admin for failed tasks."""
 
-    list_display = ("name", "func", "started", "stopped", "short_result")
+    list_display = ("name", "func", "started", "stopped", "short_result", "attempt_count")
 
     def has_add_permission(self, request):
         """Don't allow adds."""
