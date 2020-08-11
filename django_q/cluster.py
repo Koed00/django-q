@@ -497,6 +497,7 @@ def save_task(task, broker: Broker):
                 result=task["result"],
                 group=task.get("group"),
                 success=task["success"],
+                attempt_count=1
             )
     except Exception as e:
         logger.error(e)
