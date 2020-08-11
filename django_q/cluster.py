@@ -478,7 +478,12 @@ def save_task(task, broker: Broker):
                 existing_task.stopped = task["stopped"]
                 existing_task.result = task["result"]
                 existing_task.success = task["success"]
+                existing_task.attempt_count = existing_task.attempt_count + 1
                 existing_task.save()
+
+            if 0 < Conf.ATTEMPT_COUNT == existing_task.attempt_count:
+                broker.acknowledge(task['ack_id'])
+
         else:
             Task.objects.create(
                 id=task["id"],

@@ -29,6 +29,7 @@ class Task(models.Model):
     started = models.DateTimeField(editable=False)
     stopped = models.DateTimeField(editable=False)
     success = models.BooleanField(default=True, editable=False)
+    attempt_count = models.IntegerField(default=0)
 
     @staticmethod
     def get_result(task_id):
