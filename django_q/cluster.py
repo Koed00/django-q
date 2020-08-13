@@ -74,6 +74,7 @@ class Cluster:
                 self.cluster_id,
                 None if start_method == SPAWN else self.broker,
                 self.timeout,
+                True,
                 self.broker.list_key if start_method == SPAWN else None,
                 get_conf_dict() if start_method == SPAWN else None,
             ),
