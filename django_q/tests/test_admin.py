@@ -21,8 +21,7 @@ def test_admin_views(admin_client, monkeypatch):
         func='test.fail',
         started=timezone.now(),
         stopped=timezone.now(),
-        success=False,
-        attempt_count=1)
+        success=False)
     tag = uuid()
     t = Task.objects.create(
         id=tag[1],
@@ -30,8 +29,7 @@ def test_admin_views(admin_client, monkeypatch):
         func='test.success',
         started=timezone.now(),
         stopped=timezone.now(),
-        success=True,
-        attempt_count=1)
+        success=True)
     q = OrmQ.objects.create(
         key='test',
         payload=SignedPackage.dumps({'id': 1, 'func': 'test', 'name': 'test'}))

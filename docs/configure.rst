@@ -76,12 +76,12 @@ ack_failures
 When set to ``True``, also acknowledge unsuccessful tasks. This causes failed tasks to be considered as successful deliveries, thereby removing them from the task queue. Can also be set per-task by passing the ``ack_failure`` option to :func:`async_task`. Defaults to ``False``.
 
 
-.. attempt_count:
+.. _max_attempts:
 
-attempt_count
+max_attempts
 ~~~~~~~~~~~~~
 
-Limit the number of retries for failed tasks. Set to 0 for infinite retries. Defaults to 0
+Limit the number of retry attempts for failed tasks. Set to 0 for infinite retries. Defaults to 0
 
 
 .. _retry:

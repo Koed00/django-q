@@ -399,7 +399,7 @@ def test_bad_secret(broker, monkeypatch):
 
 @pytest.mark.django_db
 def test_attempt_count(broker, monkeypatch):
-    monkeypatch.setattr(Conf, 'ATTEMPT_COUNT', 3)
+    monkeypatch.setattr(Conf, 'MAX_ATTEMPTS', 3)
     tag = uuid()
     task = {'id': tag[1],
             'name': tag[0],
