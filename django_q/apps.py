@@ -4,7 +4,7 @@ from django_q.conf import Conf
 
 
 class DjangoQConfig(AppConfig):
-    name = 'django_q'
+    name = "django_q"
     verbose_name = Conf.LABEL
 
     def ready(self):

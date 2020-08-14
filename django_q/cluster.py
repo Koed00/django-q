@@ -274,7 +274,6 @@ class Sentinel:
             else:
                 logger.error(
                     _(f"reincarnated worker {process.name} after death"))
-
         self.reincarnations += 1
 
     def spawn_cluster(self):
@@ -377,7 +376,7 @@ class Sentinel:
             )
         )
         self.stop_event.set()
-
+        
 
 def pusher(
     task_queue: Queue,
@@ -826,4 +825,3 @@ def get_conf_dict():
             conf_dict[key] = val
 
     return conf_dict
-

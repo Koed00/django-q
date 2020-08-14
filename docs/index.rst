@@ -13,8 +13,8 @@ Features
 
 -  Multiprocessing worker pools
 -  Asynchronous tasks
--  Scheduled and repeated tasks
--  Encrypted and compressed packages
+-  Scheduled, cron and repeated tasks
+-  Signed and compressed packages
 -  Failure and success database or cache
 -  Result hooks, groups and chains
 -  Django Admin integration
@@ -24,7 +24,7 @@ Features
 -  Rollbar and Sentry support
 
 
-Django Q is tested with: Python 3.7 and 3.8, Django 2.2.x and 3.0.x
+Django Q is tested with: Python 3.7 and 3.8, Django 2.2.x and 3.1.x
 
 
 Contents:

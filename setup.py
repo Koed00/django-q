@@ -26,10 +26,10 @@ class PyTest(Command):
 
 setup(
     name='django-q',
-    version='1.1.0',
+    version='1.3.2',
     author='Ilan Steemers',
-    author_email='koed0@gmail.com',
-    keywords='django distributed task queue worker scheduler cron redis disque ironmq sqs orm mongodb multiprocessing rollbar',
+    author_email='koed00@gmail.com',
+    keywords='django multiprocessing worker scheduler queue',
     packages=['django_q'],
     include_package_data=True,
     url='https://django-q.readthedocs.org',

@@ -1,13 +1,12 @@
 """
 The code is derived from https://github.com/althonos/pronto/commit/3384010dfb4fc7c66a219f59276adef3288a886b
 """
-import sys
-
 import multiprocessing
 import multiprocessing.queues
+import sys
 
 
-class SharedCounter(object):
+class SharedCounter:
     """ A synchronized shared counter.
 
     The locking done by multiprocessing.Value ensures that only a single
@@ -22,7 +21,7 @@ class SharedCounter(object):
     """
 
     def __init__(self, n=0):
-        self.count = multiprocessing.Value('i', n)
+        self.count = multiprocessing.Value("i", n)
 
     def increment(self, n=1):
         """ Increment the counter by n (default = 1) """
@@ -52,7 +51,9 @@ class Queue(multiprocessing.queues.Queue):
         if sys.version_info < (3, 0):
             super(Queue, self).__init__(*args, **kwargs)
         else:
-            super(Queue, self).__init__(*args, ctx=multiprocessing.get_context(), **kwargs)
+            super(Queue, self).__init__(
+                *args, ctx=multiprocessing.get_context(), **kwargs
+            )
 
         self.size = SharedCounter(0)
 
@@ -65,10 +66,10 @@ class Queue(multiprocessing.queues.Queue):
         self.size.increment(-1)
         return x
 
-    def qsize(self):
+    def qsize(self) -> int:
         """ Reliable implementation of multiprocessing.Queue.qsize() """
         return self.size.value
 
-    def empty(self):
+    def empty(self) -> bool:
         """ Reliable implementation of multiprocessing.Queue.empty() """
         return not self.qsize() > 0

@@ -13,8 +13,8 @@ Features
 
 -  Multiprocessing worker pool
 -  Asynchronous tasks
--  Scheduled and repeated tasks
--  Encrypted and compressed packages
+-  Scheduled, cron and repeated tasks
+-  Signed and compressed packages
 -  Failure and success database or cache
 -  Result hooks, groups and chains
 -  Django Admin integration
@@ -31,7 +31,7 @@ Requirements
 -  `Arrow <https://github.com/crsmithdev/arrow>`__
 -  `Blessed <https://github.com/jquast/blessed>`__
 
-Tested with: Python 3.7, 3.8 Django 2.2.X and 3.0.X
+Tested with: Python 3.7, 3.8 Django 2.2.X and 3.1.X
 
 .. warning:: Since Python 3.7 `async` became a reserved keyword and was refactored to `async_task`
 
@@ -179,6 +179,12 @@ Admin page or directly from your code:
              minutes=5,
              repeats=24,
              next_run=arrow.utcnow().replace(hour=18, minute=0))
+
+    # Use a cron expression
+    schedule('math.hypot',
+             3, 4,
+             schedule_type=Schedule.CRON,
+             cron = '0 22 * * 1-5')
 
 For more info check the `Schedules <https://django-q.readthedocs.org/en/latest/schedules.html>`__ documentation.
 

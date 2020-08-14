@@ -1,13 +1,13 @@
 from datetime import timedelta
 from time import sleep
 
-from django.utils import timezone
 from django import db
 from django.db import transaction
+from django.utils import timezone
 
 from django_q.brokers import Broker
-from django_q.models import OrmQ
 from django_q.conf import Conf, logger
+from django_q.models import OrmQ
 
 
 def _timeout():
@@ -16,8 +16,10 @@ def _timeout():
 
 class ORM(Broker):
     @staticmethod
-    def get_connection(list_key=Conf.PREFIX):
-        if transaction.get_autocommit():  # Only True when not in an atomic block
+    def get_connection(list_key: str = Conf.PREFIX):
+        if transaction.get_autocommit(
+            using=Conf.ORM
+        ):  # Only True when not in an atomic block
             # Make sure stale connections in the broker thread are explicitly
             #   closed before attempting DB access.
             # logger.debug("Broker thread calling close_old_connections")
@@ -26,36 +28,50 @@ class ORM(Broker):
             logger.debug("Broker in an atomic transaction")
         return OrmQ.objects.using(Conf.ORM)
 
-    def queue_size(self):
-        return self.get_connection().filter(key=self.list_key, lock__lte=_timeout()).count()
+    def queue_size(self) -> int:
+        return (
+            self.get_connection()
+            .filter(key=self.list_key, lock__lte=_timeout())
+            .count()
+        )
 
-    def lock_size(self):
-        return self.get_connection().filter(key=self.list_key, lock__gt=_timeout()).count()
+    def lock_size(self) -> int:
+        return (
+            self.get_connection().filter(key=self.list_key, lock__gt=_timeout()).count()
+        )
 
     def purge_queue(self):
         return self.get_connection().filter(key=self.list_key).delete()
 
-    def ping(self):
+    def ping(self) -> bool:
         return True
 
-    def info(self):
+    def info(self) -> str:
         if not self._info:
-            self._info = 'ORM {}'.format(Conf.ORM)
+            self._info = f"ORM {Conf.ORM}"
         return self._info
 
     def fail(self, task_id):
         self.delete(task_id)
 
     def enqueue(self, task):
-        package = self.get_connection().create(key=self.list_key, payload=task, lock=_timeout())
+        package = self.get_connection().create(
+            key=self.list_key, payload=task, lock=_timeout()
+        )
         return package.pk
 
     def dequeue(self):
-        tasks = self.get_connection().filter(key=self.list_key, lock__lt=_timeout())[0:Conf.BULK]
+        tasks = self.get_connection().filter(key=self.list_key, lock__lt=_timeout())[
+            0 : Conf.BULK
+        ]
         if tasks:
             task_list = []
             for task in tasks:
-                if self.get_connection().filter(id=task.id, lock=task.lock).update(lock=timezone.now()):
+                if (
+                    self.get_connection()
+                    .filter(id=task.id, lock=task.lock)
+                    .update(lock=timezone.now())
+                ):
                     task_list.append((task.pk, task.payload))
                 # else don't process, as another cluster has been faster than us on that task
             return task_list
@@ -70,4 +86,3 @@ class ORM(Broker):
 
     def acknowledge(self, task_id):
         return self.delete(task_id)
-

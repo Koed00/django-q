@@ -32,7 +32,7 @@ Django Q is tested for Python 3.7 and 3.8
 -  `Django <https://www.djangoproject.com>`__
 
     Django Q aims to use as much of Django's standard offerings as possible
-    The code is tested against Django versions `2.2.x` and `3.0.x`.
+    The code is tested against Django versions `2.2.x` and `3.1.x`.
     Please note that Django versions below 2.0 do not support Python 3.7
 
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
@@ -85,6 +85,16 @@ Optional
 - `Pyrollbar <https://github.com/rollbar/pyrollbar>`__ is an error notifier for `Rollbar <https://rollbar.com/>`__  which lets you manage your worker errors in one place. Needs a `Rollbar <https://rollbar.com/>`__ account and access key::
 
     $ pip install rollbar
+
+
+
+
+.. _croniter_package:
+
+- `Croniter <https://github.com/kiorky/croniter>`__ is an optional package that is used to parse cron expressions for the scheduler::
+
+    $ pip install croniter
+
 
 
 
@@ -142,7 +152,7 @@ You can reference the `requirements <https://github.com/Koed00/django-q/blob/mas
 Django
 ~~~~~~
 We strive to be compatible with last two major version of Django.
-At the moment this means we support the 2.2.x and 3.0.x releases.
+At the moment this means we support the 2.2.x and 3.1.x releases.
 
 Since we are now no longer supporting Python 2, we can also not support older versions of Django that do not support Python >= 3.6
 For this you can always use older releases, but they are no longer maintained.

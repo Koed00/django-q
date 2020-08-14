@@ -1,12 +1,13 @@
 import importlib
+from typing import Optional
 
 from django.core.cache import caches, InvalidCacheBackendError
 
 from django_q.conf import Conf
 
 
-class Broker(object):
-    def __init__(self, list_key=Conf.PREFIX):
+class Broker:
+    def __init__(self, list_key: str = Conf.PREFIX):
         self.connection = self.get_connection(list_key)
         self.list_key = list_key
         self.cache = self.get_cache()
@@ -71,7 +72,7 @@ class Broker(object):
         :return:
         """
 
-    def ping(self):
+    def ping(self) -> bool:
         """
         Checks whether the broker connection is available
         :rtype: bool
@@ -84,7 +85,7 @@ class Broker(object):
         """
         return self._info
 
-    def set_stat(self, key, value, timeout):
+    def set_stat(self, key: str, value: str, timeout: int):
         """
         Saves a cluster statistic to the cache provider
         :type key: str
@@ -99,7 +100,7 @@ class Broker(object):
         self.cache.set(Conf.Q_STAT, key_list)
         return self.cache.set(key, value, timeout)
 
-    def get_stat(self, key):
+    def get_stat(self, key: str):
         """
         Gets a cluster statistic from the cache provider
         :type key: str
@@ -109,7 +110,7 @@ class Broker(object):
             return
         return self.cache.get(key)
 
-    def get_stats(self, pattern):
+    def get_stats(self, pattern: str) -> Optional[list]:
         """
         Returns a list of all cluster stats from the cache provider
         :type pattern: str
@@ -142,7 +143,7 @@ class Broker(object):
             return None
 
     @staticmethod
-    def get_connection(list_key=Conf.PREFIX):
+    def get_connection(list_key: str = Conf.PREFIX):
         """
         Gets a connection to the broker
         :param list_key: Optional queue name
@@ -151,40 +152,46 @@ class Broker(object):
         return 0
 
 
-def get_broker(list_key=Conf.PREFIX):
+def get_broker(list_key: str = Conf.PREFIX) -> Broker:
     """
     Gets the configured broker type
     :param list_key: optional queue name
     :type list_key: str
-    :return:
+    :return: a broker instance
     """
     # custom
     if Conf.BROKER_CLASS:
-        module, func = Conf.BROKER_CLASS.rsplit('.', 1)
+        module, func = Conf.BROKER_CLASS.rsplit(".", 1)
         m = importlib.import_module(module)
         broker = getattr(m, func)
         return broker(list_key=list_key)
     # disque
     elif Conf.DISQUE_NODES:
         from django_q.brokers import disque
+
         return disque.Disque(list_key=list_key)
     # Iron MQ
     elif Conf.IRON_MQ:
         from django_q.brokers import ironmq
+
         return ironmq.IronMQBroker(list_key=list_key)
     # SQS
     elif Conf.SQS:
         from django_q.brokers import aws_sqs
+
         return aws_sqs.Sqs(list_key=list_key)
     # ORM
     elif Conf.ORM:
         from django_q.brokers import orm
+
         return orm.ORM(list_key=list_key)
     # Mongo
     elif Conf.MONGO:
         from django_q.brokers import mongo
+
         return mongo.Mongo(list_key=list_key)
     # default to redis
     else:
         from django_q.brokers import redis_broker
+
         return redis_broker.Redis(list_key=list_key)

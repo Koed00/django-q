@@ -4,30 +4,32 @@
 #
 #    pip-compile requirements.in
 #
-arrow==0.15.5
-asgiref==3.2.3            # via django
-blessed==1.16.1
-boto3==1.11.4
-botocore==1.14.4          # via boto3, s3transfer
-certifi==2019.11.28       # via requests
+arrow==0.15.8             # via -r requirements.in
+asgiref==3.2.10           # via django
+blessed==1.17.9           # via -r requirements.in
+boto3==1.14.41            # via -r requirements.in
+botocore==1.17.41         # via boto3, s3transfer
+certifi==2020.6.20        # via requests
 chardet==3.0.4            # via requests
-django-picklefield==2.0
-django-redis==4.11.0
-django==3.0.2             # via django-picklefield, django-redis
+croniter==0.3.34          # via -r requirements.in
+django-picklefield==3.0.1  # via -r requirements.in
+django-redis==4.12.1      # via -r requirements.in
+django==3.1               # via django-picklefield, django-redis
 docutils==0.15.2          # via botocore
-hiredis==1.0.1
-idna==2.8                 # via requests
+hiredis==1.1.0            # via -r requirements.in
+idna==2.10                # via requests
 iron-core==1.2.0          # via iron-mq
-iron-mq==0.9
-jmespath==0.9.4           # via boto3, botocore
-psutil==5.6.7
-pymongo==3.10.1
-python-dateutil==2.8.1    # via arrow, botocore, iron-core
-pytz==2019.3              # via django
-redis==3.3.11
-requests==2.22.0          # via iron-core
-s3transfer==0.3.1         # via boto3
-six==1.14.0               # via blessed, python-dateutil
-sqlparse==0.3.0           # via django
-urllib3==1.25.7           # via botocore, requests
-wcwidth==0.1.8            # via blessed
+iron-mq==0.9              # via -r requirements.in
+jmespath==0.10.0          # via boto3, botocore
+natsort==7.0.1            # via croniter
+psutil==5.7.2             # via -r requirements.in
+pymongo==3.11.0           # via -r requirements.in
+python-dateutil==2.8.1    # via arrow, botocore, croniter, iron-core
+pytz==2020.1              # via django
+redis==3.5.3              # via -r requirements.in, django-redis
+requests==2.24.0          # via iron-core
+s3transfer==0.3.3         # via boto3
+six==1.15.0               # via blessed, python-dateutil
+sqlparse==0.3.1           # via django
+urllib3==1.25.10          # via botocore, requests
+wcwidth==0.2.5            # via blessed

@@ -1,7 +1,7 @@
 language: python
 
 services:
-  - redis-server
+  - redis
   - mongodb
 
 python:
@@ -9,8 +9,8 @@ python:
   - "3.8"
 
 env:
-  - DJANGO=3.0.2
-  - DJANGO=2.2.9
+  - DJANGO=3.1
+  - DJANGO=2.2.15
 
 sudo: true
 dist: xenial
@@ -30,8 +30,8 @@ install:
   - pip install -q django==$DJANGO
   - pip install -r requirements.txt
   - pip install pytest --upgrade
-  - pip install pytest-django codecov sphinx
-  - python setup.py install
+  - pip install pytest-django codecov sphinx poetry
+  - poetry install
 
 script:
   - coverage run --source=django_q -m py.test

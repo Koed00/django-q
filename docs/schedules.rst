@@ -45,6 +45,13 @@ You can manage them through the :ref:`admin_page` or directly from your code wit
              repeats=24,
              next_run=arrow.utcnow().replace(hour=18, minute=0))
 
+    # Use a cron expression
+    schedule('math.hypot',
+             3, 4,
+             schedule_type=Schedule.CRON,
+             cron = '0 22 * * 1-5')
+
+
 
 Missed schedules
 ----------------
@@ -88,6 +95,10 @@ Or you can make a wrapper function which you can then schedule in Django Q:
 
 Check out the :ref:`shell` examples if you want to schedule regular shell commands
 
+.. note::
+
+   Schedules needs the optional :ref:`Croniter<croniter_package>` package installed to parse cron expressions.
+
 Reference
 ---------
 
@@ -99,8 +110,9 @@ Reference
     :param args: arguments for the scheduled function.
     :param str name: An optional name for your schedule.
     :param str hook: optional result hook function. Dotted strings only.
-    :param str schedule_type: (O)nce, M(I)nutes, (H)ourly, (D)aily, (W)eekly, (M)onthly, (Q)uarterly, (Y)early or :attr:`Schedule.TYPE`
+    :param str schedule_type: (O)nce, M(I)nutes, (H)ourly, (D)aily, (W)eekly, (M)onthly, (Q)uarterly, (Y)early or (C)ron :attr:`Schedule.TYPE`
     :param int minutes: Number of minutes for the Minutes type.
+    :param str cron: Cron expression for the Cron type.
     :param int repeats: Number of times to repeat schedule. -1=Always, 0=Never, n =n.
     :param datetime next_run: Next or first scheduled execution datetime.
     :param dict q_options: options passed to async_task for this schedule
@@ -140,13 +152,17 @@ Reference
 
     .. py:attribute:: TYPE
 
-    :attr:`ONCE`, :attr:`MINUTES`, :attr:`HOURLY`, :attr:`DAILY`, :attr:`WEEKLY`, :attr:`MONTHLY`, :attr:`QUARTERLY`, :attr:`YEARLY`
+    :attr:`ONCE`, :attr:`MINUTES`, :attr:`HOURLY`, :attr:`DAILY`, :attr:`WEEKLY`, :attr:`MONTHLY`, :attr:`QUARTERLY`, :attr:`YEARLY`, :attr:`CRON`
 
 
     .. py:attribute:: minutes
 
     The number of minutes the :attr:`MINUTES` schedule should use.
     Is ignored for other schedule types.
+
+    .. py:attribute:: cron
+
+    A cron string describing the schedule. You need the optional `croniter` package installed for this.
 
     .. py:attribute:: repeats
 
@@ -208,3 +224,9 @@ Reference
 
     `'Y'` only runs once a year. The same caution as with months apply;
     If you set this to february 29th, it will run on february 28th in the following years.
+
+    .. py:attribute:: CRON
+
+    `'C'` uses the optional `croniter` package to determine a schedule based on a cron expression.
+
+
