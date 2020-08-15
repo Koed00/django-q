@@ -39,6 +39,7 @@ Customize the admin UI by creating your own ``admin.ModelAdmin`` class and use `
 for example:
 
 .. code-block:: python
+
     from django_q import models as q_models
     from django_q import admin as q_admin
 
