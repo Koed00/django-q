@@ -164,6 +164,9 @@ class Conf:
     # Optional error reporting setup
     ERROR_REPORTER = conf.get("error_reporter", {})
 
+    # Optional attempt count. set to 0 for infinite attempts
+    MAX_ATTEMPTS = conf.get('max_attempts', 0)
+
     # OSX doesn't implement qsize because of missing sem_getvalue()
     try:
         QSIZE = Queue().qsize() == 0

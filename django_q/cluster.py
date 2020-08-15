@@ -478,7 +478,12 @@ def save_task(task, broker: Broker):
                 existing_task.stopped = task["stopped"]
                 existing_task.result = task["result"]
                 existing_task.success = task["success"]
+                existing_task.attempt_count = existing_task.attempt_count + 1
                 existing_task.save()
+
+            if Conf.MAX_ATTEMPTS > 0 and existing_task.attempt_count >= Conf.MAX_ATTEMPTS:
+                broker.acknowledge(task['ack_id'])
+
         else:
             Task.objects.create(
                 id=task["id"],
@@ -492,6 +497,7 @@ def save_task(task, broker: Broker):
                 result=task["result"],
                 group=task.get("group"),
                 success=task["success"],
+                attempt_count=1
             )
     except Exception as e:
         logger.error(e)

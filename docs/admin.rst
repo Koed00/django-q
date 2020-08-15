@@ -33,6 +33,29 @@ You can resubmit a failed task back to the queue using the admins action menu.
 
 Uses the :class:`Failure` proxy model
 
+
+
+Customize the admin UI by creating your own ``admin.ModelAdmin`` class and use ``admin.site.unregister`` and ``admin.site.register`` to replace the default
+for example:
+
+.. code-block:: python
+    from django_q import models as q_models
+    from django_q import admin as q_admin
+
+    admin.site.unregister([q_models.Failure])
+    @admin.register(q_models.Failure)
+    class ChildClassAdmin(q_admin.FailAdmin):
+        list_display = (
+            'name',
+            'func',
+            'result',
+            'started',
+            # add attempt_count to list_display
+            'attempt_count'
+        )
+
+
+
 Scheduled tasks
 ---------------
 
