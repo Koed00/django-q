@@ -1,5 +1,20 @@
 # Changelog
 
+## [v1.3.3](https://github.com/koed00/django-q/tree/v1.3.3) (2020-08-16)
+
+[Full Changelog](https://github.com/koed00/django-q/compare/v1.3.2...v1.3.3)
+
+**Closed issues:**
+
+- Call Django Class based view function with Django-Q's async\_task [\#463](https://github.com/Koed00/django-q/issues/463)
+- qcluster timezone [\#459](https://github.com/Koed00/django-q/issues/459)
+- Django-q from other django project in script [\#443](https://github.com/Koed00/django-q/issues/443)
+
+**Merged pull requests:**
+
+- Add attempt\_count to limit the number of times a filed task will be re-attempted [\#466](https://github.com/Koed00/django-q/pull/466) ([timomeara](https://github.com/timomeara))
+- Updates to Django 3.1 [\#464](https://github.com/Koed00/django-q/pull/464) ([Koed00](https://github.com/Koed00))
+
 ## [v1.3.2](https://github.com/koed00/django-q/tree/v1.3.2) (2020-07-08)
 
 [Full Changelog](https://github.com/koed00/django-q/compare/v1.3.1...v1.3.2)
