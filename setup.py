@@ -26,7 +26,7 @@ class PyTest(Command):
 
 setup(
     name='django-q',
-    version='1.3.2',
+    version='1.3.3',
     author='Ilan Steemers',
     author_email='koed00@gmail.com',
     keywords='django multiprocessing worker scheduler queue',
