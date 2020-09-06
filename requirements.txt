@@ -4,17 +4,17 @@
 #
 #    pip-compile requirements.in
 #
-arrow==0.15.8             # via -r requirements.in
+arrow==0.16.0             # via -r requirements.in
 asgiref==3.2.10           # via django
-blessed==1.17.9           # via -r requirements.in
-boto3==1.14.43            # via -r requirements.in
-botocore==1.17.43         # via boto3, s3transfer
+blessed==1.17.10          # via -r requirements.in
+boto3==1.14.56            # via -r requirements.in
+botocore==1.17.56         # via boto3, s3transfer
 certifi==2020.6.20        # via requests
 chardet==3.0.4            # via requests
 croniter==0.3.34          # via -r requirements.in
 django-picklefield==3.0.1  # via -r requirements.in
 django-redis==4.12.1      # via -r requirements.in
-django==3.1               # via django-picklefield, django-redis
+django==3.1.1             # via django-picklefield, django-redis
 docutils==0.15.2          # via botocore
 hiredis==1.1.0            # via -r requirements.in
 idna==2.10                # via requests
