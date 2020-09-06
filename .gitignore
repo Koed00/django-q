@@ -64,7 +64,9 @@ db.sqlite3
 *.ipynb
 *.rdb
 .venv
+.env
 .idea
 djq
 node_modules
 /c.cache/
+/dq
