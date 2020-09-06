@@ -7,6 +7,8 @@ import traceback
 import uuid
 from multiprocessing import Event, Process, Value, current_process
 from time import sleep
+import pytz
+import datetime
 
 # External
 import arrow
@@ -559,6 +561,7 @@ def scheduler(broker: Broker = None):
     """
     Creates a task from a schedule at the scheduled time and schedules next run
     """
+    tz_settings = pytz.timezone(None if settings.TIME_ZONE is None else settings.TIME_ZONE)
     if not broker:
         broker = get_broker()
     close_old_django_connections()
@@ -567,7 +570,7 @@ def scheduler(broker: Broker = None):
             for s in (
                 Schedule.objects.select_for_update()
                 .exclude(repeats=0)
-                .filter(next_run__lt=timezone.now())
+                .filter(next_run__lt=datetime.datetime.now(tz=tz_settings))
             ):
                 args = ()
                 kwargs = {}
@@ -612,9 +615,10 @@ def scheduler(broker: Broker = None):
                                     )
                                 )
                             next_run = arrow.get(
-                                croniter(s.cron, timezone.now()).get_next()
+                                croniter(s.cron, datetime.datetime.now(tz=tz_settings)).get_next()
                             )
-                        if Conf.CATCH_UP or next_run > arrow.utcnow():
+                        if Conf.CATCH_UP or next_run > arrow.utcnow() if settings.TIME_ZONE is None \
+                                else datetime.datetime.now(tz=tz_settings):
                             break
                     # arrow always returns a tz aware datetime, and we don't want
                     # this when we explicitly configured django with USE_TZ=False
