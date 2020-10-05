@@ -97,7 +97,7 @@ class Task(models.Model):
     def short_result(self):
         return truncatechars(self.result, 100)
 
-    def __unicode__(self):
+    def __str__(self):
         return f"{self.name or self.id}"
 
     class Meta:
@@ -215,7 +215,7 @@ class Schedule(models.Model):
             return format_html(f'<a href="{url}">[{task.name}]</a>')
         return None
 
-    def __unicode__(self):
+    def __str__(self):
         return self.func
 
     success.boolean = True

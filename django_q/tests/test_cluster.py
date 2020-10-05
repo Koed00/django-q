@@ -143,7 +143,7 @@ def test_enqueue(broker, admin_user):
     k = async_task('django_q.tests.tasks.get_user_id', admin_user,
                    q_options={'broker': broker, 'group': 'test_k', 'save': False, 'timeout': 90})
     # test unicode
-    assert Task(name='Amalia').__unicode__()=='Amalia'
+    assert Task(name='Amalia').__str__()=='Amalia'
     # check if everything has a task id
     assert isinstance(a, str)
     assert isinstance(b, str)

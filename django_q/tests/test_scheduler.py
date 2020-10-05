@@ -100,7 +100,7 @@ def test_scheduler(broker, monkeypatch):
                                     cron="0 22 * * 1-5")
     assert hasattr(cron_schedule, 'pk') is True
     assert cron_schedule.full_clean() is None
-    assert cron_schedule.__unicode__() == 'django_q.tests.tasks.word_multiply'
+    assert cron_schedule.__str__() == 'django_q.tests.tasks.word_multiply'
     with pytest.raises(ValidationError):
         create_schedule('django_q.tests.tasks.word_multiply',
                         2,
