@@ -9,7 +9,7 @@ python:
   - "3.8"
 
 env:
-  - DJANGO=3.1.1
+  - DJANGO=3.1.2
   - DJANGO=2.2.16
 
 sudo: true

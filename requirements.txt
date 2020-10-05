@@ -7,15 +7,14 @@
 arrow==0.16.0             # via -r requirements.in
 asgiref==3.2.10           # via django
 blessed==1.17.10          # via -r requirements.in
-boto3==1.14.56            # via -r requirements.in
-botocore==1.17.56         # via boto3, s3transfer
+boto3==1.15.11            # via -r requirements.in
+botocore==1.18.11         # via boto3, s3transfer
 certifi==2020.6.20        # via requests
 chardet==3.0.4            # via requests
 croniter==0.3.34          # via -r requirements.in
 django-picklefield==3.0.1  # via -r requirements.in
 django-redis==4.12.1      # via -r requirements.in
-django==3.1.1             # via django-picklefield, django-redis
-docutils==0.15.2          # via botocore
+django==3.1.2             # via django-picklefield, django-redis
 hiredis==1.1.0            # via -r requirements.in
 idna==2.10                # via requests
 iron-core==1.2.0          # via iron-mq
