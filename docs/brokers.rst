@@ -47,7 +47,7 @@ Bulk task retrieval is supported via the :ref:`bulk` option.
 
 * Delivery receipts
 * Atomic
-* Needs Django's `Cache framework <https://docs.djangoproject.com/en/1.8/topics/cache/#setting-up-the-cache>`__ configured for monitoring
+* Needs Django's `Cache framework <https://docs.djangoproject.com/en/2.2/topics/cache/#setting-up-the-cache>`__ configured for monitoring
 * Compatible with `Tynd <https://disque.tynd.co/>`__ Disque addon on `Heroku <https://heroku.com>`__
 * Still considered Alpha software
 * Supports bulk dequeue
@@ -60,7 +60,7 @@ This HTTP based queue service is both available directly via `Iron.io <http://ww
 
 * Delivery receipts
 * Supports bulk dequeue
-* Needs Django's `Cache framework <https://docs.djangoproject.com/en/1.8/topics/cache/#setting-up-the-cache>`__ configured for monitoring
+* Needs Django's `Cache framework <https://docs.djangoproject.com/en/2.2/topics/cache/#setting-up-the-cache>`__ configured for monitoring
 * Requires the `iron-mq <https://github.com/iron-io/iron_mq_python>`__ client library: ``pip install iron-mq``
 * See the :ref:`ironmq_configuration` configuration section for options.
 
@@ -72,7 +72,7 @@ Although `SQS <https://aws.amazon.com/sqs/>`__ is not the fastest, it is stable,
 * Delivery receipts
 * Maximum message size is 256Kb
 * Supports bulk dequeue up to 10 messages with a maximum total size of 256Kb
-* Needs Django's `Cache framework <https://docs.djangoproject.com/en/1.8/topics/cache/#setting-up-the-cache>`__ configured for monitoring
+* Needs Django's `Cache framework <https://docs.djangoproject.com/en/2.2/topics/cache/#setting-up-the-cache>`__ configured for monitoring
 * Requires the `boto3 <https://github.com/boto/boto3>`__ client library: ``pip install boto3``
 * See the :ref:`sqs_configuration` configuration section for options.
 
@@ -83,7 +83,7 @@ This highly scalable NoSQL database makes for a very fast and reliably persisten
 Usually available on most PaaS providers, as `open-source <https://www.mongodb.org/>`__ or commercial `enterprise <https://www.mongodb.com/lp/download/mongodb-enterprise>`__ edition.
 
 * Delivery receipts
-* Needs Django's `Cache framework <https://docs.djangoproject.com/en/1.8/topics/cache/#setting-up-the-cache>`__ configured for monitoring
+* Needs Django's `Cache framework <https://docs.djangoproject.com/en/2.2/topics/cache/#setting-up-the-cache>`__ configured for monitoring
 * Can be configured as the Django cache-backend through several open-source cache providers.
 * Requires the `pymongo <https://github.com/mongodb/mongo-python-driver>`__ driver: ``pip install pymongo``
 * See the :ref:`mongo_configuration` configuration section for options.
@@ -98,8 +98,8 @@ However for a medium message rate and scheduled tasks, this is the most convenie
 
 * Delivery receipts
 * Supports bulk dequeue
-* Needs Django's `Cache framework <https://docs.djangoproject.com/en/1.8/topics/cache/#setting-up-the-cache>`__ configured for monitoring
-* Can be `configured <https://docs.djangoproject.com/en/1.8/topics/cache/#database-caching>`__ as its own cache backend.
+* Needs Django's `Cache framework <https://docs.djangoproject.com/en/2.2/topics/cache/#setting-up-the-cache>`__ configured for monitoring
+* Can be `configured <https://docs.djangoproject.com/en/2.2/topics/cache/#database-caching>`__ as its own cache backend.
 * Queue editable in Django Admin
 * See the :ref:`orm_configuration` configuration on how to set it up.
 

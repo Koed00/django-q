@@ -400,7 +400,7 @@ Defaults to ``0.2`` (seconds).
 
 cache
 ~~~~~
-For some brokers, you will need to set up the Django `cache framework <https://docs.djangoproject.com/en/1.8/topics/cache/#setting-up-the-cache>`__
+For some brokers, you will need to set up the Django `cache framework <https://docs.djangoproject.com/en/2.2/topics/cache/#setting-up-the-cache>`__
 to gather statistics for the monitor. You can indicate which cache to use by setting this value. Defaults to ``default``.
 
 .. _cached:
