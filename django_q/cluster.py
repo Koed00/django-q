@@ -563,9 +563,9 @@ def scheduler(broker: Broker = None):
         broker = get_broker()
     close_old_django_connections()
     try:
-        with db.transaction.atomic(using=Schedule.objects.db):
+        with db.transaction.atomic(using=Conf.ORM or Schedule.objects.db):
             for s in (
-                Schedule.objects.select_for_update()
+                Schedule.objects.using(Conf.ORM or Schedule.objects.db).select_for_update()
                 .exclude(repeats=0)
                 .filter(next_run__lt=timezone.now())
             ):
