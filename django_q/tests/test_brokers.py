@@ -264,6 +264,7 @@ def test_orm(monkeypatch):
     # async_task
     broker.enqueue("test")
     assert broker.queue_size() == 1
+    sleep(0.1)  # seems to be a timing issue that requires this
     # dequeue
     task = broker.dequeue()[0]
     assert task[1] == "test"
@@ -273,6 +274,7 @@ def test_orm(monkeypatch):
     monkeypatch.setattr(Conf, "RETRY", 1)
     broker.enqueue("test")
     assert broker.queue_size() == 1
+    sleep(0.1)  # seems to be a timing issue that requires this
     broker.dequeue()
     assert broker.queue_size() == 0
     sleep(1.5)
@@ -291,8 +293,9 @@ def test_orm(monkeypatch):
     broker.fail(task_id)
     # bulk test
     for i in range(5):
-        broker.enqueue("test")
-    monkeypatch.setattr(Conf, "BULK", 5)
+        broker.enqueue('test')
+    monkeypatch.setattr(Conf, 'BULK', 5)
+    sleep(0.1)  # seems to be a timing issue that requires this
     tasks = broker.dequeue()
     assert broker.lock_size() == Conf.BULK
     for task in tasks:
