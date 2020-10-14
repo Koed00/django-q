@@ -12,7 +12,15 @@ from time import sleep
 import arrow
 
 # Django
-from django import db
+from django import db, core
+from django.apps.registry import apps
+
+try:
+    apps.check_apps_ready()
+except core.exceptions.AppRegistryNotReady:
+    import django
+    django.setup()
+
 from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _

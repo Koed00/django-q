@@ -13,6 +13,14 @@ class Broker:
         self.cache = self.get_cache()
         self._info = None
 
+    def __getstate__(self):
+        return self.list_key, self._info
+
+    def __setstate__(self, state):
+        self.list_key, self._info = state
+        self.connection = self.get_connection(self.list_key)
+        self.cache = self.get_cache()
+
     def enqueue(self, task):
         """
         Puts a task onto the queue
