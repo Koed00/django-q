@@ -10,6 +10,11 @@ class Sqs(Broker):
         super(Sqs, self).__init__(list_key)
         self.queue = self.get_queue()
 
+    def __setstate__(self, state):
+        super(Sqs, self).__setstate__(state)
+        self.sqs = None
+        self.queue = self.get_queue()
+
     def enqueue(self, task):
         response = self.queue.send_message(MessageBody=task)
         return response.get("MessageId")
