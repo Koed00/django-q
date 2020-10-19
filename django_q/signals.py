@@ -31,6 +31,8 @@ def call_hook(sender, instance, **kwargs):
                 )
             )
 
+# args: task
+pre_enqueue = Signal()
 
-pre_enqueue = Signal(providing_args=["task"])
-pre_execute = Signal(providing_args=["func", "task"])
+# args: func, task
+pre_execute = Signal()
