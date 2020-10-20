@@ -1,7 +1,11 @@
 from boto3 import Session
+from botocore.client import ClientError
 
 from django_q.brokers import Broker
 from django_q.conf import Conf
+
+
+QUEUE_DOES_NOT_EXIST = "AWS.SimpleQueueService.NonExistentQueue"
 
 
 class Sqs(Broker):
@@ -67,4 +71,13 @@ class Sqs(Broker):
 
     def get_queue(self):
         self.sqs = self.connection.resource("sqs")
+
+        try:
+            # try to return an existing queue by name. If the queue does not
+            # exist try to create it.
+            return self.sqs.get_queue_by_name(QueueName=self.list_key)
+        except ClientError as exp:
+            if not exp.response["Error"]["Code"] == QUEUE_DOES_NOT_EXIST:
+                raise exp
+
         return self.sqs.create_queue(QueueName=self.list_key)
