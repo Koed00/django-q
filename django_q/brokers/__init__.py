@@ -184,7 +184,7 @@ def get_broker(list_key: str = Conf.PREFIX) -> Broker:
 
         return ironmq.IronMQBroker(list_key=list_key)
     # SQS
-    elif Conf.SQS:
+    elif type(Conf.SQS) == dict:
         from django_q.brokers import aws_sqs
 
         return aws_sqs.Sqs(list_key=list_key)
