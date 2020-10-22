@@ -4,14 +4,14 @@
 #
 #    pip-compile requirements.in
 #
-arrow==0.16.0             # via -r requirements.in
+arrow==0.17.0             # via -r requirements.in
 asgiref==3.2.10           # via django
-blessed==1.17.10          # via -r requirements.in
-boto3==1.15.11            # via -r requirements.in
-botocore==1.18.11         # via boto3, s3transfer
+blessed==1.17.11          # via -r requirements.in
+boto3==1.16.2             # via -r requirements.in
+botocore==1.19.2          # via boto3, s3transfer
 certifi==2020.6.20        # via requests
 chardet==3.0.4            # via requests
-croniter==0.3.34          # via -r requirements.in
+croniter==0.3.35          # via -r requirements.in
 django-picklefield==3.0.1  # via -r requirements.in
 django-redis==4.12.1      # via -r requirements.in
 django==3.1.2             # via django-picklefield, django-redis
@@ -29,6 +29,6 @@ redis==3.5.3              # via -r requirements.in, django-redis
 requests==2.24.0          # via iron-core
 s3transfer==0.3.3         # via boto3
 six==1.15.0               # via blessed, python-dateutil
-sqlparse==0.3.1           # via django
-urllib3==1.25.10          # via botocore, requests
+sqlparse==0.4.1           # via django
+urllib3==1.25.11          # via botocore, requests
 wcwidth==0.2.5            # via blessed
