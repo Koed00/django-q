@@ -7,8 +7,8 @@
 arrow==0.17.0             # via -r requirements.in
 asgiref==3.2.10           # via django
 blessed==1.17.11          # via -r requirements.in
-boto3==1.16.2             # via -r requirements.in
-botocore==1.19.2          # via boto3, s3transfer
+boto3==1.16.4             # via -r requirements.in
+botocore==1.19.4          # via boto3, s3transfer
 certifi==2020.6.20        # via requests
 chardet==3.0.4            # via requests
 croniter==0.3.35          # via -r requirements.in
@@ -21,7 +21,7 @@ iron-core==1.2.0          # via iron-mq
 iron-mq==0.9              # via -r requirements.in
 jmespath==0.10.0          # via boto3, botocore
 natsort==7.0.1            # via croniter
-psutil==5.7.2             # via -r requirements.in
+psutil==5.7.3             # via -r requirements.in
 pymongo==3.11.0           # via -r requirements.in
 python-dateutil==2.8.1    # via arrow, botocore, croniter, iron-core
 pytz==2020.1              # via django
