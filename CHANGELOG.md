@@ -1,5 +1,23 @@
 # Changelog
 
+## [v1.3.4](https://github.com/koed00/django-q/tree/v1.3.4) (2020-10-26)
+
+[Full Changelog](https://github.com/koed00/django-q/compare/v1.3.3...v1.3.4)
+
+**Closed issues:**
+
+- Admin integration is broken when using ORM as a broker with a different database [\#472](https://github.com/Koed00/django-q/issues/472)
+- TypeError: can't pickle \_thread.lock objects [\#424](https://github.com/Koed00/django-q/issues/424)
+
+**Merged pull requests:**
+
+- Fix deprecation warning RemovedInDjango40Warning [\#483](https://github.com/Koed00/django-q/pull/483) ([Djailla](https://github.com/Djailla))
+- Fix for \#424 [\#482](https://github.com/Koed00/django-q/pull/482) ([ihuk](https://github.com/ihuk))
+- \[WIP\]Change Django documentation links and URLs to a supported version \(v1.8 -\> v2.2\) [\#481](https://github.com/Koed00/django-q/pull/481) ([jagu2012](https://github.com/jagu2012))
+- Model.\_\_unicode\_\_\(\) has no effect in Python 3.X [\#479](https://github.com/Koed00/django-q/pull/479) ([alx-sdv](https://github.com/alx-sdv))
+- try to get SQS queue before creating it [\#478](https://github.com/Koed00/django-q/pull/478) ([fallenhitokiri](https://github.com/fallenhitokiri))
+- empty dictionary as configuration value for SQS [\#477](https://github.com/Koed00/django-q/pull/477) ([fallenhitokiri](https://github.com/fallenhitokiri))
+
 ## [v1.3.3](https://github.com/koed00/django-q/tree/v1.3.3) (2020-08-16)
 
 [Full Changelog](https://github.com/koed00/django-q/compare/v1.3.2...v1.3.3)
