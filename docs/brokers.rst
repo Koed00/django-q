@@ -20,7 +20,7 @@ Some pointers:
 * Don't set the :ref:`queue_limit` so high that tasks time out while waiting to be processed.
 * In case a task is worked on twice, the task result will be updated with the latest results.
 * In some rare cases a non-atomic broker will re-queue a task after it has been acknowledged.
-* If a task runs twice and a previous run has succeeded, the new result wil be discarded.
+* If a task runs twice and a previous run has succeeded, the new result will be discarded.
 * Limiting the number of retries is handled globally in your actual broker's settings.
 
 
