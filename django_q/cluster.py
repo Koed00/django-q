@@ -633,7 +633,12 @@ def scheduler(broker: Broker = None):
                     )
                     s.repeats += -1
                 # send it to the cluster
-                q_options["broker"] = broker
+                scheduled_broker = broker
+                try:
+                    scheduled_broker = get_broker(q_options["broker_name"])
+                except: # invalid broker_name or non existing broker with broker_name
+                    pass
+                q_options["broker"] = scheduled_broker
                 q_options["group"] = q_options.get("group", s.name or s.id)
                 kwargs["q_options"] = q_options
                 s.task = django_q.tasks.async_task(s.func, *args, **kwargs)

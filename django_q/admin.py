@@ -100,8 +100,7 @@ class QueueAdmin(admin.ModelAdmin):
         """Don't allow adds."""
         return False
     
-    list_filter = ("key", "func")
-    search_fields = ("name", "func")
+    list_filter = ("key",)
 
 
 admin.site.register(Schedule, ScheduleAdmin)
