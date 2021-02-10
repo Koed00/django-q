@@ -307,6 +307,86 @@ Alternatively the ``parzen_async()`` function can also be written with :func:`as
         return result(result_id, wait=10000, cached=True)
 
 
+
+Http Health Check
+============
+An example of a python http server you can use (localhost:8080) to validate the health status of all the clusters in your environment.  Example is http only.
+
+Requires cache to be enabled. Save file in your Django project's root directory and run with command: ``python worker_hc.py`` in your container or other environment.  Can be customized to show whatever you'd like from the Stat class or modified as needed.
+
+.. code-block:: python
+
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+    from mtt_app.settings.base import EMAIL_USE_TLS
+
+    import os
+    import django
+
+    #  Set the correct path to you settings module
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "my.settings.path")
+
+    # All django stuff has to come after the setup:
+    django.setup()
+
+    from django_q.monitor import Stat
+    from django_q.conf import Conf
+
+    # Set host and port settings
+    hostName = "localhost"
+    serverPort = 8080
+
+
+    class HealthCheckServer(BaseHTTPRequestHandler):
+        def do_GET(self):
+            
+            # Count the clusters and their status
+            happy_clusters = 0
+            total_clusters = 0
+
+            for stat in Stat.get_all():
+                total_clusters += 1
+                if stat.status in [Conf.IDLE, Conf.WORKING]:
+                    happy_clusters += 1
+
+            # Return 200 response if there is at least 1 cluster running,
+            # and make sure all running clusters are happy
+            if total_clusters and happy_clusters == total_clusters:
+                response_code = 200
+            else:
+                response_code = 500
+
+            self.send_response(response_code)
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+
+            self.wfile.write(
+                bytes("<html><head><title>Django-Q Heath Check</title></head>", "utf-8")
+            )
+            self.wfile.write(
+                bytes(f"<p>Health check returned {response_code} response</p>", "utf-8")
+            )
+            self.wfile.write(
+                bytes(
+                    f"<p>{happy_clusters} of {total_clusters} cluster(s) are happy</p></html>",
+                    "utf-8",
+                )
+            )
+
+
+    if __name__ == "__main__":
+        webServer = HTTPServer((hostName, serverPort), HealthCheckServer)
+        print("Server started at http://%s:%s" % (hostName, serverPort))
+
+        try:
+            webServer.serve_forever()
+        except KeyboardInterrupt:
+            pass
+
+        webServer.server_close()
+        print("Server stopped.")
+        
+        
+        
 .. note::
 
     If you have an example you want to share, please submit a pull request on `github <https://github.com/Koed00/django-q/>`__.
