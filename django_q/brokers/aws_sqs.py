@@ -4,7 +4,6 @@ from botocore.client import ClientError
 from django_q.brokers import Broker
 from django_q.conf import Conf
 
-
 QUEUE_DOES_NOT_EXIST = "AWS.SimpleQueueService.NonExistentQueue"
 
 
@@ -27,9 +26,18 @@ class Sqs(Broker):
         # sqs supports max 10 messages in bulk
         if Conf.BULK > 10:
             Conf.BULK = 10
-        tasks = self.queue.receive_messages(
-            MaxNumberOfMessages=Conf.BULK, VisibilityTimeout=Conf.RETRY
-        )
+
+        params = {'MaxNumberOfMessages': Conf.BULK, 'VisibilityTimeout': Conf.RETRY}
+
+        # sqs long pooling
+        sqs_config = Conf.SQS
+        if 'sqs_receive_message_wait_time_seconds' in sqs_config:
+            wait_time_second = sqs_config.get('sqs_receive_message_wait_time_seconds', 20)
+            if not isinstance(wait_time_second, int):
+                raise ValueError('sqs_receive_message_wait_time_seconds should be int')
+            params.update({'WaitTimeSeconds': wait_time_second})
+
+        tasks = self.queue.receive_messages(**params)
         if tasks:
             return [(t.receipt_handle, t.body) for t in tasks]
 
@@ -67,6 +75,7 @@ class Sqs(Broker):
         if "aws_region" in config:
             config["region_name"] = config["aws_region"]
             del config["aws_region"]
+
         return Session(**config)
 
     def get_queue(self):
