@@ -31,10 +31,10 @@ class Sqs(Broker):
 
         # sqs long pooling
         sqs_config = Conf.SQS
-        if 'sqs_receive_message_wait_time_seconds' in sqs_config:
-            wait_time_second = sqs_config.get('sqs_receive_message_wait_time_seconds', 20)
+        if 'receive_message_wait_time_seconds' in sqs_config:
+            wait_time_second = sqs_config.get('receive_message_wait_time_seconds', 20)
             if not isinstance(wait_time_second, int):
-                raise ValueError('sqs_receive_message_wait_time_seconds should be int')
+                raise ValueError('receive_message_wait_time_seconds should be int')
             params.update({'WaitTimeSeconds': wait_time_second})
 
         tasks = self.queue.receive_messages(**params)
