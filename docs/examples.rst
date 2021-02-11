@@ -309,7 +309,7 @@ Alternatively the ``parzen_async()`` function can also be written with :func:`as
 
 
 Http Health Check
-============
+=================
 An example of a python http server you can use (localhost:8080) to validate the health status of all the clusters in your environment.  Example is http only.
 
 Requires cache to be enabled. Save file in your Django project's root directory and run with command: ``python worker_hc.py`` in your container or other environment.  Can be customized to show whatever you'd like from the Stat class or modified as needed.
