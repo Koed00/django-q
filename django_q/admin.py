@@ -99,6 +99,8 @@ class QueueAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         """Don't allow adds."""
         return False
+    
+    list_filter = ("key",)
 
 
 admin.site.register(Schedule, ScheduleAdmin)
