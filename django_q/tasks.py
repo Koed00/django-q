@@ -260,7 +260,7 @@ def fetch_cached(task_id, wait=0, broker=None):
         r = broker.cache.get(f"{broker.list_key}:{task_id}")
         if r:
             task = SignedPackage.loads(r)
-            t = Task(
+            return Task(
                 id=task["id"],
                 name=task["name"],
                 func=task["func"],
@@ -272,7 +272,6 @@ def fetch_cached(task_id, wait=0, broker=None):
                 result=task["result"],
                 success=task["success"],
             )
-            return t
         if (time() - start) * 1000 >= wait >= 0:
             break
         sleep(0.01)

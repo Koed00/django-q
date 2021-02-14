@@ -595,7 +595,7 @@ def scheduler(broker: Broker = None):
                 if s.hook:
                     q_options["hook"] = s.hook
                 # set up the next run time
-                if not s.schedule_type == s.ONCE:
+                if s.schedule_type != s.ONCE:
                     next_run = arrow.get(s.next_run)
                     while True:
                         if s.schedule_type == s.MINUTES:
@@ -722,8 +722,9 @@ def set_cpu_affinity(n: int, process_ids: list, actual: bool = not Conf.TESTING)
 
 
 def rss_check():
-    if Conf.MAX_RSS and resource:
-        return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss >= Conf.MAX_RSS
-    elif Conf.MAX_RSS and psutil:
-        return psutil.Process().memory_info().rss >= Conf.MAX_RSS * 1024
+    if Conf.MAX_RSS:
+        if resource:
+            return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss >= Conf.MAX_RSS
+        elif psutil:
+            return psutil.Process().memory_info().rss >= Conf.MAX_RSS * 1024
     return False
