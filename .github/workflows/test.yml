@@ -34,6 +34,12 @@ jobs:
           uses: actions/setup-python@v2
           with:
             python-version: ${{ matrix.python-version }}
+        - name: Set up Disque
+          run: |
+            git clone https://github.com/antirez/disque.git disque_server
+            cd disque_server/src && make && PREFIX=../ make install && cd -"
+            ./disque_server/bin/disque-server &"
+            ./disque_server/bin/disque PING
         - name: Install dependencies
           run: |
             python -m pip install --upgrade pip
