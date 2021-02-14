@@ -26,7 +26,7 @@ def test_monitor(monkeypatch):
             assert stat.uptime() > 0
             assert stat.empty_queues() is True
             break
-    assert found_c is True
+    assert found_c
     # test lock size
     monkeypatch.setattr(Conf, 'ORM', 'default')
     b = get_broker('monitor_test')

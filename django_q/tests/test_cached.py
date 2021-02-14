@@ -152,9 +152,9 @@ def test_asynctask_class(broker, monkeypatch):
     a.args = (1, -1)
     assert a.started is False
     a.cached = True
-    assert a.cached is True
+    assert a.cached
     a.sync = True
-    assert a.sync is True
+    assert a.sync
     a.broker = broker
     assert a.broker == broker
     a.run()
@@ -166,7 +166,7 @@ def test_asynctask_class(broker, monkeypatch):
     assert a.result() == -1
     # with q_options
     a = AsyncTask('math.copysign', 1, -1, q_options={'cached': True, 'sync': False, 'broker': broker})
-    assert a.sync is False
+    assert not a.sync
     a.sync = True
     assert a.kwargs['q_options']['sync'] is True
     a.run()
@@ -174,7 +174,7 @@ def test_asynctask_class(broker, monkeypatch):
     a.group = 'async_class_test'
     assert a.group == 'async_class_test'
     a.save = False
-    assert a.save is False
+    assert not a.save
     a.hook = 'djq.tests.tasks.hello'
     assert a.hook == 'djq.tests.tasks.hello'
     assert a.started is False

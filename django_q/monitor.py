@@ -196,7 +196,7 @@ def info(broker=None):
     tasks_per_day = last_tasks.count()
     if tasks_per_day > 0:
         # average execution time over the last 24 hours
-        if not connection.vendor == "sqlite":
+        if connection.vendor != "sqlite":
             exec_time = last_tasks.aggregate(
                 time_taken=Sum(F("stopped") - F("started"))
             )

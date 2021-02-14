@@ -162,7 +162,7 @@ def test_enqueue(broker, admin_user):
     stop_event = Event()
     stop_event.set()
     # push the tasks
-    for i in range(task_count):
+    for _ in range(task_count):
         pusher(task_queue, stop_event, broker=broker)
     assert broker.queue_size() == 0
     assert task_queue.qsize() == task_count
