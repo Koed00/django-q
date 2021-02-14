@@ -38,7 +38,7 @@ jobs:
           uses: actions/setup-python@v2
           with:
             python-version: ${{ matrix.python-version }}
-        - name: Install dependencies
+        - name: Install dependencies with Django ${{ maxtrix.django }}
           run: |
             python -m pip install --upgrade pip
             pip install -q django==${{ matrix.django }}
