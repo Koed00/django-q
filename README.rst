@@ -247,8 +247,8 @@ Acknowledgements
    `HumanHash <https://github.com/zacharyvoase/humanhash>`__
 -  Redditors feedback at `r/django <https://www.reddit.com/r/django/>`__
 
-.. |image0| image:: https://travis-ci.org/Koed00/django-q.svg?branch=master
-   :target: https://travis-ci.org/Koed00/django-q
+.. |image0| image:: https://github.com/koed00/django-q/workflows/Tests/badge.svg?branche=master
+   :target: https://github.com/Koed00/django-q/actions?query=workflow%3Atests
 .. |image1| image:: http://codecov.io/github/Koed00/django-q/coverage.svg?branch=master
    :target: http://codecov.io/github/Koed00/django-q?branch=master
 .. |image2| image:: http://badges.gitter.im/Join%20Chat.svg
