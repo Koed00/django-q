@@ -476,7 +476,8 @@ def save_task(task, broker: Broker):
     # SAVE LIMIT > 0: Prune database, SAVE_LIMIT 0: No pruning
     close_old_django_connections()
     try:
-        if task["success"] and 0 < Conf.SAVE_LIMIT <= Success.objects.count():
+        if task["success"] and (0 < Conf.SAVE_LIMIT <= Success.objects.count() or
+                                0 < Conf.SAVE_LIMIT_PER_GROUP <= Success.objects.filter(group=task['group']).count()):
             Success.objects.last().delete()
         # check if this task has previous results
         if Task.objects.filter(id=task["id"], name=task["name"]).exists():
