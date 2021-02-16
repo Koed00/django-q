@@ -135,7 +135,7 @@ class Conf:
     if (retry < timeout) or not timeout:
         warn("""Retry and timeout are missconfigured. Set retry larger than timeout, 
         failure to do so will cause the tasks to be retriggered before completion. 
-        See https://django-q.readthedocs.io/en/latest/configure.html#retry for details."""
+        See https://django-q.readthedocs.io/en/latest/configure.html#retry for details.""")
         
     
     # Sets the amount of tasks the cluster will try to pop off the broker.
