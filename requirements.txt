@@ -8,11 +8,11 @@ arrow==0.17.0
     # via -r requirements.in
 asgiref==3.3.1
     # via django
-blessed==1.17.12
+blessed==1.18.0
     # via -r requirements.in
-boto3==1.17.5
+boto3==1.17.16
     # via -r requirements.in
-botocore==1.20.5
+botocore==1.20.16
     # via
     #   boto3
     #   s3transfer
@@ -26,7 +26,7 @@ django-picklefield==3.0.1
     # via -r requirements.in
 django-redis==4.12.1
     # via -r requirements.in
-django==3.1.6
+django==3.1.7
     # via
     #   django-picklefield
     #   django-redis
