@@ -133,7 +133,7 @@ class Conf:
 
     # Verify if retry and timeout settings are correct
     if not TIMEOUT or  (TIMEOUT > RETRY):
-        warn("""Retry and timeout are missconfigured. Set retry larger than timeout, 
+        warn("""Retry and timeout are misconfigured. Set retry larger than timeout, 
         failure to do so will cause the tasks to be retriggered before completion. 
         See https://django-q.readthedocs.io/en/latest/configure.html#retry for details.""")
         
