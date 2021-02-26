@@ -3,6 +3,7 @@ import os
 from copy import deepcopy
 from multiprocessing import cpu_count
 from signal import signal
+from warnings import warn
 
 import pkg_resources
 from django.conf import settings
@@ -130,6 +131,13 @@ class Conf:
     # Only works with brokers that guarantee delivery. Defaults to 60 seconds.
     RETRY = conf.get("retry", 60)
 
+    # Verify if retry and timeout settings are correct
+    if not TIMEOUT or  (TIMEOUT > RETRY):
+        warn("""Retry and timeout are misconfigured. Set retry larger than timeout, 
+        failure to do so will cause the tasks to be retriggered before completion. 
+        See https://django-q.readthedocs.io/en/latest/configure.html#retry for details.""")
+        
+    
     # Sets the amount of tasks the cluster will try to pop off the broker.
     # If it supports bulk gets.
     BULK = conf.get("bulk", 1)
@@ -189,8 +197,7 @@ class Conf:
 
     # to manage workarounds during testing
     TESTING = conf.get("testing", False)
-
-
+    
 # logger
 logger = logging.getLogger("django-q")
 
