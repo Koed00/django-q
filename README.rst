@@ -228,7 +228,7 @@ The following commands can be used to run the tests:
 Locale
 ~~~~~~
 
-Currently available in English and French.
+Currently available in English, German and French.
 Translation pull requests are always welcome.
 
 Todo
