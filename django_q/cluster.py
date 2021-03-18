@@ -620,7 +620,7 @@ def scheduler(broker: Broker = None):
                                     )
                                 )
                             next_run = arrow.get(
-                                croniter(s.cron, timezone.now()).get_next()
+                                croniter(s.cron, timezone.localtime()).get_next()
                             )
                         if Conf.CATCH_UP or next_run > arrow.utcnow():
                             break
