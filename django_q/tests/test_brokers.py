@@ -194,6 +194,7 @@ def canceled_sqs(monkeypatch):
             "aws_region": os.getenv("AWS_REGION"),
             "aws_access_key_id": os.getenv("AWS_ACCESS_KEY_ID"),
             "aws_secret_access_key": os.getenv("AWS_SECRET_ACCESS_KEY"),
+            "receive_message_wait_time_seconds": 20
         },
     )
     # check broker
