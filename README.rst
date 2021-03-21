@@ -196,9 +196,11 @@ To run the tests you will need the following in addition to install requirements
 
 * `py.test <http://pytest.org/latest/>`__
 * `pytest-django <https://github.com/pytest-dev/pytest-django>`__
-* disque from https://github.com/antirez/disque.git
+* Disque from https://github.com/antirez/disque.git
 * Redis
 * MongoDB
+
+Or you can use the included Docker Compose file.
 
 The following commands can be used to run the tests:
 
