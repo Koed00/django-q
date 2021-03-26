@@ -10,9 +10,9 @@ asgiref==3.3.1
     # via django
 blessed==1.18.0
     # via -r requirements.in
-boto3==1.17.33
+boto3==1.17.38
     # via -r requirements.in
-botocore==1.20.33
+botocore==1.20.38
     # via
     #   boto3
     #   s3transfer
@@ -20,7 +20,7 @@ certifi==2020.12.5
     # via requests
 chardet==4.0.0
     # via requests
-croniter==1.0.8
+croniter==1.0.10
     # via -r requirements.in
 django-picklefield==3.0.1
     # via -r requirements.in
@@ -30,8 +30,6 @@ django==3.1.7
     # via
     #   django-picklefield
     #   django-redis
-future==0.18.2
-    # via croniter
 hiredis==1.1.0
     # via -r requirements.in
 idna==2.10
@@ -44,8 +42,6 @@ jmespath==0.10.0
     # via
     #   boto3
     #   botocore
-natsort==7.1.1
-    # via croniter
 psutil==5.8.0
     # via -r requirements.in
 pymongo==3.11.3
