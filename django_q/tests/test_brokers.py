@@ -186,7 +186,8 @@ def test_ironmq(monkeypatch):
 @pytest.mark.skipif(
     not os.getenv("AWS_ACCESS_KEY_ID"), reason="requires AWS credentials"
 )
-def canceled_sqs(monkeypatch):
+@pytest.mark.parametrize("fifo", [True, False])
+def canceled_sqs(monkeypatch, fifo):
     monkeypatch.setattr(
         Conf,
         "SQS",
@@ -194,7 +195,8 @@ def canceled_sqs(monkeypatch):
             "aws_region": os.getenv("AWS_REGION"),
             "aws_access_key_id": os.getenv("AWS_ACCESS_KEY_ID"),
             "aws_secret_access_key": os.getenv("AWS_SECRET_ACCESS_KEY"),
-            "receive_message_wait_time_seconds": 20
+            "receive_message_wait_time_seconds": 20,
+            "fifo": fifo
         },
     )
     # check broker
