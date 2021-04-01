@@ -71,6 +71,7 @@ Although `SQS <https://aws.amazon.com/sqs/>`__ is not the fastest, it is stable,
 
 * Delivery receipts
 * Maximum message size is 256Kb
+* Supports LIFO (default) and FIFO queues
 * Supports bulk dequeue up to 10 messages with a maximum total size of 256Kb
 * Needs Django's `Cache framework <https://docs.djangoproject.com/en/2.2/topics/cache/#setting-up-the-cache>`__ configured for monitoring
 * Requires the `boto3 <https://github.com/boto/boto3>`__ client library: ``pip install boto3``
