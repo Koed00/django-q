@@ -90,7 +90,7 @@ retry
 ~~~~~
 
 The number of seconds a broker will wait for a cluster to finish a task, before it's presented again.
-Only works with brokers that support delivery receipts. Defaults to 60 seconds.
+Only works with brokers that support delivery receipts. Defaults to ``None``.
 
 The value must be bigger than the time it takes to complete longest task, i.e. :ref:`timeout` must be less than retry value and all tasks must complete
 in less time than the selected retry time. If this does not hold, i.e. the retry value is less than timeout or less than it takes to finish a task,
