@@ -208,7 +208,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
 name = "importlib-metadata"
-version = "3.10.0"
+version = "4.0.1"
 description = "Read metadata from Python packages"
 category = "dev"
 optional = false
@@ -247,7 +247,7 @@ iron_core = "*"
 
 [[package]]
 name = "jinxed"
-version = "1.0.1"
+version = "1.1.0"
 description = "Jinxed Terminal Library"
 category = "main"
 optional = false
@@ -442,7 +442,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7)", "win-inet-pton"]
 
 [[package]]
 name = "s3transfer"
-version = "0.3.6"
+version = "0.3.7"
 description = "An Amazon S3 Transfer Manager"
 category = "main"
 optional = true
@@ -668,8 +668,8 @@ idna = [
     {file = "idna-2.10.tar.gz", hash = "sha256:b307872f855b18632ce0c21c5e45be78c0ea7ae4c15c828c20788b26921eb3f6"},
 ]
 importlib-metadata = [
-    {file = "importlib_metadata-3.10.0-py3-none-any.whl", hash = "sha256:d2d46ef77ffc85cbf7dac7e81dd663fde71c45326131bea8033b9bad42268ebe"},
-    {file = "importlib_metadata-3.10.0.tar.gz", hash = "sha256:c9db46394197244adf2f0b08ec5bc3cf16757e9590b02af1fca085c16c0d600a"},
+    {file = "importlib_metadata-4.0.1-py3-none-any.whl", hash = "sha256:d7eb1dea6d6a6086f8be21784cc9e3bcfa55872b52309bc5fad53a8ea444465d"},
+    {file = "importlib_metadata-4.0.1.tar.gz", hash = "sha256:8c501196e49fb9df5df43833bdb1e4328f64847763ec8a50703148b73784d581"},
 ]
 iron-core = [
     {file = "iron-core-1.2.0.tar.gz", hash = "sha256:38f0942e86bf72d426560a66e4e14ffafdc52da5bee9925a2ac3968b30c3725b"},
@@ -678,8 +678,8 @@ iron-mq = [
     {file = "iron-mq-0.9.tar.gz", hash = "sha256:c90441d872d9c08968343810a2ad1cca1664d80fd2ad3a3a2dbec57b7b38ecfa"},
 ]
 jinxed = [
-    {file = "jinxed-1.0.1-py2.py3-none-any.whl", hash = "sha256:602f2cb3523c1045456f7b6d79ac19297fd8e933ae3bd9159845dc857f2d519c"},
-    {file = "jinxed-1.0.1.tar.gz", hash = "sha256:bc523c74fe676c99ccc69c68c2dcd7d4d2d7b2541f6dbef74ef211aedd8ad0d3"},
+    {file = "jinxed-1.1.0-py2.py3-none-any.whl", hash = "sha256:6a61ccf963c16aa885304f27e6e5693783676897cea0c7f223270c8b8e78baf8"},
+    {file = "jinxed-1.1.0.tar.gz", hash = "sha256:d8f1731f134e9e6b04d95095845ae6c10eb15cb223a5f0cabdea87d4a279c305"},
 ]
 jmespath = [
     {file = "jmespath-0.10.0-py2.py3-none-any.whl", hash = "sha256:cdf6525904cc597730141d61b36f2e4b8ecc257c420fa2f4549bac2c2d0cb72f"},
@@ -830,8 +830,8 @@ requests = [
     {file = "requests-2.25.1.tar.gz", hash = "sha256:27973dd4a904a4f13b263a19c866c13b92a39ed1c964655f025f3f8d3d75b804"},
 ]
 s3transfer = [
-    {file = "s3transfer-0.3.6-py2.py3-none-any.whl", hash = "sha256:5d48b1fd2232141a9d5fb279709117aaba506cacea7f86f11bc392f06bfa8fc2"},
-    {file = "s3transfer-0.3.6.tar.gz", hash = "sha256:c5dadf598762899d8cfaecf68eba649cd25b0ce93b6c954b156aaa3eed160547"},
+    {file = "s3transfer-0.3.7-py2.py3-none-any.whl", hash = "sha256:efa5bd92a897b6a8d5c1383828dca3d52d0790e0756d49740563a3fb6ed03246"},
+    {file = "s3transfer-0.3.7.tar.gz", hash = "sha256:35627b86af8ff97e7ac27975fe0a98a312814b46c6333d8a6b889627bcd80994"},
 ]
 sentry-sdk = [
     {file = "sentry-sdk-1.0.0.tar.gz", hash = "sha256:71de00c9711926816f750bc0f57ef2abbcb1bfbdf5378c601df7ec978f44857a"},
