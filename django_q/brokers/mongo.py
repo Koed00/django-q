@@ -36,10 +36,10 @@ class Mongo(Broker):
         return self.connection[Conf.MONGO_DB][self.list_key]
 
     def queue_size(self):
-        return self.collection.count({"lock": {"$lte": _timeout()}})
+        return self.collection.count_documents({"lock": {"$lte": _timeout()}})
 
     def lock_size(self):
-        return self.collection.count({"lock": {"$gt": _timeout()}})
+        return self.collection.count_documents({"lock": {"$gt": _timeout()}})
 
     def purge_queue(self):
         return self.delete_queue()
