@@ -278,7 +278,7 @@ def info(broker=None):
     return True
 
 
-def memory(broker=None):
+def memory(run_once=False, broker=None):
     if not broker:
         broker = get_broker()
     term = Terminal()
@@ -438,7 +438,9 @@ def memory(broker=None):
                     MEMORY_AVAILABLE_LOWEST_PERCENTAGE_AT.strftime('%Y-%m-%d %H:%M:%S+00:00')
                 )
             )
-            # Input
+            # for testing
+            if run_once:
+                return Stat.get_all(broker=broker)
             print(term.move(row + 2, 0) + term.center("[Press q to quit]"))
             val = term.inkey(timeout=1)
 

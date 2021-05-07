@@ -105,6 +105,10 @@ Monitor your clusters with::
 
     $ python manage.py qmonitor
 
+Monitor your clusters' memory usage with::
+
+    $ python manage.py qmemory
+
 Check overall statistics with::
 
     $ python manage.py qinfo
