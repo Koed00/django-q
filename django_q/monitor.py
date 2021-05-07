@@ -15,6 +15,12 @@ from django_q.status import Stat
 from django_q.brokers import get_broker
 from django_q import models, VERSION
 
+# optional
+try:
+    import psutil
+except ImportError:
+    psutil = None
+
 
 def monitor(run_once=False, broker=None):
     if not broker:
@@ -270,6 +276,171 @@ def info(broker=None):
         + term.white(f"{exec_time:.4f}")
     )
     return True
+
+
+def memory(broker=None):
+    if not broker:
+        broker = get_broker()
+    term = Terminal()
+    broker.ping()
+    if not psutil:
+        print(term.clear_eos())
+        print(term.white_on_red("Cannot start \"qmemory\" command. Missing \"psutil\" library."))
+        return
+    with term.fullscreen(), term.hidden_cursor(), term.cbreak():
+        COLUMNS_MEMORY = 6
+        MEMORY_AVAILABLE_LOWEST_PERCENTAGE = 100.0
+        MEMORY_AVAILABLE_LOWEST_PERCENTAGE_AT = timezone.now()
+        cols = COLUMNS_MEMORY + Conf.WORKERS
+        val = None
+        start_width = int(term.width / cols)
+        while val not in ["q", "Q"]:
+            col_width = int(term.width / cols)
+            # In case of resize
+            if col_width != start_width:
+                print(term.clear())
+                start_width = col_width
+            # Header
+            print(
+                term.move(0, 0 * col_width)
+                + term.black_on_green(term.center(_("Id"), width=col_width - 1))
+            )
+            print(
+                term.move(0, 1 * col_width)
+                + term.black_on_green(term.center(_("State"), width=col_width - 1))
+            )
+            print(
+                term.move(0, 2 * col_width)
+                + term.black_on_green(term.center(_("Uptime"), width=col_width - 1))
+            )
+            print(
+                term.move(0, 3 * col_width)
+                + term.black_on_green(term.center(_("Available (MB)"), width=col_width - 1))
+            )
+            print(
+                term.move(0, 4 * col_width)
+                + term.black_on_green(term.center(_("Available (%)"), width=col_width - 1))
+            )
+            print(
+                term.move(0, 5 * col_width)
+                + term.black_on_green(term.center(_("Total (MB)"), width=col_width - 1))
+            )
+            for worker_num in range(Conf.WORKERS):
+                print(
+                    term.move(0, (worker_num + COLUMNS_MEMORY) * col_width)
+                    + term.black_on_green(term.center("Worker #{} (MB)".format(worker_num + 1), width=col_width - 1))
+                )
+            row = 2
+            # Content
+            stats = Stat.get_all(broker=broker)
+            print(term.clear_eos())
+            for stat in stats:
+                status = stat.status
+                # color status
+                if stat.status == Conf.WORKING:
+                    status = term.green(str(Conf.WORKING))
+                elif stat.status == Conf.STOPPING:
+                    status = term.yellow(str(Conf.STOPPING))
+                elif stat.status == Conf.STOPPED:
+                    status = term.red(str(Conf.STOPPED))
+                elif stat.status == Conf.IDLE:
+                    status = str(Conf.IDLE)
+                # format uptime
+                uptime = (timezone.now() - stat.tob).total_seconds()
+                hours, remainder = divmod(uptime, 3600)
+                minutes, seconds = divmod(remainder, 60)
+                uptime = "%d:%02d:%02d" % (hours, minutes, seconds)
+                # memory available (MB)
+                memory_available = round(psutil.virtual_memory().available / 1024 ** 2, 2)
+                # memory available (%)
+                memory_available_percentage = round(psutil.virtual_memory().available * 100 / psutil.virtual_memory().total, 2)
+                if memory_available_percentage < MEMORY_AVAILABLE_LOWEST_PERCENTAGE:
+                    MEMORY_AVAILABLE_LOWEST_PERCENTAGE = memory_available_percentage
+                    MEMORY_AVAILABLE_LOWEST_PERCENTAGE_AT = timezone.now()
+                print(
+                    term.move(row, 0 * col_width)
+                    + term.center(str(stat.cluster_id)[-8:], width=col_width - 1)
+                )
+                print(
+                    term.move(row, 1 * col_width)
+                    + term.center(status, width=col_width - 1)
+                )
+                print(
+                    term.move(row, 2 * col_width)
+                    + term.center(uptime, width=col_width - 1)
+                )
+                print(
+                    term.move(row, 3 * col_width)
+                    + term.center(memory_available, width=col_width - 1)
+                )
+                print(
+                    term.move(row, 4 * col_width)
+                    + term.center(memory_available_percentage, width=col_width - 1)
+                )
+                print(
+                    term.move(row, 5 * col_width)
+                    + term.center(round(psutil.virtual_memory().total / 1024 ** 2, 2), width=col_width - 1)
+                )
+                for idx, worker_pid in enumerate(stat.workers):
+                    try:
+                        process = psutil.Process(worker_pid)
+                        mb_used = round(process.memory_info().rss / 1024 ** 2, 2)
+                    except psutil.NoSuchProcess:
+                        mb_used = 'NO_PROCESS_FOUND'
+                    print(
+                        term.move(row, (idx + COLUMNS_MEMORY) * col_width)
+                        + term.center(mb_used, width=col_width - 1)
+                    )
+                row += 1
+            # Footer
+            row += 1
+            queue_size = broker.queue_size()
+            lock_size = broker.lock_size()
+            if lock_size:
+                queue_size = f"{queue_size}({lock_size})"
+            print(
+                term.move(row, 0)
+                + term.white_on_cyan(term.center(broker.info(), width=col_width * Conf.WORKERS))
+            )
+            print(
+                term.move(row, Conf.WORKERS * col_width)
+                + term.black_on_cyan(term.center(_("Queued"), width=col_width))
+            )
+            print(
+                term.move(row, (Conf.WORKERS + 1) * col_width)
+                + term.white_on_cyan(term.center(queue_size, width=col_width))
+            )
+            print(
+                term.move(row, (Conf.WORKERS + 2) * col_width)
+                + term.black_on_cyan(term.center(_("Success"), width=col_width))
+            )
+            print(
+                term.move(row, (Conf.WORKERS + 3) * col_width)
+                + term.white_on_cyan(
+                    term.center(models.Success.objects.count(), width=col_width)
+                )
+            )
+            print(
+                term.move(row, (Conf.WORKERS + 4) * col_width)
+                + term.black_on_cyan(term.center(_("Failures"), width=col_width))
+            )
+            print(
+                term.move(row, (Conf.WORKERS + 5) * col_width)
+                + term.white_on_cyan(
+                    term.center(models.Failure.objects.count(), width=col_width)
+                )
+            )
+            row += 2
+            print(
+                term.move(row, 0)
+                + _("Available lowest (%): {} ({})").format(
+                    str(MEMORY_AVAILABLE_LOWEST_PERCENTAGE),
+                    MEMORY_AVAILABLE_LOWEST_PERCENTAGE_AT.strftime('%Y-%m-%d %H:%M:%S+00:00')
+                )
+            )
+            # Input
+            print(term.move(row + 2, 0) + term.center("[Press q to quit]"))
+            val = term.inkey(timeout=1)
 
 
 def get_ids():
