@@ -577,7 +577,7 @@ def scheduler(broker: Broker = None):
             for s in (
                 Schedule.objects.select_for_update()
                 .exclude(repeats=0)
-                .filter(next_run__lt=timezone.now())
+                .filter(next_run__lt=timezone.now(), cluster__in=[None, Conf.PREFIX])
             ):
                 args = ()
                 kwargs = {}
