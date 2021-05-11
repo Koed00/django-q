@@ -88,7 +88,7 @@ def schedule(func, *args, **kwargs):
     :param repeats: how many times to repeat. 0=never, -1=always.
     :param next_run: Next scheduled run.
     :type next_run: datetime.datetime
-    :param str cluster: optional cluster name.
+    :param cluster: optional cluster name.
     :param cron: optional cron expression
     :param kwargs: function keyword arguments.
     :return: the schedule object.
