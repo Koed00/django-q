@@ -22,3 +22,4 @@ def test_qinfo():
 @pytest.mark.django_db
 def test_qmemory():
     call_command('qmemory', run_once=True)
+    call_command('qmemory', workers=True, run_once=True)
