@@ -53,6 +53,12 @@ You can manage them through the :ref:`admin_page` or directly from your code wit
              cron = '0 22 * * 1-5')
 
 
+    # Restrain a schedule to a specific cluster
+    schedule('math.hypot',
+             3, 4,
+             schedule_type=Schedule.DAILY,
+             cluster='my_cluster')
+
 
 Missed schedules
 ----------------
