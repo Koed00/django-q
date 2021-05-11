@@ -22,6 +22,15 @@ except ImportError:
     psutil = None
 
 
+def get_process_mb(pid):
+    try:
+        process = psutil.Process(pid)
+        mb_used = round(process.memory_info().rss / 1024 ** 2, 2)
+    except psutil.NoSuchProcess:
+        mb_used = 'NO_PROCESS_FOUND'
+    return mb_used
+
+
 def monitor(run_once=False, broker=None):
     if not broker:
         broker = get_broker()
@@ -288,10 +297,9 @@ def memory(run_once=False, broker=None):
         print(term.white_on_red("Cannot start \"qmemory\" command. Missing \"psutil\" library."))
         return
     with term.fullscreen(), term.hidden_cursor(), term.cbreak():
-        COLUMNS_MEMORY = 6
         MEMORY_AVAILABLE_LOWEST_PERCENTAGE = 100.0
         MEMORY_AVAILABLE_LOWEST_PERCENTAGE_AT = timezone.now()
-        cols = COLUMNS_MEMORY + Conf.WORKERS
+        cols = 8
         val = None
         start_width = int(term.width / cols)
         while val not in ["q", "Q"]:
@@ -300,18 +308,18 @@ def memory(run_once=False, broker=None):
             if col_width != start_width:
                 print(term.clear())
                 start_width = col_width
-            # Header
+            # sentinel, monitor and workers memory usage
             print(
                 term.move(0, 0 * col_width)
-                + term.black_on_green(term.center(_("Id"), width=col_width - 1))
+                + term.black_on_green(term.center(_("Host"), width=col_width - 1))
             )
             print(
                 term.move(0, 1 * col_width)
-                + term.black_on_green(term.center(_("State"), width=col_width - 1))
+                + term.black_on_green(term.center(_("Id"), width=col_width - 1))
             )
             print(
                 term.move(0, 2 * col_width)
-                + term.black_on_green(term.center(_("Uptime"), width=col_width - 1))
+                + term.black_on_green(term.center(_("Available (%)"), width=col_width - 1))
             )
             print(
                 term.move(0, 3 * col_width)
@@ -319,55 +327,42 @@ def memory(run_once=False, broker=None):
             )
             print(
                 term.move(0, 4 * col_width)
-                + term.black_on_green(term.center(_("Available (%)"), width=col_width - 1))
+                + term.black_on_green(term.center(_("Total (MB)"), width=col_width - 1))
             )
             print(
                 term.move(0, 5 * col_width)
-                + term.black_on_green(term.center(_("Total (MB)"), width=col_width - 1))
+                + term.black_on_green(term.center(_("Sentinel (MB)"), width=col_width - 1))
             )
-            for worker_num in range(Conf.WORKERS):
-                print(
-                    term.move(0, (worker_num + COLUMNS_MEMORY) * col_width)
-                    + term.black_on_green(term.center("Worker #{} (MB)".format(worker_num + 1), width=col_width - 1))
-                )
+            print(
+                term.move(0, 6 * col_width)
+                + term.black_on_green(term.center(_("Monitor (MB)"), width=col_width - 1))
+            )
+            print(
+                term.move(0, 7 * col_width)
+                + term.black_on_green(term.center(_("Workers (MB)"), width=col_width - 1))
+            )
             row = 2
-            # Content
             stats = Stat.get_all(broker=broker)
             print(term.clear_eos())
             for stat in stats:
-                status = stat.status
-                # color status
-                if stat.status == Conf.WORKING:
-                    status = term.green(str(Conf.WORKING))
-                elif stat.status == Conf.STOPPING:
-                    status = term.yellow(str(Conf.STOPPING))
-                elif stat.status == Conf.STOPPED:
-                    status = term.red(str(Conf.STOPPED))
-                elif stat.status == Conf.IDLE:
-                    status = str(Conf.IDLE)
-                # format uptime
-                uptime = (timezone.now() - stat.tob).total_seconds()
-                hours, remainder = divmod(uptime, 3600)
-                minutes, seconds = divmod(remainder, 60)
-                uptime = "%d:%02d:%02d" % (hours, minutes, seconds)
-                # memory available (MB)
-                memory_available = round(psutil.virtual_memory().available / 1024 ** 2, 2)
                 # memory available (%)
                 memory_available_percentage = round(psutil.virtual_memory().available * 100 / psutil.virtual_memory().total, 2)
+                # memory available (MB)
+                memory_available = round(psutil.virtual_memory().available / 1024 ** 2, 2)
                 if memory_available_percentage < MEMORY_AVAILABLE_LOWEST_PERCENTAGE:
                     MEMORY_AVAILABLE_LOWEST_PERCENTAGE = memory_available_percentage
                     MEMORY_AVAILABLE_LOWEST_PERCENTAGE_AT = timezone.now()
                 print(
                     term.move(row, 0 * col_width)
-                    + term.center(str(stat.cluster_id)[-8:], width=col_width - 1)
+                    + term.center(stat.host[: col_width - 1], width=col_width - 1)
                 )
                 print(
                     term.move(row, 1 * col_width)
-                    + term.center(status, width=col_width - 1)
+                    + term.center(str(stat.cluster_id)[-8:], width=col_width - 1)
                 )
                 print(
                     term.move(row, 2 * col_width)
-                    + term.center(uptime, width=col_width - 1)
+                    + term.center(memory_available_percentage, width=col_width - 1)
                 )
                 print(
                     term.move(row, 3 * col_width)
@@ -375,62 +370,53 @@ def memory(run_once=False, broker=None):
                 )
                 print(
                     term.move(row, 4 * col_width)
-                    + term.center(memory_available_percentage, width=col_width - 1)
+                    + term.center(round(psutil.virtual_memory().total / 1024 ** 2, 2), width=col_width - 1)
                 )
                 print(
                     term.move(row, 5 * col_width)
-                    + term.center(round(psutil.virtual_memory().total / 1024 ** 2, 2), width=col_width - 1)
+                    + term.center(get_process_mb(stat.sentinel), width=col_width - 1)
+                )
+                print(
+                    term.move(row, 6 * col_width)
+                    + term.center(get_process_mb(getattr(stat, 'monitor', None)), width=col_width - 1)
+                )
+                workers_mb = 0
+                for worker_pid in stat.workers:
+                    result = get_process_mb(worker_pid)
+                    if isinstance(result, str):
+                        result = 0
+                    workers_mb += result
+                print(
+                    term.move(row, 7 * col_width)
+                    + term.center(workers_mb or 'NO_PROCESSES_FOUND', width=col_width - 1)
+                )
+                row += 1
+            # each worker's memory usage
+            row += 2
+            col_width = int(term.width / (1 + Conf.WORKERS))
+            print(
+                term.move(row, 0 * col_width)
+                + term.black_on_cyan(term.center(_("Id"), width=col_width - 1))
+            )
+            for worker_num in range(Conf.WORKERS):
+                print(
+                    term.move(row, (worker_num + 1) * col_width)
+                    + term.black_on_cyan(term.center("Worker #{} (MB)".format(worker_num + 1), width=col_width - 1))
+                )
+            row += 2
+            for stat in stats:
+                print(
+                    term.move(row, 0 * col_width)
+                    + term.center(str(stat.cluster_id)[-8:], width=col_width - 1)
                 )
                 for idx, worker_pid in enumerate(stat.workers):
-                    try:
-                        process = psutil.Process(worker_pid)
-                        mb_used = round(process.memory_info().rss / 1024 ** 2, 2)
-                    except psutil.NoSuchProcess:
-                        mb_used = 'NO_PROCESS_FOUND'
+                    mb_used = get_process_mb(worker_pid)
                     print(
-                        term.move(row, (idx + COLUMNS_MEMORY) * col_width)
+                        term.move(row, (idx + 1) * col_width)
                         + term.center(mb_used, width=col_width - 1)
                     )
                 row += 1
-            # Footer
             row += 1
-            queue_size = broker.queue_size()
-            lock_size = broker.lock_size()
-            if lock_size:
-                queue_size = f"{queue_size}({lock_size})"
-            print(
-                term.move(row, 0)
-                + term.white_on_cyan(term.center(broker.info(), width=col_width * Conf.WORKERS))
-            )
-            print(
-                term.move(row, Conf.WORKERS * col_width)
-                + term.black_on_cyan(term.center(_("Queued"), width=col_width))
-            )
-            print(
-                term.move(row, (Conf.WORKERS + 1) * col_width)
-                + term.white_on_cyan(term.center(queue_size, width=col_width))
-            )
-            print(
-                term.move(row, (Conf.WORKERS + 2) * col_width)
-                + term.black_on_cyan(term.center(_("Success"), width=col_width))
-            )
-            print(
-                term.move(row, (Conf.WORKERS + 3) * col_width)
-                + term.white_on_cyan(
-                    term.center(models.Success.objects.count(), width=col_width)
-                )
-            )
-            print(
-                term.move(row, (Conf.WORKERS + 4) * col_width)
-                + term.black_on_cyan(term.center(_("Failures"), width=col_width))
-            )
-            print(
-                term.move(row, (Conf.WORKERS + 5) * col_width)
-                + term.white_on_cyan(
-                    term.center(models.Failure.objects.count(), width=col_width)
-                )
-            )
-            row += 2
             print(
                 term.move(row, 0)
                 + _("Available lowest (%): {} ({})").format(
