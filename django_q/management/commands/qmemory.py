@@ -16,6 +16,16 @@ class Command(BaseCommand):
             default=False,
             help="Run once and then stop.",
         )
+        parser.add_argument(
+            "--workers",
+            action="store_true",
+            dest="workers",
+            default=False,
+            help="Show each worker's memory usage.",
+        )
 
     def handle(self, *args, **options):
-        memory(run_once=options.get("run_once", False))
+        memory(
+            run_once=options.get("run_once", False),
+            workers=options.get("workers", False)
+        )

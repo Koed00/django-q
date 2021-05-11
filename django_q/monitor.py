@@ -287,7 +287,7 @@ def info(broker=None):
     return True
 
 
-def memory(run_once=False, broker=None):
+def memory(run_once=False, workers=False, broker=None):
     if not broker:
         broker = get_broker()
     term = Terminal()
@@ -392,30 +392,31 @@ def memory(run_once=False, broker=None):
                 )
                 row += 1
             # each worker's memory usage
-            row += 2
-            col_width = int(term.width / (1 + Conf.WORKERS))
-            print(
-                term.move(row, 0 * col_width)
-                + term.black_on_cyan(term.center(_("Id"), width=col_width - 1))
-            )
-            for worker_num in range(Conf.WORKERS):
-                print(
-                    term.move(row, (worker_num + 1) * col_width)
-                    + term.black_on_cyan(term.center("Worker #{} (MB)".format(worker_num + 1), width=col_width - 1))
-                )
-            row += 2
-            for stat in stats:
+            if workers:
+                row += 2
+                col_width = int(term.width / (1 + Conf.WORKERS))
                 print(
                     term.move(row, 0 * col_width)
-                    + term.center(str(stat.cluster_id)[-8:], width=col_width - 1)
+                    + term.black_on_cyan(term.center(_("Id"), width=col_width - 1))
                 )
-                for idx, worker_pid in enumerate(stat.workers):
-                    mb_used = get_process_mb(worker_pid)
+                for worker_num in range(Conf.WORKERS):
                     print(
-                        term.move(row, (idx + 1) * col_width)
-                        + term.center(mb_used, width=col_width - 1)
+                        term.move(row, (worker_num + 1) * col_width)
+                        + term.black_on_cyan(term.center("Worker #{} (MB)".format(worker_num + 1), width=col_width - 1))
                     )
-                row += 1
+                row += 2
+                for stat in stats:
+                    print(
+                        term.move(row, 0 * col_width)
+                        + term.center(str(stat.cluster_id)[-8:], width=col_width - 1)
+                    )
+                    for idx, worker_pid in enumerate(stat.workers):
+                        mb_used = get_process_mb(worker_pid)
+                        print(
+                            term.move(row, (idx + 1) * col_width)
+                            + term.center(mb_used, width=col_width - 1)
+                        )
+                    row += 1
             row += 1
             print(
                 term.move(row, 0)
