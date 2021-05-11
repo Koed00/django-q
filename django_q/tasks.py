@@ -88,6 +88,7 @@ def schedule(func, *args, **kwargs):
     :param repeats: how many times to repeat. 0=never, -1=always.
     :param next_run: Next scheduled run.
     :type next_run: datetime.datetime
+    :param str cluster: optional cluster name.
     :param cron: optional cron expression
     :param kwargs: function keyword arguments.
     :return: the schedule object.
@@ -100,6 +101,7 @@ def schedule(func, *args, **kwargs):
     repeats = kwargs.pop("repeats", -1)
     next_run = kwargs.pop("next_run", timezone.now())
     cron = kwargs.pop("cron", None)
+    cluster = kwargs.pop("cluster", None)
 
     # check for name duplicates instead of am unique constraint
     if name and Schedule.objects.filter(name=name).exists():
@@ -117,6 +119,7 @@ def schedule(func, *args, **kwargs):
         repeats=repeats,
         next_run=next_run,
         cron=cron,
+        cluster=cluster,
     )
     # make sure we trigger validation
     s.full_clean()
