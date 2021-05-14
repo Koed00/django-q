@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from boto3 import Session
 from botocore.client import ClientError
 
@@ -8,6 +10,10 @@ QUEUE_DOES_NOT_EXIST = "AWS.SimpleQueueService.NonExistentQueue"
 
 
 class Sqs(Broker):
+
+    FIFO = Conf.SQS.get("fifo", False)
+    message_group_id = Conf.LABEL.replace(" ", "-")  # only for FIFO queues
+
     def __init__(self, list_key: str = Conf.PREFIX):
         self.sqs = None
         super(Sqs, self).__init__(list_key)
@@ -19,7 +25,14 @@ class Sqs(Broker):
         self.queue = self.get_queue()
 
     def enqueue(self, task):
-        response = self.queue.send_message(MessageBody=task)
+        params = {"MessageBody": task}
+        if self.FIFO:
+            params.update({
+                "MessageGroupId": self.message_group_id,
+                "MessageDeduplicationId": uuid4().hex
+            })
+
+        response = self.queue.send_message(**params)
         return response.get("MessageId")
 
     def dequeue(self):
@@ -75,7 +88,9 @@ class Sqs(Broker):
 
     @staticmethod
     def get_connection(list_key: str = Conf.PREFIX) -> Session:
-        config = Conf.SQS
+        config = Conf.SQS.copy()
+        config.pop('fifo', None)
+
         if "aws_region" in config:
             config["region_name"] = config["aws_region"]
             del config["aws_region"]
@@ -91,9 +106,20 @@ class Sqs(Broker):
         try:
             # try to return an existing queue by name. If the queue does not
             # exist try to create it.
-            return self.sqs.get_queue_by_name(QueueName=self.list_key)
+            return self.sqs.get_queue_by_name(QueueName=self.queue_name)
         except ClientError as exp:
             if exp.response["Error"]["Code"] != QUEUE_DOES_NOT_EXIST:
                 raise exp
 
-        return self.sqs.create_queue(QueueName=self.list_key)
+        params = {"QueueName": self.queue_name}
+        if self.FIFO:
+            params.update({"Attributes": {"FifoQueue": "true"}})
+
+        return self.sqs.create_queue(**params)
+
+    @property
+    def queue_name(self):
+        name = self.list_key
+        if self.FIFO:
+            name += ".fifo"  # FIFO queue names must have the `.fifo` suffix
+        return name
