@@ -53,6 +53,12 @@ You can manage them through the :ref:`admin_page` or directly from your code wit
              cron = '0 22 * * 1-5')
 
 
+    # Restrain a schedule to a specific cluster
+    schedule('math.hypot',
+             3, 4,
+             schedule_type=Schedule.DAILY,
+             cluster='my_cluster')
+
 
 Missed schedules
 ----------------
@@ -116,6 +122,7 @@ Reference
     :param str cron: Cron expression for the Cron type.
     :param int repeats: Number of times to repeat schedule. -1=Always, 0=Never, n =n.
     :param datetime next_run: Next or first scheduled execution datetime.
+    :param str cluster: optional cluster name. Task will be executed only on a cluster with a matching :ref:`name`.
     :param dict q_options: options passed to async_task for this schedule
     :param kwargs: optional keyword arguments for the scheduled function.
     
@@ -174,6 +181,10 @@ Reference
 
     Number of times to repeat the schedule. -1=Always, 0=Never, n =n.
     When set to -1, this will keep counting down.
+
+    .. py:attribute:: cluster
+    
+    Task will be executed only on a cluster with a matching :ref:`name`.
 
     .. py:attribute:: next_run
 

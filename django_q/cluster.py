@@ -578,6 +578,7 @@ def scheduler(broker: Broker = None):
                 Schedule.objects.select_for_update()
                 .exclude(repeats=0)
                 .filter(next_run__lt=timezone.now())
+                .filter(db.models.Q(cluster__isnull=True) | db.models.Q(cluster=Conf.PREFIX))
             ):
                 args = ()
                 kwargs = {}

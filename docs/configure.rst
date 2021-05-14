@@ -25,6 +25,8 @@ Configuration is handled via the ``Q_CLUSTER`` dictionary in your :file:`setting
 
 All configuration settings are optional:
 
+.. _name:
+
 name
 ~~~~
 

@@ -151,3 +151,45 @@ def test_scheduler(broker, monkeypatch):
     assert schedule.next_run > now
     # Done
     broker.delete_queue()
+
+    monkeypatch.setattr(Conf, 'PREFIX', 'some_cluster_name')
+    # create a schedule on another cluster
+    schedule = create_schedule('math.copysign',
+                               1, -1,
+                               name='test schedule on a another cluster',
+                               hook='django_q.tests.tasks.result',
+                               schedule_type=Schedule.HOURLY,
+                               cluster="some_other_cluster_name",
+                               repeats=1)
+    # run scheduler
+    scheduler(broker=broker)
+    # set up the workflow
+    task_queue = Queue()
+    stop_event = Event()
+    stop_event.set()
+    # push it
+    pusher(task_queue, stop_event, broker=broker)
+
+    # queue must be empty
+    assert task_queue.qsize() == 0
+
+    monkeypatch.setattr(Conf, 'PREFIX', 'default')
+    # create a schedule on the same cluster
+    schedule = create_schedule('math.copysign',
+                               1, -1,
+                               name='test schedule with no cluster',
+                               hook='django_q.tests.tasks.result',
+                               schedule_type=Schedule.HOURLY,
+                               cluster="default",
+                               repeats=1)
+    # run scheduler
+    scheduler(broker=broker)
+    # set up the workflow
+    task_queue = Queue()
+    stop_event = Event()
+    stop_event.set()
+    # push it
+    pusher(task_queue, stop_event, broker=broker)
+
+    # queue must contain a task
+    assert task_queue.qsize() == 1

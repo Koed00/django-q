@@ -68,6 +68,7 @@ class ScheduleAdmin(admin.ModelAdmin):
         "func",
         "schedule_type",
         "repeats",
+        "cluster",
         "next_run",
         "last_run",
         "success",
@@ -77,7 +78,7 @@ class ScheduleAdmin(admin.ModelAdmin):
     if not croniter:
         readonly_fields = ("cron",)
 
-    list_filter = ("next_run", "schedule_type")
+    list_filter = ("next_run", "schedule_type", "cluster")
     search_fields = ("func",)
     list_display_links = ("id", "name")
 
