@@ -10,27 +10,27 @@ repository = "https://github.com/koed00/django-q"
 homepage = "https://django-q.readthedocs.org"
 documentation = "https://django-q.readthedocs.org"
 
-keywords = ["django", "distributed", "multiprocessing", "queue","scheduler"]
+keywords = ["django", "distributed", "multiprocessing", "queue", "scheduler"]
 
-classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: Web Environment',
-        'Framework :: Django',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: POSIX',
-        'Operating System :: MacOS',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Topic :: Internet :: WWW/HTTP',
-        'Topic :: System :: Distributed Computing',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-    ]
-include=['CHANGELOG.md']
+classifiers = [
+    'Development Status :: 5 - Production/Stable',
+    'Environment :: Web Environment',
+    'Framework :: Django',
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: MIT License',
+    'Operating System :: POSIX',
+    'Operating System :: MacOS',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Topic :: Internet :: WWW/HTTP',
+    'Topic :: System :: Distributed Computing',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+]
+include = ['CHANGELOG.md']
 
 [tool.poetry.plugins."djangoq.errorreporters"]
 "rollbar" = "django_q_rollbar:Rollbar"
@@ -42,18 +42,18 @@ python = ">=3.6, <4"
 django = ">=2.2"
 blessed = "^1.17.6"
 arrow = "^0.15.6"
-
-django-q-rollbar= { version = "^0.1", optional = true }
-django-q-sentry = { version = "^0.1", optional = true }
 django-picklefield = "^3.0.1"
-hiredis = {version = "^1.0.1", optional = true}
-redis = {version = "^3.5.3", optional = true}
-psutil = {version = "^5.7.0", optional = true}
-django-redis = {version = "^4.12.1", optional = true}
-iron-mq = {version = "^0.9", optional = true}
-boto3 = {version = "^1.14.12", optional = true}
-pymongo = {version = "^3.10.1", optional = true}
-croniter = {version = "^0.3.34", optional = true}
+
+django-q-rollbar = { version = "^0.1", optional = true }
+django-q-sentry = { version = "^0.1", optional = true }
+hiredis = { version = "^1.0.1", optional = true }
+redis = { version = "^3.5.3", optional = true }
+psutil = { version = "^5.7.0", optional = true }
+django-redis = { version = "^4.12.1", optional = true }
+iron-mq = { version = "^0.9", optional = true }
+boto3 = { version = "^1.14.12", optional = true }
+pymongo = { version = "^3.10.1", optional = true }
+croniter = { version = "^0.3.34", optional = true }
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.4.2"
@@ -66,4 +66,5 @@ rollbar = ["django-q-rollbar"]
 sentry = ["django-q-sentry "]
 requires = ["poetry>=0.12"]
 build-backend = ["poetry.masonry.api"]
+testing = ["django-redis", "croniter", "hiredis", "psutil", "iron-mq", "boto3", "pymongo"]
 

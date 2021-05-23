@@ -41,7 +41,7 @@ jobs:
           run: |
             python -m pip install --upgrade pip
             pip install poetry
-            poetry install
+            poetry install -E testing
         - name: Run Tests
           run: |
             poetry run pytest --cov=./ --cov-report=xml
