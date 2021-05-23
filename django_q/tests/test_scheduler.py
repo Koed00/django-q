@@ -1,23 +1,75 @@
+import os
 from datetime import timedelta
 from multiprocessing import Event, Value
+from unittest import mock
 
 import arrow
 import pytest
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
+from django.test import override_settings
 from django.utils import timezone
 
-from django_q.brokers import get_broker
+from django_q.brokers import get_broker, Broker
 from django_q.cluster import pusher, worker, monitor, scheduler
 from django_q.conf import Conf
 from django_q.queues import Queue
 from django_q.tasks import Schedule, fetch, schedule as create_schedule
+from django_q.tests.testing_utilities.multiple_database_routers import TestingReplicaDatabaseRouter, TestingMultipleAppsDatabaseRouter
+from django_q.tests.settings import BASE_DIR
 
 
 @pytest.fixture
-def broker(monkeypatch):
+def broker(monkeypatch) -> Broker:
+    """Patches the Conf object setting the DJANGO_REDIS attribute allowing a default redis configuration."""
     monkeypatch.setattr(Conf, 'DJANGO_REDIS', 'default')
     return get_broker()
+
+
+@pytest.fixture
+def orm_broker(monkeypatch) -> None:
+    """Patches the Conf object setting the ORM attribute to a database named default."""
+    monkeypatch.setattr(Conf, 'ORM', 'default')
+
+
+@pytest.fixture
+def orm_no_replica_broker(orm_broker, monkeypatch) -> Broker:
+    """Generates a Broker with a disabled read replica database configuration."""
+    monkeypatch.setattr(Conf, 'HAS_REPLICA', False)
+    return get_broker(list_key='scheduler_test:q')
+
+
+@pytest.fixture
+def orm_replica_broker(orm_broker, monkeypatch) -> Broker:
+    """Generates a Broker with read replica database configuration."""
+    monkeypatch.setattr(Conf, 'HAS_REPLICA', True)
+    return get_broker(list_key='scheduler_test:q')
+
+
+REPLICA_DATABASE_ROUTERS = [f"{TestingReplicaDatabaseRouter.__module__}.{TestingReplicaDatabaseRouter.__name__}"]
+REPLICA_DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    },
+    'replica': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    },
+}
+
+MULTIPLE_APPS_DATABASE_ROUTERS = [
+    f"{TestingMultipleAppsDatabaseRouter.__module__}.{TestingMultipleAppsDatabaseRouter.__name__}"]
+MULTIPLE_APPS_DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    },
+    'admin': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    },
+}
 
 
 @pytest.mark.django_db
@@ -193,3 +245,59 @@ def test_scheduler(broker, monkeypatch):
 
     # queue must contain a task
     assert task_queue.qsize() == 1
+
+
+@override_settings(
+    DATABASE_ROUTERS=REPLICA_DATABASE_ROUTERS,
+    DATABASES=REPLICA_DATABASES
+)
+@pytest.mark.django_db
+def test_scheduler_atomic_transaction_must_specify_a_database_when_no_replicas_are_used(orm_no_replica_broker: Broker):
+    """
+    GIVEN a environment without a read replica database
+    WHEN the scheduler is called
+    THEN the transaction atomic must be called using the configured database in the Conf.ORM settings.
+    """
+    broker = orm_no_replica_broker
+    with mock.patch("django_q.cluster.db") as mocked_db:
+        scheduler(broker=broker)
+        # The router should correctly set the database to use!
+        mocked_db.transaction.atomic.assert_called_with(using=broker.connection.db)
+
+
+@override_settings(
+    DATABASE_ROUTERS=REPLICA_DATABASE_ROUTERS,
+    DATABASES=REPLICA_DATABASES
+)
+@pytest.mark.django_db
+def test_scheduler_atomic_transaction_must_specify_no_database_when_read_write_replicas_are_used(
+        orm_replica_broker: Broker):
+    """
+    GIVEN a environment with a read/write configured replica database
+    WHEN the scheduler is called
+    THEN the transaction must be called without a specific database, thus letting the database router pick.
+    """
+    with mock.patch("django_q.cluster.db") as mocked_db:
+        scheduler(broker=orm_replica_broker)
+        # No specific databases should be set here, this is the job of the router!
+        mocked_db.transaction.atomic.assert_called_with()
+
+
+@override_settings(
+    DATABASE_ROUTERS=MULTIPLE_APPS_DATABASE_ROUTERS,
+    DATABASES=MULTIPLE_APPS_DATABASES
+)
+@pytest.mark.django_db
+def test_scheduler_atomic_transaction_must_specify_the_database_based_on_router_redirection(
+        orm_no_replica_broker: Broker):
+    """
+    GIVEN a environment without a read replica database
+    WHEN the scheduler is called
+    THEN the transaction atomic must be called using the configured database in the Conf.ORM settings.
+    """
+    broker = orm_no_replica_broker
+    with mock.patch("django_q.cluster.db") as mocked_db:
+        scheduler(broker=broker)
+        # The router should correctly set the database to use!
+        assert broker.connection.db == 'default'
+        mocked_db.transaction.atomic.assert_called_with(using=broker.connection.db)
