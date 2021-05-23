@@ -45,8 +45,8 @@ jobs:
             poetry install -E testing
         - name: Run Tests
           run: |
-            poetry run pytest --cov=./ --cov-report=xml
-        - name: Upload coverage to Codecov
+            poetry run pytest --cov=./django_q --cov-report=xml
+        - name: Upload coverage
           uses: codecov/codecov-action@v1
           env:
             PYTHON: ${{ matrix.python-version }}
