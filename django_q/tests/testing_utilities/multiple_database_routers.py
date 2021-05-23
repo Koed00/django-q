@@ -1,6 +1,3 @@
-from django_q.tests.settings import *
-
-
 class TestingReplicaDatabaseRouter:
     """
     A router to control all database operations on models in the
