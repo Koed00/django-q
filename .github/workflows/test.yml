@@ -41,15 +41,19 @@ jobs:
           run: |
             python -m pip install --upgrade pip
             pip install poetry
+            poetry add "django==${{ matrix.django }}"
             poetry install -E testing
         - name: Run Tests
           run: |
             poetry run pytest --cov=./ --cov-report=xml
         - name: Upload coverage to Codecov
           uses: codecov/codecov-action@v1
+          env:
+            PYTHON: ${{ matrix.python-version }}
+            DJANGO: ${{ matrix.django }}
           with:
             token: ${{ secrets.CODECOV_TOKEN }}
-            env_vars: OS,PYTHON,DJANGO
+            env_vars: PYTHON, DJANGO
             fail_ci_if_error: true
         - name: Build docs
           run: |
