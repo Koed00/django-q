@@ -15,8 +15,9 @@ from django_q.cluster import pusher, worker, monitor, scheduler
 from django_q.conf import Conf
 from django_q.queues import Queue
 from django_q.tasks import Schedule, fetch, schedule as create_schedule
-from django_q.tests.testing_utilities.multiple_database_routers import TestingReplicaDatabaseRouter, TestingMultipleAppsDatabaseRouter
 from django_q.tests.settings import BASE_DIR
+from django_q.tests.testing_utilities.multiple_database_routers import (TestingReplicaDatabaseRouter,
+                                                                        TestingMultipleAppsDatabaseRouter)
 
 
 @pytest.fixture
