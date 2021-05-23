@@ -71,3 +71,4 @@ node_modules
 /c.cache/
 /dq
 /venv/
+.local
