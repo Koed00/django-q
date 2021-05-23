@@ -44,7 +44,7 @@ jobs:
             poetry install
         - name: Run Tests
           run: |
-            pytest --cov=./ --cov-report=xml
+            poetry run pytest --cov=./ --cov-report=xml
         - name: Upload coverage to Codecov
           uses: codecov/codecov-action@v1
           with:
@@ -59,4 +59,4 @@ jobs:
             verbose: true
         - name: Build docs
           run: |
-            sphinx-build -b html -d docs/_build/doctrees  -nW docs docs/_build/html
+            poetry run sphinx-build -b html -d docs/_build/doctrees  -nW docs docs/_build/html
