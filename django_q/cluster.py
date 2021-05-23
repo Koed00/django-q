@@ -576,7 +576,8 @@ def scheduler(broker: Broker = None):
         broker = get_broker()
     close_old_django_connections()
     try:
-        with db.transaction.atomic(using=Schedule.objects.db):
+        database_to_use = {"using": Conf.ORM} if not Conf.HAS_REPLICA else {}
+        with db.transaction.atomic(**database_to_use):
             for s in (
                 Schedule.objects.select_for_update()
                 .exclude(repeats=0)
