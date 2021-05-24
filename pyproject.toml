@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-q"
-version = "1.3.6"
+version = "1.3.7"
 description = "A multiprocessing distributed task queue for Django"
 authors = ["Ilan Steemers <koed00@gmail.com>"]
 maintainers = ["Ilan Steemers <koed00@gmail.com>"]
@@ -33,6 +33,8 @@ classifiers = [
 ]
 include = ['CHANGELOG.md']
 
+[tool.poetry.plugins] # Optional super table
+
 [tool.poetry.plugins."djangoq.errorreporters"]
 "rollbar" = "django_q_rollbar:Rollbar"
 "sentry" = "django_q_sentry:Sentry"
@@ -45,8 +47,6 @@ blessed = "^1.17.6"
 arrow = "^0.15.6"
 django-picklefield = "^3.0.1"
 
-django-q-rollbar = { version = "^0.1", optional = true }
-django-q-sentry = { version = "^0.1", optional = true }
 hiredis = { version = "^1.0.1", optional = true }
 redis = { version = "^3.5.3", optional = true }
 psutil = { version = "^5.7.0", optional = true }
@@ -55,17 +55,19 @@ iron-mq = { version = "^0.9", optional = true }
 boto3 = { version = "^1.14.12", optional = true }
 pymongo = { version = "^3.10.1", optional = true }
 croniter = { version = "^0.3.34", optional = true }
+django-q-rollbar = {version = "^0.1.3", optional = true}
+django-q-sentry = {version = "^0.1.5", optional = true}
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.4.2"
 pytest-django = "^3.9.0"
 Sphinx = "^4.0.2"
 pytest-cov = "^2.12.0"
-black = {version = "^21.5b1", allow-prereleases = true}
+black = { version = "^21.5b1", allow-prereleases = true }
 
 [tool.poetry.extras]
+requires = ["poetry_core>=1.0.0"]
+build-backend = ["poetry.core.masonry.api"]
+testing = ["django-redis", "croniter", "hiredis", "psutil", "iron-mq", "boto3", "pymongo"]
 rollbar = ["django-q-rollbar"]
 sentry = ["django-q-sentry"]
-requires = ["poetry>=0.12"]
-build-backend = ["poetry.masonry.api"]
-testing = ["django-redis", "croniter", "hiredis", "psutil", "iron-mq", "boto3", "pymongo"]
