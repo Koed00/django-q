@@ -60,7 +60,7 @@ class FailAdmin(admin.ModelAdmin):
 
 
 class ScheduleAdmin(admin.ModelAdmin):
-    """ model admin for schedules """
+    """model admin for schedules"""
 
     list_display = (
         "id",
@@ -84,7 +84,7 @@ class ScheduleAdmin(admin.ModelAdmin):
 
 
 class QueueAdmin(admin.ModelAdmin):
-    """  queue admin for ORM broker """
+    """queue admin for ORM broker"""
 
     list_display = ("id", "key", "task_id", "name", "func", "lock")
 
@@ -100,7 +100,7 @@ class QueueAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         """Don't allow adds."""
         return False
-    
+
     list_filter = ("key",)
 
 

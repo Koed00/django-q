@@ -153,7 +153,7 @@ def result(task_id, wait=0, cached=Conf.CACHED):
 
 def result_cached(task_id, wait=0, broker=None):
     """
-     Return the result from the cache backend
+    Return the result from the cache backend
     """
     if not broker:
         broker = get_broker()

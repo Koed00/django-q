@@ -10,15 +10,15 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--run-once',
-            action='store_true',
-            dest='run_once',
+            "--run-once",
+            action="store_true",
+            dest="run_once",
             default=False,
-            help='Run once and then stop.',
+            help="Run once and then stop.",
         )
 
     def handle(self, *args, **options):
         q = Cluster()
         q.start()
-        if options.get('run_once', False):
+        if options.get("run_once", False):
             q.stop()

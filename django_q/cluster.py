@@ -20,6 +20,7 @@ try:
     apps.check_apps_ready()
 except core.exceptions.AppRegistryNotReady:
     import django
+
     django.setup()
 
 from django.conf import settings
@@ -485,8 +486,11 @@ def save_task(task, broker: Broker):
                 existing_task.attempt_count = existing_task.attempt_count + 1
                 existing_task.save()
 
-            if Conf.MAX_ATTEMPTS > 0 and existing_task.attempt_count >= Conf.MAX_ATTEMPTS:
-                broker.acknowledge(task['ack_id'])
+            if (
+                Conf.MAX_ATTEMPTS > 0
+                and existing_task.attempt_count >= Conf.MAX_ATTEMPTS
+            ):
+                broker.acknowledge(task["ack_id"])
 
         else:
             func = task["func"]
@@ -495,8 +499,8 @@ def save_task(task, broker: Broker):
                 func = f"{func.__module__}.{func.__name__}"
             elif inspect.ismethod(func):
                 func = (
-                    f'{func.__self__.__module__}.'
-                    f'{func.__self__.__name__}.{func.__name__}'
+                    f"{func.__self__.__module__}."
+                    f"{func.__self__.__name__}.{func.__name__}"
                 )
             Task.objects.create(
                 id=task["id"],
@@ -510,7 +514,7 @@ def save_task(task, broker: Broker):
                 result=task["result"],
                 group=task.get("group"),
                 success=task["success"],
-                attempt_count=1
+                attempt_count=1,
             )
     except Exception as e:
         logger.error(e)
@@ -582,7 +586,9 @@ def scheduler(broker: Broker = None):
                 Schedule.objects.select_for_update()
                 .exclude(repeats=0)
                 .filter(next_run__lt=timezone.now())
-                .filter(db.models.Q(cluster__isnull=True) | db.models.Q(cluster=Conf.PREFIX))
+                .filter(
+                    db.models.Q(cluster__isnull=True) | db.models.Q(cluster=Conf.PREFIX)
+                )
             ):
                 args = ()
                 kwargs = {}
@@ -643,7 +649,7 @@ def scheduler(broker: Broker = None):
                 scheduled_broker = broker
                 try:
                     scheduled_broker = get_broker(q_options["broker_name"])
-                except: # invalid broker_name or non existing broker with broker_name
+                except:  # invalid broker_name or non existing broker with broker_name
                     pass
                 q_options["broker"] = scheduled_broker
                 q_options["group"] = q_options.get("group", s.name or s.id)

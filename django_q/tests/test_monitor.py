@@ -28,9 +28,9 @@ def test_monitor(monkeypatch):
             break
     assert found_c
     # test lock size
-    monkeypatch.setattr(Conf, 'ORM', 'default')
-    b = get_broker('monitor_test')
-    b.enqueue('test')
+    monkeypatch.setattr(Conf, "ORM", "default")
+    b = get_broker("monitor_test")
+    b.enqueue("test")
     b.dequeue()
     assert b.lock_size() == 1
     monitor(run_once=True, broker=b)
@@ -48,4 +48,4 @@ def test_info():
 
 
 def do_sync():
-    async_task('django_q.tests.tasks.countdown', 1, sync=True, save=True)
+    async_task("django_q.tests.tasks.countdown", 1, sync=True, save=True)

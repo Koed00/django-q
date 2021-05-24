@@ -38,7 +38,9 @@ class Sqs(Broker):
             if not isinstance(wait_time_second, int):
                 raise ValueError("receive_message_wait_time_seconds should be int")
             if wait_time_second > 20:
-                raise ValueError("receive_message_wait_time_seconds is invalid. Reason: Must be >= 0 and <= 20")
+                raise ValueError(
+                    "receive_message_wait_time_seconds is invalid. Reason: Must be >= 0 and <= 20"
+                )
             params.update({"WaitTimeSeconds": wait_time_second})
 
         tasks = self.queue.receive_messages(**params)
@@ -80,7 +82,7 @@ class Sqs(Broker):
             config["region_name"] = config["aws_region"]
             del config["aws_region"]
 
-        if 'receive_message_wait_time_seconds' in config:
+        if "receive_message_wait_time_seconds" in config:
             del config["receive_message_wait_time_seconds"]
 
         return Session(**config)
