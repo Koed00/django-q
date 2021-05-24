@@ -2,25 +2,25 @@ from multiprocessing import Event, Value
 
 import pytest
 
-from django_q.cluster import pusher, worker, monitor
-from django_q.conf import Conf
-from django_q.tasks import (
-    async_task,
-    result,
-    fetch,
-    count_group,
-    result_group,
-    fetch_group,
-    delete_group,
-    delete_cached,
-    async_iter,
-    Chain,
-    async_chain,
-    Iter,
-    AsyncTask,
-)
 from django_q.brokers import get_broker
+from django_q.cluster import monitor, pusher, worker
+from django_q.conf import Conf
 from django_q.queues import Queue
+from django_q.tasks import (
+    AsyncTask,
+    Chain,
+    Iter,
+    async_chain,
+    async_iter,
+    async_task,
+    count_group,
+    delete_cached,
+    delete_group,
+    fetch,
+    fetch_group,
+    result,
+    result_group,
+)
 
 
 @pytest.fixture

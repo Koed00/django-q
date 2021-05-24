@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
 from django_q.conf import Conf, croniter
-from django_q.models import Success, Failure, Schedule, OrmQ
+from django_q.models import Failure, OrmQ, Schedule, Success
 from django_q.tasks import async_task
 
 

@@ -4,12 +4,10 @@ humanhash: Human-readable representations of digests.
 The simplest ways to use this module are the :func:`humanize` and :func:`uuid`
 functions. For tighter control over the output, see :class:`HumanHasher`.
 """
-from argparse import ArgumentError
-
 import operator
 import uuid as uuidlib
+from argparse import ArgumentError
 from functools import reduce
-
 
 DEFAULT_WORDLIST = (
     "ack",

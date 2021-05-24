@@ -13,7 +13,7 @@ from time import sleep
 import arrow
 
 # Django
-from django import db, core
+from django import core, db
 from django.apps.registry import apps
 
 try:
@@ -29,21 +29,21 @@ from django.utils.translation import gettext_lazy as _
 
 # Local
 import django_q.tasks
-from django_q.brokers import get_broker, Broker
+from django_q.brokers import Broker, get_broker
 from django_q.conf import (
     Conf,
+    croniter,
+    error_reporter,
+    get_ppid,
     logger,
     psutil,
-    get_ppid,
-    error_reporter,
-    croniter,
     resource,
 )
 from django_q.humanhash import humanize
-from django_q.models import Task, Success, Schedule
+from django_q.models import Schedule, Success, Task
 from django_q.queues import Queue
 from django_q.signals import pre_execute
-from django_q.signing import SignedPackage, BadSignature
+from django_q.signing import BadSignature, SignedPackage
 from django_q.status import Stat, Status
 
 

@@ -10,15 +10,16 @@ from django.db import IntegrityError
 from django.test import override_settings
 from django.utils import timezone
 
-from django_q.brokers import get_broker, Broker
-from django_q.cluster import pusher, worker, monitor, scheduler
+from django_q.brokers import Broker, get_broker
+from django_q.cluster import monitor, pusher, scheduler, worker
 from django_q.conf import Conf
 from django_q.queues import Queue
-from django_q.tasks import Schedule, fetch, schedule as create_schedule
+from django_q.tasks import Schedule, fetch
+from django_q.tasks import schedule as create_schedule
 from django_q.tests.settings import BASE_DIR
 from django_q.tests.testing_utilities.multiple_database_routers import (
-    TestingReplicaDatabaseRouter,
     TestingMultipleAppsDatabaseRouter,
+    TestingReplicaDatabaseRouter,
 )
 
 

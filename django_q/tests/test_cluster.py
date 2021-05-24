@@ -1,34 +1,34 @@
+import os
 import sys
 import threading
+import uuid as uuidlib
 from multiprocessing import Event, Value
 from time import sleep
-from django.utils import timezone
-import uuid as uuidlib
 
-import os
 import pytest
+from django.utils import timezone
 
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + "/../")
 
-from django_q.cluster import Cluster, Sentinel, pusher, worker, monitor, save_task
+from django_q.brokers import Broker, get_broker
+from django_q.cluster import Cluster, Sentinel, monitor, pusher, save_task, worker
+from django_q.conf import Conf
 from django_q.humanhash import DEFAULT_WORDLIST, uuid
+from django_q.models import Success, Task
+from django_q.queues import Queue
+from django_q.status import Stat
 from django_q.tasks import (
-    fetch,
-    fetch_group,
     async_task,
-    result,
-    result_group,
     count_group,
     delete_group,
+    fetch,
+    fetch_group,
     queue_size,
+    result,
+    result_group,
 )
-from django_q.models import Task, Success
-from django_q.conf import Conf
-from django_q.status import Stat
-from django_q.brokers import get_broker, Broker
-from django_q.tests.tasks import multiply, TaskError
-from django_q.queues import Queue
+from django_q.tests.tasks import TaskError, multiply
 
 
 class WordClass:

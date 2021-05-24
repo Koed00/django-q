@@ -1,13 +1,12 @@
+import pytest
 from django.urls import reverse
 from django.utils import timezone
 
-import pytest
-
-from django_q.tasks import schedule
-from django_q.models import Task, Failure, OrmQ
-from django_q.humanhash import uuid
 from django_q.conf import Conf
+from django_q.humanhash import uuid
+from django_q.models import Failure, OrmQ, Task
 from django_q.signing import SignedPackage
+from django_q.tasks import schedule
 
 
 @pytest.mark.django_db

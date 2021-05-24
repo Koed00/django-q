@@ -5,15 +5,16 @@ from blessed import Terminal
 
 # django
 from django.db import connection
-from django.db.models import Sum, F
+from django.db.models import F, Sum
 from django.utils import timezone
 from django.utils.translation import gettext as _
+
+from django_q import VERSION, models
+from django_q.brokers import get_broker
 
 # local
 from django_q.conf import Conf
 from django_q.status import Stat
-from django_q.brokers import get_broker
-from django_q import models, VERSION
 
 # optional
 try:
