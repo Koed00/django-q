@@ -282,6 +282,14 @@ Django = ">=2.2"
 redis = ">=3.0.0"
 
 [[package]]
+name = "docopt"
+version = "0.6.2"
+description = "Pythonic argument parser, that will make you smile"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "docutils"
 version = "0.17.1"
 description = "Docutils -- Python Documentation Utilities"
@@ -351,6 +359,23 @@ python-versions = "*"
 
 [package.dependencies]
 iron_core = "*"
+
+[[package]]
+name = "isort"
+version = "5.8.0"
+description = "A Python utility / library to sort Python imports."
+category = "dev"
+optional = false
+python-versions = ">=3.6,<4.0"
+
+[package.dependencies]
+pip-api = {version = "*", optional = true, markers = "extra == \"requirements_deprecated_finder\""}
+pipreqs = {version = "*", optional = true, markers = "extra == \"pipfile_deprecated_finder\" or extra == \"requirements_deprecated_finder\""}
+
+[package.extras]
+pipfile_deprecated_finder = ["pipreqs", "requirementslib"]
+requirements_deprecated_finder = ["pipreqs", "pip-api"]
+colors = ["colorama (>=0.4.3,<0.5.0)"]
 
 [[package]]
 name = "jinja2"
@@ -439,6 +464,26 @@ description = "Utility library for gitignore style pattern matching of file path
 category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+
+[[package]]
+name = "pip-api"
+version = "0.0.20"
+description = "An unofficial, importable pip API"
+category = "dev"
+optional = false
+python-versions = ">=3.5"
+
+[[package]]
+name = "pipreqs"
+version = "0.4.10"
+description = "Pip requirements.txt generator based on imports in project"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+docopt = "*"
+yarg = "*"
 
 [[package]]
 name = "pluggy"
@@ -842,6 +887,17 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "yarg"
+version = "0.1.9"
+description = "A semi hard Cornish cheese, also queries PyPI (PyPI client)"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+requests = "*"
+
+[[package]]
 name = "zipp"
 version = "3.4.1"
 description = "Backport of pathlib-compatible object wrapper for zip files"
@@ -863,7 +919,7 @@ testing = ["django-redis", "croniter", "hiredis", "psutil", "iron-mq", "boto3", 
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.6.2, <4"
-content-hash = "9035d94d7a829201d0120c39ff112bfb39568b7edb7d2af5c1a225fdab2c0920"
+content-hash = "4f8af88fa16a4689155dff796affc021e1983e80f9b8ff8a902139c4ad3610e5"
 
 [metadata.files]
 alabaster = [
@@ -1011,6 +1067,9 @@ django-redis = [
     {file = "django-redis-4.12.1.tar.gz", hash = "sha256:306589c7021e6468b2656edc89f62b8ba67e8d5a1c8877e2688042263daa7a63"},
     {file = "django_redis-4.12.1-py3-none-any.whl", hash = "sha256:1133b26b75baa3664164c3f44b9d5d133d1b8de45d94d79f38d1adc5b1d502e5"},
 ]
+docopt = [
+    {file = "docopt-0.6.2.tar.gz", hash = "sha256:49b3a825280bd66b3aa83585ef59c4a8c82f2c8a522dbe754a8bc8d08c85c491"},
+]
 docutils = [
     {file = "docutils-0.17.1-py2.py3-none-any.whl", hash = "sha256:cf316c8370a737a022b72b56874f6602acf974a37a9fba42ec2876387549fc61"},
     {file = "docutils-0.17.1.tar.gz", hash = "sha256:686577d2e4c32380bb50cbb22f575ed742d58168cee37e99117a854bcd88f125"},
@@ -1081,6 +1140,10 @@ iron-core = [
 iron-mq = [
     {file = "iron-mq-0.9.tar.gz", hash = "sha256:c90441d872d9c08968343810a2ad1cca1664d80fd2ad3a3a2dbec57b7b38ecfa"},
 ]
+isort = [
+    {file = "isort-5.8.0-py3-none-any.whl", hash = "sha256:2bb1680aad211e3c9944dbce1d4ba09a989f04e238296c87fe2139faa26d655d"},
+    {file = "isort-5.8.0.tar.gz", hash = "sha256:0a943902919f65c5684ac4e0154b1ad4fac6dcaa5d9f3426b732f1c8b5419be6"},
+]
 jinja2 = [
     {file = "Jinja2-3.0.1-py3-none-any.whl", hash = "sha256:1f06f2da51e7b56b8f238affdd6b4e2c61e39598a378cc49345bc1bd42a978a4"},
     {file = "Jinja2-3.0.1.tar.gz", hash = "sha256:703f484b47a6af502e743c9122595cc812b0271f661722403114f71a79d0f5a4"},
@@ -1148,6 +1211,14 @@ packaging = [
 pathspec = [
     {file = "pathspec-0.8.1-py2.py3-none-any.whl", hash = "sha256:aa0cb481c4041bf52ffa7b0d8fa6cd3e88a2ca4879c533c9153882ee2556790d"},
     {file = "pathspec-0.8.1.tar.gz", hash = "sha256:86379d6b86d75816baba717e64b1a3a3469deb93bb76d613c9ce79edc5cb68fd"},
+]
+pip-api = [
+    {file = "pip-api-0.0.20.tar.gz", hash = "sha256:1da0b47824c0b6c2830f2767e7304820d148475e4d08979add271da32917598e"},
+    {file = "pip_api-0.0.20-py3-none-any.whl", hash = "sha256:74227da7102523339d7b6e2f6e105821b04415bdb5f096e170b0ababf88d074f"},
+]
+pipreqs = [
+    {file = "pipreqs-0.4.10-py2.py3-none-any.whl", hash = "sha256:cafe42ab70628d408c147fb8944bc303355ea8f91fddca4a98d273e572e39905"},
+    {file = "pipreqs-0.4.10.tar.gz", hash = "sha256:9e351d644b28b98d7386b046a73806cbb3bb66b23a30e74feeb95ed9571db939"},
 ]
 pluggy = [
     {file = "pluggy-0.13.1-py2.py3-none-any.whl", hash = "sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d"},
@@ -1431,6 +1502,10 @@ urllib3 = [
 wcwidth = [
     {file = "wcwidth-0.2.5-py2.py3-none-any.whl", hash = "sha256:beb4802a9cebb9144e99086eff703a642a13d6a0052920003a230f3294bbe784"},
     {file = "wcwidth-0.2.5.tar.gz", hash = "sha256:c4d647b99872929fdb7bdcaa4fbe7f01413ed3d98077df798530e5b04f116c83"},
+]
+yarg = [
+    {file = "yarg-0.1.9-py2.py3-none-any.whl", hash = "sha256:4f9cebdc00fac946c9bf2783d634e538a71c7d280a4d806d45fd4dc0ef441492"},
+    {file = "yarg-0.1.9.tar.gz", hash = "sha256:55695bf4d1e3e7f756496c36a69ba32c40d18f821e38f61d028f6049e5e15911"},
 ]
 zipp = [
     {file = "zipp-3.4.1-py3-none-any.whl", hash = "sha256:51cb66cc54621609dd593d1787f286ee42a5c0adbb4b29abea5a63edc3e03098"},
