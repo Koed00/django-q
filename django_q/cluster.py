@@ -6,6 +6,7 @@ import signal
 import socket
 import traceback
 import uuid
+from datetime import datetime
 from multiprocessing import Event, Process, Value, current_process
 from time import sleep
 
@@ -633,7 +634,7 @@ def scheduler(broker: Broker = None):
                                     )
                                 )
                             next_run = arrow.get(
-                                croniter(s.cron, timezone.localtime()).get_next()
+                                croniter(s.cron, localtime()).get_next()
                             )
                         if Conf.CATCH_UP or next_run > arrow.utcnow():
                             break
@@ -741,3 +742,10 @@ def rss_check():
         elif psutil:
             return psutil.Process().memory_info().rss >= Conf.MAX_RSS * 1024
     return False
+
+
+def localtime() -> datetime:
+    """" Override for timezone.localtime to deal with naive times and local times"""
+    if settings.USE_TZ:
+        return timezone.localtime()
+    return datetime.now()

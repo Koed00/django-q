@@ -9,9 +9,10 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.test import override_settings
 from django.utils import timezone
+from django.utils.timezone import is_naive
 
 from django_q.brokers import Broker, get_broker
-from django_q.cluster import monitor, pusher, scheduler, worker
+from django_q.cluster import monitor, pusher, scheduler, worker, localtime
 from django_q.conf import Conf
 from django_q.queues import Queue
 from django_q.tasks import Schedule, fetch
@@ -282,7 +283,7 @@ def test_scheduler(broker, monkeypatch):
 )
 @pytest.mark.django_db
 def test_scheduler_atomic_transaction_must_specify_a_database_when_no_replicas_are_used(
-    orm_no_replica_broker: Broker,
+        orm_no_replica_broker: Broker,
 ):
     """
     GIVEN a environment without a read replica database
@@ -301,7 +302,7 @@ def test_scheduler_atomic_transaction_must_specify_a_database_when_no_replicas_a
 )
 @pytest.mark.django_db
 def test_scheduler_atomic_transaction_must_specify_no_database_when_read_write_replicas_are_used(
-    orm_replica_broker: Broker,
+        orm_replica_broker: Broker,
 ):
     """
     GIVEN a environment with a read/write configured replica database
@@ -319,7 +320,7 @@ def test_scheduler_atomic_transaction_must_specify_no_database_when_read_write_r
 )
 @pytest.mark.django_db
 def test_scheduler_atomic_transaction_must_specify_the_database_based_on_router_redirection(
-    orm_no_replica_broker: Broker,
+        orm_no_replica_broker: Broker,
 ):
     """
     GIVEN a environment without a read replica database
@@ -332,3 +333,12 @@ def test_scheduler_atomic_transaction_must_specify_the_database_based_on_router_
         # The router should correctly set the database to use!
         assert broker.connection.db == "default"
         mocked_db.transaction.atomic.assert_called_with(using=broker.connection.db)
+
+
+def test_localtime():
+    assert not is_naive(localtime())
+
+
+@override_settings(USE_TZ=False)
+def test_naive_localtime():
+    assert is_naive(localtime())
