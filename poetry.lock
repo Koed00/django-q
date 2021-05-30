@@ -119,20 +119,20 @@ wcwidth = ">=0.1.4"
 
 [[package]]
 name = "boto3"
-version = "1.17.78"
+version = "1.17.84"
 description = "The AWS SDK for Python"
 category = "main"
 optional = true
 python-versions = ">= 2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
 
 [package.dependencies]
-botocore = ">=1.20.78,<1.21.0"
+botocore = ">=1.20.84,<1.21.0"
 jmespath = ">=0.7.1,<1.0.0"
 s3transfer = ">=0.4.0,<0.5.0"
 
 [[package]]
 name = "botocore"
-version = "1.20.78"
+version = "1.20.84"
 description = "Low-level, data-driven core of boto 3."
 category = "main"
 optional = true
@@ -323,7 +323,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
 name = "importlib-metadata"
-version = "4.0.1"
+version = "4.3.1"
 description = "Read metadata from Python packages"
 category = "dev"
 optional = false
@@ -867,16 +867,16 @@ python-versions = "*"
 
 [[package]]
 name = "urllib3"
-version = "1.26.4"
+version = "1.26.5"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
 
 [package.extras]
+brotli = ["brotlipy (>=0.6.0)"]
 secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "certifi", "ipaddress"]
 socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
-brotli = ["brotlipy (>=0.6.0)"]
 
 [[package]]
 name = "wcwidth"
@@ -963,12 +963,12 @@ blessed = [
     {file = "blessed-1.18.0.tar.gz", hash = "sha256:1312879f971330a1b7f2c6341f2ae7e2cbac244bfc9d0ecfbbecd4b0293bc755"},
 ]
 boto3 = [
-    {file = "boto3-1.17.78-py2.py3-none-any.whl", hash = "sha256:1a87855123df1f18081a5fb8c1abde28d0096a03f6f3ebb06bcfb77cdffdae5e"},
-    {file = "boto3-1.17.78.tar.gz", hash = "sha256:2a5caee63d45fbdcc85e710c7f4146112f5d10b22fd0176643d2f2914cce54df"},
+    {file = "boto3-1.17.84-py2.py3-none-any.whl", hash = "sha256:1d24c6d1f5db4b52bb29f1dfe13fd3e9d95d9fa4634b0638a096f5a884173cde"},
+    {file = "boto3-1.17.84.tar.gz", hash = "sha256:8ee8766813864796be6c87ad762c6da4bfef603977931854a38f49fe4db06495"},
 ]
 botocore = [
-    {file = "botocore-1.20.78-py2.py3-none-any.whl", hash = "sha256:37105b9434d73f9c4d4960ee54c8eb129120f4c6681eb16edf483f03c5e2326d"},
-    {file = "botocore-1.20.78.tar.gz", hash = "sha256:e74775f9e64e975787d76390fc5ac5aba875d726bb9ece3b7bd900205b430389"},
+    {file = "botocore-1.20.84-py2.py3-none-any.whl", hash = "sha256:75e1397b80aa8757a26636b949eebd20b3cf67e8f1ed80dc01170907e06ea45d"},
+    {file = "botocore-1.20.84.tar.gz", hash = "sha256:bc59eb748fcb07835613ebea6dcc2600ae1a8be0fae30e40b9c1e81b73262296"},
 ]
 certifi = [
     {file = "certifi-2020.12.5-py2.py3-none-any.whl", hash = "sha256:719a74fb9e33b9bd44cc7f3a8d94bc35e4049deebe19ba7d8e108280cfd59830"},
@@ -1131,8 +1131,8 @@ imagesize = [
     {file = "imagesize-1.2.0.tar.gz", hash = "sha256:b1f6b5a4eab1f73479a50fb79fcf729514a900c341d8503d62a62dbc4127a2b1"},
 ]
 importlib-metadata = [
-    {file = "importlib_metadata-4.0.1-py3-none-any.whl", hash = "sha256:d7eb1dea6d6a6086f8be21784cc9e3bcfa55872b52309bc5fad53a8ea444465d"},
-    {file = "importlib_metadata-4.0.1.tar.gz", hash = "sha256:8c501196e49fb9df5df43833bdb1e4328f64847763ec8a50703148b73784d581"},
+    {file = "importlib_metadata-4.3.1-py3-none-any.whl", hash = "sha256:c2e27fa8b6c8b34ebfcd4056ae2ca290e36250d1fbeceec85c1c67c711449fac"},
+    {file = "importlib_metadata-4.3.1.tar.gz", hash = "sha256:2d932ea08814f745863fd20172fe7de4794ad74567db78f2377343e24520a5b6"},
 ]
 iron-core = [
     {file = "iron-core-1.2.0.tar.gz", hash = "sha256:38f0942e86bf72d426560a66e4e14ffafdc52da5bee9925a2ac3968b30c3725b"},
@@ -1496,8 +1496,8 @@ typing-extensions = [
     {file = "typing_extensions-3.10.0.0.tar.gz", hash = "sha256:50b6f157849174217d0656f99dc82fe932884fb250826c18350e159ec6cdf342"},
 ]
 urllib3 = [
-    {file = "urllib3-1.26.4-py2.py3-none-any.whl", hash = "sha256:2f4da4594db7e1e110a944bb1b551fdf4e6c136ad42e4234131391e21eb5b0df"},
-    {file = "urllib3-1.26.4.tar.gz", hash = "sha256:e7b021f7241115872f92f43c6508082facffbd1c048e3c6e2bb9c2a157e28937"},
+    {file = "urllib3-1.26.5-py2.py3-none-any.whl", hash = "sha256:753a0374df26658f99d826cfe40394a686d05985786d946fbe4165b5148f5a7c"},
+    {file = "urllib3-1.26.5.tar.gz", hash = "sha256:a7acd0977125325f516bda9735fa7142b909a8d01e8b2e4c8108d0984e6e0098"},
 ]
 wcwidth = [
     {file = "wcwidth-0.2.5-py2.py3-none-any.whl", hash = "sha256:beb4802a9cebb9144e99086eff703a642a13d6a0052920003a230f3294bbe784"},
