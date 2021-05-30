@@ -135,12 +135,13 @@ class Conf:
     RETRY = conf.get("retry", 60)
 
     # Verify if retry and timeout settings are correct
-    if not TIMEOUT or  (TIMEOUT > RETRY):
-        warn("""Retry and timeout are misconfigured. Set retry larger than timeout, 
+    if not TIMEOUT or (TIMEOUT > RETRY):
+        warn(
+            """Retry and timeout are misconfigured. Set retry larger than timeout, 
         failure to do so will cause the tasks to be retriggered before completion. 
-        See https://django-q.readthedocs.io/en/latest/configure.html#retry for details.""")
-        
-    
+        See https://django-q.readthedocs.io/en/latest/configure.html#retry for details."""
+        )
+
     # Sets the amount of tasks the cluster will try to pop off the broker.
     # If it supports bulk gets.
     BULK = conf.get("bulk", 1)
@@ -176,7 +177,7 @@ class Conf:
     ERROR_REPORTER = conf.get("error_reporter", {})
 
     # Optional attempt count. set to 0 for infinite attempts
-    MAX_ATTEMPTS = conf.get('max_attempts', 0)
+    MAX_ATTEMPTS = conf.get("max_attempts", 0)
 
     # OSX doesn't implement qsize because of missing sem_getvalue()
     try:
@@ -200,7 +201,8 @@ class Conf:
 
     # to manage workarounds during testing
     TESTING = conf.get("testing", False)
-    
+
+
 # logger
 logger = logging.getLogger("django-q")
 

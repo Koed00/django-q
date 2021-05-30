@@ -1,6 +1,6 @@
-from django.db import models, migrations
-import picklefield.fields
 import django.utils.timezone
+import picklefield.fields
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):

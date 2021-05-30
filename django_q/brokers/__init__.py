@@ -1,7 +1,7 @@
 import importlib
 from typing import Optional
 
-from django.core.cache import caches, InvalidCacheBackendError
+from django.core.cache import InvalidCacheBackendError, caches
 
 from django_q.conf import Conf
 

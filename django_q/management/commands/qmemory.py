@@ -27,5 +27,5 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         memory(
             run_once=options.get("run_once", False),
-            workers=options.get("workers", False)
+            workers=options.get("workers", False),
         )

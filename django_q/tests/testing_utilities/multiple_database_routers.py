@@ -25,14 +25,14 @@ class TestingMultipleAppsDatabaseRouter:
 
     @staticmethod
     def is_admin(model):
-        return model._meta.app_label in ['admin']
+        return model._meta.app_label in ["admin"]
 
     def db_for_read(self, model, **hints):
         if self.is_admin(model):
-            return 'admin'
-        return 'default'
+            return "admin"
+        return "default"
 
     def db_for_write(self, model, **hints):
         if self.is_admin(model):
-            return 'admin'
-        return 'default'
+            return "admin"
+        return "default"

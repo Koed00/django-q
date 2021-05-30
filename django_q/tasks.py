@@ -1,11 +1,11 @@
 """Provides task functionality."""
 # Standard
+from multiprocessing import Value
 from time import sleep, time
 
 # django
 from django.db import IntegrityError
 from django.utils import timezone
-from multiprocessing import Value
 
 # local
 from django_q.brokers import get_broker
@@ -153,7 +153,7 @@ def result(task_id, wait=0, cached=Conf.CACHED):
 
 def result_cached(task_id, wait=0, broker=None):
     """
-     Return the result from the cache backend
+    Return the result from the cache backend
     """
     if not broker:
         broker = get_broker()
@@ -755,7 +755,7 @@ class AsyncTask:
 
 def _sync(pack):
     """Simulate a package travelling through the cluster."""
-    from django_q.cluster import worker, monitor
+    from django_q.cluster import monitor, worker
 
     task_queue = Queue()
     result_queue = Queue()

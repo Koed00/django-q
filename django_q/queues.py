@@ -7,7 +7,7 @@ import sys
 
 
 class SharedCounter:
-    """ A synchronized shared counter.
+    """A synchronized shared counter.
 
     The locking done by multiprocessing.Value ensures that only a single
     process or thread may read or write the in-memory ctypes object. However,
@@ -24,18 +24,18 @@ class SharedCounter:
         self.count = multiprocessing.Value("i", n)
 
     def increment(self, n=1):
-        """ Increment the counter by n (default = 1) """
+        """Increment the counter by n (default = 1)"""
         with self.count.get_lock():
             self.count.value += n
 
     @property
     def value(self):
-        """ Return the value of the counter """
+        """Return the value of the counter"""
         return self.count.value
 
 
 class Queue(multiprocessing.queues.Queue):
-    """ A portable implementation of multiprocessing.Queue.
+    """A portable implementation of multiprocessing.Queue.
 
     Because of multithreading / multiprocessing semantics, Queue.qsize() may
     raise the NotImplementedError exception on Unix platforms like Mac OS X
@@ -57,7 +57,7 @@ class Queue(multiprocessing.queues.Queue):
         self.size = SharedCounter(0)
 
     def __getstate__(self):
-        return super(Queue, self).__getstate__() + (self.size, )
+        return super(Queue, self).__getstate__() + (self.size,)
 
     def __setstate__(self, state):
         super(Queue, self).__setstate__(state[:-1])
@@ -73,9 +73,9 @@ class Queue(multiprocessing.queues.Queue):
         return x
 
     def qsize(self) -> int:
-        """ Reliable implementation of multiprocessing.Queue.qsize() """
+        """Reliable implementation of multiprocessing.Queue.qsize()"""
         return self.size.value
 
     def empty(self) -> bool:
-        """ Reliable implementation of multiprocessing.Queue.empty() """
+        """Reliable implementation of multiprocessing.Queue.empty()"""
         return not self.qsize() > 0

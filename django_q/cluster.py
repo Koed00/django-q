@@ -6,6 +6,7 @@ import signal
 import socket
 import traceback
 import uuid
+from datetime import datetime
 from multiprocessing import Event, Process, Value, current_process
 from time import sleep
 
@@ -13,13 +14,14 @@ from time import sleep
 import arrow
 
 # Django
-from django import db, core
+from django import core, db
 from django.apps.registry import apps
 
 try:
     apps.check_apps_ready()
 except core.exceptions.AppRegistryNotReady:
     import django
+
     django.setup()
 
 from django.conf import settings
@@ -28,21 +30,21 @@ from django.utils.translation import gettext_lazy as _
 
 # Local
 import django_q.tasks
-from django_q.brokers import get_broker, Broker
+from django_q.brokers import Broker, get_broker
 from django_q.conf import (
     Conf,
+    croniter,
+    error_reporter,
+    get_ppid,
     logger,
     psutil,
-    get_ppid,
-    error_reporter,
-    croniter,
     resource,
 )
 from django_q.humanhash import humanize
-from django_q.models import Task, Success, Schedule
+from django_q.models import Schedule, Success, Task
 from django_q.queues import Queue
 from django_q.signals import pre_execute
-from django_q.signing import SignedPackage, BadSignature
+from django_q.signing import BadSignature, SignedPackage
 from django_q.status import Stat, Status
 
 
@@ -485,8 +487,11 @@ def save_task(task, broker: Broker):
                 existing_task.attempt_count = existing_task.attempt_count + 1
                 existing_task.save()
 
-            if Conf.MAX_ATTEMPTS > 0 and existing_task.attempt_count >= Conf.MAX_ATTEMPTS:
-                broker.acknowledge(task['ack_id'])
+            if (
+                Conf.MAX_ATTEMPTS > 0
+                and existing_task.attempt_count >= Conf.MAX_ATTEMPTS
+            ):
+                broker.acknowledge(task["ack_id"])
 
         else:
             func = task["func"]
@@ -495,8 +500,8 @@ def save_task(task, broker: Broker):
                 func = f"{func.__module__}.{func.__name__}"
             elif inspect.ismethod(func):
                 func = (
-                    f'{func.__self__.__module__}.'
-                    f'{func.__self__.__name__}.{func.__name__}'
+                    f"{func.__self__.__module__}."
+                    f"{func.__self__.__name__}.{func.__name__}"
                 )
             Task.objects.create(
                 id=task["id"],
@@ -510,7 +515,7 @@ def save_task(task, broker: Broker):
                 result=task["result"],
                 group=task.get("group"),
                 success=task["success"],
-                attempt_count=1
+                attempt_count=1,
             )
     except Exception as e:
         logger.error(e)
@@ -582,7 +587,9 @@ def scheduler(broker: Broker = None):
                 Schedule.objects.select_for_update()
                 .exclude(repeats=0)
                 .filter(next_run__lt=timezone.now())
-                .filter(db.models.Q(cluster__isnull=True) | db.models.Q(cluster=Conf.PREFIX))
+                .filter(
+                    db.models.Q(cluster__isnull=True) | db.models.Q(cluster=Conf.PREFIX)
+                )
             ):
                 args = ()
                 kwargs = {}
@@ -627,7 +634,7 @@ def scheduler(broker: Broker = None):
                                     )
                                 )
                             next_run = arrow.get(
-                                croniter(s.cron, timezone.localtime()).get_next()
+                                croniter(s.cron, localtime()).get_next()
                             )
                         if Conf.CATCH_UP or next_run > arrow.utcnow():
                             break
@@ -643,7 +650,7 @@ def scheduler(broker: Broker = None):
                 scheduled_broker = broker
                 try:
                     scheduled_broker = get_broker(q_options["broker_name"])
-                except: # invalid broker_name or non existing broker with broker_name
+                except:  # invalid broker_name or non existing broker with broker_name
                     pass
                 q_options["broker"] = scheduled_broker
                 q_options["group"] = q_options.get("group", s.name or s.id)
@@ -735,3 +742,10 @@ def rss_check():
         elif psutil:
             return psutil.Process().memory_info().rss >= Conf.MAX_RSS * 1024
     return False
+
+
+def localtime() -> datetime:
+    """" Override for timezone.localtime to deal with naive times and local times"""
+    if settings.USE_TZ:
+        return timezone.localtime()
+    return datetime.now()

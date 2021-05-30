@@ -1,5 +1,5 @@
-from django.db import migrations
 import picklefield.fields
+from django.db import migrations
 
 
 class Migration(migrations.Migration):

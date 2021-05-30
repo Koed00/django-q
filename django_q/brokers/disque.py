@@ -2,10 +2,11 @@ import random
 
 # External
 import redis
-from redis import Redis
 
 # Django
 from django.utils.translation import gettext_lazy as _
+from redis import Redis
+
 from django_q.brokers import Broker
 from django_q.conf import Conf
 
