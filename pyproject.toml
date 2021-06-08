@@ -44,7 +44,7 @@ include = ['CHANGELOG.md']
 python = ">=3.6.2, <4"
 django = ">=2.2"
 blessed = "^1.17.6"
-arrow = "^0.15.6"
+arrow = "^1.1.0"
 django-picklefield = "^3.0.1"
 
 hiredis = { version = "^1.0.1", optional = true }
@@ -57,6 +57,7 @@ pymongo = { version = "^3.10.1", optional = true }
 croniter = { version = "^0.3.34", optional = true }
 django-q-rollbar = {version = ">=0.1", optional = true}
 django-q-sentry = {version = ">=0.1", optional = true}
+
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.4.2"
