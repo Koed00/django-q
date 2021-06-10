@@ -745,7 +745,7 @@ def rss_check():
 
 
 def localtime() -> datetime:
-    """" Override for timezone.localtime to deal with naive times and local times"""
+    """ Override for timezone.localtime to deal with naive times and local times"""
     if settings.USE_TZ:
         return timezone.localtime()
     return datetime.now()

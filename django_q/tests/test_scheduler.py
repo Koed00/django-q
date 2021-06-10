@@ -283,7 +283,7 @@ def test_scheduler(broker, monkeypatch):
 )
 @pytest.mark.django_db
 def test_scheduler_atomic_transaction_must_specify_a_database_when_no_replicas_are_used(
-        orm_no_replica_broker: Broker,
+    orm_no_replica_broker: Broker,
 ):
     """
     GIVEN a environment without a read replica database
@@ -302,7 +302,7 @@ def test_scheduler_atomic_transaction_must_specify_a_database_when_no_replicas_a
 )
 @pytest.mark.django_db
 def test_scheduler_atomic_transaction_must_specify_no_database_when_read_write_replicas_are_used(
-        orm_replica_broker: Broker,
+    orm_replica_broker: Broker,
 ):
     """
     GIVEN a environment with a read/write configured replica database
@@ -320,7 +320,7 @@ def test_scheduler_atomic_transaction_must_specify_no_database_when_read_write_r
 )
 @pytest.mark.django_db
 def test_scheduler_atomic_transaction_must_specify_the_database_based_on_router_redirection(
-        orm_no_replica_broker: Broker,
+    orm_no_replica_broker: Broker,
 ):
     """
     GIVEN a environment without a read replica database
