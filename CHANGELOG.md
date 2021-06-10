@@ -1,5 +1,40 @@
 # Changelog
 
+## [v1.3.9](https://github.com/koed00/django-q/tree/v1.3.9) (2021-06-10)
+
+[Full Changelog](https://github.com/koed00/django-q/compare/v1.3.8...v1.3.9)
+
+**Closed issues:**
+
+- Version 1.3.7 rolled back Arrow to old 0.15.6 [\#571](https://github.com/Koed00/django-q/issues/571)
+- Migration XYZ dependencies reference nonexistent parent node \('django\_q', '0014\_auto\_20210502\_1221'\) [\#570](https://github.com/Koed00/django-q/issues/570)
+
+**Merged pull requests:**
+
+- Autofield [\#574](https://github.com/Koed00/django-q/pull/574) ([Koed00](https://github.com/Koed00))
+- Fix RemovedInDjango41Warning  [\#572](https://github.com/Koed00/django-q/pull/572) ([nurettin](https://github.com/nurettin))
+
+## [v1.3.8](https://github.com/koed00/django-q/tree/v1.3.8) (2021-06-08)
+
+[Full Changelog](https://github.com/koed00/django-q/compare/v1.3.7...v1.3.8)
+
+## [v1.3.7](https://github.com/koed00/django-q/tree/v1.3.7) (2021-06-03)
+
+[Full Changelog](https://github.com/koed00/django-q/compare/v1.3.6...v1.3.7)
+
+**Closed issues:**
+
+- Q configured to use redis but keeps a continuous connection to db [\#559](https://github.com/Koed00/django-q/issues/559)
+- \[Error\] select\_for\_update happening when using replica\(read-only\) and default\(write-only\) DB. [\#558](https://github.com/Koed00/django-q/issues/558)
+
+**Merged pull requests:**
+
+- Build improvements [\#569](https://github.com/Koed00/django-q/pull/569) ([Koed00](https://github.com/Koed00))
+- Create codeql-analysis.yml [\#564](https://github.com/Koed00/django-q/pull/564) ([Koed00](https://github.com/Koed00))
+- Fix docs error [\#563](https://github.com/Koed00/django-q/pull/563) ([aken830806](https://github.com/aken830806))
+- Codecov\_fixes [\#562](https://github.com/Koed00/django-q/pull/562) ([Koed00](https://github.com/Koed00))
+- Feature/improves multiple databases support [\#561](https://github.com/Koed00/django-q/pull/561) ([abxsantos](https://github.com/abxsantos))
+
 ## [v1.3.6](https://github.com/koed00/django-q/tree/v1.3.6) (2021-05-14)
 
 [Full Changelog](https://github.com/koed00/django-q/compare/v1.3.5...v1.3.6)
@@ -8,7 +43,7 @@
 
 - Chain of Task [\#547](https://github.com/Koed00/django-q/issues/547)
 - Queued tasks \(OrmQ\) are not always acknowledged [\#545](https://github.com/Koed00/django-q/issues/545)
-- Auto-created primary key used when not defining a primary key type [\#543](https://github.com/Koed00/django-q/issues/543)
+-  Auto-created primary key used when not defining a primary key type [\#543](https://github.com/Koed00/django-q/issues/543)
 - Tasks are "processing" but hooks are not called and cluster don't recgonize they are finished and "processed" [\#540](https://github.com/Koed00/django-q/issues/540)
 - Django Q is still a young project. [\#528](https://github.com/Koed00/django-q/issues/528)
 - SSL errors after upgrading to qcluster version 1.1.0 [\#422](https://github.com/Koed00/django-q/issues/422)
@@ -24,10 +59,10 @@
 - Add "qmemory" command [\#553](https://github.com/Koed00/django-q/pull/553) ([kennyhei](https://github.com/kennyhei))
 - Fixes \#225 - Successful tasks grow beyond SAVE\_LIMIT [\#552](https://github.com/Koed00/django-q/pull/552) ([kennyhei](https://github.com/kennyhei))
 - Fixes deprecated count method [\#549](https://github.com/Koed00/django-q/pull/549) ([Koed00](https://github.com/Koed00))
-- Updates testing to python 3.9 and Django 3.2 [\#548](https://github.com/Koed00/django-q/pull/548) ([Koed00](https://github.com/Koed00))
+- Updates testing to python 3.9 [\#548](https://github.com/Koed00/django-q/pull/548) ([Koed00](https://github.com/Koed00))
 - Update documentation for new retry time default [\#538](https://github.com/Koed00/django-q/pull/538) ([amo13](https://github.com/amo13))
 - Use 'timezone.localtime\(\)' when calculating the next run time [\#520](https://github.com/Koed00/django-q/pull/520) ([wy-z](https://github.com/wy-z))
-- Adds long polling support  [\#506](https://github.com/Koed00/django-q/pull/506) ([Javedgouri](https://github.com/Javedgouri))
+- added long polling support  [\#506](https://github.com/Koed00/django-q/pull/506) ([Javedgouri](https://github.com/Javedgouri))
 
 ## [v1.3.5](https://github.com/koed00/django-q/tree/v1.3.5) (2021-02-26)
 
