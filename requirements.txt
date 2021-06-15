@@ -1,4 +1,4 @@
-ansicon==1.89.0; platform_system == "Windows" \
+ansicon==1.89.0; platform_system == "Windows" and python_version >= "2.7" \
     --hash=sha256:f1def52d17f65c2c9682cf8370c03f541f410c1752d6a14029f97318e4b9dfec \
     --hash=sha256:e4d039def5768a47e4afec8e89e83ec3ae5a26bf00ad851f914d1240b444d2b1
 arrow==1.1.0; python_version >= "3.6" \
@@ -7,16 +7,16 @@ arrow==1.1.0; python_version >= "3.6" \
 asgiref==3.3.4; python_version >= "3.6" \
     --hash=sha256:92906c611ce6c967347bbfea733f13d6313901d54dcca88195eaeb52b2a8e8ee \
     --hash=sha256:d1216dfbdfb63826470995d31caed36225dcaf34f182e0fa257a4dd9e86f1b78
-blessed==1.18.0 \
-    --hash=sha256:5b5e2f0563d5a668c282f3f5946f7b1abb70c85829461900e607e74d7725106e \
-    --hash=sha256:1312879f971330a1b7f2c6341f2ae7e2cbac244bfc9d0ecfbbecd4b0293bc755
+blessed==1.18.1; python_version >= "2.7" \
+    --hash=sha256:dd7c0d33db9a2e7f597b446996484d0ed46e1586239db064fb5025008937dcae \
+    --hash=sha256:8b09936def6bc06583db99b65636b980075733e13550cb6af262ce724a55da23
 django-picklefield==3.0.1; python_version >= "3" \
     --hash=sha256:15ccba592ca953b9edf9532e64640329cd47b136b7f8f10f2939caa5f9ce4287 \
     --hash=sha256:3c702a54fde2d322fe5b2f39b8f78d9f655b8f77944ab26f703be6c0ed335a35
 django==3.2.4; python_version >= "3.6" \
     --hash=sha256:ea735cbbbb3b2fba6d4da4784a0043d84c67c92f1fdf15ad6db69900e792c10f \
     --hash=sha256:66c9d8db8cc6fe938a28b7887c1596e42d522e27618562517cc8929eb7e7f296
-jinxed==1.1.0; platform_system == "Windows" \
+jinxed==1.1.0; platform_system == "Windows" and python_version >= "2.7" \
     --hash=sha256:6a61ccf963c16aa885304f27e6e5693783676897cea0c7f223270c8b8e78baf8 \
     --hash=sha256:d8f1731f134e9e6b04d95095845ae6c10eb15cb223a5f0cabdea87d4a279c305
 python-dateutil==2.8.1; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.3.0" and python_version >= "3.6" \
@@ -35,6 +35,6 @@ typing-extensions==3.10.0.0; python_version < "3.8" and python_version >= "3.6" 
     --hash=sha256:0ac0f89795dd19de6b97debb0c6af1c70987fd80a2d62d1958f7e56fcc31b497 \
     --hash=sha256:779383f6086d90c99ae41cf0ff39aac8a7937a9283ce0a414e5dd782f4c94a84 \
     --hash=sha256:50b6f157849174217d0656f99dc82fe932884fb250826c18350e159ec6cdf342
-wcwidth==0.2.5 \
+wcwidth==0.2.5; python_version >= "2.7" \
     --hash=sha256:beb4802a9cebb9144e99086eff703a642a13d6a0052920003a230f3294bbe784 \
     --hash=sha256:c4d647b99872929fdb7bdcaa4fbe7f01413ed3d98077df798530e5b04f116c83
