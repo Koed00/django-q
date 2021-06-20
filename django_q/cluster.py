@@ -43,7 +43,7 @@ from django_q.conf import (
 from django_q.humanhash import humanize
 from django_q.models import Schedule, Success, Task
 from django_q.queues import Queue
-from django_q.signals import pre_execute
+from django_q.signals import post_execute, pre_execute
 from django_q.signing import BadSignature, SignedPackage
 from django_q.status import Stat, Status
 
@@ -386,6 +386,8 @@ def monitor(result_queue: Queue, broker: Broker = None):
         ack_id = task.pop("ack_id", False)
         if ack_id and (task["success"] or task.get("ack_failure", False)):
             broker.acknowledge(ack_id)
+        # signal execution done
+        post_execute.send(sender="django_q", task=task)
         # log the result
         if task["success"]:
             # log success
@@ -745,7 +747,7 @@ def rss_check():
 
 
 def localtime() -> datetime:
-    """ Override for timezone.localtime to deal with naive times and local times"""
+    """Override for timezone.localtime to deal with naive times and local times"""
     if settings.USE_TZ:
         return timezone.localtime()
     return datetime.now()
