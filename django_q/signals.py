@@ -37,3 +37,6 @@ pre_enqueue = Signal()
 
 # args: func, task
 pre_execute = Signal()
+
+# args: task
+post_execute = Signal()

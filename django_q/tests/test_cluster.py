@@ -2,8 +2,10 @@ import os
 import sys
 import threading
 import uuid as uuidlib
+from math import copysign
 from multiprocessing import Event, Value
 from time import sleep
+from typing import Optional
 
 import pytest
 from django.utils import timezone
@@ -17,6 +19,7 @@ from django_q.conf import Conf
 from django_q.humanhash import DEFAULT_WORDLIST, uuid
 from django_q.models import Success, Task
 from django_q.queues import Queue
+from django_q.signals import post_execute, pre_enqueue, pre_execute
 from django_q.status import Stat
 from django_q.tasks import (
     async_task,
@@ -607,6 +610,85 @@ def test_acknowledge_failure_override():
     assert broker.acknowledgements.get("test_fail_ack_id") == 1
     assert broker.acknowledgements.get("test_fail_no_ack_id") is None
     assert broker.acknowledgements.get("test_success_ack_id") == 1
+
+
+class TestSignals:
+    @pytest.mark.django_db
+    def test_pre_enqueue_signal(self, broker):
+        broker.list_key = "pre_enqueue_test:q"
+        broker.delete_queue()
+        self.signal_was_called: bool = False
+        self.task: Optional[dict] = None
+
+        def handler(sender, task, **kwargs):
+            self.signal_was_called = True
+            self.task = task
+
+        pre_enqueue.connect(handler)
+        task_id = async_task("math.copysign", 1, -1, broker=broker)
+        assert self.signal_was_called is True
+        assert self.task.get("id") == task_id
+        pre_enqueue.disconnect(handler)
+        broker.delete_queue()
+
+    @pytest.mark.django_db
+    def test_pre_execute_signal(self, broker):
+        broker.list_key = "pre_execute_test:q"
+        broker.delete_queue()
+        self.signal_was_called: bool = False
+        self.task: Optional[dict] = None
+        self.func = None
+
+        def handler(sender, task, func, **kwargs):
+            self.signal_was_called = True
+            self.task = task
+            self.func = func
+
+        pre_execute.connect(handler)
+        task_id = async_task("math.copysign", 1, -1, broker=broker)
+        task_queue = Queue()
+        result_queue = Queue()
+        event = Event()
+        event.set()
+        pusher(task_queue, event, broker=broker)
+        task_queue.put("STOP")
+        worker(task_queue, result_queue, Value("f", -1))
+        result_queue.put("STOP")
+        monitor(result_queue, broker)
+        broker.delete_queue()
+        assert self.signal_was_called is True
+        assert self.task.get("id") == task_id
+        assert self.func == copysign
+        pre_execute.disconnect(handler)
+
+    @pytest.mark.django_db
+    def test_post_execute_signal(self, broker):
+        broker.list_key = "post_execute_test:q"
+        broker.delete_queue()
+        self.signal_was_called: bool = False
+        self.task: Optional[dict] = None
+        self.func = None
+
+        def handler(sender, task, **kwargs):
+            self.signal_was_called = True
+            self.task = task
+
+        post_execute.connect(handler)
+        task_id = async_task("math.copysign", 1, -1, broker=broker)
+        task_queue = Queue()
+        result_queue = Queue()
+        event = Event()
+        event.set()
+        pusher(task_queue, event, broker=broker)
+        task_queue.put("STOP")
+        worker(task_queue, result_queue, Value("f", -1))
+        result_queue.put("STOP")
+        monitor(result_queue, broker)
+        broker.delete_queue()
+        assert self.signal_was_called is True
+        assert self.task.get("id") == task_id
+        assert self.task.get("result") == -1
+        post_execute.disconnect(handler)
 
 
 @pytest.mark.django_db
