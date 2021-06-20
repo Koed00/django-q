@@ -1,5 +1,18 @@
 # Changelog
 
+## [Unreleased](https://github.com/koed00/django-q/tree/HEAD)
+
+[Full Changelog](https://github.com/koed00/django-q/compare/v1.3.9...HEAD)
+
+**Closed issues:**
+
+- Upgrade to 1.3.6 stops the cluster from working [\#565](https://github.com/Koed00/django-q/issues/565)
+- Feature request: override retry for individual tasks [\#551](https://github.com/Koed00/django-q/issues/551)
+
+**Merged pull requests:**
+
+- Post execute signal and tests [\#580](https://github.com/Koed00/django-q/pull/580) ([Koed00](https://github.com/Koed00))
+
 ## [v1.3.9](https://github.com/koed00/django-q/tree/v1.3.9) (2021-06-10)
 
 [Full Changelog](https://github.com/koed00/django-q/compare/v1.3.8...v1.3.9)
