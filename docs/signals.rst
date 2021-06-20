@@ -29,8 +29,6 @@ After executing a task
 The ``django_q.signals.post_execute`` signal is emitted after a task is
 executed by a worker and processed by the monitor. It included the ``task`` dictionary with the result.
 
-- ``task``: the task dictionary.
-
 
 Subscribing to a signal
 -----------------------
