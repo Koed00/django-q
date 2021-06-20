@@ -41,14 +41,14 @@ signal::
 
     @receiver(pre_enqueue)
     def my_pre_enqueue_callback(sender, task, **kwargs):
-        print(f"Task {task['name'} will be queued")
+        print(f"Task {task['name']} will be queued")
 
     @receiver(pre_execute)
     def my_pre_execute_callback(sender, func, task, **kwargs):
-        print(f"Task {task['name'} will be executed by calling {func}")
+        print(f"Task {task['name']} will be executed by calling {func}")
 
     @receiver(post_execute)
     def my_post_execute_callback(sender, task, **kwargs):
-        print(f"Task {task['name'} was executed with result {task['result']}")
+        print(f"Task {task['name']} was executed with result {task['result']}")
 
 
