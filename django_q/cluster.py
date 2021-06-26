@@ -421,6 +421,7 @@ def worker(
         # Get the function from the task
         logger.info(_(f'{name} processing [{task["name"]}]'))
         f = task["func"]
+        logger.debug(_(f'Executing function [{f}]'))
         # if it's not an instance try to get it from the string
         if not callable(task["func"]):
             f = pydoc.locate(f)
