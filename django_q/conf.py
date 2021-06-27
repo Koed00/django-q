@@ -131,8 +131,8 @@ class Conf:
     ACK_FAILURES = conf.get("ack_failures", False)
 
     # Number of seconds to wait for acknowledgement before retrying a task
-    # Only works with brokers that guarantee delivery. Defaults to 60 seconds.
-    RETRY = conf.get("retry", 60)
+    # Only works with brokers that guarantee delivery. Defaults to None.
+    RETRY = conf.get("retry", None)
 
     # Verify if retry and timeout settings are correct
     if not TIMEOUT or (TIMEOUT > RETRY):
