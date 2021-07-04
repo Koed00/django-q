@@ -148,17 +148,18 @@ def validate_cron(value):
 
 
 class Schedule(models.Model):
-    name = models.CharField(max_length=100, null=True, blank=True)
-    func = models.CharField(max_length=256, help_text="e.g. module.tasks.function")
+    name = models.CharField(max_length=100, null=True, blank=True, verbose_name = _('Name'))
+    func = models.CharField(max_length=256, help_text=_("e.g. module.tasks.function"), verbose_name = _('Func'))
     hook = models.CharField(
         max_length=256,
         null=True,
         blank=True,
-        help_text="e.g. module.tasks.result_function",
+        help_text=_("e.g. module.tasks.result_function"),
+        verbose_name = _('Hook')
     )
-    args = models.TextField(null=True, blank=True, help_text=_("e.g. 1, 2, 'John'"))
+    args = models.TextField(null=True, blank=True, help_text=_("e.g. 1, 2, 'John'"), verbose_name = _('Args'))
     kwargs = models.TextField(
-        null=True, blank=True, help_text=_("e.g. x=1, y=2, name='John'")
+        null=True, blank=True, help_text=_("e.g. x=1, y=2, name='John'"), verbose_name = _('Kwargs')
     )
     ONCE = "O"
     MINUTES = "I"
@@ -184,7 +185,7 @@ class Schedule(models.Model):
         max_length=1, choices=TYPE, default=TYPE[0][0], verbose_name=_("Schedule Type")
     )
     minutes = models.PositiveSmallIntegerField(
-        null=True, blank=True, help_text=_("Number of minutes for the Minutes type")
+        null=True, blank=True, help_text=_("Number of minutes for the Minutes type"), verbose_name=_("Minutes")
     )
     repeats = models.IntegerField(
         default=-1, verbose_name=_("Repeats"), help_text=_("n = n times, -1 = forever")
@@ -198,13 +199,15 @@ class Schedule(models.Model):
         blank=True,
         validators=[validate_cron],
         help_text=_("Cron expression"),
+        verbose_name=_("Cron expression")
     )
-    task = models.CharField(max_length=100, null=True, editable=False)
-    cluster = models.CharField(max_length=100, default=None, null=True, blank=True)
+    task = models.CharField(max_length=100, null=True, editable=False, verbose_name=_("Task"))
+    cluster = models.CharField(max_length=100, default=None, null=True, blank=True, verbose_name=_("Cluster"))
 
     def success(self):
         if self.task and Task.objects.filter(id=self.task):
             return Task.objects.get(id=self.task).success
+    success.short_description = _("Success")
 
     def last_run(self):
         if self.task and Task.objects.filter(id=self.task):
@@ -215,6 +218,7 @@ class Schedule(models.Model):
                 url = reverse("admin:django_q_failure_change", args=(task.id,))
             return format_html(f'<a href="{url}">[{task.name}]</a>')
         return None
+    last_run.short_description = _("Last run")
 
     def __str__(self):
         return self.func
