@@ -60,6 +60,14 @@ class Conf:
     # SQS broker
     SQS = conf.get("sqs", None)
 
+    # SQS long polling support
+    SQS_RECEIVE_MESSAGE_WAIT_TIME_SECONDS = conf.get("receive_message_wait_time_seconds", None)
+
+    # Check for receive_message_wait_time_seconds in SQS for backward compatibility
+    if SQS and "receive_message_wait_time_seconds" in SQS:
+        SQS_RECEIVE_MESSAGE_WAIT_TIME_SECONDS = SQS.get("receive_message_wait_time_seconds", 0)
+        del SQS["receive_message_wait_time_seconds"]
+
     # ORM broker
     ORM = conf.get("orm", None)
 
