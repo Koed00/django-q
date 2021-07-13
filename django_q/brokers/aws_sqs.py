@@ -31,8 +31,8 @@ class Sqs(Broker):
 
         # sqs long polling
         sqs_config = Conf.SQS
-        if "receive_message_wait_time_seconds" in sqs_config:
-            wait_time_second = sqs_config.get("receive_message_wait_time_seconds", 20)
+        if Conf.SQS_RECEIVE_MESSAGE_WAIT_TIME_SECONDS:
+            wait_time_second = Conf.SQS_RECEIVE_MESSAGE_WAIT_TIME_SECONDS
 
             # validation of parameter
             if not isinstance(wait_time_second, int):
@@ -81,9 +81,6 @@ class Sqs(Broker):
         if "aws_region" in config:
             config["region_name"] = config["aws_region"]
             del config["aws_region"]
-
-        if "receive_message_wait_time_seconds" in config:
-            del config["receive_message_wait_time_seconds"]
 
         return Session(**config)
 
