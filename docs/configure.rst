@@ -145,7 +145,7 @@ Limits the amount of successful tasks saved to Django.
 guard_cycle
 ~~~~~~~~~~~
 
-Guard loop sleep in seconds, must be greater than 0 and less than 60.
+Guard loop sleep in seconds, must be greater than 0 and less than 60. Defaults to ``0.5``.
 
 .. _sync:
 
