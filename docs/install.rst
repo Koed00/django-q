@@ -136,7 +136,7 @@ Other known issues are:
 Python
 ~~~~~~
 The code is always tested against the latest version Python 3 and we try to stay compatible with the last two versions of each.
-Current tests are performed with 3.7 and 3.8
+Current tests are performed with 3.7, 3.8 and 3.9
 If you do encounter any regressions with earlier versions, please submit an issue on `github <https://github.com/Koed00/django-q>`__
 
 .. note::
@@ -152,7 +152,7 @@ You can reference the `requirements <https://github.com/Koed00/django-q/blob/mas
 Django
 ~~~~~~
 We strive to be compatible with last two major version of Django.
-At the moment this means we support the 2.2.x and 3.1.x releases.
+At the moment this means we support the 2.2.x and 3.2.x releases.
 
 Since we are now no longer supporting Python 2, we can also not support older versions of Django that do not support Python >= 3.6
 For this you can always use older releases, but they are no longer maintained.
