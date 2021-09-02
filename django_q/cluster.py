@@ -598,10 +598,15 @@ def scheduler(broker: Broker = None):
                 # get args, kwargs and hook
                 if s.kwargs:
                     try:
-                        # eval should be safe here because dict()
-                        kwargs = eval(f"dict({s.kwargs})")
-                    except SyntaxError:
-                        kwargs = {}
+                        # first try the dict syntax
+                        kwargs = ast.literal_eval(s.kwargs)
+                    except (SyntaxError, ValueError):
+                        # else use the kwargs syntax
+                        try:
+                            parsed_kwargs = ast.parse(f"f({s.kwargs})").body[0].value.keywords
+                            kwargs = {kwarg.arg: ast.literal_eval(kwarg.value) for kwarg in parsed_kwargs}
+                        except (SyntaxError, ValueError):
+                            kwargs = {}
                 if s.args:
                     args = ast.literal_eval(s.args)
                     # single value won't eval to tuple, so:
