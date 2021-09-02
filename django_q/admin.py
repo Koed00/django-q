@@ -79,7 +79,7 @@ class ScheduleAdmin(admin.ModelAdmin):
         readonly_fields = ("cron",)
 
     list_filter = ("next_run", "schedule_type", "cluster")
-    search_fields = ("func",)
+    search_fields = ("name", "func",)
     list_display_links = ("id", "name")
 
 
