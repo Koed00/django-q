@@ -10,7 +10,7 @@ from django_q.tasks import async_task
 class TaskAdmin(admin.ModelAdmin):
     """model admin for success tasks."""
 
-    list_display = ("name", "func", "started", "stopped", "time_taken", "group")
+    list_display = ("name", "group", "func", "started", "stopped", "time_taken")
 
     def has_add_permission(self, request):
         """Don't allow adds."""
@@ -43,14 +43,14 @@ retry_failed.short_description = _("Resubmit selected tasks to queue")
 class FailAdmin(admin.ModelAdmin):
     """model admin for failed tasks."""
 
-    list_display = ("name", "func", "started", "stopped", "short_result")
+    list_display = ("name", "group", "func", "started", "stopped", "short_result")
 
     def has_add_permission(self, request):
         """Don't allow adds."""
         return False
 
     actions = [retry_failed]
-    search_fields = ("name", "func")
+    search_fields = ("name", "func", "group")
     list_filter = ("group",)
     readonly_fields = []
 
