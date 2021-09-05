@@ -220,7 +220,10 @@ class Schedule(models.Model):
         return self.func
 
     success.boolean = True
+    success.short_description = _("success")
     last_run.allow_tags = True
+    last_run.short_description = _("last_run")
+
 
     class Meta:
         app_label = "django_q"
