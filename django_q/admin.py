@@ -86,7 +86,7 @@ class ScheduleAdmin(admin.ModelAdmin):
 class QueueAdmin(admin.ModelAdmin):
     """queue admin for ORM broker"""
 
-    list_display = ("id", "key", "task_id", "name", "func", "lock")
+    list_display = ("id", "key", "name",  "group", "func", "lock", "task_id")
 
     def save_model(self, request, obj, form, change):
         obj.save(using=Conf.ORM)

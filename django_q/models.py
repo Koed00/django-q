@@ -246,6 +246,9 @@ class OrmQ(models.Model):
     def name(self):
         return self.task()["name"]
 
+    def group(self):
+        return self.task().get("group")
+
     class Meta:
         app_label = "django_q"
         verbose_name = _("Queued task")
