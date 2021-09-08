@@ -409,7 +409,8 @@ def worker(
     :type timer: multiprocessing.Value
     """
     name = current_process().name
-    logger.info(_(f"{name} ready for work at {current_process().pid}"))
+    pid = current_process().pid
+    logger.info(_(f"{name} ready for work at {pid}"))
     task_count = 0
     if timeout is None:
         timeout = -1
@@ -427,7 +428,7 @@ def worker(
         close_old_django_connections()
         timer_value = task.pop("timeout", timeout)
         # signal execution
-        pre_execute.send(sender="django_q", func=f, task=task)
+        pre_execute.send(sender="django_q", func=f, task=task, pid=pid)
         # execute the payload
         timer.value = timer_value  # Busy
         try:
