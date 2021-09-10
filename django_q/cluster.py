@@ -43,7 +43,7 @@ from django_q.conf import (
 from django_q.humanhash import humanize
 from django_q.models import Schedule, Success, Task
 from django_q.queues import Queue
-from django_q.signals import post_execute, pre_execute
+from django_q.signals import post_execute, pre_execute, error_execute
 from django_q.signing import BadSignature, SignedPackage
 from django_q.status import Stat, Status
 
@@ -231,6 +231,7 @@ class Sentinel:
             elif int(process.timer.value) == -2:
                 logger.info(_(f"recycled worker {process.name}"))
             else:
+                error_execute.send(sender="django_q", pid=process.pid)
                 logger.error(_(f"reincarnated worker {process.name} after death"))
 
         self.reincarnations += 1
