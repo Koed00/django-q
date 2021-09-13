@@ -1,11 +1,11 @@
 """Provides task functionality."""
 # Standard
+from multiprocessing import Value
 from time import sleep, time
 
 # django
 from django.db import IntegrityError
 from django.utils import timezone
-from multiprocessing import Value
 
 # local
 from django_q.brokers import get_broker
@@ -88,6 +88,7 @@ def schedule(func, *args, **kwargs):
     :param repeats: how many times to repeat. 0=never, -1=always.
     :param next_run: Next scheduled run.
     :type next_run: datetime.datetime
+    :param cluster: optional cluster name.
     :param cron: optional cron expression
     :param kwargs: function keyword arguments.
     :return: the schedule object.
@@ -100,6 +101,7 @@ def schedule(func, *args, **kwargs):
     repeats = kwargs.pop("repeats", -1)
     next_run = kwargs.pop("next_run", timezone.now())
     cron = kwargs.pop("cron", None)
+    cluster = kwargs.pop("cluster", None)
 
     # check for name duplicates instead of am unique constraint
     if name and Schedule.objects.filter(name=name).exists():
@@ -117,6 +119,7 @@ def schedule(func, *args, **kwargs):
         repeats=repeats,
         next_run=next_run,
         cron=cron,
+        cluster=cluster,
     )
     # make sure we trigger validation
     s.full_clean()
@@ -150,7 +153,7 @@ def result(task_id, wait=0, cached=Conf.CACHED):
 
 def result_cached(task_id, wait=0, broker=None):
     """
-     Return the result from the cache backend
+    Return the result from the cache backend
     """
     if not broker:
         broker = get_broker()
@@ -260,7 +263,7 @@ def fetch_cached(task_id, wait=0, broker=None):
         r = broker.cache.get(f"{broker.list_key}:{task_id}")
         if r:
             task = SignedPackage.loads(r)
-            t = Task(
+            return Task(
                 id=task["id"],
                 name=task["name"],
                 func=task["func"],
@@ -272,7 +275,6 @@ def fetch_cached(task_id, wait=0, broker=None):
                 result=task["result"],
                 success=task["success"],
             )
-            return t
         if (time() - start) * 1000 >= wait >= 0:
             break
         sleep(0.01)
@@ -753,7 +755,7 @@ class AsyncTask:
 
 def _sync(pack):
     """Simulate a package travelling through the cluster."""
-    from django_q.cluster import worker, monitor
+    from django_q.cluster import monitor, worker
 
     task_queue = Queue()
     result_queue = Queue()

@@ -1,12 +1,13 @@
-import pytest
 import uuid
 
-from django_q.tasks import async_task
+import pytest
+
 from django_q.brokers import get_broker
 from django_q.cluster import Cluster
-from django_q.monitor import monitor, info, get_ids
-from django_q.status import Stat
 from django_q.conf import Conf
+from django_q.monitor import get_ids, info, monitor
+from django_q.status import Stat
+from django_q.tasks import async_task
 
 
 @pytest.mark.django_db
@@ -26,11 +27,11 @@ def test_monitor(monkeypatch):
             assert stat.uptime() > 0
             assert stat.empty_queues() is True
             break
-    assert found_c is True
+    assert found_c
     # test lock size
-    monkeypatch.setattr(Conf, 'ORM', 'default')
-    b = get_broker('monitor_test')
-    b.enqueue('test')
+    monkeypatch.setattr(Conf, "ORM", "default")
+    b = get_broker("monitor_test")
+    b.enqueue("test")
     b.dequeue()
     assert b.lock_size() == 1
     monitor(run_once=True, broker=b)
@@ -48,4 +49,4 @@ def test_info():
 
 
 def do_sync():
-    async_task('django_q.tests.tasks.countdown', 1, sync=True, save=True)
+    async_task("django_q.tests.tasks.countdown", 1, sync=True, save=True)

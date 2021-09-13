@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
 from django_q.conf import Conf, croniter
-from django_q.models import Success, Failure, Schedule, OrmQ
+from django_q.models import Failure, OrmQ, Schedule, Success
 from django_q.tasks import async_task
 
 
@@ -60,7 +60,7 @@ class FailAdmin(admin.ModelAdmin):
 
 
 class ScheduleAdmin(admin.ModelAdmin):
-    """ model admin for schedules """
+    """model admin for schedules"""
 
     list_display = (
         "id",
@@ -68,6 +68,7 @@ class ScheduleAdmin(admin.ModelAdmin):
         "func",
         "schedule_type",
         "repeats",
+        "cluster",
         "next_run",
         "last_run",
         "success",
@@ -77,13 +78,13 @@ class ScheduleAdmin(admin.ModelAdmin):
     if not croniter:
         readonly_fields = ("cron",)
 
-    list_filter = ("next_run", "schedule_type")
+    list_filter = ("next_run", "schedule_type", "cluster")
     search_fields = ("func",)
     list_display_links = ("id", "name")
 
 
 class QueueAdmin(admin.ModelAdmin):
-    """  queue admin for ORM broker """
+    """queue admin for ORM broker"""
 
     list_display = ("id", "key", "task_id", "name", "func", "lock")
 
@@ -99,6 +100,8 @@ class QueueAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         """Don't allow adds."""
         return False
+
+    list_filter = ("key",)
 
 
 admin.site.register(Schedule, ScheduleAdmin)

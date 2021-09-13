@@ -5,15 +5,31 @@ from blessed import Terminal
 
 # django
 from django.db import connection
-from django.db.models import Sum, F
+from django.db.models import F, Sum
 from django.utils import timezone
 from django.utils.translation import gettext as _
+
+from django_q import VERSION, models
+from django_q.brokers import get_broker
 
 # local
 from django_q.conf import Conf
 from django_q.status import Stat
-from django_q.brokers import get_broker
-from django_q import models, VERSION
+
+# optional
+try:
+    import psutil
+except ImportError:
+    psutil = None
+
+
+def get_process_mb(pid):
+    try:
+        process = psutil.Process(pid)
+        mb_used = round(process.memory_info().rss / 1024 ** 2, 2)
+    except psutil.NoSuchProcess:
+        mb_used = "NO_PROCESS_FOUND"
+    return mb_used
 
 
 def monitor(run_once=False, broker=None):
@@ -24,7 +40,10 @@ def monitor(run_once=False, broker=None):
     with term.fullscreen(), term.hidden_cursor(), term.cbreak():
         val = None
         start_width = int(term.width / 8)
-        while val not in ("q", "Q",):
+        while val not in (
+            "q",
+            "Q",
+        ):
             col_width = int(term.width / 8)
             # In case of resize
             if col_width != start_width:
@@ -196,7 +215,7 @@ def info(broker=None):
     tasks_per_day = last_tasks.count()
     if tasks_per_day > 0:
         # average execution time over the last 24 hours
-        if not connection.vendor == "sqlite":
+        if connection.vendor != "sqlite":
             exec_time = last_tasks.aggregate(
                 time_taken=Sum(F("stopped") - F("started"))
             )
@@ -270,6 +289,187 @@ def info(broker=None):
         + term.white(f"{exec_time:.4f}")
     )
     return True
+
+
+def memory(run_once=False, workers=False, broker=None):
+    if not broker:
+        broker = get_broker()
+    term = Terminal()
+    broker.ping()
+    if not psutil:
+        print(term.clear_eos())
+        print(
+            term.white_on_red(
+                'Cannot start "qmemory" command. Missing "psutil" library.'
+            )
+        )
+        return
+    with term.fullscreen(), term.hidden_cursor(), term.cbreak():
+        MEMORY_AVAILABLE_LOWEST_PERCENTAGE = 100.0
+        MEMORY_AVAILABLE_LOWEST_PERCENTAGE_AT = timezone.now()
+        cols = 8
+        val = None
+        start_width = int(term.width / cols)
+        while val not in ["q", "Q"]:
+            col_width = int(term.width / cols)
+            # In case of resize
+            if col_width != start_width:
+                print(term.clear())
+                start_width = col_width
+            # sentinel, monitor and workers memory usage
+            print(
+                term.move(0, 0 * col_width)
+                + term.black_on_green(term.center(_("Host"), width=col_width - 1))
+            )
+            print(
+                term.move(0, 1 * col_width)
+                + term.black_on_green(term.center(_("Id"), width=col_width - 1))
+            )
+            print(
+                term.move(0, 2 * col_width)
+                + term.black_on_green(
+                    term.center(_("Available (%)"), width=col_width - 1)
+                )
+            )
+            print(
+                term.move(0, 3 * col_width)
+                + term.black_on_green(
+                    term.center(_("Available (MB)"), width=col_width - 1)
+                )
+            )
+            print(
+                term.move(0, 4 * col_width)
+                + term.black_on_green(term.center(_("Total (MB)"), width=col_width - 1))
+            )
+            print(
+                term.move(0, 5 * col_width)
+                + term.black_on_green(
+                    term.center(_("Sentinel (MB)"), width=col_width - 1)
+                )
+            )
+            print(
+                term.move(0, 6 * col_width)
+                + term.black_on_green(
+                    term.center(_("Monitor (MB)"), width=col_width - 1)
+                )
+            )
+            print(
+                term.move(0, 7 * col_width)
+                + term.black_on_green(
+                    term.center(_("Workers (MB)"), width=col_width - 1)
+                )
+            )
+            row = 2
+            stats = Stat.get_all(broker=broker)
+            print(term.clear_eos())
+            for stat in stats:
+                # memory available (%)
+                memory_available_percentage = round(
+                    psutil.virtual_memory().available
+                    * 100
+                    / psutil.virtual_memory().total,
+                    2,
+                )
+                # memory available (MB)
+                memory_available = round(
+                    psutil.virtual_memory().available / 1024 ** 2, 2
+                )
+                if memory_available_percentage < MEMORY_AVAILABLE_LOWEST_PERCENTAGE:
+                    MEMORY_AVAILABLE_LOWEST_PERCENTAGE = memory_available_percentage
+                    MEMORY_AVAILABLE_LOWEST_PERCENTAGE_AT = timezone.now()
+                print(
+                    term.move(row, 0 * col_width)
+                    + term.center(stat.host[: col_width - 1], width=col_width - 1)
+                )
+                print(
+                    term.move(row, 1 * col_width)
+                    + term.center(str(stat.cluster_id)[-8:], width=col_width - 1)
+                )
+                print(
+                    term.move(row, 2 * col_width)
+                    + term.center(memory_available_percentage, width=col_width - 1)
+                )
+                print(
+                    term.move(row, 3 * col_width)
+                    + term.center(memory_available, width=col_width - 1)
+                )
+                print(
+                    term.move(row, 4 * col_width)
+                    + term.center(
+                        round(psutil.virtual_memory().total / 1024 ** 2, 2),
+                        width=col_width - 1,
+                    )
+                )
+                print(
+                    term.move(row, 5 * col_width)
+                    + term.center(get_process_mb(stat.sentinel), width=col_width - 1)
+                )
+                print(
+                    term.move(row, 6 * col_width)
+                    + term.center(
+                        get_process_mb(getattr(stat, "monitor", None)),
+                        width=col_width - 1,
+                    )
+                )
+                workers_mb = 0
+                for worker_pid in stat.workers:
+                    result = get_process_mb(worker_pid)
+                    if isinstance(result, str):
+                        result = 0
+                    workers_mb += result
+                print(
+                    term.move(row, 7 * col_width)
+                    + term.center(
+                        workers_mb or "NO_PROCESSES_FOUND", width=col_width - 1
+                    )
+                )
+                row += 1
+            # each worker's memory usage
+            if workers:
+                row += 2
+                col_width = int(term.width / (1 + Conf.WORKERS))
+                print(
+                    term.move(row, 0 * col_width)
+                    + term.black_on_cyan(term.center(_("Id"), width=col_width - 1))
+                )
+                for worker_num in range(Conf.WORKERS):
+                    print(
+                        term.move(row, (worker_num + 1) * col_width)
+                        + term.black_on_cyan(
+                            term.center(
+                                "Worker #{} (MB)".format(worker_num + 1),
+                                width=col_width - 1,
+                            )
+                        )
+                    )
+                row += 2
+                for stat in stats:
+                    print(
+                        term.move(row, 0 * col_width)
+                        + term.center(str(stat.cluster_id)[-8:], width=col_width - 1)
+                    )
+                    for idx, worker_pid in enumerate(stat.workers):
+                        mb_used = get_process_mb(worker_pid)
+                        print(
+                            term.move(row, (idx + 1) * col_width)
+                            + term.center(mb_used, width=col_width - 1)
+                        )
+                    row += 1
+            row += 1
+            print(
+                term.move(row, 0)
+                + _("Available lowest (%): {} ({})").format(
+                    str(MEMORY_AVAILABLE_LOWEST_PERCENTAGE),
+                    MEMORY_AVAILABLE_LOWEST_PERCENTAGE_AT.strftime(
+                        "%Y-%m-%d %H:%M:%S+00:00"
+                    ),
+                )
+            )
+            # for testing
+            if run_once:
+                return Stat.get_all(broker=broker)
+            print(term.move(row + 2, 0) + term.center("[Press q to quit]"))
+            val = term.inkey(timeout=1)
 
 
 def get_ids():

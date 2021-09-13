@@ -1,10 +1,12 @@
 # Standard
 import ast
-import importlib
+import inspect
+import pydoc
 import signal
 import socket
 import traceback
 import uuid
+from datetime import datetime
 from multiprocessing import Event, Process, Value, current_process
 from time import sleep
 
@@ -12,13 +14,14 @@ from time import sleep
 import arrow
 
 # Django
-from django import db, core
+from django import core, db
 from django.apps.registry import apps
 
 try:
     apps.check_apps_ready()
 except core.exceptions.AppRegistryNotReady:
     import django
+
     django.setup()
 
 from django.conf import settings
@@ -27,21 +30,21 @@ from django.utils.translation import gettext_lazy as _
 
 # Local
 import django_q.tasks
-from django_q.brokers import get_broker, Broker
+from django_q.brokers import Broker, get_broker
 from django_q.conf import (
     Conf,
+    croniter,
+    error_reporter,
+    get_ppid,
     logger,
     psutil,
-    get_ppid,
-    error_reporter,
-    croniter,
     resource,
 )
 from django_q.humanhash import humanize
-from django_q.models import Task, Success, Schedule
+from django_q.models import Schedule, Success, Task
 from django_q.queues import Queue
-from django_q.signals import pre_execute
-from django_q.signing import SignedPackage, BadSignature
+from django_q.signals import post_execute, pre_execute
+from django_q.signing import BadSignature, SignedPackage
 from django_q.status import Stat, Status
 
 
@@ -210,7 +213,8 @@ class Sentinel:
         :param process: the process to reincarnate
         :type process: Process or None
         """
-        close_old_django_connections()
+        if not Conf.SYNC:
+            db.connections.close_all()  # Close any old connections
         if process == self.monitor:
             self.monitor = self.spawn_monitor()
             logger.error(_(f"reincarnated monitor {process.name} after sudden death"))
@@ -234,7 +238,8 @@ class Sentinel:
     def spawn_cluster(self):
         self.pool = []
         Stat(self).save()
-        close_old_django_connections()
+        if not Conf.SYNC:
+            db.connection.close()
         # spawn worker pool
         for __ in range(self.pool_size):
             self.spawn_worker()
@@ -381,6 +386,8 @@ def monitor(result_queue: Queue, broker: Broker = None):
         ack_id = task.pop("ack_id", False)
         if ack_id and (task["success"] or task.get("ack_failure", False)):
             broker.acknowledge(ack_id)
+        # signal execution done
+        post_execute.send(sender="django_q", task=task)
         # log the result
         if task["success"]:
             # log success
@@ -416,31 +423,22 @@ def worker(
         f = task["func"]
         # if it's not an instance try to get it from the string
         if not callable(task["func"]):
-            try:
-                module, func = f.rsplit(".", 1)
-                m = importlib.import_module(module)
-                f = getattr(m, func)
-            except (ValueError, ImportError, AttributeError) as e:
-                result = (e, False)
-                if error_reporter:
-                    error_reporter.report()
-        # We're still going
-        if not result:
-            close_old_django_connections()
-            timer_value = task.pop("timeout", timeout)
-            # signal execution
-            pre_execute.send(sender="django_q", func=f, task=task)
-            # execute the payload
-            timer.value = timer_value  # Busy
-            try:
-                res = f(*task["args"], **task["kwargs"])
-                result = (res, True)
-            except Exception as e:
-                result = (f"{e} : {traceback.format_exc()}", False)
-                if error_reporter:
-                    error_reporter.report()
-                if task.get("sync", False):
-                    raise
+            f = pydoc.locate(f)
+        close_old_django_connections()
+        timer_value = task.pop("timeout", timeout)
+        # signal execution
+        pre_execute.send(sender="django_q", func=f, task=task)
+        # execute the payload
+        timer.value = timer_value  # Busy
+        try:
+            res = f(*task["args"], **task["kwargs"])
+            result = (res, True)
+        except Exception as e:
+            result = (f"{e} : {traceback.format_exc()}", False)
+            if error_reporter:
+                error_reporter.report()
+            if task.get("sync", False):
+                raise
         with timer.get_lock():
             # Process result
             task["result"] = result[0]
@@ -476,8 +474,10 @@ def save_task(task, broker: Broker):
     # SAVE LIMIT > 0: Prune database, SAVE_LIMIT 0: No pruning
     close_old_django_connections()
     try:
-        if task["success"] and 0 < Conf.SAVE_LIMIT <= Success.objects.count():
-            Success.objects.last().delete()
+        with db.transaction.atomic():
+            last = Success.objects.select_for_update().last()
+            if task["success"] and 0 < Conf.SAVE_LIMIT <= Success.objects.count():
+                last.delete()
         # check if this task has previous results
         if Task.objects.filter(id=task["id"], name=task["name"]).exists():
             existing_task = Task.objects.get(id=task["id"], name=task["name"])
@@ -489,14 +489,26 @@ def save_task(task, broker: Broker):
                 existing_task.attempt_count = existing_task.attempt_count + 1
                 existing_task.save()
 
-            if Conf.MAX_ATTEMPTS > 0 and existing_task.attempt_count >= Conf.MAX_ATTEMPTS:
-                broker.acknowledge(task['ack_id'])
+            if (
+                Conf.MAX_ATTEMPTS > 0
+                and existing_task.attempt_count >= Conf.MAX_ATTEMPTS
+            ):
+                broker.acknowledge(task["ack_id"])
 
         else:
+            func = task["func"]
+            # convert func to string
+            if inspect.isfunction(func):
+                func = f"{func.__module__}.{func.__name__}"
+            elif inspect.ismethod(func):
+                func = (
+                    f"{func.__self__.__module__}."
+                    f"{func.__self__.__name__}.{func.__name__}"
+                )
             Task.objects.create(
                 id=task["id"],
                 name=task["name"],
-                func=task["func"],
+                func=func,
                 hook=task.get("hook"),
                 args=task["args"],
                 kwargs=task["kwargs"],
@@ -505,7 +517,7 @@ def save_task(task, broker: Broker):
                 result=task["result"],
                 group=task.get("group"),
                 success=task["success"],
-                attempt_count=1
+                attempt_count=1,
             )
     except Exception as e:
         logger.error(e)
@@ -571,11 +583,15 @@ def scheduler(broker: Broker = None):
         broker = get_broker()
     close_old_django_connections()
     try:
-        with db.transaction.atomic(using=Schedule.objects.db):
+        database_to_use = {"using": Conf.ORM} if not Conf.HAS_REPLICA else {}
+        with db.transaction.atomic(**database_to_use):
             for s in (
                 Schedule.objects.select_for_update()
                 .exclude(repeats=0)
                 .filter(next_run__lt=timezone.now())
+                .filter(
+                    db.models.Q(cluster__isnull=True) | db.models.Q(cluster=Conf.PREFIX)
+                )
             ):
                 args = ()
                 kwargs = {}
@@ -595,7 +611,7 @@ def scheduler(broker: Broker = None):
                 if s.hook:
                     q_options["hook"] = s.hook
                 # set up the next run time
-                if not s.schedule_type == s.ONCE:
+                if s.schedule_type != s.ONCE:
                     next_run = arrow.get(s.next_run)
                     while True:
                         if s.schedule_type == s.MINUTES:
@@ -620,7 +636,7 @@ def scheduler(broker: Broker = None):
                                     )
                                 )
                             next_run = arrow.get(
-                                croniter(s.cron, timezone.now()).get_next()
+                                croniter(s.cron, localtime()).get_next()
                             )
                         if Conf.CATCH_UP or next_run > arrow.utcnow():
                             break
@@ -633,7 +649,12 @@ def scheduler(broker: Broker = None):
                     )
                     s.repeats += -1
                 # send it to the cluster
-                q_options["broker"] = broker
+                scheduled_broker = broker
+                try:
+                    scheduled_broker = get_broker(q_options["broker_name"])
+                except:  # invalid broker_name or non existing broker with broker_name
+                    pass
+                q_options["broker"] = scheduled_broker
                 q_options["group"] = q_options.get("group", s.name or s.id)
                 kwargs["q_options"] = q_options
                 s.task = django_q.tasks.async_task(s.func, *args, **kwargs)
@@ -717,8 +738,16 @@ def set_cpu_affinity(n: int, process_ids: list, actual: bool = not Conf.TESTING)
 
 
 def rss_check():
-    if Conf.MAX_RSS and resource:
-        return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss >= Conf.MAX_RSS
-    elif Conf.MAX_RSS and psutil:
-        return psutil.Process().memory_info().rss >= Conf.MAX_RSS * 1024
+    if Conf.MAX_RSS:
+        if resource:
+            return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss >= Conf.MAX_RSS
+        elif psutil:
+            return psutil.Process().memory_info().rss >= Conf.MAX_RSS * 1024
     return False
+
+
+def localtime() -> datetime:
+    """Override for timezone.localtime to deal with naive times and local times"""
+    if settings.USE_TZ:
+        return timezone.localtime()
+    return datetime.now()

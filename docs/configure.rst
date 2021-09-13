@@ -25,6 +25,8 @@ Configuration is handled via the ``Q_CLUSTER`` dictionary in your :file:`setting
 
 All configuration settings are optional:
 
+.. _name:
+
 name
 ~~~~
 
@@ -90,7 +92,7 @@ retry
 ~~~~~
 
 The number of seconds a broker will wait for a cluster to finish a task, before it's presented again.
-Only works with brokers that support delivery receipts. Defaults to 60 seconds.
+Only works with brokers that support delivery receipts. Defaults to 60.
 
 The value must be bigger than the time it takes to complete longest task, i.e. :ref:`timeout` must be less than retry value and all tasks must complete
 in less time than the selected retry time. If this does not hold, i.e. the retry value is less than timeout or less than it takes to finish a task,
@@ -336,6 +338,16 @@ Using the Django ORM backend will also enable the Queued Tasks table in the Admi
 
 If you need better performance , you should consider using a different database backend than the main project.
 Set ``orm`` to the name of that database connection and make sure you run migrations on it using the ``--database`` option.
+
+When using the Django database as a message broker, you can set the ``has_replica`` boolean keyword to ensure Django-Q works properly letting a `Database Router <https://docs.djangoproject.com/en/3.2/topics/db/multi-db/>`__. ::
+
+    # example ORM broker connection with replica database
+
+    Q_CLUSTER = {
+            ...
+            'orm': 'default',
+            'has_replica': True
+        }
 
 .. _mongo_configuration:
 

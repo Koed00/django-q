@@ -3,6 +3,7 @@ import os
 from copy import deepcopy
 from multiprocessing import cpu_count
 from signal import signal
+from warnings import warn
 
 import pkg_resources
 from django.conf import settings
@@ -61,6 +62,9 @@ class Conf:
 
     # ORM broker
     ORM = conf.get("orm", None)
+
+    # ORM support for read/write replicas
+    HAS_REPLICA = conf.get("has_replica", False)
 
     # Custom broker class
     BROKER_CLASS = conf.get("broker_class", None)
@@ -130,6 +134,14 @@ class Conf:
     # Only works with brokers that guarantee delivery. Defaults to 60 seconds.
     RETRY = conf.get("retry", 60)
 
+    # Verify if retry and timeout settings are correct
+    if not TIMEOUT or (TIMEOUT > RETRY):
+        warn(
+            """Retry and timeout are misconfigured. Set retry larger than timeout, 
+        failure to do so will cause the tasks to be retriggered before completion. 
+        See https://django-q.readthedocs.io/en/latest/configure.html#retry for details."""
+        )
+
     # Sets the amount of tasks the cluster will try to pop off the broker.
     # If it supports bulk gets.
     BULK = conf.get("bulk", 1)
@@ -165,7 +177,7 @@ class Conf:
     ERROR_REPORTER = conf.get("error_reporter", {})
 
     # Optional attempt count. set to 0 for infinite attempts
-    MAX_ATTEMPTS = conf.get('max_attempts', 0)
+    MAX_ATTEMPTS = conf.get("max_attempts", 0)
 
     # OSX doesn't implement qsize because of missing sem_getvalue()
     try:

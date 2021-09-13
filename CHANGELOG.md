@@ -1,5 +1,103 @@
 # Changelog
 
+## [Unreleased](https://github.com/koed00/django-q/tree/HEAD)
+
+[Full Changelog](https://github.com/koed00/django-q/compare/v1.3.9...HEAD)
+
+**Closed issues:**
+
+- Upgrade to 1.3.6 stops the cluster from working [\#565](https://github.com/Koed00/django-q/issues/565)
+- Feature request: override retry for individual tasks [\#551](https://github.com/Koed00/django-q/issues/551)
+
+**Merged pull requests:**
+
+- Post execute signal and tests [\#580](https://github.com/Koed00/django-q/pull/580) ([Koed00](https://github.com/Koed00))
+
+## [v1.3.9](https://github.com/koed00/django-q/tree/v1.3.9) (2021-06-10)
+
+[Full Changelog](https://github.com/koed00/django-q/compare/v1.3.8...v1.3.9)
+
+**Closed issues:**
+
+- Version 1.3.7 rolled back Arrow to old 0.15.6 [\#571](https://github.com/Koed00/django-q/issues/571)
+- Migration XYZ dependencies reference nonexistent parent node \('django\_q', '0014\_auto\_20210502\_1221'\) [\#570](https://github.com/Koed00/django-q/issues/570)
+
+**Merged pull requests:**
+
+- Autofield [\#574](https://github.com/Koed00/django-q/pull/574) ([Koed00](https://github.com/Koed00))
+- Fix RemovedInDjango41Warning  [\#572](https://github.com/Koed00/django-q/pull/572) ([nurettin](https://github.com/nurettin))
+
+## [v1.3.8](https://github.com/koed00/django-q/tree/v1.3.8) (2021-06-08)
+
+[Full Changelog](https://github.com/koed00/django-q/compare/v1.3.7...v1.3.8)
+
+## [v1.3.7](https://github.com/koed00/django-q/tree/v1.3.7) (2021-06-03)
+
+[Full Changelog](https://github.com/koed00/django-q/compare/v1.3.6...v1.3.7)
+
+**Closed issues:**
+
+- Q configured to use redis but keeps a continuous connection to db [\#559](https://github.com/Koed00/django-q/issues/559)
+- \[Error\] select\_for\_update happening when using replica\(read-only\) and default\(write-only\) DB. [\#558](https://github.com/Koed00/django-q/issues/558)
+
+**Merged pull requests:**
+
+- Build improvements [\#569](https://github.com/Koed00/django-q/pull/569) ([Koed00](https://github.com/Koed00))
+- Create codeql-analysis.yml [\#564](https://github.com/Koed00/django-q/pull/564) ([Koed00](https://github.com/Koed00))
+- Fix docs error [\#563](https://github.com/Koed00/django-q/pull/563) ([aken830806](https://github.com/aken830806))
+- Codecov\_fixes [\#562](https://github.com/Koed00/django-q/pull/562) ([Koed00](https://github.com/Koed00))
+- Feature/improves multiple databases support [\#561](https://github.com/Koed00/django-q/pull/561) ([abxsantos](https://github.com/abxsantos))
+
+## [v1.3.6](https://github.com/koed00/django-q/tree/v1.3.6) (2021-05-14)
+
+[Full Changelog](https://github.com/koed00/django-q/compare/v1.3.5...v1.3.6)
+
+**Closed issues:**
+
+- Chain of Task [\#547](https://github.com/Koed00/django-q/issues/547)
+- Queued tasks \(OrmQ\) are not always acknowledged [\#545](https://github.com/Koed00/django-q/issues/545)
+-  Auto-created primary key used when not defining a primary key type [\#543](https://github.com/Koed00/django-q/issues/543)
+- Tasks are "processing" but hooks are not called and cluster don't recgonize they are finished and "processed" [\#540](https://github.com/Koed00/django-q/issues/540)
+- Django Q is still a young project. [\#528](https://github.com/Koed00/django-q/issues/528)
+- SSL errors after upgrading to qcluster version 1.1.0 [\#422](https://github.com/Koed00/django-q/issues/422)
+- \[Enhancement\] Add Systemd sample template [\#420](https://github.com/Koed00/django-q/issues/420)
+- Not enough values to unpack \(expected 2, got 1\) [\#314](https://github.com/Koed00/django-q/issues/314)
+- Successful tasks grow beyond save\_limit [\#225](https://github.com/Koed00/django-q/issues/225)
+
+**Merged pull requests:**
+
+- Fix for SSL errors in \#422   [\#556](https://github.com/Koed00/django-q/pull/556) ([nittolese](https://github.com/nittolese))
+- Allow tasks to be scheduled on a specific cluster [\#555](https://github.com/Koed00/django-q/pull/555) ([midse](https://github.com/midse))
+- Fixes \#314 - Convert func to its import path str so that resubmitting failed task works [\#554](https://github.com/Koed00/django-q/pull/554) ([kennyhei](https://github.com/kennyhei))
+- Add "qmemory" command [\#553](https://github.com/Koed00/django-q/pull/553) ([kennyhei](https://github.com/kennyhei))
+- Fixes \#225 - Successful tasks grow beyond SAVE\_LIMIT [\#552](https://github.com/Koed00/django-q/pull/552) ([kennyhei](https://github.com/kennyhei))
+- Fixes deprecated count method [\#549](https://github.com/Koed00/django-q/pull/549) ([Koed00](https://github.com/Koed00))
+- Updates testing to python 3.9 [\#548](https://github.com/Koed00/django-q/pull/548) ([Koed00](https://github.com/Koed00))
+- Update documentation for new retry time default [\#538](https://github.com/Koed00/django-q/pull/538) ([amo13](https://github.com/amo13))
+- Use 'timezone.localtime\(\)' when calculating the next run time [\#520](https://github.com/Koed00/django-q/pull/520) ([wy-z](https://github.com/wy-z))
+- added long polling support  [\#506](https://github.com/Koed00/django-q/pull/506) ([Javedgouri](https://github.com/Javedgouri))
+
+## [v1.3.5](https://github.com/koed00/django-q/tree/v1.3.5) (2021-02-26)
+
+[Full Changelog](https://github.com/koed00/django-q/compare/v1.3.4...v1.3.5)
+
+**Closed issues:**
+
+- Tasks piling up on a slower machine while the fast one has no tasks queued. Help. [\#500](https://github.com/Koed00/django-q/issues/500)
+- SQL errors when running tasks and viewing successful/failed tasks [\#496](https://github.com/Koed00/django-q/issues/496)
+- Prevent retry in case of failure \(max\_attempts\) [\#495](https://github.com/Koed00/django-q/issues/495)
+- How to use with test cases? Scheduled tasks are not being queued when running `python manage.py test`. [\#490](https://github.com/Koed00/django-q/issues/490)
+- Question: Running django-q in the background. [\#487](https://github.com/Koed00/django-q/issues/487)
+
+**Merged pull requests:**
+
+- Add a warning  for misconfiguration. [\#509](https://github.com/Koed00/django-q/pull/509) ([icfly2](https://github.com/icfly2))
+- Migrate to Github Action CI [\#507](https://github.com/Koed00/django-q/pull/507) ([Koed00](https://github.com/Koed00))
+- Add example of http health check [\#504](https://github.com/Koed00/django-q/pull/504) ([pysean3](https://github.com/pysean3))
+- Add broker name in Schedule and enhanced Queued Tasks list display admin [\#502](https://github.com/Koed00/django-q/pull/502) ([telmobarros](https://github.com/telmobarros))
+- Added german translation [\#499](https://github.com/Koed00/django-q/pull/499) ([jonaswinkler](https://github.com/jonaswinkler))
+- Update brokers.rst [\#497](https://github.com/Koed00/django-q/pull/497) ([MaximilianKindshofer](https://github.com/MaximilianKindshofer))
+
 ## [v1.3.4](https://github.com/koed00/django-q/tree/v1.3.4) (2020-10-26)
 
 [Full Changelog](https://github.com/koed00/django-q/compare/v1.3.3...v1.3.4)
@@ -68,7 +166,7 @@
 - Support for Cron expressions [\#452](https://github.com/Koed00/django-q/pull/452) ([Koed00](https://github.com/Koed00))
 - Updates packages [\#450](https://github.com/Koed00/django-q/pull/450) ([Koed00](https://github.com/Koed00))
 - Adds hint, some linting and a release drafter [\#449](https://github.com/Koed00/django-q/pull/449) ([Koed00](https://github.com/Koed00))
-- Use 'force\_str' instead of deprecated 'force\_text'  [\#448](https://github.com/Koed00/django-q/pull/448) ([edouardtheron](https://github.com/edouardtheron))
+- Use 'force\_str' instead of deprecated 'force\_text'  [\#448](https://github.com/Koed00/django-q/pull/448) ([edthrn](https://github.com/edthrn))
 - \[cleanup\] Few cleanup commit for linting and migrations [\#447](https://github.com/Koed00/django-q/pull/447) ([Djailla](https://github.com/Djailla))
 
 ## [v1.2.4](https://github.com/koed00/django-q/tree/v1.2.4) (2020-06-10)
