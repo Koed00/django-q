@@ -31,7 +31,7 @@ Requirements
 -  `Arrow <https://github.com/crsmithdev/arrow>`__
 -  `Blessed <https://github.com/jquast/blessed>`__
 
-Tested with: Python 3.7, 3.8 Django 2.2.X and 3.1.X
+Tested with: Python 3.7, 3.8, 3.9 Django 2.2.X and 3.2.X
 
 .. warning:: Since Python 3.7 `async` became a reserved keyword and was refactored to `async_task`
 
@@ -104,6 +104,10 @@ Start a cluster with::
 Monitor your clusters with::
 
     $ python manage.py qmonitor
+
+Monitor your clusters' memory usage with::
+
+    $ python manage.py qmemory
 
 Check overall statistics with::
 
@@ -196,9 +200,11 @@ To run the tests you will need the following in addition to install requirements
 
 * `py.test <http://pytest.org/latest/>`__
 * `pytest-django <https://github.com/pytest-dev/pytest-django>`__
-* disque from https://github.com/antirez/disque.git
+* Disque from https://github.com/antirez/disque.git
 * Redis
 * MongoDB
+
+Or you can use the included Docker Compose file.
 
 The following commands can be used to run the tests:
 
@@ -228,7 +234,7 @@ The following commands can be used to run the tests:
 Locale
 ~~~~~~
 
-Currently available in English and French.
+Currently available in English, German and French.
 Translation pull requests are always welcome.
 
 Todo
@@ -247,8 +253,10 @@ Acknowledgements
    `HumanHash <https://github.com/zacharyvoase/humanhash>`__
 -  Redditors feedback at `r/django <https://www.reddit.com/r/django/>`__
 
-.. |image0| image:: https://travis-ci.org/Koed00/django-q.svg?branch=master
-   :target: https://travis-ci.org/Koed00/django-q
+-  JetBrains for their `Open Source Support Program <https://www.jetbrains.com/community/opensource>`__
+
+.. |image0| image:: https://github.com/koed00/django-q/workflows/Tests/badge.svg?branche=master
+   :target: https://github.com/Koed00/django-q/actions?query=workflow%3Atests
 .. |image1| image:: http://codecov.io/github/Koed00/django-q/coverage.svg?branch=master
    :target: http://codecov.io/github/Koed00/django-q?branch=master
 .. |image2| image:: http://badges.gitter.im/Join%20Chat.svg

@@ -4,7 +4,7 @@ from time import sleep
 import pytest
 import redis
 
-from django_q.brokers import get_broker, Broker
+from django_q.brokers import Broker, get_broker
 from django_q.conf import Conf
 from django_q.humanhash import uuid
 
@@ -95,7 +95,7 @@ def test_disque(monkeypatch):
     task_id = broker.enqueue("test")
     broker.fail(task_id)
     # bulk test
-    for i in range(5):
+    for _ in range(5):
         broker.enqueue("test")
     monkeypatch.setattr(Conf, "BULK", 5)
     monkeypatch.setattr(Conf, "DISQUE_FASTACK", True)
@@ -166,7 +166,7 @@ def test_ironmq(monkeypatch):
     task_id = broker.enqueue("test")
     broker.fail(task_id)
     # bulk test
-    for i in range(5):
+    for _ in range(5):
         broker.enqueue("test")
     monkeypatch.setattr(Conf, "BULK", 5)
     tasks = broker.dequeue()
@@ -194,7 +194,7 @@ def canceled_sqs(monkeypatch):
             "aws_region": os.getenv("AWS_REGION"),
             "aws_access_key_id": os.getenv("AWS_ACCESS_KEY_ID"),
             "aws_secret_access_key": os.getenv("AWS_SECRET_ACCESS_KEY"),
-            "receive_message_wait_time_seconds": 20
+            "receive_message_wait_time_seconds": 20,
         },
     )
     # check broker
@@ -237,7 +237,7 @@ def canceled_sqs(monkeypatch):
         task = broker.dequeue()[0]
     broker.fail(task[0])
     # bulk test
-    for i in range(10):
+    for _ in range(10):
         broker.enqueue("test")
     monkeypatch.setattr(Conf, "BULK", 12)
     tasks = broker.dequeue()
@@ -291,7 +291,7 @@ def test_orm(monkeypatch):
     task_id = broker.enqueue("test")
     broker.fail(task_id)
     # bulk test
-    for i in range(5):
+    for _ in range(5):
         broker.enqueue("test")
     monkeypatch.setattr(Conf, "BULK", 5)
     tasks = broker.dequeue()
@@ -348,11 +348,9 @@ def test_mongo(monkeypatch):
     task_id = broker.enqueue("test")
     broker.fail(task_id)
     # bulk test
-    for i in range(5):
+    for _ in range(5):
         broker.enqueue("test")
-    tasks = []
-    for i in range(5):
-        tasks.append(broker.dequeue()[0])
+    tasks = [broker.dequeue()[0] for _ in range(5)]
     assert broker.lock_size() == 5
     for task in tasks:
         assert task is not None

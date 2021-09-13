@@ -27,12 +27,12 @@ Installation
 Requirements
 ------------
 
-Django Q is tested for Python 3.7 and 3.8
+Django Q is tested for Python 3.7, 3.8 and 3.9
 
 -  `Django <https://www.djangoproject.com>`__
 
     Django Q aims to use as much of Django's standard offerings as possible
-    The code is tested against Django versions `2.2.x` and `3.1.x`.
+    The code is tested against Django versions `2.2.x` and `3.2.x`.
     Please note that Django versions below 2.0 do not support Python 3.7
 
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__

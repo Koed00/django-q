@@ -28,10 +28,11 @@ You can manage them through the :ref:`admin_page` or directly from your code wit
                             )
 
     # In case you want to use q_options
+    # Specify the broker by using the property broker_name in q_options
     schedule('math.sqrt',
              9,
              hook='hooks.print_result',
-             q_options={'timeout': 30},
+             q_options={'timeout': 30, 'broker_name': 'broker_1'},
              schedule_type=Schedule.HOURLY)
 
     # Run a schedule every 5 minutes, starting at 6 today
@@ -51,6 +52,12 @@ You can manage them through the :ref:`admin_page` or directly from your code wit
              schedule_type=Schedule.CRON,
              cron = '0 22 * * 1-5')
 
+
+    # Restrain a schedule to a specific cluster
+    schedule('math.hypot',
+             3, 4,
+             schedule_type=Schedule.DAILY,
+             cluster='my_cluster')
 
 
 Missed schedules
@@ -115,8 +122,14 @@ Reference
     :param str cron: Cron expression for the Cron type.
     :param int repeats: Number of times to repeat schedule. -1=Always, 0=Never, n =n.
     :param datetime next_run: Next or first scheduled execution datetime.
+    :param str cluster: optional cluster name. Task will be executed only on a cluster with a matching :ref:`name`.
     :param dict q_options: options passed to async_task for this schedule
     :param kwargs: optional keyword arguments for the scheduled function.
+    
+    .. note::
+
+        q_options does not accept the 'broker' key with a broker instance but accepts a 'broker_name' key instead. This can be used to specify the broker connection name to assign the task. If a broker with the specified name does not exist or is not running at the moment of placing the task in queue it fallbacks to the random broker/queue that handled the schedule.
+
 
 .. class:: Schedule
 
@@ -168,6 +181,10 @@ Reference
 
     Number of times to repeat the schedule. -1=Always, 0=Never, n =n.
     When set to -1, this will keep counting down.
+
+    .. py:attribute:: cluster
+    
+    Task will be executed only on a cluster with a matching :ref:`name`.
 
     .. py:attribute:: next_run
 

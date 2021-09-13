@@ -1,7 +1,7 @@
 import importlib
 
 from django.db.models.signals import post_save
-from django.dispatch import receiver, Signal
+from django.dispatch import Signal, receiver
 from django.utils.translation import gettext_lazy as _
 
 from django_q.conf import logger
@@ -31,8 +31,12 @@ def call_hook(sender, instance, **kwargs):
                 )
             )
 
+
 # args: task
 pre_enqueue = Signal()
 
 # args: func, task
 pre_execute = Signal()
+
+# args: task
+post_execute = Signal()

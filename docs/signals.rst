@@ -24,20 +24,31 @@ executed by a worker. This signal provides two arguments:
   with a function path, this argument will be the callable function
   nonetheless.
 
+After executing a task
+""""""""""""""""""""""
+The ``django_q.signals.post_execute`` signal is emitted after a task is
+executed by a worker and processed by the monitor. It included the ``task`` dictionary with the result.
+
+
 Subscribing to a signal
 -----------------------
 
-Connecting to a Django Q signal is done in the same manner as any other Django
+Connecting to a Django Q signal is done the same as any other Django
 signal::
 
     from django.dispatch import receiver
-    from django_q.signals import pre_enqueue, pre_execute
+    from django_q.signals import pre_enqueue, pre_execute, post_execute
 
     @receiver(pre_enqueue)
     def my_pre_enqueue_callback(sender, task, **kwargs):
-        print("Task {} will be enqueued".format(task["name"]))
+        print(f"Task {task['name']} will be queued")
 
     @receiver(pre_execute)
     def my_pre_execute_callback(sender, func, task, **kwargs):
-        print("Task {} will be executed by calling {}".format(
-              task["name"], func))
+        print(f"Task {task['name']} will be executed by calling {func}")
+
+    @receiver(post_execute)
+    def my_post_execute_callback(sender, task, **kwargs):
+        print(f"Task {task['name']} was executed with result {task['result']}")
+
+
