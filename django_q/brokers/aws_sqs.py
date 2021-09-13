@@ -1,3 +1,5 @@
+import copy
+
 from boto3 import Session
 from botocore.client import ClientError
 
@@ -77,7 +79,7 @@ class Sqs(Broker):
 
     @staticmethod
     def get_connection(list_key: str = Conf.PREFIX) -> Session:
-        config = Conf.SQS
+        config = copy.deepcopy(Conf.SQS)
         if "aws_region" in config:
             config["region_name"] = config["aws_region"]
             del config["aws_region"]
