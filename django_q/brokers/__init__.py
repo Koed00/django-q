@@ -159,6 +159,10 @@ class Broker:
         """
         return 0
 
+    def get_queue(self):
+        """Get all tasks from queue"""
+        return None
+
 
 def get_broker(list_key: str = Conf.PREFIX) -> Broker:
     """

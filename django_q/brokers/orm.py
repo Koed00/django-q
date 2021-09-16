@@ -94,5 +94,4 @@ class ORM(Broker):
             for task in tasks:
                 if self.get_connection().filter(id=task.id, lock=task.lock):
                     task_list.append((task.pk, task.payload))
-                # else don't process, as another cluster has been faster than us on that task
             return task_list
