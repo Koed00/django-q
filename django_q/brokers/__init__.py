@@ -29,7 +29,7 @@ class Broker:
         """
         pass
 
-    def dequeue(self):
+    def dequeue(self, task_id=None):
         """
         Gets a task from the queue
         :return: tuple with task id and task message
