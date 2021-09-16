@@ -62,7 +62,7 @@ class ORM(Broker):
 
     def dequeue(self):
         tasks = self.get_connection().filter(key=self.list_key, lock__lt=_timeout())[
-            0 : Conf.BULK
+            0: Conf.BULK
         ]
         if tasks:
             task_list = []
@@ -86,3 +86,13 @@ class ORM(Broker):
 
     def acknowledge(self, task_id):
         return self.delete(task_id)
+
+    def get_queue(self):
+        tasks = self.get_connection().filter(key=self.list_key, lock__lt=_timeout())[0: Conf.BULK]
+        if tasks:
+            task_list = []
+            for task in tasks:
+                if self.get_connection().filter(id=task.id, lock=task.lock):
+                    task_list.append((task.pk, task.payload))
+                # else don't process, as another cluster has been faster than us on that task
+            return task_list
