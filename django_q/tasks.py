@@ -32,6 +32,7 @@ def async_task(func, *args, **kwargs):
         "chain",
         "broker",
         "timeout",
+        "retry",
     )
     q_options = keywords.pop("q_options", {})
     # get an id
