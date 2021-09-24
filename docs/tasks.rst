@@ -64,7 +64,7 @@ retry
 Adds custom `retry` value for this task.
 
 Note that you have to implement your custom broker in order
-to make use of this value and override the cluster's retry setting.
+to override the cluster's retry setting by using this value.
 
 ack_failure
 """""""""""
