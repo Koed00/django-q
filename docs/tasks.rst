@@ -59,6 +59,13 @@ Overrides the cluster's timeout setting for this task.
 
 See :ref:`retry` for details how to set values for timeout.
 
+retry
+"""""
+Adds custom `retry` value for this task.
+
+Note that you have to implement your custom broker in order
+to override the cluster's retry setting by using this value.
+
 ack_failure
 """""""""""
 Overrides the cluster's :ref:`ack_failures` setting for this task.
