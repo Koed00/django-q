@@ -73,7 +73,6 @@ class ORM(Broker):
                     if task_id == inner["id"] and (
                             self.get_connection().filter(id=task.id, lock=task.lock).update(lock=timezone.now())):
                         task_list.append((task.pk, task.payload))
-                    return task_list
                 elif self.get_connection().filter(id=task.id, lock=task.lock).update(lock=timezone.now()):
                     task_list.append((task.pk, task.payload))
                 # else don't process, as another cluster has been faster than us on that task
