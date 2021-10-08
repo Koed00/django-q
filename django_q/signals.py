@@ -40,3 +40,6 @@ pre_execute = Signal()
 
 # args: task
 post_execute = Signal()
+
+# args: pid
+error_execute = Signal()

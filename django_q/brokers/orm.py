@@ -8,6 +8,7 @@ from django.utils import timezone
 from django_q.brokers import Broker
 from django_q.conf import Conf, logger
 from django_q.models import OrmQ
+from django_q.signing import SignedPackage
 
 
 def _timeout():
@@ -60,18 +61,19 @@ class ORM(Broker):
         )
         return package.pk
 
-    def dequeue(self):
+    def dequeue(self, task_id=None):
         tasks = self.get_connection().filter(key=self.list_key, lock__lt=_timeout())[
-            0 : Conf.BULK
+            0: Conf.BULK
         ]
         if tasks:
             task_list = []
             for task in tasks:
-                if (
-                    self.get_connection()
-                    .filter(id=task.id, lock=task.lock)
-                    .update(lock=timezone.now())
-                ):
+                if task_id:
+                    inner = SignedPackage.loads(task.payload)
+                    if task_id == inner["id"] and (
+                            self.get_connection().filter(id=task.id, lock=task.lock).update(lock=timezone.now())):
+                        task_list.append((task.pk, task.payload))
+                elif self.get_connection().filter(id=task.id, lock=task.lock).update(lock=timezone.now()):
                     task_list.append((task.pk, task.payload))
                 # else don't process, as another cluster has been faster than us on that task
             return task_list
@@ -86,3 +88,12 @@ class ORM(Broker):
 
     def acknowledge(self, task_id):
         return self.delete(task_id)
+
+    def get_queue(self):
+        tasks = self.get_connection().filter(key=self.list_key, lock__lt=_timeout())[0: Conf.BULK]
+        if tasks:
+            task_list = []
+            for task in tasks:
+                if self.get_connection().filter(id=task.id, lock=task.lock):
+                    task_list.append((task.pk, task.payload))
+            return task_list

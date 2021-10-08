@@ -29,7 +29,7 @@ class Broker:
         """
         pass
 
-    def dequeue(self):
+    def dequeue(self, task_id=None):
         """
         Gets a task from the queue
         :return: tuple with task id and task message
@@ -158,6 +158,10 @@ class Broker:
         :return: a broker connection
         """
         return 0
+
+    def get_queue(self):
+        """Get all tasks from queue"""
+        return None
 
 
 def get_broker(list_key: str = Conf.PREFIX) -> Broker:

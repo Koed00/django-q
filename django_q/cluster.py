@@ -43,7 +43,7 @@ from django_q.conf import (
 from django_q.humanhash import humanize
 from django_q.models import Schedule, Success, Task
 from django_q.queues import Queue
-from django_q.signals import post_execute, pre_execute
+from django_q.signals import post_execute, pre_execute, error_execute
 from django_q.signing import BadSignature, SignedPackage
 from django_q.status import Stat, Status
 
@@ -231,6 +231,7 @@ class Sentinel:
             elif int(process.timer.value) == -2:
                 logger.info(_(f"recycled worker {process.name}"))
             else:
+                error_execute.send(sender="django_q", pid=process.pid)
                 logger.error(_(f"reincarnated worker {process.name} after death"))
 
         self.reincarnations += 1
@@ -409,7 +410,8 @@ def worker(
     :type timer: multiprocessing.Value
     """
     name = current_process().name
-    logger.info(_(f"{name} ready for work at {current_process().pid}"))
+    pid = current_process().pid
+    logger.info(_(f"{name} ready for work at {pid}"))
     task_count = 0
     if timeout is None:
         timeout = -1
@@ -427,7 +429,7 @@ def worker(
         close_old_django_connections()
         timer_value = task.pop("timeout", timeout)
         # signal execution
-        pre_execute.send(sender="django_q", func=f, task=task)
+        pre_execute.send(sender="django_q", func=f, task=task, pid=pid)
         # execute the payload
         timer.value = timer_value  # Busy
         try:

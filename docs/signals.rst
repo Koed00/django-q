@@ -44,8 +44,8 @@ signal::
         print(f"Task {task['name']} will be queued")
 
     @receiver(pre_execute)
-    def my_pre_execute_callback(sender, func, task, **kwargs):
-        print(f"Task {task['name']} will be executed by calling {func}")
+    def my_pre_execute_callback(sender, func, task, pid, **kwargs):
+        print(f"Task {task['name']} will be executed by calling {func} in process(pid={pid})")
 
     @receiver(post_execute)
     def my_post_execute_callback(sender, task, **kwargs):
