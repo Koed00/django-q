@@ -692,7 +692,7 @@ def close_old_django_connections():
         logger.warning(
             "Preserving django database connections because sync=True. Beware "
             "that tasks are now injected in the calling context/transactions "
-            "which may result in unexpected bahaviour."
+            "which may result in unexpected behaviour."
         )
     else:
         db.close_old_connections()
