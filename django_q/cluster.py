@@ -474,10 +474,11 @@ def save_task(task, broker: Broker):
     # SAVE LIMIT > 0: Prune database, SAVE_LIMIT 0: No pruning
     close_old_django_connections()
     try:
-        with db.transaction.atomic():
-            last = Success.objects.select_for_update().last()
-            if task["success"] and 0 < Conf.SAVE_LIMIT <= Success.objects.count():
-                last.delete()
+        if Conf.SAVE_LIMIT > 0:
+            with db.transaction.atomic():
+                last = Success.objects.select_for_update().last()
+                if task["success"] and Conf.SAVE_LIMIT <= Success.objects.count():
+                    last.delete()
         # check if this task has previous results
         if Task.objects.filter(id=task["id"], name=task["name"]).exists():
             existing_task = Task.objects.get(id=task["id"], name=task["name"])
