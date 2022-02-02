@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 # external
+from decimal import Decimal
 from blessed import Terminal
 
 # django
@@ -219,7 +220,11 @@ def info(broker=None):
             exec_time = last_tasks.aggregate(
                 time_taken=Sum(F("stopped") - F("started"))
             )
-            exec_time = exec_time["time_taken"].total_seconds() / tasks_per_day
+            # avoid decimal no total_seconds error
+            if (isinstance(exec_time["time_taken"], Decimal)):
+                exec_time = exec_time["time_taken"] / tasks_per_day
+            else:
+                exec_time = exec_time["time_taken"].total_seconds() / tasks_per_day
         else:
             # can't sum timedeltas on sqlite
             for t in last_tasks:
