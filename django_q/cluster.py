@@ -499,16 +499,18 @@ def save_task(task, broker: Broker):
             func = task["func"]
             # convert func to string
             if inspect.isfunction(func):
-                func = f"{func.__module__}.{func.__name__}"
-            elif inspect.ismethod(func):
-                func = (
+                func_name = f"{func.__module__}.{func.__name__}"
+            elif inspect.ismethod(func) and hasattr(func.__self__, '__name__'):
+                func_name = (
                     f"{func.__self__.__module__}."
                     f"{func.__self__.__name__}.{func.__name__}"
                 )
+            else:
+                func_name = str(func)
             Task.objects.create(
                 id=task["id"],
                 name=task["name"],
-                func=func,
+                func=func_name,
                 hook=task.get("hook"),
                 args=task["args"],
                 kwargs=task["kwargs"],
