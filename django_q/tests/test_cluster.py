@@ -304,6 +304,47 @@ def test_enqueue(broker, admin_user):
     broker.delete_queue()
 
 
+class TestAsyncSelf:
+    # __name__ = "TestSelf"
+
+    def run(self):
+        return 5
+
+    @pytest.mark.django_db
+    def test_async_self_method(self, broker):
+        broker.list_key = "cluster_test:q"
+        broker.delete_queue()
+        b = async_task(
+            self.run,
+            broker=broker,
+        )
+        assert isinstance(b, str)
+
+        # run through async
+        task_queue = Queue()
+        stop_event = Event()
+        stop_event.set()
+        pusher(task_queue, stop_event, broker=broker)
+        assert broker.queue_size() == 0
+        assert task_queue.qsize() == 1
+        task_queue.put("STOP")
+
+        result_queue = Queue()
+        worker(task_queue, result_queue, Value("f", -1))
+        assert result_queue.qsize() == 1
+        result_queue.put("STOP")
+
+        monitor(result_queue)
+        assert result_queue.qsize() == 0
+
+        # check results
+        result_b = fetch(b)
+        assert result_b is not None
+        assert result_b.success is True
+        assert result(b) == 5
+        broker.delete_queue()
+
+
 @pytest.mark.django_db
 @pytest.mark.parametrize(
     "cluster_config_timeout, async_task_kwargs",
