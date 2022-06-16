@@ -44,7 +44,7 @@ You can manage them through the :ref:`admin_page` or directly from your code wit
              schedule_type=Schedule.MINUTES,
              minutes=5,
              repeats=24,
-             next_run=arrow.utcnow().replace(hour=18, minute=0))
+             next_run=arrow.utcnow().replace(hour=18, minute=0).datetime)
 
     # Use a cron expression
     schedule('math.hypot',
