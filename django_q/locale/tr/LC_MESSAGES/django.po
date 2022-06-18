@@ -1,0 +1,438 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-06-18 23:55+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Ethem Güner <ethemguener@gmail.com>\n"
+"Language-Team: \n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+#: django_q/admin.py:40
+msgid "Resubmit selected tasks to queue"
+msgstr "Seçili işleri kuyruğa tekrar gönder"
+
+#: django_q/brokers/disque.py:60
+msgid "No Disque nodes configured"
+msgstr "Disque nodları konfigüre edilmemiş"
+
+#: django_q/brokers/disque.py:77
+msgid "Could not connect to any Disque nodes"
+msgstr "Herhangi bir Disque noduna bağlanılamadı"
+
+#: django_q/cluster.py:79
+#, python-brace-format
+msgid "Q Cluster {self.name} starting."
+msgstr "Q Cluster {self.name} başlatılıyor."
+
+#: django_q/cluster.py:87
+#, python-brace-format
+msgid "Q Cluster {self.name} stopping."
+msgstr "Q Cluster {self.name} durduruluyor."
+
+#: django_q/cluster.py:90
+#, python-brace-format
+msgid "Q Cluster {self.name} has stopped."
+msgstr "Q Cluster {self.name} durduruldu."
+
+#: django_q/cluster.py:98
+msgid ""
+"{current_process().name} got signal {Conf.SIGNAL_NAMES.get(signum, \"UNKNOWN"
+"\")}"
+msgstr ""
+"{current_process().name} şu sinyali aldı {Conf.SIGNAL_NAMES.get(signum, \"UNKNOWN"
+"\")}"
+
+#: django_q/cluster.py:220
+#, python-brace-format
+msgid "reincarnated monitor {process.name} after sudden death"
+msgstr "Monitor {process.name} ani ölüm sonrası tekrar dirildi"
+
+#: django_q/cluster.py:223
+#, python-brace-format
+msgid "reincarnated pusher {process.name} after sudden death"
+msgstr "Pusher {process.name} ani ölüm sonrası tekrar dirildi"
+
+#: django_q/cluster.py:230
+#, python-brace-format
+msgid "reincarnated worker {process.name} after timeout"
+msgstr "Worker {process.name} zaman aşımı sonrası tekrar dirildi"
+
+#: django_q/cluster.py:232
+#, python-brace-format
+msgid "recycled worker {process.name}"
+msgstr "Worker {process.name} geri döndürüldü"
+
+#: django_q/cluster.py:234
+#, python-brace-format
+msgid "reincarnated worker {process.name} after death"
+msgstr "Worker {process.name} ani ölüm sonrası tekrar dirildi"
+
+#: django_q/cluster.py:256
+msgid ""
+"{current_process().name} guarding cluster {humanize(self.cluster_id.hex)}"
+msgstr "{current_process().name}, {humanize(self.cluster_id.hex)} cluster'ını koruyor"
+
+#: django_q/cluster.py:261
+msgid "Q Cluster {humanize(self.cluster_id.hex)} running."
+msgstr "Q Cluster {humanize(self.cluster_id.hex)} çalışıyor."
+
+#: django_q/cluster.py:295
+#, python-brace-format
+msgid "{name} stopping cluster processes"
+msgstr "Cluster {name} işlemleri durduruluyor."
+
+#: django_q/cluster.py:320
+#, python-brace-format
+msgid "{name} waiting for the monitor."
+msgstr "{name} monitor için bekliyor."
+
+#: django_q/cluster.py:342
+msgid "{current_process().name} pushing tasks at {current_process().pid}"
+msgstr "{current_process().name, işleri {current_process().pid} pid'ine gönderiyor."
+
+#: django_q/cluster.py:363
+#, python-brace-format
+msgid "queueing from {broker.list_key}"
+msgstr ""
+
+#: django_q/cluster.py:366
+msgid "{current_process().name} stopped pushing tasks"
+msgstr "{current_process().name} işleri göndermeyi durdurdu"
+
+#: django_q/cluster.py:378
+msgid "{name} monitoring at {current_process().pid}"
+msgstr "{name}, {current_process().pid} pid'inde izleniyor/monitoring yapılıyor."
+
+#: django_q/cluster.py:394
+msgid "Processed [{task['name']}]"
+msgstr "[{task['name']}] işlendi."
+
+#: django_q/cluster.py:397
+msgid "Failed [{task['name']}] - {task['result']}"
+msgstr "[{task['name']}] - {task['result']} başarısız oldu"
+
+#: django_q/cluster.py:398
+#, python-brace-format
+msgid "{name} stopped monitoring results"
+msgstr "{name} sonuçları göstermeyi bıraktı"
+
+#: django_q/cluster.py:412
+msgid "{name} ready for work at {current_process().pid}"
+msgstr "{name}, {current_process().pid} pid'inde çalışmaya hazır"
+
+#: django_q/cluster.py:422
+msgid "{name} processing [{task[\"name\"]}]"
+msgstr "{name}, [{task[\"name\"]}] işlerini işiyor"
+
+#: django_q/cluster.py:453
+#, python-brace-format
+msgid "{name} stopped doing work"
+msgstr "{name} çalışmayı bıraktı"
+
+#: django_q/cluster.py:635 django_q/models.py:143
+msgid "Please install croniter to enable cron expressions"
+msgstr "Cron expressions'ları açmak için croniter yükleyin"
+
+#: django_q/cluster.py:665
+msgid ""
+"{current_process().name} failed to create a task from schedule [{s.name or s."
+"id}]"
+msgstr ""
+
+#: django_q/cluster.py:671
+msgid ""
+"{current_process().name} created a task from schedule [{s.name or s.id}]"
+msgstr ""
+
+#: django_q/cluster.py:737
+#, python-brace-format
+msgid "{pid} will use cpu {affinity}"
+msgstr ""
+
+#. Translators: Cluster status descriptions
+#: django_q/conf.py:196
+msgid "Starting"
+msgstr "Başlıyor"
+
+#: django_q/conf.py:197
+msgid "Working"
+msgstr "Çalışıyor"
+
+#: django_q/conf.py:198
+msgid "Idle"
+msgstr "Boşta"
+
+#: django_q/conf.py:199
+msgid "Stopped"
+msgstr "Durdu"
+
+#: django_q/conf.py:200
+msgid "Stopping"
+msgstr "Durduruluyor"
+
+#. Translators: help text for qcluster management command
+#: django_q/management/commands/qcluster.py:9
+msgid "Starts a Django Q Cluster."
+msgstr "Bir Django Q Cluster çalıştırır."
+
+#. Translators: help text for qinfo management command
+#: django_q/management/commands/qinfo.py:11
+msgid "General information over all clusters."
+msgstr "Tüm cluster'lar için genel bilgiler."
+
+#. Translators: help text for qmemory management command
+#: django_q/management/commands/qmemory.py:9
+msgid "Monitors Q Cluster memory usage"
+msgstr "Q Cluster'ın bellek kullanımını izler"
+
+#. Translators: help text for qmonitor management command
+#: django_q/management/commands/qmonitor.py:9
+msgid "Monitors Q Cluster activity"
+msgstr "Q Cluster'ın aktivitelerini izler"
+
+#: django_q/models.py:118
+msgid "Successful task"
+msgstr "Başarılı iş"
+
+#: django_q/models.py:119
+msgid "Successful tasks"
+msgstr "Başarılı işler"
+
+#: django_q/models.py:134
+msgid "Failed task"
+msgstr "Başarısız iş"
+
+#: django_q/models.py:135
+msgid "Failed tasks"
+msgstr "Başarısız işler"
+
+#: django_q/models.py:159
+msgid "e.g. 1, 2, 'John'"
+msgstr "Örneğin: 1, 2, 'Melih'"
+
+#: django_q/models.py:161
+msgid "e.g. x=1, y=2, name='John'"
+msgstr "Örneğin: x=1, y=2, name='Melih'"
+
+#: django_q/models.py:173
+msgid "Once"
+msgstr "Bir kere"
+
+#: django_q/models.py:174
+msgid "Minutes"
+msgstr "Dakika"
+
+#: django_q/models.py:175
+msgid "Hourly"
+msgstr "Saatlik"
+
+#: django_q/models.py:176
+msgid "Daily"
+msgstr "Günlük"
+
+#: django_q/models.py:177
+msgid "Weekly"
+msgstr "Haftalık"
+
+#: django_q/models.py:178
+msgid "Monthly"
+msgstr "Aylık"
+
+#: django_q/models.py:179
+msgid "Quarterly"
+msgstr "Bir Çeyrek (3 Ay)"
+
+#: django_q/models.py:180
+msgid "Yearly"
+msgstr "Yıllık"
+
+#: django_q/models.py:181
+msgid "Cron"
+msgstr ""
+
+#: django_q/models.py:184
+msgid "Schedule Type"
+msgstr "Zamanlama Tipi"
+
+#: django_q/models.py:187
+msgid "Number of minutes for the Minutes type"
+msgstr "Dakika tipine göre dakika sayısı"
+
+#: django_q/models.py:190
+msgid "Repeats"
+msgstr "Tekrar eder"
+
+#: django_q/models.py:190
+msgid "n = n times, -1 = forever"
+msgstr "n = n kere, -1 = sonsuza kadar"
+
+#: django_q/models.py:193
+msgid "Next Run"
+msgstr "Bir dahaki çalışma tarihi"
+
+#: django_q/models.py:200
+msgid "Cron expression"
+msgstr ""
+
+#: django_q/models.py:227
+msgid "Scheduled task"
+msgstr "Zamanlanmış iş"
+
+#: django_q/models.py:228
+msgid "Scheduled tasks"
+msgstr "Zamanlanmış işler"
+
+#: django_q/models.py:251
+msgid "Queued task"
+msgstr "Sıraya alınmış iş"
+
+#: django_q/models.py:252
+msgid "Queued tasks"
+msgstr "Sıraya alınmış işler"
+
+#: django_q/monitor.py:54 django_q/monitor.py:322
+msgid "Host"
+msgstr ""
+
+#: django_q/monitor.py:58 django_q/monitor.py:326 django_q/monitor.py:433
+msgid "Id"
+msgstr ""
+
+#: django_q/monitor.py:62
+msgid "State"
+msgstr "Durum"
+
+#: django_q/monitor.py:66
+msgid "Pool"
+msgstr "Havuz"
+
+#: django_q/monitor.py:70
+msgid "TQ"
+msgstr ""
+
+#: django_q/monitor.py:74
+msgid "RQ"
+msgstr ""
+
+#: django_q/monitor.py:78
+msgid "RC"
+msgstr ""
+
+#: django_q/monitor.py:82
+msgid "Up"
+msgstr ""
+
+#: django_q/monitor.py:162 django_q/monitor.py:266
+msgid "Queued"
+msgstr "Sıraya alınmış"
+
+#: django_q/monitor.py:170
+msgid "Success"
+msgstr "Başarılı olanlar"
+
+#: django_q/monitor.py:180 django_q/monitor.py:274
+msgid "Failures"
+msgstr "Başarısız olanlar"
+
+#: django_q/monitor.py:191
+msgid "[Press q to quit]"
+msgstr "[Çıkmak için q'ya basın]"
+
+#: django_q/monitor.py:210
+msgid "day"
+msgstr "gün"
+
+#: django_q/monitor.py:231
+msgid "second"
+msgstr "saniye"
+
+#: django_q/monitor.py:234
+msgid "minute"
+msgstr "dakika"
+
+#: django_q/monitor.py:237
+msgid "hour"
+msgstr "saat"
+
+#: django_q/monitor.py:247
+msgid ""
+"-- {Conf.PREFIX.capitalize()} { \".\".join(str(v) for v in VERSION)} on "
+"{broker.info()}  --"
+msgstr ""
+
+#: django_q/monitor.py:253
+msgid "Clusters"
+msgstr ""
+
+#: django_q/monitor.py:257
+msgid "Workers"
+msgstr ""
+
+#: django_q/monitor.py:261
+msgid "Restarts"
+msgstr "Yeniden çalıştırmalar"
+
+#: django_q/monitor.py:270
+msgid "Successes"
+msgstr "Başarılı olanlar"
+
+#: django_q/monitor.py:279
+msgid "Schedules"
+msgstr "Zamanlanmışlar"
+
+#: django_q/monitor.py:283
+#, python-brace-format
+msgid "Tasks/{per}"
+msgstr "İş/{per}"
+
+#: django_q/monitor.py:287
+msgid "Avg time"
+msgstr "Ortalama süre"
+
+#: django_q/monitor.py:331
+msgid "Available (%)"
+msgstr "Müsait (%) "
+
+#: django_q/monitor.py:337
+msgid "Available (MB)"
+msgstr "Müsait (MB)"
+
+#: django_q/monitor.py:342
+msgid "Total (MB)"
+msgstr "Toplam (MB)"
+
+#: django_q/monitor.py:347
+msgid "Sentinel (MB)"
+msgstr ""
+
+#: django_q/monitor.py:353
+msgid "Monitor (MB)"
+msgstr "İzleme (MB)"
+
+#: django_q/monitor.py:359
+msgid "Workers (MB)"
+msgstr ""
+
+#: django_q/monitor.py:461
+msgid "Available lowest (%): {} ({})"
+msgstr "Mevcut en düşük (%): {} ({})"
+
+#: django_q/signals.py:22
+#, python-brace-format
+msgid "malformed return hook '{instance.hook}' for [{instance.name}]"
+msgstr ""
+
+#: django_q/signals.py:30
+msgid ""
+"return hook {instance.hook} failed on [{instance.name}] because {str(e)}"
+msgstr ""
