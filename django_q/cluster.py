@@ -585,14 +585,30 @@ def scheduler(broker: Broker = None):
     try:
         database_to_use = {"using": Conf.ORM} if not Conf.HAS_REPLICA else {}
         with db.transaction.atomic(**database_to_use):
-            for s in (
-                Schedule.objects.select_for_update()
-                .exclude(repeats=0)
-                .filter(next_run__lt=timezone.now())
-                .filter(
-                    db.models.Q(cluster__isnull=True) | db.models.Q(cluster=Conf.PREFIX)
+            sql = f"""
+                (
+                    SELECT *
+                    FROM {Schedule._meta.db_table}
+                    WHERE
+                            next_run < '{timezone.now()}'
+                        AND repeats <> 0
+                        AND cluster IS NULL
+                    ORDER BY
+                        next_run ASC
                 )
-            ):
+                UNION (
+                    SELECT *
+                    FROM {Schedule._meta.db_table}
+                    WHERE
+                            next_run < '{timezone.now()}'
+                        AND repeats <> 0
+                        AND cluster = '{Conf.PREFIX}'
+                    ORDER BY
+                        next_run ASC
+                )
+            """
+            schedule_objects = Schedule.objects.select_for_update().raw(sql)
+            for s in schedule_objects:
                 args = ()
                 kwargs = {}
                 # get args, kwargs and hook
