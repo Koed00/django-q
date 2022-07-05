@@ -408,8 +408,8 @@ def worker(
     :type result_queue: multiprocessing.Queue
     :type timer: multiprocessing.Value
     """
-    name = current_process().name
-    logger.info(_(f"{name} ready for work at {current_process().pid}"))
+    proc_name = current_process().name
+    logger.info(_(f"{proc_name} ready for work at {current_process().pid}"))
     task_count = 0
     if timeout is None:
         timeout = -1
@@ -419,7 +419,9 @@ def worker(
         timer.value = -1  # Idle
         task_count += 1
         # Get the function from the task
-        logger.info(_(f'{name} processing [{task["name"]}]'))
+        func = task["func"]
+        func_name = func.__name__ if hasattr(func, "__name__") else str(func)
+        logger.info(_(f'{proc_name} processing [{task["name"]}({func_name})]'))
         f = task["func"]
         # if it's not an instance try to get it from the string
         if not callable(task["func"]):
@@ -450,7 +452,7 @@ def worker(
             if task_count == Conf.RECYCLE or rss_check():
                 timer.value = -2  # Recycled
                 break
-    logger.info(_(f"{name} stopped doing work"))
+    logger.info(_(f"{proc_name} stopped doing work"))
 
 
 def save_task(task, broker: Broker):
