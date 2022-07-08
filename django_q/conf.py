@@ -125,6 +125,9 @@ class Conf:
     # Number of seconds to wait for a worker to finish.
     TIMEOUT = conf.get("timeout", None)
 
+    # Whether to fail the task when it times-out.
+    FAIL_ON_TIMEOUT = conf.get("fail_on_timeout", False)
+
     # Whether to acknowledge unsuccessful tasks.
     # This causes failed tasks to be considered delivered, thereby removing them from
     # the task queue. Defaults to False.
