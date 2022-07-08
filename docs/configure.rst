@@ -70,6 +70,12 @@ Set this to something that makes sense for your project. Can be overridden for i
 
 See :ref:`retry` for details how to set values for timeout and retry.
 
+fail_on_timeout
+~~~~~~~~~~~~~~~
+
+When set to ``True``, timeouts will result in error. Defaults to ``False``.
+
+
 .. _ack_failures:
 
 ack_failures
