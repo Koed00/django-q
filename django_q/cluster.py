@@ -389,12 +389,13 @@ def monitor(result_queue: Queue, broker: Broker = None):
         # signal execution done
         post_execute.send(sender="django_q", task=task)
         # log the result
+        info_name = f"{task['name']} ({task['func']})"
         if task["success"]:
             # log success
-            logger.info(_(f"Processed [{task['name']}]"))
+            logger.info(_(f"Processed [{info_name}]"))
         else:
             # log failure
-            logger.error(_(f"Failed [{task['name']}] - {task['result']}"))
+            logger.error(_(f"Failed [{info_name}] - {task['result']}"))
     logger.info(_(f"{name} stopped monitoring results"))
 
 
