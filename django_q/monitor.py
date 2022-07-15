@@ -213,7 +213,6 @@ def info(broker=None):
     last_tasks = models.Success.objects.filter(
         stopped__gte=timezone.now() - timedelta(hours=24)
     )
-    print(last_tasks,connection.vendor)
     tasks_per_day = last_tasks.count()
     if tasks_per_day > 0:
         # average execution time over the last 24 hours
