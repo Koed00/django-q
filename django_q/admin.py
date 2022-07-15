@@ -5,7 +5,8 @@ from django.utils.translation import gettext_lazy as _
 from django_q.conf import Conf, croniter
 from django_q.models import Failure, OrmQ, Schedule, Success
 from django_q.tasks import async_task
-
+from django.db.models import Q
+from django.db import connection
 
 class TaskAdmin(admin.ModelAdmin):
     """model admin for success tasks."""
@@ -19,7 +20,14 @@ class TaskAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         """Only show successes."""
         qs = super(TaskAdmin, self).get_queryset(request)
-        return qs.filter(success=True)
+        if connection.vendor == "djongo":
+            ids=[]
+            for data in qs.filter(Q(attempt_count__gt = 0)):
+                if data.success:
+                    ids.append(data.id)
+            return qs.filter(id__in = ids)
+        else:
+            return qs.filter(success=True)
 
     search_fields = ("name", "func", "group")
     readonly_fields = []
