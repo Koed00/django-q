@@ -35,6 +35,7 @@ def get_process_mb(pid):
 def monitor(run_once=False, broker=None):
     if not broker:
         broker = get_broker()
+    
     term = Terminal()
     broker.ping()
     with term.fullscreen(), term.hidden_cursor(), term.cbreak():
@@ -212,10 +213,11 @@ def info(broker=None):
     last_tasks = models.Success.objects.filter(
         stopped__gte=timezone.now() - timedelta(hours=24)
     )
+    print(last_tasks,connection.vendor)
     tasks_per_day = last_tasks.count()
     if tasks_per_day > 0:
         # average execution time over the last 24 hours
-        if connection.vendor != "sqlite":
+        if connection.vendor != "sqlite" and connection.vendor != "djongo":
             exec_time = last_tasks.aggregate(
                 time_taken=Sum(F("stopped") - F("started"))
             )
