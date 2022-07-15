@@ -7,6 +7,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
+from django.db import connection
+from django.db.models import Q
 
 # External
 from picklefield import PickledObjectField
@@ -107,8 +109,15 @@ class Task(models.Model):
 
 class SuccessManager(models.Manager):
     def get_queryset(self):
-        return super(SuccessManager, self).get_queryset().filter(success=True)
-
+        qs = super(SuccessManager, self).get_queryset()
+        if connection.vendor == "djongo":
+            ids=[]
+            for data in qs.filter(Q(attempt_count__gte= 0)):
+                if data.success:
+                    ids.append(data.id)
+            return qs.filter(id__in = ids)
+        else:
+            return qs.filter(success=True)
 
 class Success(Task):
     objects = SuccessManager()
@@ -123,8 +132,15 @@ class Success(Task):
 
 class FailureManager(models.Manager):
     def get_queryset(self):
-        return super(FailureManager, self).get_queryset().filter(success=False)
-
+        qs = super(FailureManager, self).get_queryset()
+        if connection.vendor == "djongo":
+            ids=[]
+            for data in qs.filter(Q(attempt_count__gte= 0)):
+                if not data.success:
+                    ids.append(data.id)
+            return qs.filter(id__in = ids)
+        else:
+            return qs.filter(success=False)
 
 class Failure(Task):
     objects = FailureManager()
