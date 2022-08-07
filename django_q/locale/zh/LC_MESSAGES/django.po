@@ -1,0 +1,434 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <panhaoyu.china@outlook.com>, 2022.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-08-07 11:33+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Haoyu Pan <panhaoyu.china@outlook.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: .\admin.py:40
+msgid "Resubmit selected tasks to queue"
+msgstr "将所选任务重新提交到队列"
+
+#: .\brokers\disque.py:60
+msgid "No Disque nodes configured"
+msgstr "未配置 Disque 节点"
+
+#: .\brokers\disque.py:77
+msgid "Could not connect to any Disque nodes"
+msgstr "无法连接到任何 Disque 节点"
+
+#: .\cluster.py:79
+#, python-brace-format
+msgid "Q Cluster {self.name} starting."
+msgstr "Q 集群 {self.name} 正在启动。"
+
+#: .\cluster.py:87
+#, python-brace-format
+msgid "Q Cluster {self.name} stopping."
+msgstr "Q 集群 {self.name} 正在停止。"
+
+#: .\cluster.py:90
+#, python-brace-format
+msgid "Q Cluster {self.name} has stopped."
+msgstr "Q 集群 {self.name} 已停止。"
+
+#: .\cluster.py:98
+msgid "{current_process().name} got signal {Conf.SIGNAL_NAMES.get(signum, \"UNKNOWN\")}"
+msgstr ""
+
+#: .\cluster.py:220
+#, python-brace-format
+msgid "reincarnated monitor {process.name} after sudden death"
+msgstr ""
+
+#: .\cluster.py:223
+#, python-brace-format
+msgid "reincarnated pusher {process.name} after sudden death"
+msgstr ""
+
+#: .\cluster.py:230
+#, python-brace-format
+msgid "reincarnated worker {process.name} after timeout"
+msgstr ""
+
+#: .\cluster.py:232
+#, python-brace-format
+msgid "recycled worker {process.name}"
+msgstr ""
+
+#: .\cluster.py:234
+#, python-brace-format
+msgid "reincarnated worker {process.name} after death"
+msgstr ""
+
+#: .\cluster.py:256
+msgid ""
+"{current_process().name} guarding cluster {humanize(self.cluster_id.hex)}"
+msgstr ""
+
+#: .\cluster.py:261
+msgid "Q Cluster {humanize(self.cluster_id.hex)} running."
+msgstr ""
+
+#: .\cluster.py:295
+#, python-brace-format
+msgid "{name} stopping cluster processes"
+msgstr ""
+
+#: .\cluster.py:320
+#, python-brace-format
+msgid "{name} waiting for the monitor."
+msgstr ""
+
+#: .\cluster.py:342
+msgid "{current_process().name} pushing tasks at {current_process().pid}"
+msgstr ""
+
+#: .\cluster.py:363
+#, python-brace-format
+msgid "queueing from {broker.list_key}"
+msgstr ""
+
+#: .\cluster.py:366
+msgid "{current_process().name} stopped pushing tasks"
+msgstr ""
+
+#: .\cluster.py:378
+msgid "{name} monitoring at {current_process().pid}"
+msgstr ""
+
+#: .\cluster.py:394
+msgid "Processed [{task['name']}]"
+msgstr ""
+
+#: .\cluster.py:397
+msgid "Failed [{task['name']}] - {task['result']}"
+msgstr ""
+
+#: .\cluster.py:398
+#, python-brace-format
+msgid "{name} stopped monitoring results"
+msgstr ""
+
+#: .\cluster.py:412
+msgid "{name} ready for work at {current_process().pid}"
+msgstr ""
+
+#: .\cluster.py:422
+msgid "{name} processing [{task[\"name\"]}]"
+msgstr ""
+
+#: .\cluster.py:453
+#, python-brace-format
+msgid "{name} stopped doing work"
+msgstr ""
+
+#: .\cluster.py:635 .\models.py:143
+msgid "Please install croniter to enable cron expressions"
+msgstr ""
+
+#: .\cluster.py:665
+msgid ""
+"{current_process().name} failed to create a task from schedule [{s.name or s."
+"id}]"
+msgstr ""
+
+#: .\cluster.py:671
+msgid ""
+"{current_process().name} created a task from schedule [{s.name or s.id}]"
+msgstr ""
+
+#: .\cluster.py:737
+#, python-brace-format
+msgid "{pid} will use cpu {affinity}"
+msgstr ""
+
+#. Translators: Cluster status descriptions
+#: .\conf.py:196
+msgid "Starting"
+msgstr "启动中"
+
+#: .\conf.py:197
+msgid "Working"
+msgstr "工作中"
+
+#: .\conf.py:198
+msgid "Idle"
+msgstr "闲置"
+
+#: .\conf.py:199
+msgid "Stopped"
+msgstr "已停止"
+
+#: .\conf.py:200
+msgid "Stopping"
+msgstr "正在停止"
+
+#. Translators: help text for qcluster management command
+#: .\management\commands\qcluster.py:9
+msgid "Starts a Django Q Cluster."
+msgstr "启动 Django Q 集群。"
+
+#. Translators: help text for qinfo management command
+#: .\management\commands\qinfo.py:11
+msgid "General information over all clusters."
+msgstr "所有集群的总体信息。"
+
+#. Translators: help text for qmemory management command
+#: .\management\commands\qmemory.py:9
+msgid "Monitors Q Cluster memory usage"
+msgstr "监控 Q Cluster 内存使用情况"
+
+#. Translators: help text for qmonitor management command
+#: .\management\commands\qmonitor.py:9
+msgid "Monitors Q Cluster activity"
+msgstr "监控 Q 集群活动状态"
+
+#: .\models.py:118
+msgid "Successful task"
+msgstr "成功任务"
+
+#: .\models.py:119
+msgid "Successful tasks"
+msgstr "成功任务"
+
+#: .\models.py:134
+msgid "Failed task"
+msgstr "失败任务"
+
+#: .\models.py:135
+msgid "Failed tasks"
+msgstr "失败任务"
+
+#: .\models.py:159
+msgid "e.g. 1, 2, 'John'"
+msgstr ""
+
+#: .\models.py:161
+msgid "e.g. x=1, y=2, name='John'"
+msgstr ""
+
+#: .\models.py:173
+msgid "Once"
+msgstr "一次"
+
+#: .\models.py:174
+msgid "Minutes"
+msgstr "每分"
+
+#: .\models.py:175
+msgid "Hourly"
+msgstr "每时"
+
+#: .\models.py:176
+msgid "Daily"
+msgstr "每天"
+
+#: .\models.py:177
+msgid "Weekly"
+msgstr "每周"
+
+#: .\models.py:178
+msgid "Monthly"
+msgstr "每月"
+
+#: .\models.py:179
+msgid "Quarterly"
+msgstr "每季"
+
+#: .\models.py:180
+msgid "Yearly"
+msgstr "每年"
+
+#: .\models.py:181
+msgid "Cron"
+msgstr ""
+
+#: .\models.py:184
+msgid "Schedule Type"
+msgstr "定时类型"
+
+#: .\models.py:187
+msgid "Number of minutes for the Minutes type"
+msgstr "每分钟任务的分钟数"
+
+#: .\models.py:190
+msgid "Repeats"
+msgstr "重复次数"
+
+#: .\models.py:190
+msgid "n = n times, -1 = forever"
+msgstr "n = n 次，-1 = 永远运行"
+
+#: .\models.py:193
+msgid "Next Run"
+msgstr "下次运行"
+
+#: .\models.py:200
+msgid "Cron expression"
+msgstr "Cron表达式"
+
+#: .\models.py:227
+msgid "Scheduled task"
+msgstr "定时任务"
+
+#: .\models.py:228
+msgid "Scheduled tasks"
+msgstr "定时任务"
+
+#: .\models.py:251
+msgid "Queued task"
+msgstr "任务队列"
+
+#: .\models.py:252
+msgid "Queued tasks"
+msgstr "任务队列"
+
+#: .\monitor.py:54 .\monitor.py:322
+msgid "Host"
+msgstr ""
+
+#: .\monitor.py:58 .\monitor.py:326 .\monitor.py:433
+msgid "Id"
+msgstr ""
+
+#: .\monitor.py:62
+msgid "State"
+msgstr ""
+
+#: .\monitor.py:66
+msgid "Pool"
+msgstr ""
+
+#: .\monitor.py:70
+msgid "TQ"
+msgstr ""
+
+#: .\monitor.py:74
+msgid "RQ"
+msgstr ""
+
+#: .\monitor.py:78
+msgid "RC"
+msgstr ""
+
+#: .\monitor.py:82
+msgid "Up"
+msgstr ""
+
+#: .\monitor.py:162 .\monitor.py:266
+msgid "Queued"
+msgstr ""
+
+#: .\monitor.py:170
+msgid "Success"
+msgstr ""
+
+#: .\monitor.py:180 .\monitor.py:274
+msgid "Failures"
+msgstr ""
+
+#: .\monitor.py:191
+msgid "[Press q to quit]"
+msgstr ""
+
+#: .\monitor.py:210
+msgid "day"
+msgstr ""
+
+#: .\monitor.py:231
+msgid "second"
+msgstr ""
+
+#: .\monitor.py:234
+msgid "minute"
+msgstr ""
+
+#: .\monitor.py:237
+msgid "hour"
+msgstr ""
+
+#: .\monitor.py:247
+msgid ""
+"-- {Conf.PREFIX.capitalize()} { \".\".join(str(v) for v in VERSION)} on "
+"{broker.info()}  --"
+msgstr ""
+
+#: .\monitor.py:253
+msgid "Clusters"
+msgstr ""
+
+#: .\monitor.py:257
+msgid "Workers"
+msgstr ""
+
+#: .\monitor.py:261
+msgid "Restarts"
+msgstr ""
+
+#: .\monitor.py:270
+msgid "Successes"
+msgstr ""
+
+#: .\monitor.py:279
+msgid "Schedules"
+msgstr ""
+
+#: .\monitor.py:283
+#, python-brace-format
+msgid "Tasks/{per}"
+msgstr ""
+
+#: .\monitor.py:287
+msgid "Avg time"
+msgstr ""
+
+#: .\monitor.py:331
+msgid "Available (%)"
+msgstr ""
+
+#: .\monitor.py:337
+msgid "Available (MB)"
+msgstr ""
+
+#: .\monitor.py:342
+msgid "Total (MB)"
+msgstr ""
+
+#: .\monitor.py:347
+msgid "Sentinel (MB)"
+msgstr ""
+
+#: .\monitor.py:353
+msgid "Monitor (MB)"
+msgstr ""
+
+#: .\monitor.py:359
+msgid "Workers (MB)"
+msgstr ""
+
+#: .\monitor.py:461
+msgid "Available lowest (%): {} ({})"
+msgstr ""
+
+#: .\signals.py:22
+#, python-brace-format
+msgid "malformed return hook '{instance.hook}' for [{instance.name}]"
+msgstr ""
+
+#: .\signals.py:30
+msgid ""
+"return hook {instance.hook} failed on [{instance.name}] because {str(e)}"
+msgstr ""
