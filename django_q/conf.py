@@ -86,6 +86,9 @@ class Conf:
     # Failures are always saved
     SAVE_LIMIT = conf.get("save_limit", 250)
 
+    # save-limit can be set per Task's "group" or "name" or "func"
+    SAVE_LIMIT_PER = conf.get("save_limit_per", None)
+
     # Guard loop sleep in seconds. Should be between 0 and 60 seconds.
     GUARD_CYCLE = conf.get("guard_cycle", 0.5)
 

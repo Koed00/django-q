@@ -407,6 +407,47 @@ def test_recycle(broker, monkeypatch):
     assert Success.objects.count() == Conf.SAVE_LIMIT
     broker.delete_queue()
 
+@pytest.mark.django_db
+def test_save_limit_per_func(broker, monkeypatch):
+    # set up the Sentinel
+    broker.list_key = "test_recycle_test:q"
+    async_task("django_q.tests.tasks.hello", broker=broker)
+    async_task("django_q.tests.tasks.countdown", 2, broker=broker)
+    async_task("django_q.tests.tasks.multiply", 2, 2, broker=broker)
+    start_event = Event()
+    stop_event = Event()
+    cluster_id = uuidlib.uuid4()
+    task_queue = Queue()
+    result_queue = Queue()
+    # override settings
+    monkeypatch.setattr(Conf, "RECYCLE", 3)
+    monkeypatch.setattr(Conf, "WORKERS", 1)
+    # set a timer to stop the Sentinel
+    threading.Timer(3, stop_event.set).start()
+    for i in range(3):
+        pusher(task_queue, stop_event, broker=broker)
+    worker(task_queue, result_queue, Value("f", -1))
+    s = Sentinel(stop_event, start_event, cluster_id=cluster_id, broker=broker)
+    assert start_event.is_set()
+    assert s.status() == Conf.STOPPED
+    # worker should exit on recycle
+    # check if the work has been done
+    assert result_queue.qsize() == 3
+    # save_limit test
+    monkeypatch.setattr(Conf, "SAVE_LIMIT", 1)
+    monkeypatch.setattr(Conf, "SAVE_LIMIT_PER", "func")
+    result_queue.put("STOP")
+    # run monitor
+    monitor(result_queue)
+    assert Success.objects.count() == 3
+    assert set(Success.objects.filter().values_list('func', flat=True)) == {
+        'django_q.tests.tasks.countdown',
+        'django_q.tests.tasks.hello',
+        'django_q.tests.tasks.multiply',
+    }
+    broker.delete_queue()
+
+
 
 @pytest.mark.django_db
 def test_max_rss(broker, monkeypatch):
