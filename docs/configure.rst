@@ -104,7 +104,7 @@ For example, with the following code
 
    # settings.py
    Q_CLUSTER = {
-      'retry': 5
+      'retry': 5,
       'workers': 4,
       'orm': 'default',
    }
