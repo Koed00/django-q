@@ -23,10 +23,10 @@ classifiers = [
     'Operating System :: MacOS',
     'Programming Language :: Python',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.6',
     'Programming Language :: Python :: 3.7',
     'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
     'Topic :: Internet :: WWW/HTTP',
     'Topic :: System :: Distributed Computing',
     'Topic :: Software Development :: Libraries :: Python Modules',
@@ -41,7 +41,7 @@ include = ['CHANGELOG.md']
 
 
 [tool.poetry.dependencies]
-python = ">=3.6.2, <4"
+python = ">=3.7.14, <4"
 django = ">=2.2"
 blessed = "^1.17.6"
 arrow = "^1.1.0"
