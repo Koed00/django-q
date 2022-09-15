@@ -41,7 +41,7 @@ include = ['CHANGELOG.md']
 
 
 [tool.poetry.dependencies]
-python = ">=3.7.14, <4"
+python = ">=3.7.13, <4"
 django = ">=2.2"
 blessed = "^1.17.6"
 arrow = "^1.1.0"
