@@ -1,12 +1,7 @@
-.. image:: docs/_static/logo.png
-    :align: center
-    :alt: Q logo
-    :target: https://django-q.readthedocs.org/
-
 A multiprocessing distributed task queue for Django
 ---------------------------------------------------
 
-|image0| |image1| |docs| |image2|
+|image0| |image1| |docs|
 
 Features
 ~~~~~~~~
@@ -31,9 +26,7 @@ Requirements
 -  `Arrow <https://github.com/crsmithdev/arrow>`__
 -  `Blessed <https://github.com/jquast/blessed>`__
 
-Tested with: Python 3.7, 3.8, 3.9 Django 2.2.X and 3.2.X
-
-.. warning:: Since Python 3.7 `async` became a reserved keyword and was refactored to `async_task`
+Tested with: Python 3.7, 3.8, 3.9, 3.10 Django 2.2.X and 3.2.X
 
 Brokers
 ~~~~~~~
@@ -255,12 +248,10 @@ Acknowledgements
 
 -  JetBrains for their `Open Source Support Program <https://www.jetbrains.com/community/opensource>`__
 
-.. |image0| image:: https://github.com/koed00/django-q/workflows/Tests/badge.svg?branche=master
+.. |image0| image:: https://github.com/GDay/django-q/workflows/Tests/badge.svg?branche=master
    :target: https://github.com/Koed00/django-q/actions?query=workflow%3Atests
-.. |image1| image:: http://codecov.io/github/Koed00/django-q/coverage.svg?branch=master
-   :target: http://codecov.io/github/Koed00/django-q?branch=master
-.. |image2| image:: http://badges.gitter.im/Join%20Chat.svg
-   :target: https://gitter.im/Koed00/django-q
+.. |image1| image:: https://coveralls.io/repos/github/GDay/django-q2/badge.svg?branch=master
+   :target: https://coveralls.io/github/GDay/django-q2?branch=master
 .. |docs| image:: https://readthedocs.org/projects/docs/badge/?version=latest
     :alt: Documentation Status
     :scale: 100
