@@ -60,9 +60,6 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             COVERALLS_FLAG_NAME: python-${{ matrix.python-version }}-django-${{ matrix.django }}
             COVERALLS_PARALLEL: true
-        - name: Build docs
-          run: |
-            poetry run sphinx-build -b html -d docs/_build/doctrees  -nW docs docs/_build/html
 
   finish:
     needs: test
