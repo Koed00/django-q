@@ -18,20 +18,20 @@ Installation
 
     $ python manage.py migrate
 
--  Choose a message :doc:`broker<brokers>` , configure it and install the appropriate client library.
+-  Choose a message :doc:`broker<brokers>`, configure it and install the appropriate client library.
 
--  Run Django Q cluster in order to handle tasks async::
+-  Run Django Q2 cluster in order to handle tasks async::
 
     $ python manage.py qcluster
 
 Requirements
 ------------
 
-Django Q is tested for Python 3.7, 3.8 and 3.9
+Django Q2 is tested for Python 3.7, 3.8, 3.9 and 3.10
 
 -  `Django <https://www.djangoproject.com>`__
 
-    Django Q aims to use as much of Django's standard offerings as possible
+    Django Q2 aims to use as much of Django's standard offerings as possible
     The code is tested against Django versions `2.2.x` and `3.2.x`.
     Please note that Django versions below 2.0 do not support Python 3.7
 
@@ -76,7 +76,7 @@ Optional
 
     $ pip install pymongo
 
-- `Redis <http://redis.io/>`__ server is the default broker for Django Q. It provides the best performance and does not require Django's cache framework for monitoring.
+- `Redis <http://redis.io/>`__ server is the default broker for Django Q2. It provides the best performance and does not require Django's cache framework for monitoring.
 
 - `Disque <https://github.com/antirez/disque>`__ server is based on Redis by the same author, but focuses on reliable queues. Currently in Alpha, but highly recommended. You can either build it from source or use it on Heroku through the `Tynd <https://disque.tynd.co/>`__ beta.
 
@@ -110,16 +110,13 @@ Add-ons
 
 - `django-q-email <https://github.com/joeyespo/django-q-email>`__ is a compatible Django email backend that will automatically async queue your emails.
 
-Compatibility
--------------
-Django Q is still a young project. If you do find any incompatibilities please submit an issue on `github <https://github.com/Koed00/django-q>`__.
 
 OS X
 ~~~~
-Running Django Q on OS X should work fine, except for the following known issues:
+Running Django Q2 on OS X should work fine, except for the following known issues:
 
 * :meth:`multiprocessing.Queue.qsize()` is not supported. This leads to the monitor not reporting the internal queue size of clusters running under OS X.
-* CPU count through :func:`multiprocessing.cpu_count()` does not work. Installing :ref:`psutil<psutil_package>` provides Django Q with an alternative way of determining the number of CPU's on your system
+* CPU count through :func:`multiprocessing.cpu_count()` does not work. Installing :ref:`psutil<psutil_package>` provides Django Q2 with an alternative way of determining the number of CPU's on your system
 * CPU affinity is provided by :ref:`psutil<psutil_package>` which at this time does not support this feature on OSX. The code however is aware of this and will fake the CPU affinity assignment in the logs without actually assigning it. This way you can still develop with this setting.
 
 Windows
@@ -130,14 +127,13 @@ This will run all ``async`` calls inline through a single cluster worker without
 Other known issues are:
 
 * :func:`os.getppid()` is only supported under windows since Python 3.2. If you use an older version you need to install :ref:`psutil<psutil_package>` as an alternative.
-* CPU count through :func:`multiprocessing.cpu_count()` occasionally fails on servers. Installing :ref:`psutil<psutil_package>` provides Django Q with an alternative way of determining the number of CPU's on your system
+* CPU count through :func:`multiprocessing.cpu_count()` occasionally fails on servers. Installing :ref:`psutil<psutil_package>` provides Django Q2 with an alternative way of determining the number of CPU's on your system
 * The monitor and info commands rely on the Curses package which is not officially supported on windows. There are however some ports available like `this one <http://www.lfd.uci.edu/~gohlke/pythonlibs/#curses>`__ by Christoph Gohlke.
 
 Python
 ~~~~~~
-The code is always tested against the latest version Python 3 and we try to stay compatible with the last two versions of each.
-Current tests are performed with 3.7 and 3.8
-If you do encounter any regressions with earlier versions, please submit an issue on `github <https://github.com/Koed00/django-q>`__
+Current tests are performed with 3.7, 3.8, 3.9 and 3.10
+If you do encounter any regressions with earlier versions, please submit an issue on `github <https://github.com/GDay/django-q2>`__
 
 .. note::
 
@@ -146,16 +142,13 @@ If you do encounter any regressions with earlier versions, please submit an issu
 
 Open-source packages
 ~~~~~~~~~~~~~~~~~~~~
-Django Q is always tested with the latest versions of the required and optional Python packages. We try to keep the dependencies as up to date as possible.
-You can reference the `requirements <https://github.com/Koed00/django-q/blob/master/requirements.txt>`__ file to determine which versions are currently being used for tests and development.
+Django Q2 is always tested with the latest versions of the required and optional Python packages. We try to keep the dependencies as up to date as possible.
+You can reference the `requirements <https://github.com/GDay/django-q2/blob/master/requirements.txt>`__ file to determine which versions are currently being used for tests and development.
 
 Django
 ~~~~~~
 We strive to be compatible with last two major version of Django.
-At the moment this means we support the 2.2.x and 3.1.x releases.
+At the moment this means we support the 2.2.x and 3.2.x releases.
 
 Since we are now no longer supporting Python 2, we can also not support older versions of Django that do not support Python >= 3.6
 For this you can always use older releases, but they are no longer maintained.
-
-
-

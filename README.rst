@@ -3,6 +3,10 @@ A multiprocessing distributed task queue for Django
 
 |image0| |image1| |docs|
 
+::
+
+    Django Q2 is a fork of Django Q. Big thanks to Ilan Steemers for starting this project. Unfortunately, development has stalled since June 2021. Django Q2 is the new updated version of Django Q, with dependencies updates, docs updates and several bug fixes. Original repository: https://github.com/Koed00/django-q
+
 Features
 ~~~~~~~~
 
@@ -30,12 +34,12 @@ Tested with: Python 3.7, 3.8, 3.9, 3.10 Django 2.2.X and 3.2.X
 
 Brokers
 ~~~~~~~
-- `Redis <https://django-q.readthedocs.org/en/latest/brokers.html#redis>`__
-- `Disque <https://django-q.readthedocs.org/en/latest/brokers.html#disque>`__
-- `IronMQ <https://django-q.readthedocs.org/en/latest/brokers.html#ironmq>`__
-- `Amazon SQS <https://django-q.readthedocs.org/en/latest/brokers.html#amazon-sqs>`__
-- `MongoDB <https://django-q.readthedocs.org/en/latest/brokers.html#mongodb>`__
-- `Django ORM <https://django-q.readthedocs.org/en/latest/brokers.html#django-orm>`__
+- `Redis <https://django-q2.readthedocs.org/en/latest/brokers.html#redis>`__
+- `Disque <https://django-q2.readthedocs.org/en/latest/brokers.html#disque>`__
+- `IronMQ <https://django-q2.readthedocs.org/en/latest/brokers.html#ironmq>`__
+- `Amazon SQS <https://django-q2.readthedocs.org/en/latest/brokers.html#amazon-sqs>`__
+- `MongoDB <https://django-q2.readthedocs.org/en/latest/brokers.html#mongodb>`__
+- `Django ORM <https://django-q2.readthedocs.org/en/latest/brokers.html#django-orm>`__
 
 Installation
 ~~~~~~~~~~~~
@@ -56,9 +60,9 @@ Installation
 
     $ python manage.py migrate
 
--  Choose a message `broker <https://django-q.readthedocs.org/en/latest/brokers.html>`__ , configure and install the appropriate client library.
+-  Choose a message `broker <https://django-q2.readthedocs.org/en/latest/brokers.html>`__ , configure and install the appropriate client library.
 
-Read the full documentation at `https://django-q.readthedocs.org <https://django-q.readthedocs.org>`__
+Read the full documentation at `https://django-q2.readthedocs.org <https://django-q2.readthedocs.org>`__
 
 
 Configuration
@@ -82,10 +86,11 @@ All configuration settings are optional. e.g:
         'redis': {
             'host': '127.0.0.1',
             'port': 6379,
-            'db': 0, }
+            'db': 0,
+        }
     }
 
-For full configuration options, see the `configuration documentation <https://django-q.readthedocs.org/en/latest/configure.html>`__.
+For full configuration options, see the `configuration documentation <https://django-q2.readthedocs.org/en/latest/configure.html>`__.
 
 Management Commands
 ~~~~~~~~~~~~~~~~~~~
@@ -138,7 +143,7 @@ Use `async_task` from your code to quickly offload tasks:
     def print_result(task):
         print(task.result)
 
-For more info see `Tasks <https://django-q.readthedocs.org/en/latest/tasks.html>`__
+For more info see `Tasks <https://django-q2.readthedocs.org/en/latest/tasks.html>`__
 
 
 Schedule
@@ -183,7 +188,7 @@ Admin page or directly from your code:
              schedule_type=Schedule.CRON,
              cron = '0 22 * * 1-5')
 
-For more info check the `Schedules <https://django-q.readthedocs.org/en/latest/schedules.html>`__ documentation.
+For more info check the `Schedules <https://django-q2.readthedocs.org/en/latest/schedules.html>`__ documentation.
 
 
 Testing
@@ -248,8 +253,8 @@ Acknowledgements
 
 -  JetBrains for their `Open Source Support Program <https://www.jetbrains.com/community/opensource>`__
 
-.. |image0| image:: https://github.com/GDay/django-q/workflows/Tests/badge.svg?branche=master
-   :target: https://github.com/Koed00/django-q/actions?query=workflow%3Atests
+.. |image0| image:: https://github.com/GDay/django-q2/actions/workflows/test.yml/badge.svg?branche=master
+   :target: https://github.com/GDay/django-q2/actions?query=workflow%3Atests
 .. |image1| image:: https://coveralls.io/repos/github/GDay/django-q2/badge.svg?branch=master
    :target: https://coveralls.io/github/GDay/django-q2?branch=master
 .. |docs| image:: https://readthedocs.org/projects/docs/badge/?version=latest

@@ -5,7 +5,7 @@ Signals
 Available signals
 -----------------
 
-Django Q emits the following signals during its lifecycle.
+Django Q2 emits the following signals during its lifecycle.
 
 Before enqueuing a task
 """""""""""""""""""""""
@@ -33,7 +33,7 @@ executed by a worker and processed by the monitor. It included the ``task`` dict
 Subscribing to a signal
 -----------------------
 
-Connecting to a Django Q signal is done the same as any other Django
+Connecting to a Django Q2 signal is done the same as any other Django
 signal::
 
     from django.dispatch import receiver

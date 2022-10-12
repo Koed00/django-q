@@ -3,9 +3,12 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Django Q
-===================
-Django Q is a native Django task queue, scheduler and worker application using Python multiprocessing.
+Welcome to Django Q2
+====================
+Django Q2 is a native Django task queue, scheduler and worker application using Python multiprocessing.
+
+.. note::
+    Django Q2 is a fork of Django Q. Big thanks to Ilan Steemers for starting this project. Unfortunately, development of Django Q has stalled since June 2021. Django Q2 is the new updated version of Django Q, with dependencies updates, docs updates and several bug fixes. Original repository: https://github.com/Koed00/django-q
 
 
 Features
@@ -24,7 +27,7 @@ Features
 -  Rollbar and Sentry support
 
 
-Django Q is tested with: Python 3.7 and 3.8, Django 2.2.x and 3.2.x
+Django Q is tested with: Python 3.7, 3.8, 3.9 and 3.10, Django 2.2.x and 3.2.x
 
 Currently available in English, German and French.
 
@@ -50,5 +53,3 @@ Contents:
     Examples <examples>
 
 * :ref:`genindex`
-* :ref:`search`
-

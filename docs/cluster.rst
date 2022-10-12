@@ -3,7 +3,7 @@ Cluster
 =======
 .. py:currentmodule:: django_q
 
-Django Q uses Python's multiprocessing module to manage a pool of workers that will handle your tasks.
+Django Q2 uses Python's multiprocessing module to manage a pool of workers that will handle your tasks.
 Start your cluster using Django's ``manage.py`` command::
 
     $ python manage.py qcluster
@@ -60,7 +60,7 @@ If you host on `Heroku <https://heroku.com>`__ or you are using `Honcho <https:/
 
 Process managers
 ----------------
-While you certainly can run a Django Q with a process manager like `Supervisor <http://supervisord.org/>`__ or `Circus <https://circus.readthedocs.org/en/latest/>`__ it is not strictly necessary.
+While you certainly can run a Django Q2 with a process manager like `Supervisor <http://supervisord.org/>`__ or `Circus <https://circus.readthedocs.org/en/latest/>`__ it is not strictly necessary.
 The cluster has an internal sentinel that checks the health of all the processes and recycles or reincarnates according to your settings or in case of unexpected crashes.
 Because of the multiprocessing daemonic nature of the cluster, it is impossible for a process manager to determine the clusters health and resource usage.
 

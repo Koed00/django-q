@@ -7,9 +7,6 @@ Tasks
 async_task()
 ------------
 
-.. warning:: Since Python 3.7 `async` became a reserved keyword and was refactored to `async_task`
-
-
 Use :func:`async_task` from your code to quickly offload tasks to the :class:`Cluster`:
 
 .. code:: python
@@ -101,7 +98,7 @@ Please note that this will override any other option keywords.
 
 .. note::
     For tasks to be processed you will need to have a worker cluster running in the background using ``python manage.py qcluster``
-    or you need to configure Django Q to run in synchronous mode for testing using the :ref:`sync` option.
+    or you need to configure Django Q2 to run in synchronous mode for testing using the :ref:`sync` option.
 
 
 AsyncTask
@@ -221,7 +218,7 @@ Instead of setting ``sync`` on each individual ``async_task`` you can also confi
 Connection pooling
 ------------------
 
-Django Q tries to pass broker instances around its parts as much as possible to save you from running out of connections.
+Django Q2 tries to pass broker instances around its parts as much as possible to save you from running out of connections.
 When you are making individual calls to :func:`async_task` a lot though, it can help to set up a broker to reuse for :func:`async_task`:
 
 .. code:: python
@@ -236,7 +233,7 @@ When you are making individual calls to :func:`async_task` a lot though, it can 
 
 .. tip::
 
-    If you are using `django-redis <https://github.com/niwinz/django-redis>`__  and the redis broker, you can :ref:`configure <django_redis>` Django Q to use its connection pool.
+    If you are using `django-redis <https://github.com/niwinz/django-redis>`__  and the redis broker, you can :ref:`configure <django_redis>` Django Q2 to use its connection pool.
 
 
 Reference

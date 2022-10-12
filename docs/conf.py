@@ -16,7 +16,7 @@
 import os
 import sys
 
-import alabaster
+import sphinx_rtd_theme
 
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
@@ -37,7 +37,7 @@ nitpick_ignore = [('py:class', 'datetime')]
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'alabaster',
+    'sphinx_rtd_theme',
     'sphinx.ext.todo',
     'sphinx.ext.intersphinx',
     # 'sphinx.ext.autodoc'
@@ -62,9 +62,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'Django Q'
-copyright = '2015-2021, Ilan Steemers'
-author = 'Ilan Steemers'
+project = 'Django Q2'
+copyright = '2015-2021, Ilan Steemers - 2022, Stan Triepels'
+author = 'Ilan Steemers, Stan Triepels'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -124,19 +124,16 @@ todo_include_todos = True
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.None
 html_theme_options = {
-    'description': "A multiprocessing task queue for Django",
-    'logo': 'logo.png',
-    'github_user': 'Koed00',
-    'github_repo': 'django-q',
-    'github_banner': True,
-    'travis_button': True,
-    'analytics_id': 'UA-64807059-1'
+    # 'description': "A multiprocessing task queue for Django",
+    # 'github_user': 'GDay',
+    # 'github_repo': 'django-q2',
+    # 'github_banner': True,
 }
 html_sidebars = {
     '**': [
@@ -147,7 +144,7 @@ html_sidebars = {
     ]
 }
 # Add any paths that contain custom themes here, relative to this directory.
-html_theme_path = [alabaster.get_path()]
+# html_theme_path = []
 
 
 # The name for this set of Sphinx documents.  If None, it defaults to
@@ -232,7 +229,7 @@ html_static_path = ['_static']
 # html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'DjangoQdoc'
+htmlhelp_basename = 'DjangoQ2doc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -254,13 +251,13 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'DjangoQ.tex', 'Django Q Documentation',
+    (master_doc, 'DjangoQ2.tex', 'Django Q2 Documentation',
      'Ilan Steemers', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
-latex_logo = '_static/logo_large.png'
+# latex_logo = '_static/logo_large.png'
 
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.
@@ -284,7 +281,7 @@ latex_logo = '_static/logo_large.png'
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'djangoq', 'Django Q Documentation',
+    (master_doc, 'djangoq2', 'Django Q2 Documentation',
      [author], 1)
 ]
 
@@ -299,8 +296,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'DjangoQ', 'Django Q Documentation',
-     author, 'DjangoQ', 'A multiprocessing distributed task queue for Django.',
+    (master_doc, 'DjangoQ2', 'Django Q2 Documentation',
+     author, 'DjangoQ2', 'A multiprocessing distributed task queue for Django.',
      'Miscellaneous'),
 ]
 

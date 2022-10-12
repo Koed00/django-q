@@ -16,7 +16,7 @@ Configuration is handled via the ``Q_CLUSTER`` dictionary in your :file:`setting
         'save_limit': 250,
         'queue_limit': 500,
         'cpu_affinity': 1,
-        'label': 'Django Q',
+        'label': 'Django Q2',
         'redis': {
             'host': '127.0.0.1',
             'port': 6379,
@@ -96,7 +96,7 @@ Only works with brokers that support delivery receipts. Defaults to 60.
 
 The value must be bigger than the time it takes to complete longest task, i.e. :ref:`timeout` must be less than retry value and all tasks must complete
 in less time than the selected retry time. If this does not hold, i.e. the retry value is less than timeout or less than it takes to finish a task,
-Django-Q will start the task again if the used broker supports receipts.
+Django-Q2 will start the task again if the used broker supports receipts.
 
 For example, with the following code
 
@@ -167,7 +167,7 @@ Defaults to ``workers**2``.
 label
 ~~~~~
 
-The label used for the Django Admin page. Defaults to ``'Django Q'``
+The label used for the Django Admin page. Defaults to ``'Django Q2'``
 
 .. _catch_up:
 
@@ -225,7 +225,7 @@ of the cache connection you want to use instead of a direct Redis connection::
 
 
 .. tip::
-    Django Q uses your ``SECRET_KEY`` to sign task packages and prevent task crossover. So make sure you have it set up in your Django settings.
+    Django Q2 uses your ``SECRET_KEY`` to sign task packages and prevent task crossover. So make sure you have it set up in your Django settings.
 
 .. _disque_configuration:
 
@@ -243,7 +243,7 @@ If you want to use Disque as your broker, set this to a list of available Disque
     }
 
 
-Django Q is also compatible with the `Tynd Disque <https://disque.tynd.co/>`__  addon on `Heroku <https://heroku.com>`__::
+Django Q2 is also compatible with the `Tynd Disque <https://disque.tynd.co/>`__  addon on `Heroku <https://heroku.com>`__::
 
     # example Tynd Disque connection
     import os
@@ -339,15 +339,15 @@ Using the Django ORM backend will also enable the Queued Tasks table in the Admi
 If you need better performance , you should consider using a different database backend than the main project.
 Set ``orm`` to the name of that database connection and make sure you run migrations on it using the ``--database`` option.
 
-When using the Django database as a message broker, you can set the ``has_replica`` boolean keyword to ensure Django-Q works properly letting a `Database Router <https://docs.djangoproject.com/en/3.2/topics/db/multi-db/>`__. ::
+When using the Django database as a message broker, you can set the ``has_replica`` boolean keyword to ensure Django-Q2 works properly letting a `Database Router <https://docs.djangoproject.com/en/3.2/topics/db/multi-db/>`__. ::
 
     # example ORM broker connection with replica database
 
     Q_CLUSTER = {
-            ...
-            'orm': 'default',
-            'has_replica': True
-        }
+        ...
+        'orm': 'default',
+        'has_replica': True
+    }
 
 .. _mongo_configuration:
 
@@ -364,8 +364,8 @@ To use MongoDB as a message broker you simply provide the connection information
         'retry': 70,
         'queue_limit': 100,
         'mongo': {
-                'host': '127.0.0.1',
-                'port': 27017
+            'host': '127.0.0.1',
+            'port': 27017
         }
     }
 
@@ -389,7 +389,7 @@ You can use a custom broker class for your cluster workers::
         'name': 'Custom',
         'workers': 8,
         'timeout': 60,
-        'broker_class: 'myapp.broker.CustomBroker'
+        'broker_class': 'myapp.broker.CustomBroker'
     }
 
 Make sure your ``CustomBroker`` class inherits from either the base :class:`Broker` class or one of its children.
@@ -431,7 +431,7 @@ Defaults to ``True``
 
 error_reporter
 ~~~~~~~~~~~~~~
-You can redirect worker exceptions directly to various error reporters (for example `Rollbar <https://rollbar.com/>`__ or `Sentry <https://docs.sentry.io/>`__) by installing Django Q with the necessary `extras <https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies>`__.
+You can redirect worker exceptions directly to various error reporters (for example `Rollbar <https://rollbar.com/>`__ or `Sentry <https://docs.sentry.io/>`__) by installing Django Q2 with the necessary `extras <https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies>`__.
 
 To enable installed error reporters, you must provide the configuration settings required by an error reporter extension::
 
@@ -440,12 +440,12 @@ To enable installed error reporters, you must provide the configuration settings
         'error_reporter': {
             'rollbar': {
                 'access_token': '32we33a92a5224jiww8982',
-                'environment': 'Django-Q'
+                'environment': 'Django-Q2'
             }
         }
     }
 
-For more information on error reporters and developing error reporting plugins for Django Q, see :doc:`errors<errors>`.
+For more information on error reporters and developing error reporting plugins for Django Q2, see :doc:`errors<errors>`.
 
 cpu_affinity
 ~~~~~~~~~~~~
