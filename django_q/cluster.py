@@ -479,12 +479,21 @@ def save_task(task, broker: Broker):
     # SAVE LIMIT > 0: Prune database, SAVE_LIMIT 0: No pruning
     close_old_django_connections()
     try:
-        with db.transaction.atomic():
-            last = Success.objects.select_for_update().last()
-            if task["success"] and 0 < Conf.SAVE_LIMIT <= Success.objects.count():
-                last.delete()
+        if task["success"]:
+            # first apply per group success history limit
+            if "group" in task:
+                with db.transaction.atomic():
+                    qs = Success.objects.filter(group=task["group"])
+                    last = qs.select_for_update().last()
+                    if Conf.SAVE_LIMIT_PER_GROUP <= qs.count():
+                        last.delete()
+            # then apply global success history limit
+            with db.transaction.atomic():
+                last = Success.objects.select_for_update().last()
+                if Conf.SAVE_LIMIT <= Success.objects.count():
+                    last.delete()
         # check if this task has previous results
-        if Task.objects.filter(id=task["id"], name=task["name"]).exists():
+        try:
             existing_task = Task.objects.get(id=task["id"], name=task["name"])
             # only update the result if it hasn't succeeded yet
             if not existing_task.success:
@@ -499,8 +508,7 @@ def save_task(task, broker: Broker):
                 and existing_task.attempt_count >= Conf.MAX_ATTEMPTS
             ):
                 broker.acknowledge(task["ack_id"])
-
-        else:
+        except Task.DoesNotExist:
             func = task["func"]
             # convert func to string
             if inspect.isfunction(func):

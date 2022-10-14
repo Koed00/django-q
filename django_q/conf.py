@@ -86,6 +86,10 @@ class Conf:
     # Failures are always saved
     SAVE_LIMIT = conf.get("save_limit", 250)
 
+    # Maximum number of successful tasks of the same group kept in the database. 0 saves everything. -1 saves none
+    # Failures are always saved
+    SAVE_LIMIT_PER_GROUP = conf.get("save_limit_per_group", 5)
+
     # Guard loop sleep in seconds. Should be between 0 and 60 seconds.
     GUARD_CYCLE = conf.get("guard_cycle", 0.5)
 
@@ -137,8 +141,8 @@ class Conf:
     # Verify if retry and timeout settings are correct
     if not TIMEOUT or (TIMEOUT > RETRY):
         warn(
-            """Retry and timeout are misconfigured. Set retry larger than timeout, 
-        failure to do so will cause the tasks to be retriggered before completion. 
+            """Retry and timeout are misconfigured. Set retry larger than timeout,
+        failure to do so will cause the tasks to be retriggered before completion.
         See https://django-q.readthedocs.io/en/latest/configure.html#retry for details."""
         )
 
