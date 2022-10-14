@@ -86,9 +86,12 @@ class Conf:
     # Failures are always saved
     SAVE_LIMIT = conf.get("save_limit", 250)
 
-    # Maximum number of successful tasks of the same group kept in the database. 0 saves everything. -1 saves none
-    # Failures are always saved
-    SAVE_LIMIT_PER_GROUP = conf.get("save_limit_per_group", 5)
+    # save-limit can be set per Task's "group" or "name" or "func"
+    SAVE_LIMIT_PER = conf.get("save_limit_per", None)
+
+    # Verify SAVE_LIMIT_PER is valid
+    if SAVE_LIMIT_PER not in ["group", "name", "func", None]:
+        warn(f"SAVE_LIMIT_PER ({SAVE_LIMIT_PER}) is not a valid option. Options are: 'group', 'name', 'func' and None. Default is None.")
 
     # Guard loop sleep in seconds. Should be between 0 and 60 seconds.
     GUARD_CYCLE = conf.get("guard_cycle", 0.5)
@@ -143,7 +146,7 @@ class Conf:
         warn(
             """Retry and timeout are misconfigured. Set retry larger than timeout,
         failure to do so will cause the tasks to be retriggered before completion.
-        See https://django-q.readthedocs.io/en/latest/configure.html#retry for details."""
+        See https://django-q2.readthedocs.io/en/master/configure.html#retry for details."""
         )
 
     # Sets the amount of tasks the cluster will try to pop off the broker.

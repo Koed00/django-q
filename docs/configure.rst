@@ -142,6 +142,14 @@ Limits the amount of successful tasks saved to Django.
  - Defaults to ``250``
  - Failures are always saved.
 
+save_limit_per
+~~~~~~~~~~~~~
+
+The above ``save_limit`` for successful tasks can be fine tuned per task type using
+ - Set to ``"group"`` to store the tasks per group
+ - Other possible values are ``"func"``, ``"name"``, ``None``
+ - Defaults to ``None``
+
 guard_cycle
 ~~~~~~~~~~~
 

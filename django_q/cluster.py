@@ -457,6 +457,16 @@ def worker(
                 break
     logger.info(_(f"{proc_name} stopped doing work"))
 
+def get_func_repr(func):
+    # convert func to string
+    if inspect.isfunction(func):
+        return f"{func.__module__}.{func.__name__}"
+    elif inspect.ismethod(func):
+        return (
+            f"{func.__self__.__module__}."
+            f"{func.__self__.__name__}.{func.__name__}"
+        )
+    return func
 
 def save_task(task, broker: Broker):
     """
@@ -478,20 +488,19 @@ def save_task(task, broker: Broker):
         )
     # SAVE LIMIT > 0: Prune database, SAVE_LIMIT 0: No pruning
     close_old_django_connections()
+
     try:
-        if task["success"]:
-            # first apply per group success history limit
-            if "group" in task:
-                with db.transaction.atomic():
-                    qs = Success.objects.filter(group=task["group"])
-                    last = qs.select_for_update().last()
-                    if Conf.SAVE_LIMIT_PER_GROUP <= qs.count():
-                        last.delete()
-            # then apply global success history limit
-            with db.transaction.atomic():
-                last = Success.objects.select_for_update().last()
-                if Conf.SAVE_LIMIT <= Success.objects.count():
-                    last.delete()
+        filters = {}
+        if Conf.SAVE_LIMIT_PER and Conf.SAVE_LIMIT_PER in {"group", "name", "func"} and Conf.SAVE_LIMIT_PER in task:
+            value = task[Conf.SAVE_LIMIT_PER]
+            if Conf.SAVE_LIMIT_PER == "func":
+                value = get_func_repr(value)
+            filters[Conf.SAVE_LIMIT_PER] = value
+        with db.transaction.atomic():
+            last = Success.objects.filter(**filters).select_for_update().last()
+            if task["success"] and 0 < Conf.SAVE_LIMIT <= Success.objects.filter(**filters).count():
+                last.delete()
+
         # check if this task has previous results
         try:
             existing_task = Task.objects.get(id=task["id"], name=task["name"])
@@ -508,16 +517,10 @@ def save_task(task, broker: Broker):
                 and existing_task.attempt_count >= Conf.MAX_ATTEMPTS
             ):
                 broker.acknowledge(task["ack_id"])
+
         except Task.DoesNotExist:
-            func = task["func"]
             # convert func to string
-            if inspect.isfunction(func):
-                func = f"{func.__module__}.{func.__name__}"
-            elif inspect.ismethod(func):
-                func = (
-                    f"{func.__self__.__module__}."
-                    f"{func.__self__.__name__}.{func.__name__}"
-                )
+            func = get_func_repr(task["func"])
             Task.objects.create(
                 id=task["id"],
                 name=task["name"],
