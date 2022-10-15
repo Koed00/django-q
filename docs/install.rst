@@ -31,9 +31,8 @@ Django Q2 is tested for Python 3.7, 3.8, 3.9 and 3.10
 
 -  `Django <https://www.djangoproject.com>`__
 
-    Django Q2 aims to use as much of Django's standard offerings as possible
+    Django Q2 aims to use as much of Django's standard offerings as possible.
     The code is tested against Django versions `2.2.x` and `3.2.x`.
-    Please note that Django versions below 2.0 do not support Python 3.7
 
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
 
@@ -134,11 +133,6 @@ Python
 ~~~~~~
 Current tests are performed with 3.7, 3.8, 3.9 and 3.10
 If you do encounter any regressions with earlier versions, please submit an issue on `github <https://github.com/GDay/django-q2>`__
-
-.. note::
-
-    Django releases before 1.11 are not supported on Python 3.6
-    Django releases before 2.0 are not supported on Python 3.7
 
 Open-source packages
 ~~~~~~~~~~~~~~~~~~~~

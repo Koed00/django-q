@@ -46,7 +46,7 @@ Installation
 
 -  Install the latest version with pip::
 
-    $ pip install django-q
+    $ pip install django-q2
 
 
 -  Add `django_q` to your `INSTALLED_APPS` in your projects `settings.py`::
@@ -60,7 +60,7 @@ Installation
 
     $ python manage.py migrate
 
--  Choose a message `broker <https://django-q2.readthedocs.org/en/latest/brokers.html>`__ , configure and install the appropriate client library.
+-  Choose a message `broker <https://django-q2.readthedocs.org/en/latest/brokers.html>`__, configure and install the appropriate client library.
 
 Read the full documentation at `https://django-q2.readthedocs.org <https://django-q2.readthedocs.org>`__
 
