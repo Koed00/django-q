@@ -11,8 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ "3.7", "3.8", "3.9", "3.10" ]
-        django: [ "2.2", "3.2" ]
+        python-version: [ "3.8", "3.9", "3.10" ]
+        django: [ "3.2", "4.1" ]
+
     services:
       disque:
         image: efrecon/disque:1.0-rc1
@@ -52,6 +53,9 @@ jobs:
         - name: Run Tests
           run: |
             poetry run pytest --cov=./django_q --cov-report=xml
+          env:
+            MONGO_HOST: "127.0.0.1"
+            REDIS_HOST: "127.0.0.1"
         - name: Upload to coveralls
           run: |
             python -m pip install coveralls

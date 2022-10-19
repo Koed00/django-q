@@ -173,11 +173,6 @@ def get_broker(list_key: str = Conf.PREFIX) -> Broker:
         m = importlib.import_module(module)
         broker = getattr(m, func)
         return broker(list_key=list_key)
-    # disque
-    elif Conf.DISQUE_NODES:
-        from django_q.brokers import disque
-
-        return disque.Disque(list_key=list_key)
     # Iron MQ
     elif Conf.IRON_MQ:
         from django_q.brokers import ironmq

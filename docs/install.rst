@@ -32,15 +32,11 @@ Django Q2 is tested for Python 3.7, 3.8, 3.9 and 3.10
 -  `Django <https://www.djangoproject.com>`__
 
     Django Q2 aims to use as much of Django's standard offerings as possible.
-    The code is tested against Django versions `2.2.x` and `3.2.x`.
+    The code is tested against Django versions `3.2.x` and `4.1.x`.
 
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
 
     Used to store args, kwargs and result objects in the database.
-
--  `Arrow <https://github.com/crsmithdev/arrow>`__
-
-    The scheduler uses Chris Smith's wonderful project to determine correct dates in the future.
 
 -  `Blessed <https://github.com/jquast/blessed>`__
 
@@ -49,7 +45,7 @@ Django Q2 is tested for Python 3.7, 3.8, 3.9 and 3.10
 
 Optional
 ~~~~~~~~
--  `Redis-py <https://github.com/andymccurdy/redis-py>`__ client by Andy McCurdy is used  to interface with both the Redis and Disque brokers::
+-  `Redis-py <https://github.com/andymccurdy/redis-py>`__ client by Andy McCurdy is used  to interface with both the Redis::
 
     $ pip install redis
 
@@ -76,8 +72,6 @@ Optional
     $ pip install pymongo
 
 - `Redis <http://redis.io/>`__ server is the default broker for Django Q2. It provides the best performance and does not require Django's cache framework for monitoring.
-
-- `Disque <https://github.com/antirez/disque>`__ server is based on Redis by the same author, but focuses on reliable queues. Currently in Alpha, but highly recommended. You can either build it from source or use it on Heroku through the `Tynd <https://disque.tynd.co/>`__ beta.
 
 - `MongoDB <https://www.mongodb.org/>`__ is a highly scalable NoSQL database which makes for a very fast and reliably persistent at-least-once message broker. Usually available on most PaaS providers.
 
@@ -142,7 +136,7 @@ You can reference the `requirements <https://github.com/GDay/django-q2/blob/mast
 Django
 ~~~~~~
 We strive to be compatible with last two major version of Django.
-At the moment this means we support the 2.2.x and 3.2.x releases.
+At the moment this means we support the 3.2.x and 4.1.x releases.
 
 Since we are now no longer supporting Python 2, we can also not support older versions of Django that do not support Python >= 3.6
 For this you can always use older releases, but they are no longer maintained.

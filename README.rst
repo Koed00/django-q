@@ -19,23 +19,21 @@ Features
 -  Django Admin integration
 -  PaaS compatible with multiple instances
 -  Multi cluster monitor
--  Redis, Disque, IronMQ, SQS, MongoDB or ORM
+-  Redis, IronMQ, SQS, MongoDB or ORM
 -  Rollbar and Sentry support
 
 Requirements
 ~~~~~~~~~~~~
 
--  `Django <https://www.djangoproject.com>`__ > = 2.2
+-  `Django <https://www.djangoproject.com>`__ > = 3.2
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
--  `Arrow <https://github.com/crsmithdev/arrow>`__
 -  `Blessed <https://github.com/jquast/blessed>`__
 
-Tested with: Python 3.7, 3.8, 3.9, 3.10 Django 2.2.X and 3.2.X
+Tested with: Python 3.7, 3.8, 3.9, 3.10 Django 3.2.X and 4.1.X
 
 Brokers
 ~~~~~~~
 - `Redis <https://django-q2.readthedocs.org/en/latest/brokers.html#redis>`__
-- `Disque <https://django-q2.readthedocs.org/en/latest/brokers.html#disque>`__
 - `IronMQ <https://django-q2.readthedocs.org/en/latest/brokers.html#ironmq>`__
 - `Amazon SQS <https://django-q2.readthedocs.org/en/latest/brokers.html#amazon-sqs>`__
 - `MongoDB <https://django-q2.readthedocs.org/en/latest/brokers.html#mongodb>`__
@@ -173,14 +171,14 @@ Admin page or directly from your code:
 
     # Run a task every 5 minutes, starting at 6 today
     # for 2 hours
-    import arrow
+    from datetime import datetime
 
     schedule('math.hypot',
              3, 4,
              schedule_type=Schedule.MINUTES,
              minutes=5,
              repeats=24,
-             next_run=arrow.utcnow().replace(hour=18, minute=0))
+             next_run=datetime.utcnow().replace(hour=18, minute=0))
 
     # Use a cron expression
     schedule('math.hypot',
@@ -194,45 +192,15 @@ For more info check the `Schedules <https://django-q2.readthedocs.org/en/latest/
 Testing
 ~~~~~~~
 
-To run the tests you will need the following in addition to install requirements:
-
-* `py.test <http://pytest.org/latest/>`__
-* `pytest-django <https://github.com/pytest-dev/pytest-django>`__
-* Disque from https://github.com/antirez/disque.git
-* Redis
-* MongoDB
-
-Or you can use the included Docker Compose file.
-
-The following commands can be used to run the tests:
+Running tests is easy with docker compose, it will also start the necessary databases. Just run:
 
 .. code:: bash
-
-    # Create virtual environment
-    python -m venv venv
-
-    # Install requirements
-    venv/bin/pip install -r requirements.txt
-
-    # Install test dependencies
-    venv/bin/pip install pytest pytest-django
-
-    # Install django-q
-    venv/bin/python setup.py develop
-
-    # Run required services (you need to have docker-compose installed)
-    docker-compose -f test-services-docker-compose.yaml up -d
-
-    # Run tests
-    venv/bin/pytest
-
-    # Stop the services required by tests (when you no longer plan to run tests)
-    docker-compose -f test-services-docker-compose.yaml down
+    docker-compose -f test-services-docker-compose.yaml run --rm django-q2 poetry run pytest
 
 Locale
 ~~~~~~
 
-Currently available in English, German and French.
+Currently available in English, German, Turkish, and French.
 Translation pull requests are always welcome.
 
 Todo

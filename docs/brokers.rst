@@ -2,7 +2,7 @@ Brokers
 =======
 
 The broker sits between your Django instances and your Django Q2 cluster instances; accepting, saving and delivering task packages.
-Currently we support a variety of brokers from the default Redis, bleeding edge Disque to the convenient ORM and fast MongoDB.
+Currently we support a variety of brokers.
 
 The default Redis broker does not support message receipts.
 This means that in case of a catastrophic failure of the cluster server or worker timeouts, tasks that were being executed get lost.
@@ -37,22 +37,6 @@ The default broker for Django Q2 clusters.
 * Does not support receipts
 * Can use existing :ref:`django_redis` connections.
 * Configure with :ref:`redis_configuration`-py compatible configuration
-
-Disque
-------
-Unlike Redis, Disque supports message receipts which make delivery to the cluster workers guaranteed.
-In our tests it is as fast or faster than the Redis broker.
-You can control the amount of time Disque should wait for completion of a task by configuring the :ref:`retry` setting.
-Bulk task retrieval is supported via the :ref:`bulk` option.
-
-* Delivery receipts
-* Atomic
-* Needs Django's `Cache framework <https://docs.djangoproject.com/en/4.0/topics/cache/#setting-up-the-cache>`__ configured for monitoring
-* Compatible with `Tynd <https://disque.tynd.co/>`__ Disque addon on `Heroku <https://heroku.com>`__
-* Still considered Alpha software
-* Supports bulk dequeue
-* Requires `Redis-py <https://github.com/andymccurdy/redis-py>`__ client library: ``pip install redis``
-* See the :ref:`disque_configuration` configuration section for more info.
 
 IronMQ
 ------

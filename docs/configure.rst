@@ -235,43 +235,6 @@ of the cache connection you want to use instead of a direct Redis connection::
 .. tip::
     Django Q2 uses your ``SECRET_KEY`` to sign task packages and prevent task crossover. So make sure you have it set up in your Django settings.
 
-.. _disque_configuration:
-
-disque_nodes
-~~~~~~~~~~~~
-If you want to use Disque as your broker, set this to a list of available Disque nodes and each cluster will randomly try to connect to them::
-
-    # example disque connection
-    Q_CLUSTER = {
-        'name': 'DisqueBroker',
-        'workers': 4,
-        'timeout': 60,
-        'retry': 60,
-        'disque_nodes': ['127.0.0.1:7711', '127.0.0.1:7712']
-    }
-
-
-Django Q2 is also compatible with the `Tynd Disque <https://disque.tynd.co/>`__  addon on `Heroku <https://heroku.com>`__::
-
-    # example Tynd Disque connection
-    import os
-
-    Q_CLUSTER = {
-        'name': 'TyndBroker',
-        'workers': 8,
-        'timeout': 30,
-        'retry': 60,
-        'bulk': 10,
-        'disque_nodes': os.environ['TYND_DISQUE_NODES'].split(','),
-        'disque_auth': os.environ['TYND_DISQUE_AUTH']
-    }
-
-
-disque_auth
-~~~~~~~~~~~
-
-Optional Disque password for servers that require authentication.
-
 .. _ironmq_configuration:
 
 iron_mq

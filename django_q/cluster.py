@@ -6,12 +6,9 @@ import signal
 import socket
 import traceback
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from multiprocessing import Event, Process, Value, current_process
 from time import sleep
-
-# External
-import arrow
 
 # Django
 from django import core, db
@@ -46,6 +43,8 @@ from django_q.queues import Queue
 from django_q.signals import post_execute, pre_execute
 from django_q.signing import BadSignature, SignedPackage
 from django_q.status import Stat, Status
+
+from .utils import add_months, add_years
 
 
 class Cluster:
@@ -635,22 +634,22 @@ def scheduler(broker: Broker = None):
                     q_options["hook"] = s.hook
                 # set up the next run time
                 if s.schedule_type != s.ONCE:
-                    next_run = arrow.get(s.next_run)
+                    next_run = s.next_run
                     while True:
                         if s.schedule_type == s.MINUTES:
-                            next_run = next_run.shift(minutes=+(s.minutes or 1))
+                            next_run = next_run + timedelta(minutes=(s.minutes or 1))
                         elif s.schedule_type == s.HOURLY:
-                            next_run = next_run.shift(hours=+1)
+                            next_run = next_run + timedelta(hours=1)
                         elif s.schedule_type == s.DAILY:
-                            next_run = next_run.shift(days=+1)
+                            next_run = next_run + timedelta(days=1)
                         elif s.schedule_type == s.WEEKLY:
-                            next_run = next_run.shift(weeks=+1)
+                            next_run = next_run + timedelta(weeks=1)
                         elif s.schedule_type == s.MONTHLY:
-                            next_run = next_run.shift(months=+1)
+                            next_run = add_months(next_run, 1)
                         elif s.schedule_type == s.QUARTERLY:
-                            next_run = next_run.shift(months=+3)
+                            next_run = add_months(next_run, 3)
                         elif s.schedule_type == s.YEARLY:
-                            next_run = next_run.shift(years=+1)
+                            next_run = add_years(next_run, 1)
                         elif s.schedule_type == s.CRON:
                             if not croniter:
                                 raise ImportError(
@@ -658,18 +657,11 @@ def scheduler(broker: Broker = None):
                                         "Please install croniter to enable cron expressions"
                                     )
                                 )
-                            next_run = arrow.get(
-                                croniter(s.cron, localtime()).get_next()
-                            )
-                        if Conf.CATCH_UP or next_run > arrow.utcnow():
+                            next_run = croniter(s.cron, localtime()).get_next(datetime)
+                        if Conf.CATCH_UP or next_run > localtime():
                             break
-                    # arrow always returns a tz aware datetime, and we don't want
-                    # this when we explicitly configured django with USE_TZ=False
-                    s.next_run = (
-                        next_run.datetime
-                        if settings.USE_TZ
-                        else next_run.datetime.replace(tzinfo=None)
-                    )
+
+                    s.next_run = next_run
                     s.repeats += -1
                 # send it to the cluster
                 scheduled_broker = broker

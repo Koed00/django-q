@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import sys
 import threading
@@ -32,6 +33,7 @@ from django_q.tasks import (
     result_group,
 )
 from django_q.tests.tasks import TaskError, multiply
+from django_q.utils import add_months, add_years
 
 
 class WordClass:
@@ -743,3 +745,43 @@ def assert_result(task):
 def assert_bad_result(task):
     assert task is not None
     assert task.success is False
+
+
+@pytest.mark.django_db
+def test_add_months():
+    # add some months
+    initial_date = datetime(2020, 2, 2)
+    new_date = add_months(initial_date, 3)
+    assert new_date.year == 2020
+    assert new_date.month == 5
+    assert new_date.day == 2
+
+    # push to next year
+    initial_date = datetime(2020, 11, 2)
+    new_date = add_months(initial_date, 3)
+    assert new_date.year == 2021
+    assert new_date.month == 2
+    assert new_date.day == 2
+
+    # last day of the month
+    initial_date = datetime(2020, 1, 31)
+    new_date = add_months(initial_date, 1)
+    assert new_date.year == 2020
+    assert new_date.month == 2
+    assert new_date.day == 29
+
+@pytest.mark.django_db
+def test_add_years():
+    # add some months
+    initial_date = datetime(2020, 2, 2)
+    new_date = add_years(initial_date, 1)
+    assert new_date.year == 2021
+    assert new_date.month == 2
+    assert new_date.day == 2
+
+    # test leap year
+    initial_date = datetime(2020, 2, 29)
+    new_date = add_years(initial_date, 1)
+    assert new_date.year == 2021
+    assert new_date.month == 2
+    assert new_date.day == 28

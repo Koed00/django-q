@@ -45,15 +45,6 @@ class Conf:
 
     DJANGO_REDIS = conf.get("django_redis", None)
 
-    # Disque broker
-    DISQUE_NODES = conf.get("disque_nodes", None)
-
-    # Optional Authentication
-    DISQUE_AUTH = conf.get("disque_auth", None)
-
-    # Optional Fast acknowledge
-    DISQUE_FASTACK = conf.get("disque_fastack", False)
-
     # IronMQ broker
     IRON_MQ = conf.get("iron_mq", None)
 

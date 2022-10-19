@@ -3,7 +3,6 @@ from datetime import timedelta
 from multiprocessing import Event, Value
 from unittest import mock
 
-import arrow
 import pytest
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
@@ -128,7 +127,7 @@ def test_scheduler(broker, monkeypatch):
     assert schedule.repeats == 0
     assert schedule.last_run() is not None
     assert schedule.success() is True
-    assert schedule.next_run < arrow.get(timezone.now()).shift(hours=+1)
+    assert schedule.next_run < timezone.now() + timedelta(hours=1)
     task = fetch(schedule.task)
     assert task is not None
     assert task.success is True

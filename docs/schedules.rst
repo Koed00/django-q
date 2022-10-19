@@ -37,14 +37,14 @@ You can manage them through the :ref:`admin_page` or directly from your code wit
 
     # Run a schedule every 5 minutes, starting at 6 today
     # for 2 hours
-    import arrow
+    from datetime import datetime
 
     schedule('math.hypot',
              3, 4,
              schedule_type=Schedule.MINUTES,
              minutes=5,
              repeats=24,
-             next_run=arrow.utcnow().replace(hour=18, minute=0))
+             next_run=datetime.utcnow().replace(hour=18, minute=0))
 
     # Use a cron expression
     schedule('math.hypot',
