@@ -195,6 +195,7 @@ Testing
 Running tests is easy with docker compose, it will also start the necessary databases. Just run:
 
 .. code:: bash
+
     docker-compose -f test-services-docker-compose.yaml run --rm django-q2 poetry run pytest
 
 Locale

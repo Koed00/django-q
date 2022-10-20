@@ -46,9 +46,9 @@ include = ['CHANGELOG.md']
 [tool.poetry.dependencies]
 python = ">=3.8.14, <4"
 django = ">=3.2"
-blessed = "^1.19.1"
 django-picklefield = "^3.1"
 
+blessed = { version = "^1.19.1", optional = true }
 hiredis = { version = "^2.0.0", optional = true }
 redis = { version = "^4.3.4", optional = true }
 psutil = { version = "^5.9.2", optional = true }
@@ -72,7 +72,7 @@ isort = {extras = ["requirements_deprecated_finder"], version = "^5.10.1"}
 [tool.poetry.extras]
 requires = ["poetry_core>=1.0.0"]
 build-backend = ["poetry.core.masonry.api"]
-testing = ["django-redis", "croniter", "hiredis", "psutil", "iron-mq", "boto3", "pymongo"]
+testing = ["django-redis", "croniter", "hiredis", "psutil", "iron-mq", "boto3", "pymongo", "blessed"]
 rollbar = ["django-q-rollbar"]
 sentry = ["django-q-sentry"]
 

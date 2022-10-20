@@ -1,8 +1,5 @@
 from datetime import timedelta
 
-# external
-from blessed import Terminal
-
 # django
 from django.db import connection
 from django.db.models import F, Sum
@@ -22,6 +19,11 @@ try:
 except ImportError:
     psutil = None
 
+# optional
+try:
+    from blessed import Terminal
+except ImportError:
+    pass
 
 def get_process_mb(pid):
     try:
@@ -31,11 +33,17 @@ def get_process_mb(pid):
         mb_used = "NO_PROCESS_FOUND"
     return mb_used
 
+BLESSED_INSTALL_MESSAGE = "Blessed is not installed. Please install blessed to use this: https://pypi.org/project/blessed/"
 
 def monitor(run_once=False, broker=None):
     if not broker:
         broker = get_broker()
-    term = Terminal()
+    try:
+        term = Terminal()
+    except:
+        print(BLESSED_INSTALL_MESSAGE)
+        return
+
     broker.ping()
     with term.fullscreen(), term.hidden_cursor(), term.cbreak():
         val = None
@@ -195,7 +203,12 @@ def monitor(run_once=False, broker=None):
 def info(broker=None):
     if not broker:
         broker = get_broker()
-    term = Terminal()
+    try:
+        term = Terminal()
+    except:
+        print(BLESSED_INSTALL_MESSAGE)
+        return
+
     broker.ping()
     stat = Stat.get_all(broker=broker)
     # general stats
@@ -294,7 +307,11 @@ def info(broker=None):
 def memory(run_once=False, workers=False, broker=None):
     if not broker:
         broker = get_broker()
-    term = Terminal()
+    try:
+        term = Terminal()
+    except:
+        print(BLESSED_INSTALL_MESSAGE)
+        return
     broker.ping()
     if not psutil:
         print(term.clear_eos())
