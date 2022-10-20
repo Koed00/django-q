@@ -390,13 +390,13 @@ def monitor(result_queue: Queue, broker: Broker = None):
         # signal execution done
         post_execute.send(sender="django_q", task=task)
         # log the result
-        info_name = f"{task['name']} ({task['func']})"
+        info_name = get_func_repr(task['func'])
         if task["success"]:
             # log success
-            logger.info(_(f"Processed [{info_name}]"))
+            logger.info(_(f"Processed {info_name} ({task['name']})"))
         else:
             # log failure
-            logger.error(_(f"Failed [{info_name}] - {task['result']}"))
+            logger.error(_(f"Failed {info_name} ({task['name']}) - {task['result']}"))
     logger.info(_(f"{name} stopped monitoring results"))
 
 
@@ -422,8 +422,8 @@ def worker(
         task_count += 1
         # Get the function from the task
         func = task["func"]
-        func_name = func.__name__ if hasattr(func, "__name__") else str(func)
-        logger.info(_(f'{proc_name} processing [{task["name"]}({func_name})]'))
+        func_name = get_func_repr(func)
+        logger.info(_(f'{proc_name} processing {func_name} ({task["name"]})'))
         f = task["func"]
         # if it's not an instance try to get it from the string
         if not callable(task["func"]):
@@ -460,12 +460,13 @@ def get_func_repr(func):
     # convert func to string
     if inspect.isfunction(func):
         return f"{func.__module__}.{func.__name__}"
-    elif inspect.ismethod(func):
+    elif inspect.ismethod(func) and hasattr(func.__self__, '__name__'):
         return (
             f"{func.__self__.__module__}."
             f"{func.__self__.__name__}.{func.__name__}"
         )
-    return func
+    else:
+        return str(func)
 
 def save_task(task, broker: Broker):
     """
