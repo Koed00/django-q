@@ -393,10 +393,10 @@ def monitor(result_queue: Queue, broker: Broker = None):
         info_name = get_func_repr(task['func'])
         if task["success"]:
             # log success
-            logger.info(_(f"Processed {info_name} ({task['name']})"))
+            logger.info(_(f"Processed '{info_name}' ({task['name']})"))
         else:
             # log failure
-            logger.error(_(f"Failed {info_name} ({task['name']}) - {task['result']}"))
+            logger.error(_(f"Failed '{info_name}' ({task['name']}) - {task['result']}"))
     logger.info(_(f"{name} stopped monitoring results"))
 
 
@@ -423,7 +423,7 @@ def worker(
         # Get the function from the task
         func = task["func"]
         func_name = get_func_repr(func)
-        logger.info(_(f'{proc_name} processing {func_name} ({task["name"]})'))
+        logger.info(_(f"{proc_name} processing '{func_name}' ({task['name']})"))
         f = task["func"]
         # if it's not an instance try to get it from the string
         if not callable(task["func"]):
@@ -437,12 +437,12 @@ def worker(
         try:
             res = f(*task["args"], **task["kwargs"])
             result = (res, True)
-        except Exception as e:
-            result = (f"{e} : {traceback.format_exc()}", False)
+        except Exception:
+            result = (f"Could not process '{func_name}'. Check the location of the function and the args/kwargs.", False)
             if error_reporter:
                 error_reporter.report()
             if task.get("sync", False):
-                raise
+                raise Exception(result)
         with timer.get_lock():
             # Process result
             task["result"] = result[0]

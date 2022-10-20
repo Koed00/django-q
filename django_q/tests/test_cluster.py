@@ -64,7 +64,7 @@ def test_sync(broker):
 
 @pytest.mark.django_db
 def test_sync_raise_exception(broker):
-    with pytest.raises(TaskError):
+    with pytest.raises(Exception):
         async_task("django_q.tests.tasks.raise_exception", broker=broker, sync=True)
 
 
