@@ -38,13 +38,13 @@ Django Q2 is tested for Python 3.7, 3.8, 3.9 and 3.10
 
     Used to store args, kwargs and result objects in the database.
 
--  `Blessed <https://github.com/jquast/blessed>`__
-
-    This feature-filled fork of Erik Rose's blessings project provides the terminal layout of the monitor.
-
 
 Optional
 ~~~~~~~~
+-  `Blessed <https://github.com/jquast/blessed>`__ is used to display the statistics in the terminal::
+
+    $ pip install blessed
+
 -  `Redis-py <https://github.com/andymccurdy/redis-py>`__ client by Andy McCurdy is used  to interface with both the Redis::
 
     $ pip install redis

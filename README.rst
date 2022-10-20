@@ -27,7 +27,6 @@ Requirements
 
 -  `Django <https://www.djangoproject.com>`__ > = 3.2
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
--  `Blessed <https://github.com/jquast/blessed>`__
 
 Tested with: Python 3.7, 3.8, 3.9, 3.10 Django 3.2.X and 4.1.X
 
@@ -92,6 +91,11 @@ For full configuration options, see the `configuration documentation <https://dj
 
 Management Commands
 ~~~~~~~~~~~~~~~~~~~
+
+::
+
+    For the management commands to work, you will need to install Blessed: <https://github.com/jquast/blessed>
+
 
 Start a cluster with::
 
