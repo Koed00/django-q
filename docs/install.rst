@@ -4,7 +4,7 @@ Installation
 
 -  Install the latest version with pip::
 
-    $ pip install django-q
+    $ pip install django-q2
 
 
 -  Add :mod:`django_q` to ``INSTALLED_APPS`` in your projects :file:`settings.py`::
