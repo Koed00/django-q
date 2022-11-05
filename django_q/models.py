@@ -15,6 +15,7 @@ from picklefield.fields import dbsafe_decode
 # Local
 from django_q.conf import croniter
 from django_q.signing import SignedPackage
+from .utils import get_func_repr
 
 
 class Task(models.Model):
@@ -241,7 +242,7 @@ class OrmQ(models.Model):
         return SignedPackage.loads(self.payload)
 
     def func(self):
-        return self.task()["func"]
+        return get_func_repr(self.task()["func"])
 
     def task_id(self):
         return self.task()["id"]

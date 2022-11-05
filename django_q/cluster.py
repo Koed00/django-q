@@ -1,6 +1,5 @@
 # Standard
 import ast
-import inspect
 import pydoc
 import signal
 import socket
@@ -44,7 +43,7 @@ from django_q.signals import post_execute, pre_execute
 from django_q.signing import BadSignature, SignedPackage
 from django_q.status import Stat, Status
 
-from .utils import add_months, add_years
+from .utils import add_months, add_years, get_func_repr
 
 
 class Cluster:
@@ -455,18 +454,6 @@ def worker(
                 timer.value = -2  # Recycled
                 break
     logger.info(_(f"{proc_name} stopped doing work"))
-
-def get_func_repr(func):
-    # convert func to string
-    if inspect.isfunction(func):
-        return f"{func.__module__}.{func.__name__}"
-    elif inspect.ismethod(func) and hasattr(func.__self__, '__name__'):
-        return (
-            f"{func.__self__.__module__}."
-            f"{func.__self__.__name__}.{func.__name__}"
-        )
-    else:
-        return str(func)
 
 def save_task(task, broker: Broker):
     """

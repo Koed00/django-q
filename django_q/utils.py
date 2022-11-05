@@ -1,6 +1,5 @@
-import datetime
+import inspect
 from datetime import date
-from django.utils.timezone import make_aware
 import calendar
 
 # credits: https://stackoverflow.com/a/4131114
@@ -27,4 +26,17 @@ def add_years(d, years):
     except ValueError:
         new_date = d + (date(d.year + years, 3, 1) - date(d.year, 3, 1))
         return d.replace(year=new_date.year, month=new_date.month, day=new_date.day)
+
+
+def get_func_repr(func):
+    # convert func to string
+    if inspect.isfunction(func):
+        return f"{func.__module__}.{func.__name__}"
+    elif inspect.ismethod(func) and hasattr(func.__self__, '__name__'):
+        return (
+            f"{func.__self__.__module__}."
+            f"{func.__self__.__name__}.{func.__name__}"
+        )
+    else:
+        return str(func)
 
