@@ -1,8 +1,44 @@
 # Changelog
 
-## [Unreleased](https://github.com/koed00/django-q/tree/HEAD)
+## [Unreleased](https://github.com/GDay/django-q2/tree/HEAD)
 
-[Full Changelog](https://github.com/koed00/django-q/compare/v1.3.9...HEAD)
+**Merged pull requests:**
+
+- Fix: func reference in admin https://github.com/GDay/django-q2/pull/28
+
+
+## [v1.4.2](https://github.com/GDay/django-q2/tree/v1.4.2) (2022-11-22)
+
+**Merged pull requests:**
+
+- Make redis dependency optional and update boto3 #22
+
+## [v1.4.1](https://github.com/GDay/django-q2/tree/v1.4.1) (2022-11-21)
+
+**Merged pull requests:**
+
+- Fix typo configure.rst https://github.com/GDay/django-q2/pull/1
+- Update dependencies https://github.com/GDay/django-q2/pull/2
+- Show function name in log when running task https://github.com/GDay/django-q2/pull/3
+- Codecov -> Coveralls https://github.com/GDay/django-q2/pull/4
+- Fix: readthedocs config file https://github.com/GDay/django-q2/pull/5
+- Docs updates https://github.com/GDay/django-q2/pull/6
+- Feat: Release plan to pypi https://github.com/GDay/django-q2/pull/7
+- Feat: Turkish translations https://github.com/GDay/django-q2/pull/8
+- Fix: Connection issues with CONN_MAX_AGE > 0 https://github.com/GDay/django-q2/pull/9
+- Replace use of eval() by ast.parse() + ast.literal_eval() https://github.com/GDay/django-q2/pull/10
+- Admin improvements https://github.com/GDay/django-q2/pull/11
+- Save limit per group/func/name https://github.com/GDay/django-q2/pull/12
+- Use logger.hasHandlers() to setup fallback logging https://github.com/GDay/django-q2/pull/13
+- allow atomic on external db https://github.com/GDay/django-q2/pull/14
+- Fix install command and remove old warnings https://github.com/GDay/django-q2/pull/16
+- Remove arrow dependency https://github.com/GDay/django-q2/pull/17
+- Remove funding file, add docker/compose for development project and fix https://github.com/GDay/django-q2/pull/18
+- Fix unclear error when function is not called correctly https://github.com/GDay/django-q2/pull/19
+- Remove blessed dependency https://github.com/GDay/django-q2/pull/20
+- Release new version and docs fixes https://github.com/GDay/django-q2/pull/21
+
+## v1.4.0 
 
 **Closed issues:**
 

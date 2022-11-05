@@ -22,6 +22,18 @@ Features
 -  Redis, IronMQ, SQS, MongoDB or ORM
 -  Rollbar and Sentry support
 
+Changes compared to the original Django-Q:
+
+- Dropped support for Disque (hasn't been updated in a long time)
+- Dropped Redis, Arrow and Blessed dependencies
+- Updated all current dependencies
+- Added tests for Django 4.x
+- Added Turkish language
+- Improved admin area
+- Fixed a lot of issues
+
+See the `changelog <https://github.com/GDay/django-q2/blob/master/CHANGELOG.md>`__ for all changes.
+
 Requirements
 ~~~~~~~~~~~~
 
