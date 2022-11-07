@@ -27,7 +27,7 @@ Installation
 Requirements
 ------------
 
-Django Q2 is tested for Python 3.7, 3.8, 3.9 and 3.10
+Django Q2 is tested for Python 3.8, 3.9, 3.10 and 3.11
 
 -  `Django <https://www.djangoproject.com>`__
 
@@ -125,7 +125,7 @@ Other known issues are:
 
 Python
 ~~~~~~
-Current tests are performed with 3.7, 3.8, 3.9 and 3.10
+Current tests are performed with 3.8, 3.9, 3.10 and 3.11
 If you do encounter any regressions with earlier versions, please submit an issue on `github <https://github.com/GDay/django-q2>`__
 
 Open-source packages
