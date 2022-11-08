@@ -2,6 +2,8 @@
 
 ## [Unreleased](https://github.com/GDay/django-q2/tree/HEAD)
 
+**Merged pull requests:**
+- Fix: Deprecation warning for Django 5.x 
 
 ## [v1.4.3](https://github.com/GDay/django-q2/tree/v1.4.3) (2022-11-07)
 
@@ -9,7 +11,6 @@
 
 - Fix: func reference in admin https://github.com/GDay/django-q2/pull/28
 - Add python 3.11 support and remove 3.7 (as it was never supported by this package anyway)
-
 
 ## [v1.4.2](https://github.com/GDay/django-q2/tree/v1.4.2) (2022-10-22)
 
