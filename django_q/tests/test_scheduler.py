@@ -21,6 +21,7 @@ from django_q.tests.testing_utilities.multiple_database_routers import (
     TestingMultipleAppsDatabaseRouter,
     TestingReplicaDatabaseRouter,
 )
+from django_q.utils import add_months, add_years
 
 
 @pytest.fixture
@@ -226,6 +227,29 @@ def test_scheduler(broker, monkeypatch):
     schedule = Schedule.objects.get(pk=schedule.pk)
     assert schedule.next_run > now
     # Done
+    broker.delete_queue()
+
+    # test bimonthly
+    schedule = create_schedule(
+        "django_q.tests.tasks.word_multiply",
+        2,
+        word="catch_up",
+        schedule_type=Schedule.BIMONTHLY
+    )
+    scheduler(broker=broker)
+    schedule = Schedule.objects.get(pk=schedule.pk)
+    assert schedule.next_run.date() == add_months(timezone.now(), 2).date()
+
+    # test biweekly
+    schedule = create_schedule(
+        "django_q.tests.tasks.word_multiply",
+        2,
+        word="catch_up",
+        schedule_type=Schedule.BIWEEKLY
+    )
+    scheduler(broker=broker)
+    schedule = Schedule.objects.get(pk=schedule.pk)
+    assert schedule.next_run.date() == (timezone.now() + timedelta(weeks=2)).date()
     broker.delete_queue()
 
     monkeypatch.setattr(Conf, "PREFIX", "some_cluster_name")

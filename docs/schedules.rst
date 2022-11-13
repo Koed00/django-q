@@ -165,7 +165,7 @@ Reference
 
     .. py:attribute:: TYPE
 
-    :attr:`ONCE`, :attr:`MINUTES`, :attr:`HOURLY`, :attr:`DAILY`, :attr:`WEEKLY`, :attr:`MONTHLY`, :attr:`QUARTERLY`, :attr:`YEARLY`, :attr:`CRON`
+    :attr:`ONCE`, :attr:`MINUTES`, :attr:`HOURLY`, :attr:`DAILY`, :attr:`WEEKLY`, :attr:`BIWEEKLY`, :attr:`MONTHLY`, :attr:`BIMONTHLY`, :attr:`QUARTERLY`, :attr:`YEARLY`, :attr:`CRON`
 
 
     .. py:attribute:: minutes
@@ -224,9 +224,22 @@ Reference
 
     `'W'` the task will run every week on they day and time of the first run.
 
+    .. py:attribute:: BIWEEKLY
+
+    `'BW'` the task will run once every two weeks on they day and time of the first run.
+
     .. py:attribute:: MONTHLY
 
     `'M'` the tasks runs every month on they day and time of the last run.
+
+    .. note::
+
+        Months are tricky. If you schedule something on the 31st of the month and the next month has only 30 days or less, the task will run on the last day of the next month.
+        It will however continue to run on that day, e.g. the 28th, in subsequent months.
+
+    .. py:attribute:: BIMONTHLY
+
+    `'BM'` the tasks runs once every two months on they day and time of the last run.
 
     .. note::
 

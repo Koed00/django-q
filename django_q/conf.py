@@ -82,7 +82,7 @@ class Conf:
 
     # Verify SAVE_LIMIT_PER is valid
     if SAVE_LIMIT_PER not in ["group", "name", "func", None]:
-        warn(f"SAVE_LIMIT_PER ({SAVE_LIMIT_PER}) is not a valid option. Options are: 'group', 'name', 'func' and None. Default is None.")
+        warn(_("SAVE_LIMIT_PER (%(option)s) is not a valid option. Options are: 'group', 'name', 'func' and None. Default is None.") % {'option': SAVE_LIMIT_PER})
 
     # Guard loop sleep in seconds. Should be between 0 and 60 seconds.
     GUARD_CYCLE = conf.get("guard_cycle", 0.5)

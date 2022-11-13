@@ -3,7 +3,9 @@
 ## [Unreleased](https://github.com/GDay/django-q2/tree/HEAD)
 
 **Merged pull requests:**
-- Fix: Deprecation warning for Django 5.x 
+- Fix: Deprecation warning for Django 5.x https://github.com/GDay/django-q2/pull/34
+- Feat: Add biweekly and bimonthly https://github.com/GDay/django-q2/pull/36 
+- Fix: Fix all translation strings and remove compiled https://github.com/GDay/django-q2/pull/36 
 
 ## [v1.4.3](https://github.com/GDay/django-q2/tree/v1.4.3) (2022-11-07)
 

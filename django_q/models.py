@@ -166,7 +166,9 @@ class Schedule(models.Model):
     HOURLY = "H"
     DAILY = "D"
     WEEKLY = "W"
+    BIWEEKLY = "BW"
     MONTHLY = "M"
+    BIMONTHLY = "BM"
     QUARTERLY = "Q"
     YEARLY = "Y"
     CRON = "C"
@@ -176,13 +178,15 @@ class Schedule(models.Model):
         (HOURLY, _("Hourly")),
         (DAILY, _("Daily")),
         (WEEKLY, _("Weekly")),
+        (BIWEEKLY, _("Biweekly")),
         (MONTHLY, _("Monthly")),
+        (BIMONTHLY, _("Bimonthly")),
         (QUARTERLY, _("Quarterly")),
         (YEARLY, _("Yearly")),
         (CRON, _("Cron")),
     )
     schedule_type = models.CharField(
-        max_length=1, choices=TYPE, default=TYPE[0][0], verbose_name=_("Schedule Type")
+        max_length=2, choices=TYPE, default=TYPE[0][0], verbose_name=_("Schedule Type")
     )
     minutes = models.PositiveSmallIntegerField(
         null=True, blank=True, help_text=_("Number of minutes for the Minutes type")
