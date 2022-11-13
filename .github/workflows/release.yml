@@ -22,8 +22,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          apt-get update
-          apt-get -y install gettext
+          sudo apt-get update
+          sudo apt-get -y install gettext
           python -m pip install pip setuptools django poetry
           # compile messages to get .mo files
           django-admin compilemessages
