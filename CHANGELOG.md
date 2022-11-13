@@ -2,6 +2,10 @@
 
 ## [Unreleased](https://github.com/GDay/django-q2/tree/HEAD)
 
+## [v1.4.5](https://github.com/GDay/django-q2/tree/v1.4.5) (2022-11-13)
+
+- Fix release workflow
+
 ## [v1.4.4](https://github.com/GDay/django-q2/tree/v1.4.4) (2022-11-13)
 
 **Merged pull requests:**
