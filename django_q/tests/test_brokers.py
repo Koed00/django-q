@@ -2,12 +2,11 @@ import os
 from time import sleep
 
 import pytest
-import redis
 
 from django_q.brokers import Broker, get_broker
 from django_q.conf import Conf
 from django_q.humanhash import uuid
-from django_q.tests.settings import REDIS_HOST, MONGO_HOST
+from django_q.tests.settings import MONGO_HOST, REDIS_HOST
 
 
 def test_broker(monkeypatch):

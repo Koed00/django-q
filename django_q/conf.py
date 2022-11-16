@@ -73,7 +73,8 @@ class Conf:
     # Log output level
     LOG_LEVEL = conf.get("log_level", "INFO")
 
-    # Maximum number of successful tasks kept in the database. 0 saves everything. -1 saves none
+    # Maximum number of successful tasks kept in the database. 0 saves everything.
+    # -1 saves none
     # Failures are always saved
     SAVE_LIMIT = conf.get("save_limit", 250)
 
@@ -82,7 +83,13 @@ class Conf:
 
     # Verify SAVE_LIMIT_PER is valid
     if SAVE_LIMIT_PER not in ["group", "name", "func", None]:
-        warn(_("SAVE_LIMIT_PER (%(option)s) is not a valid option. Options are: 'group', 'name', 'func' and None. Default is None.") % {'option': SAVE_LIMIT_PER})
+        warn(
+            _(
+                "SAVE_LIMIT_PER (%(option)s) is not a valid option. Options are: "
+                "'group', 'name', 'func' and None. Default is None."
+            )
+            % {"option": SAVE_LIMIT_PER}
+        )
 
     # Guard loop sleep in seconds. Should be between 0 and 60 seconds.
     GUARD_CYCLE = conf.get("guard_cycle", 0.5)
@@ -113,11 +120,12 @@ class Conf:
     # Sets compression of redis packages
     COMPRESSED = conf.get("compress", False)
 
-    # Number of tasks each worker can handle before it gets recycled. Useful for releasing memory
+    # Number of tasks each worker can handle before it gets recycled.
+    # Useful for releasing memory
     RECYCLE = conf.get("recycle", 500)
 
-    # The maximum resident set size in kilobytes before a worker will recycle. Useful for limiting memory usage
-    # Not available on all platforms
+    # The maximum resident set size in kilobytes before a worker will recycle.
+    # Useful for limiting memory usage. Not available on all platforms
     MAX_RSS = conf.get("max_rss", None)
 
     # Number of seconds to wait for a worker to finish.
@@ -135,9 +143,10 @@ class Conf:
     # Verify if retry and timeout settings are correct
     if not TIMEOUT or (TIMEOUT > RETRY):
         warn(
-            """Retry and timeout are misconfigured. Set retry larger than timeout,
-        failure to do so will cause the tasks to be retriggered before completion.
-        See https://django-q2.readthedocs.io/en/master/configure.html#retry for details."""
+            "Retry and timeout are misconfigured. Set retry larger than timeout,"
+            "failure to do so will cause the tasks to be retriggered before completion."
+            "See https://django-q2.readthedocs.io/en/master/configure.html#retry "
+            "for details."
         )
 
     # Sets the amount of tasks the cluster will try to pop off the broker.
@@ -156,12 +165,14 @@ class Conf:
     # The Django cache to use
     CACHE = conf.get("cache", "default")
 
-    # Use the cache as result backend. Can be 'True' or an integer representing the global cache timeout.
+    # Use the cache as result backend. Can be 'True' or an integer representing the
+    # global cache timeout.
     # i.e 'cached: 60' , will make all results go the cache and expire in 60 seconds.
     CACHED = conf.get("cached", False)
 
     # If set to False the scheduler won't execute tasks in the past.
-    # Instead it will run once and reschedule the next run in the future. Defaults to True.
+    # Instead it will run once and reschedule the next run in the future. Defaults to
+    # True.
     CATCH_UP = conf.get("catch_up", True)
 
     # Use the secret key for package signing
@@ -257,5 +268,6 @@ def get_ppid():
         return psutil.Process(os.getpid()).ppid()
     else:
         raise OSError(
-            "Your OS does not support `os.getppid`. Please install `psutil` as an alternative provider."
+            "Your OS does not support `os.getppid`. Please install `psutil` as an "
+            "alternative provider."
         )

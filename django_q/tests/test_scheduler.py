@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.utils.timezone import is_naive
 
 from django_q.brokers import Broker, get_broker
-from django_q.cluster import monitor, pusher, scheduler, worker, localtime
+from django_q.cluster import localtime, monitor, pusher, scheduler, worker
 from django_q.conf import Conf
 from django_q.queues import Queue
 from django_q.tasks import Schedule, fetch
@@ -21,12 +21,15 @@ from django_q.tests.testing_utilities.multiple_database_routers import (
     TestingMultipleAppsDatabaseRouter,
     TestingReplicaDatabaseRouter,
 )
-from django_q.utils import add_months, add_years
+from django_q.utils import add_months
 
 
 @pytest.fixture
 def broker(monkeypatch) -> Broker:
-    """Patches the Conf object setting the DJANGO_REDIS attribute allowing a default redis configuration."""
+    """
+    Patches the Conf object setting the DJANGO_REDIS attribute allowing a default
+    redis configuration.
+    """
     monkeypatch.setattr(Conf, "DJANGO_REDIS", "default")
     return get_broker()
 
@@ -66,7 +69,7 @@ REPLICA_DATABASES = {
 }
 
 MULTIPLE_APPS_DATABASE_ROUTERS = [
-    f"{TestingMultipleAppsDatabaseRouter.__module__}.{TestingMultipleAppsDatabaseRouter.__name__}"
+    f"{TestingMultipleAppsDatabaseRouter.__module__}.{TestingMultipleAppsDatabaseRouter.__name__}"  # noqa: E501
 ]
 MULTIPLE_APPS_DATABASES = {
     "default": {
@@ -234,7 +237,7 @@ def test_scheduler(broker, monkeypatch):
         "django_q.tests.tasks.word_multiply",
         2,
         word="catch_up",
-        schedule_type=Schedule.BIMONTHLY
+        schedule_type=Schedule.BIMONTHLY,
     )
     scheduler(broker=broker)
     schedule = Schedule.objects.get(pk=schedule.pk)
@@ -245,7 +248,7 @@ def test_scheduler(broker, monkeypatch):
         "django_q.tests.tasks.word_multiply",
         2,
         word="catch_up",
-        schedule_type=Schedule.BIWEEKLY
+        schedule_type=Schedule.BIWEEKLY,
     )
     scheduler(broker=broker)
     schedule = Schedule.objects.get(pk=schedule.pk)
@@ -311,7 +314,8 @@ def test_scheduler_atomic_transaction_must_specify_a_database_when_no_replicas_a
     """
     GIVEN a environment without a read replica database
     WHEN the scheduler is called
-    THEN the transaction atomic must be called using the configured database in the Conf.ORM settings.
+    THEN the transaction atomic must be called using the configured database in the
+    Conf.ORM settings.
     """
     broker = orm_no_replica_broker
     with mock.patch("django_q.cluster.db") as mocked_db:
@@ -324,13 +328,14 @@ def test_scheduler_atomic_transaction_must_specify_a_database_when_no_replicas_a
     DATABASE_ROUTERS=REPLICA_DATABASE_ROUTERS, DATABASES=REPLICA_DATABASES
 )
 @pytest.mark.django_db
-def test_scheduler_atomic_transaction_must_specify_no_database_when_read_write_replicas_are_used(
+def test_scheduler_atomic_must_specify_no_db_when_read_write_replicas_are_used(
     orm_replica_broker: Broker,
 ):
     """
     GIVEN a environment with a read/write configured replica database
     WHEN the scheduler is called
-    THEN the transaction must be called without a specific database, thus letting the database router pick.
+    THEN the transaction must be called without a specific database, thus letting the
+    database router pick.
     """
     with mock.patch("django_q.cluster.db") as mocked_db:
         scheduler(broker=orm_replica_broker)
@@ -342,13 +347,14 @@ def test_scheduler_atomic_transaction_must_specify_no_database_when_read_write_r
     DATABASE_ROUTERS=MULTIPLE_APPS_DATABASE_ROUTERS, DATABASES=MULTIPLE_APPS_DATABASES
 )
 @pytest.mark.django_db
-def test_scheduler_atomic_transaction_must_specify_the_database_based_on_router_redirection(
+def test_scheduler_atomic_must_specify_the_database_based_on_router_redirection(
     orm_no_replica_broker: Broker,
 ):
     """
     GIVEN a environment without a read replica database
     WHEN the scheduler is called
-    THEN the transaction atomic must be called using the configured database in the Conf.ORM settings.
+    THEN the transaction atomic must be called using the configured database in the
+    Conf.ORM settings.
     """
     broker = orm_no_replica_broker
     with mock.patch("django_q.cluster.db") as mocked_db:

@@ -8,13 +8,19 @@ import django_q.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('django_q', '0011_auto_20200628_1055'),
+        ("django_q", "0011_auto_20200628_1055"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='schedule',
-            name='cron',
-            field=models.CharField(blank=True, help_text='Cron expression', max_length=100, null=True, validators=[django_q.models.validate_cron]),
+            model_name="schedule",
+            name="cron",
+            field=models.CharField(
+                blank=True,
+                help_text="Cron expression",
+                max_length=100,
+                null=True,
+                validators=[django_q.models.validate_cron],
+            ),
         ),
     ]

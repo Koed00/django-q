@@ -600,7 +600,8 @@ class Chain:
 
     def result(self, wait=0):
         """
-        return the full list of results from the chain when it finishes. blocks until timeout.
+        return the full list of results from the chain when it finishes. blocks until
+        timeout.
         :param int wait: how many milliseconds to wait for a result
         :return: an unsorted list of results
         """
@@ -611,7 +612,8 @@ class Chain:
 
     def fetch(self, failures=True, wait=0):
         """
-        get the task result objects from the chain when it finishes. blocks until timeout.
+        get the task result objects from the chain when it finishes. blocks until
+        timeout.
         :param failures: include failed tasks
         :param int wait: how many milliseconds to wait for a result
         :return: an unsorted list of task objects

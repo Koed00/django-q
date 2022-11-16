@@ -2,6 +2,10 @@
 
 ## [Unreleased](https://github.com/GDay/django-q2/tree/HEAD)
 
+**Merged pull requests:**
+
+- Chore: flake8, isort, black https://github.com/GDay/django-q2/pull/40
+
 ## [v1.4.5](https://github.com/GDay/django-q2/tree/v1.4.5) (2022-11-13)
 
 - Fix release workflow

@@ -1,9 +1,9 @@
 """Admin module for Django."""
+from django.contrib import admin
+from django.db.models.expressions import OuterRef, Subquery
 from django.urls import reverse
 from django.utils.html import format_html
-from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
-from django.db.models.expressions import OuterRef, Subquery
 
 from django_q.conf import Conf, croniter
 from django_q.models import Failure, OrmQ, Schedule, Success, Task
@@ -82,18 +82,27 @@ class ScheduleAdmin(admin.ModelAdmin):
         readonly_fields = ("cron",)
 
     list_filter = ("next_run", "schedule_type", "cluster")
-    search_fields = ("name", "func",)
+    search_fields = (
+        "name",
+        "func",
+    )
     list_display_links = ("id", "name")
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        task_query = Task.objects.filter(id=OuterRef('task')).values('id', 'name', 'success')
-        qs = qs.annotate(task_id=Subquery(task_query.values('id')), task_name=Subquery(task_query.values('name')),
-                         task_success=Subquery(task_query.values('success')))
+        task_query = Task.objects.filter(id=OuterRef("task")).values(
+            "id", "name", "success"
+        )
+        qs = qs.annotate(
+            task_id=Subquery(task_query.values("id")),
+            task_name=Subquery(task_query.values("name")),
+            task_success=Subquery(task_query.values("success")),
+        )
         return qs
 
     def get_success(self, obj):
         return obj.task_success
+
     get_success.boolean = True
     get_success.short_description = _("success")
 
@@ -105,6 +114,7 @@ class ScheduleAdmin(admin.ModelAdmin):
                 url = reverse("admin:django_q_failure_change", args=(obj.task_id,))
             return format_html(f'<a href="{url}">[{obj.task_name}]</a>')
         return None
+
     get_last_run.allow_tags = True
     get_last_run.short_description = _("last_run")
 
@@ -112,7 +122,7 @@ class ScheduleAdmin(admin.ModelAdmin):
 class QueueAdmin(admin.ModelAdmin):
     """queue admin for ORM broker"""
 
-    list_display = ("id", "key", "name",  "group", "func", "lock", "task_id")
+    list_display = ("id", "key", "name", "group", "func", "lock", "task_id")
 
     def save_model(self, request, obj, form, change):
         obj.save(using=Conf.ORM)

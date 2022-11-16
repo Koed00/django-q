@@ -15,6 +15,7 @@ from picklefield.fields import dbsafe_decode
 # Local
 from django_q.conf import croniter
 from django_q.signing import SignedPackage
+
 from .utils import get_func_repr
 
 
@@ -228,7 +229,6 @@ class Schedule(models.Model):
     success.short_description = _("success")
     last_run.allow_tags = True
     last_run.short_description = _("last_run")
-
 
     class Meta:
         app_label = "django_q"

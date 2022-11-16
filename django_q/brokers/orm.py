@@ -62,7 +62,7 @@ class ORM(Broker):
 
     def dequeue(self):
         tasks = self.get_connection().filter(key=self.list_key, lock__lt=_timeout())[
-            0 : Conf.BULK
+            0 : Conf.BULK  # noqa: E203
         ]
         if tasks:
             task_list = []
@@ -73,7 +73,8 @@ class ORM(Broker):
                     .update(lock=timezone.now())
                 ):
                     task_list.append((task.pk, task.payload))
-                # else don't process, as another cluster has been faster than us on that task
+                # else don't process, as another cluster has been faster than us on
+                # that task
             return task_list
         # empty queue, spare the cpu
         sleep(Conf.POLL)
