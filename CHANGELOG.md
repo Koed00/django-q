@@ -2,8 +2,12 @@
 
 ## [Unreleased](https://github.com/GDay/django-q2/tree/HEAD)
 
+
+## [v1.4.6](https://github.com/GDay/django-q2/tree/v1.4.6) (2022-11-30)
+
 **Merged pull requests:**
 
+- Fix: Log exceptions with logger.exception https://github.com/GDay/django-q2/pull/42
 - Chore: flake8, isort, black https://github.com/GDay/django-q2/pull/40
 
 ## [v1.4.5](https://github.com/GDay/django-q2/tree/v1.4.5) (2022-11-13)
