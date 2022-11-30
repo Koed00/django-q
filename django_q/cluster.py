@@ -367,7 +367,7 @@ def pusher(task_queue: Queue, event: Event, broker: Broker = None):
         try:
             task_set = broker.dequeue()
         except Exception as e:
-            logger.error(e, traceback.format_exc())
+            logger.exception("Failed to pull task from broker")
             # broker probably crashed. Let the sentinel handle it.
             sleep(10)
             break
@@ -378,7 +378,7 @@ def pusher(task_queue: Queue, event: Event, broker: Broker = None):
                 try:
                     task = SignedPackage.loads(task[1])
                 except (TypeError, BadSignature) as e:
-                    logger.error(e, traceback.format_exc())
+                    logger.exception("Failed to push task to queue")
                     broker.fail(ack_id)
                     continue
                 task["ack_id"] = ack_id
