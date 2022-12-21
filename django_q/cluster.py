@@ -6,7 +6,6 @@ import socket
 import traceback
 import uuid
 from datetime import datetime, timedelta
-from pytz import timezone as pytz_timezone
 from multiprocessing import Event, Process, Value, current_process
 from time import sleep
 
