@@ -2,6 +2,12 @@
 
 ## [Unreleased](https://github.com/GDay/django-q2/tree/HEAD)
 
+## [v1.4.8](https://github.com/GDay/django-q2/tree/v1.4.8) (2022-12-21)
+
+**Merged pull requests:**
+
+- Fix: allow both ZoneInfo and Pytz depending on django version https://github.com/GDay/django-q2/pull/55
+
 ## [v1.4.7](https://github.com/GDay/django-q2/tree/v1.4.7) (2022-12-21)
 
 **Merged pull requests:**
