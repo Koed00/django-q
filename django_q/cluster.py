@@ -485,19 +485,12 @@ def worker(
         try:
             res = f(*task["args"], **task["kwargs"])
             result = (res, True)
-        except Exception:
-            result = (
-                _(
-                    "Could not process '%(func_name)s'. Check the location of the "
-                    "function and the args/kwargs."
-                )
-                % {"func_name": func_name},
-                False,
-            )
+        except Exception as e:
+            result = (f"{e} : {traceback.format_exc()}", False)
             if error_reporter:
                 error_reporter.report()
             if task.get("sync", False):
-                raise Exception(result)
+                raise
         with timer.get_lock():
             # Process result
             task["result"] = result[0]

@@ -29,7 +29,7 @@ from django_q.tasks import (
     result,
     result_group,
 )
-from django_q.tests.tasks import multiply
+from django_q.tests.tasks import multiply, TaskError
 from django_q.utils import add_months, add_years
 
 myPath = os.path.dirname(os.path.abspath(__file__))
@@ -64,7 +64,7 @@ def test_sync(broker):
 
 @pytest.mark.django_db
 def test_sync_raise_exception(broker):
-    with pytest.raises(Exception):
+    with pytest.raises(TaskError):
         async_task("django_q.tests.tasks.raise_exception", broker=broker, sync=True)
 
 
