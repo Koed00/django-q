@@ -1,7 +1,7 @@
 A multiprocessing distributed task queue for Django
 ---------------------------------------------------
 
-|image0| |image1| |docs|
+|image0| |image1| |docs| |downloads|
 
 ::
 
@@ -245,4 +245,6 @@ Acknowledgements
 .. |docs| image:: https://readthedocs.org/projects/docs/badge/?version=latest
     :alt: Documentation Status
     :scale: 100
-    :target: https://django-q.readthedocs.org/
+    :target: https://django-q2.readthedocs.org/
+.. |downloads| image:: https://img.shields.io/pypi/dm/django-q2
+   :target: https://img.shields.io/pypi/dm/django-q2
