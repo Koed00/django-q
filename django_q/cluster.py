@@ -6,6 +6,7 @@ import socket
 import traceback
 import uuid
 from datetime import datetime, timedelta
+from pytz import timezone as pytz_timezone
 from multiprocessing import Event, Process, Value, current_process
 from time import sleep
 
@@ -43,7 +44,7 @@ from django_q.signals import post_execute, pre_execute
 from django_q.signing import BadSignature, SignedPackage
 from django_q.status import Stat, Status
 
-from .utils import add_months, add_years, get_func_repr
+from .utils import get_func_repr, localtime
 
 
 class Cluster:
@@ -700,33 +701,7 @@ def scheduler(broker: Broker = None):
                 if s.schedule_type != s.ONCE:
                     next_run = s.next_run
                     while True:
-                        if s.schedule_type == s.MINUTES:
-                            next_run = next_run + timedelta(minutes=(s.minutes or 1))
-                        elif s.schedule_type == s.HOURLY:
-                            next_run = next_run + timedelta(hours=1)
-                        elif s.schedule_type == s.DAILY:
-                            next_run = next_run + timedelta(days=1)
-                        elif s.schedule_type == s.WEEKLY:
-                            next_run = next_run + timedelta(weeks=1)
-                        elif s.schedule_type == s.BIWEEKLY:
-                            next_run = next_run + timedelta(weeks=2)
-                        elif s.schedule_type == s.MONTHLY:
-                            next_run = add_months(next_run, 1)
-                        elif s.schedule_type == s.BIMONTHLY:
-                            next_run = add_months(next_run, 2)
-                        elif s.schedule_type == s.QUARTERLY:
-                            next_run = add_months(next_run, 3)
-                        elif s.schedule_type == s.YEARLY:
-                            next_run = add_years(next_run, 1)
-                        elif s.schedule_type == s.CRON:
-                            if not croniter:
-                                raise ImportError(
-                                    _(
-                                        "Please install croniter to enable cron "
-                                        "expressions"
-                                    )
-                                )
-                            next_run = croniter(s.cron, localtime()).get_next(datetime)
+                        next_run = s.calculate_next_run(next_run)
                         if Conf.CATCH_UP or next_run > localtime():
                             break
 
@@ -842,10 +817,3 @@ def rss_check():
         elif psutil:
             return psutil.Process().memory_info().rss >= Conf.MAX_RSS * 1024
     return False
-
-
-def localtime() -> datetime:
-    """Override for timezone.localtime to deal with naive times and local times"""
-    if settings.USE_TZ:
-        return timezone.localtime()
-    return datetime.now()

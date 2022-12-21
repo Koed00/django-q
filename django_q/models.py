@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 # Django
 from django import get_version
 from django.core.exceptions import ValidationError
@@ -5,6 +7,7 @@ from django.db import models
 from django.template.defaultfilters import truncatechars
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.timezone import is_aware
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
@@ -13,8 +16,9 @@ from picklefield import PickledObjectField
 from picklefield.fields import dbsafe_decode
 
 # Local
-from django_q.conf import croniter
+from django_q.conf import croniter, Conf
 from django_q.signing import SignedPackage
+from django_q.utils import localtime, add_months, add_years
 
 from .utils import get_func_repr
 
@@ -207,6 +211,59 @@ class Schedule(models.Model):
     )
     task = models.CharField(max_length=100, null=True, editable=False)
     cluster = models.CharField(max_length=100, default=None, null=True, blank=True)
+
+    def calculate_next_run(self, next_run=None):
+        # next run is always in UTC
+        next_run = next_run or self.next_run
+
+        if self.schedule_type == self.CRON:
+            if not croniter:
+                raise ImportError(
+                    _("Please install croniter to enable cron expressions")
+                )
+            return croniter(self.cron, localtime()).get_next(datetime)
+
+        if self.schedule_type == self.MINUTES:
+            add = timedelta(minutes=(self.minutes or 1))
+        elif self.schedule_type == self.HOURLY:
+            add = timedelta(hours=1)
+        elif self.schedule_type == self.DAILY:
+            add = timedelta(days=1)
+        elif self.schedule_type == self.WEEKLY:
+            add = timedelta(weeks=1)
+        elif self.schedule_type == self.BIWEEKLY:
+            add = timedelta(weeks=2)
+        elif self.schedule_type == self.MONTHLY:
+            add = timedelta(days=(add_months(next_run, 1) - next_run).days)
+        elif self.schedule_type == self.BIMONTHLY:
+            add = timedelta(days=(add_months(next_run, 2) - next_run).days)
+        elif self.schedule_type == self.QUARTERLY:
+            add = timedelta(days=(add_months(next_run, 3) - next_run).days)
+        elif self.schedule_type == self.YEARLY:
+            add = timedelta(days=(add_years(next_run, 1) - next_run).days)
+
+        # add normal timedelta, we will correct this later based on timezone
+        next_run += add
+
+        # DST differencers don't matter with minutes, hourly or yearly, so skip those
+        if self.schedule_type not in [self.MINUTES, self.HOURLY, self.YEARLY]:
+            # Get localtimes and then remove the tzinfo, so we can get the actual difference
+            current_next_run = localtime(next_run - add).replace(tzinfo=None)
+            new_next_run = localtime(next_run).replace(tzinfo=None)
+
+            # get the difference between them, this should be (-)1 or (-)0.5 hour
+            # based on DST active or not
+            extra_diff = (new_next_run - current_next_run) - add
+
+            # if we have one positive hour difference, then subtract it, so we are even
+            # and vice versa. In most cases, this will be 0, as there won't be a
+            # timezone diff
+            if extra_diff > timedelta(hours=0):
+                next_run -= extra_diff
+            else:
+                next_run += extra_diff
+
+        return next_run
 
     def success(self):
         if self.task and Task.objects.filter(id=self.task):

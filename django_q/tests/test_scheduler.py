@@ -1,5 +1,6 @@
 import os
-from datetime import timedelta
+import pytz
+from datetime import datetime, timedelta
 from multiprocessing import Event, Value
 from unittest import mock
 
@@ -81,6 +82,63 @@ MULTIPLE_APPS_DATABASES = {
         "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
     },
 }
+
+
+@pytest.mark.django_db
+def test_scheduler_daylight_saving_time_daily(broker, monkeypatch):
+    # Set up a startdate in the Amsterdam timezone (without dst 1 hour ahead). The
+    # 28th of March 2021 is the day when sunlight saving starts (at 2 am)
+
+    monkeypatch.setattr(Conf, "TIME_ZONE", "Europe/Amsterdam")
+    tz = pytz.timezone('Europe/Amsterdam')
+    broker.list_key = "scheduler_test:q"
+    # Let's start a schedule at 1 am on the 27th of March. This is in AMS timezone.
+    # So, 2021-03-27 00:00:00 when saved (due to TZ being Amsterdam and saved in UTC)
+    start_date = datetime(2021, 3, 27, 1, 0, 0)
+
+    # Create schedule with the next run date on the start date. It will move one day
+    # forward when we run the scheduler
+    schedule = create_schedule(
+        "math.copysign",
+        1,
+        -1,
+        name="test math",
+        schedule_type=Schedule.DAILY,
+        next_run=start_date,
+    )
+
+    # Run scheduler so we get the next run date
+    scheduler(broker=broker)
+    schedule.refresh_from_db()
+
+    # It's now the day after exactly at midnight UTC
+    next_run = schedule.next_run
+    assert str(next_run) == "2021-03-28 00:00:00+00:00"
+
+    # In the Amsterdam timezone, it's 1 hour over midnight (+01)
+    next_run = next_run.astimezone(tz)
+    assert str(next_run) == "2021-03-28 01:00:00+01:00"
+
+    # Run scheduler so we get the next run date
+    scheduler(broker=broker)
+    schedule.refresh_from_db()
+
+    next_run = schedule.next_run
+
+    assert str(next_run) == "2021-03-28 23:00:00+00:00"
+    next_run = next_run.astimezone(tz)
+    # In the Amsterdam timezone, it's 1 hour over midnight (+02)
+    assert str(next_run) == "2021-03-29 01:00:00+02:00"
+
+    # Run scheduler so we get the next run date
+    scheduler(broker=broker)
+    schedule.refresh_from_db()
+
+    next_run = schedule.next_run
+
+    assert str(next_run) == "2021-03-29 23:00:00+00:00"
+    next_run = next_run.astimezone(tz)
+    assert str(next_run) == "2021-03-30 01:00:00+02:00"
 
 
 @pytest.mark.django_db

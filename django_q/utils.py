@@ -1,7 +1,13 @@
+from datetime import datetime
+import pytz
 import calendar
 import inspect
 from datetime import date
 
+from django.utils import timezone
+from django.conf import settings
+
+from django_q.conf import Conf
 
 # credits: https://stackoverflow.com/a/4131114
 # Made them aware of timezone
@@ -39,3 +45,13 @@ def get_func_repr(func):
         )
     else:
         return str(func)
+
+
+def localtime(value=None) -> datetime:
+    """Override for timezone.localtime to deal with naive times and local times"""
+    if settings.USE_TZ:
+        return timezone.localtime(value=value, timezone=pytz.timezone(Conf.TIME_ZONE))
+    if value is None:
+        return datetime.now()
+    else:
+        return value

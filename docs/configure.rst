@@ -70,6 +70,13 @@ Set this to something that makes sense for your project. Can be overridden for i
 
 See :ref:`retry` for details how to set values for timeout and retry.
 
+.. _time_zone:
+
+time_zone
+~~~~~~~
+
+The timezone that is used for task scheduling. Use this if you are having issue with DST. The scheduler uses UTC to calculate the next date and will therefore ignore any DST changes. This will cause 1 hour or 0.5 hour changes in the schedule when time is moved one hour ahead or back. Defaults to `settings.TIME_ZONE` if `USE_TZ` is enabled.
+
 .. _ack_failures:
 
 ack_failures
