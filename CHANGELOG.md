@@ -2,6 +2,14 @@
 
 ## [Unreleased](https://github.com/GDay/django-q2/tree/HEAD)
 
+## [v1.4.7](https://github.com/GDay/django-q2/tree/v1.4.7) (2022-12-21)
+
+**Merged pull requests:**
+
+- Fix: handling exceptions inside job function https://github.com/GDay/django-q2/pull/51
+- Fix: Daylight saving time issue with scheduler https://github.com/GDay/django-q2/pull/47
+- Chore: Fix badge and add download badge https://github.com/GDay/django-q2/pull/52
+- Chore: Remove release drafter https://github.com/GDay/django-q2/pull/53
 
 ## [v1.4.6](https://github.com/GDay/django-q2/tree/v1.4.6) (2022-11-30)
 

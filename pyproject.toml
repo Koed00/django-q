@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-q2"
-version = "1.4.6"
+version = "1.4.7"
 packages = [
     { include = "django_q" },
 ]
