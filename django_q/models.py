@@ -255,13 +255,8 @@ class Schedule(models.Model):
             # based on DST active or not
             extra_diff = (new_next_run - current_next_run) - add
 
-            # if we have one positive hour difference, then subtract it, so we are even
-            # and vice versa. In most cases, this will be 0, as there won't be a
-            # timezone diff
-            if extra_diff > timedelta(hours=0):
-                next_run -= extra_diff
-            else:
-                next_run += extra_diff
+            # subtract difference
+            next_run -= extra_diff
 
         return next_run
 

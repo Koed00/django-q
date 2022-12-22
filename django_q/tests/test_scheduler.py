@@ -149,6 +149,52 @@ def test_scheduler_daylight_saving_time_daily(broker, monkeypatch):
     next_run = next_run.astimezone(tz)
     assert str(next_run) == "2021-03-30 01:00:00+02:00"
 
+    # Create second schedule with the next run date on the start date. It will move
+    # one day forward when we run the scheduler
+    start_date = datetime(2021, 10, 29, 1, 0, 0)
+    schedule = create_schedule(
+        "django_q.tests.tasks.word_multiply",
+        2,
+        name="multiply",
+        schedule_type=Schedule.DAILY,
+        next_run=start_date,
+    )
+
+    # Run scheduler so we get the next run date
+    scheduler(broker=broker)
+    schedule.refresh_from_db()
+
+    next_run = schedule.next_run
+
+    assert str(next_run) == "2021-10-29 23:00:00+00:00"
+    # In the Amsterdam timezone, it's 1 hour over midnight (+02)
+    next_run = next_run.astimezone(tz)
+    assert str(next_run) == "2021-10-30 01:00:00+02:00"
+
+    # Run scheduler so we get the next run date
+    scheduler(broker=broker)
+    schedule.refresh_from_db()
+
+    next_run = schedule.next_run
+
+    assert str(next_run) == "2021-10-30 23:00:00+00:00"
+    # In the Amsterdam timezone, it's 1 hour over midnight (+02)
+    next_run = next_run.astimezone(tz)
+    assert str(next_run) == "2021-10-31 01:00:00+02:00"
+
+    # Run scheduler so we get the next run date
+    scheduler(broker=broker)
+    schedule.refresh_from_db()
+
+    next_run = schedule.next_run
+
+    assert str(next_run) == "2021-11-01 00:00:00+00:00"
+    # In the Amsterdam timezone, it's 1 hour over midnight (+01)
+    # Switch of DST
+    next_run = next_run.astimezone(tz)
+    assert str(next_run) == "2021-11-01 01:00:00+01:00"
+
+
 
 @pytest.mark.django_db
 def test_scheduler(broker, monkeypatch):
