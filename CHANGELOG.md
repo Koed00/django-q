@@ -2,6 +2,12 @@
 
 ## [Unreleased](https://github.com/GDay/django-q2/tree/HEAD)
 
+## [v1.4.9](https://github.com/GDay/django-q2/tree/v1.4.9) (2022-12-22)
+
+**Merged pull requests:**
+
+- Fix DST timezone change (move from DST to normal jump) https://github.com/GDay/django-q2/pull/56
+
 ## [v1.4.8](https://github.com/GDay/django-q2/tree/v1.4.8) (2022-12-21)
 
 **Merged pull requests:**
