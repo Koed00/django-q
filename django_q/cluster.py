@@ -366,7 +366,7 @@ def pusher(task_queue: Queue, event: Event, broker: Broker = None):
     while True:
         try:
             task_set = broker.dequeue()
-        except Exception as e:
+        except Exception:
             logger.exception("Failed to pull task from broker")
             # broker probably crashed. Let the sentinel handle it.
             sleep(10)
@@ -377,7 +377,7 @@ def pusher(task_queue: Queue, event: Event, broker: Broker = None):
                 # unpack the task
                 try:
                     task = SignedPackage.loads(task[1])
-                except (TypeError, BadSignature) as e:
+                except (TypeError, BadSignature):
                     logger.exception("Failed to push task to queue")
                     broker.fail(ack_id)
                     continue
@@ -473,7 +473,8 @@ def worker(
         )
         f = task["func"]
         # if it's not an instance try to get it from the string
-        if not callable(task["func"]):
+        if not callable(f):
+            # locate() returns None if f cannot be loaded
             f = pydoc.locate(f)
         close_old_django_connections()
         timer_value = task.pop("timeout", timeout)
@@ -482,6 +483,9 @@ def worker(
         # execute the payload
         timer.value = timer_value  # Busy
         try:
+            if f is None:
+                # raise a meaningfull error if task["func"] is not a valid function
+                raise ValueError(f"Function {task['func']} is not defined")
             res = f(*task["args"], **task["kwargs"])
             result = (res, True)
         except Exception as e:
@@ -584,8 +588,8 @@ def save_task(task, broker: Broker):
                 success=task["success"],
                 attempt_count=1,
             )
-    except Exception as e:
-        logger.error(e)
+    except Exception:
+        logger.exception("Could not save task result")
 
 
 def save_cached(task, broker: Broker):
@@ -636,8 +640,8 @@ def save_cached(task, broker: Broker):
                 )
         # save the task
         broker.cache.set(task_key, SignedPackage.dumps(task), timeout)
-    except Exception as e:
-        logger.error(e)
+    except Exception:
+        logger.exception("Could not save task result")
 
 
 def scheduler(broker: Broker = None):
@@ -725,11 +729,12 @@ def scheduler(broker: Broker = None):
                 else:
                     logger.info(
                         _(
-                            "%(process_name)s created a task from schedule "
+                            "%(process_name)s created task %(task_name)s from schedule "
                             "[%(schedule)s]"
                         )
                         % {
                             "process_name": current_process().name,
+                            "task_name": humanize(s.task),
                             "schedule": s.name or s.id,
                         }
                     )
@@ -742,8 +747,8 @@ def scheduler(broker: Broker = None):
                     s.repeats = 0
                 # save the schedule
                 s.save()
-    except Exception as e:
-        logger.error(e)
+    except Exception:
+        logger.exception("Could not create task from schedule")
 
 
 def close_old_django_connections():
