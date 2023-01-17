@@ -417,6 +417,38 @@ def test_scheduler(broker, monkeypatch):
     assert task_queue.qsize() == 1
 
 
+@pytest.mark.django_db
+def test_intended_schedule_kwarg(broker, monkeypatch):
+    broker.list_key = "scheduler_test:q"
+    broker.delete_queue()
+    run_date = timezone.now()-timedelta(hours=1)
+    schedule = create_schedule(
+        "math.copysign",
+        1,
+        -1,
+        name="test math",
+        hook="django_q.tests.tasks.result",
+        schedule_type=Schedule.HOURLY,
+        repeats=1,
+        next_run=run_date,
+        intended_date_kwarg='intended_date',
+    )
+    assert schedule.last_run() is None
+    assert schedule.intended_date_kwarg == 'intended_date'
+    # run scheduler
+    scheduler(broker=broker)
+    # set up the workflow
+    task_queue = Queue()
+    stop_event = Event()
+    stop_event.set()
+    # push it
+    pusher(task_queue, stop_event, broker=broker)
+    assert task_queue.qsize() == 1
+    task = task_queue.get()
+    assert 'intended_date' in task['kwargs']
+    assert task['kwargs']['intended_date'] == run_date.isoformat()
+
+
 @override_settings(
     DATABASE_ROUTERS=REPLICA_DATABASE_ROUTERS, DATABASES=REPLICA_DATABASES
 )

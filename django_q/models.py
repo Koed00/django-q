@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from keyword import iskeyword
 
 # Django
 from django import get_version
@@ -153,6 +154,10 @@ def validate_cron(value):
         raise ValidationError(e)
 
 
+def validate_kwarg(value):
+    return value.isidentifier() and not iskeyword(value)
+
+
 class Schedule(models.Model):
     name = models.CharField(max_length=100, null=True, blank=True)
     func = models.CharField(max_length=256, help_text="e.g. module.tasks.function")
@@ -211,6 +216,13 @@ class Schedule(models.Model):
     )
     task = models.CharField(max_length=100, null=True, editable=False)
     cluster = models.CharField(max_length=100, default=None, null=True, blank=True)
+    intended_date_kwarg = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        validators=[validate_kwarg],
+        help_text=_("Name of kwarg to pass intended schedule date"),
+    )
 
     def calculate_next_run(self, next_run=None):
         # next run is always in UTC

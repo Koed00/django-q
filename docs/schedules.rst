@@ -69,6 +69,10 @@ You can change this by setting the :ref:`catch_up` configuration setting to ``Fa
 The scheduler will then skip execution of scheduled events in the past.
 Instead those tasks will run once when the cluster starts again and the scheduler will find the next available slot in the future according to original schedule parameters.
 
+When :ref:`catch_up` is to ``True`` it may be useful for the task to know what was the date and time it was originally intended to run at.
+To achieve this, pass an identifier name to parameter `intended_date_kwarg` when creating the schedule. The intended datetime will then be passed - in isoformat string - as
+a kwarg with that identifier name to the task that has been created.
+
 Management Commands
 -------------------
 
@@ -123,9 +127,10 @@ Reference
     :param int repeats: Number of times to repeat schedule. -1=Always, 0=Never, n =n.
     :param datetime next_run: Next or first scheduled execution datetime.
     :param str cluster: optional cluster name. Task will be executed only on a cluster with a matching :ref:`name`.
+    :param str intended_date_kwarg: optional identifier to pass intended schedule date.
     :param dict q_options: options passed to async_task for this schedule
     :param kwargs: optional keyword arguments for the scheduled function.
-    
+
     .. note::
 
         q_options does not accept the 'broker' key with a broker instance but accepts a 'broker_name' key instead. This can be used to specify the broker connection name to assign the task. If a broker with the specified name does not exist or is not running at the moment of placing the task in queue it fallbacks to the random broker/queue that handled the schedule.
@@ -183,8 +188,12 @@ Reference
     When set to -1, this will keep counting down.
 
     .. py:attribute:: cluster
-    
+
     Task will be executed only on a cluster with a matching :ref:`name`.
+
+    .. py:attribute:: intended_date_kwarg
+
+    Name of kwarg to pass intended schedule date.
 
     .. py:attribute:: next_run
 
