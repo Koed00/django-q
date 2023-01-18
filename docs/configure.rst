@@ -317,16 +317,6 @@ Using the Django ORM backend will also enable the Queued Tasks table in the Admi
 If you need better performance , you should consider using a different database backend than the main project.
 Set ``orm`` to the name of that database connection and make sure you run migrations on it using the ``--database`` option.
 
-When using the Django database as a message broker, you can set the ``has_replica`` boolean keyword to ensure Django-Q2 works properly letting a `Database Router <https://docs.djangoproject.com/en/3.2/topics/db/multi-db/>`__. ::
-
-    # example ORM broker connection with replica database
-
-    Q_CLUSTER = {
-        ...
-        'orm': 'default',
-        'has_replica': True
-    }
-
 .. _mongo_configuration:
 
 mongo

@@ -54,9 +54,6 @@ class Conf:
     # ORM broker
     ORM = conf.get("orm", None)
 
-    # ORM support for read/write replicas
-    HAS_REPLICA = conf.get("has_replica", False)
-
     # Custom broker class
     BROKER_CLASS = conf.get("broker_class", None)
 
