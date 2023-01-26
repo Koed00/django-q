@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-15 23:35+0100\n"
+"POT-Creation-Date: 2023-01-26 01:38+0000\n"
 "PO-Revision-Date: 2018-08-05 18:28+0200\n"
 "Last-Translator: Jonas Winkler\n"
 "Language-Team: \n"
@@ -31,39 +31,38 @@ msgstr "erfolg"
 msgid "last_run"
 msgstr ""
 
-#: cluster.py:76
+#: cluster.py:79
 #, python-format
 msgid "Q Cluster %(name)s starting."
 msgstr "Q-Cluster %(name)s wird gestartet."
 
-#: cluster.py:84
+#: cluster.py:87
 #, fuzzy, python-format
 #| msgid "Q Cluster-{} stopping."
 msgid "Q Cluster %(name)s stopping."
 msgstr "Q-Cluster {name} wird gestoppt."
 
-#: cluster.py:91
+#: cluster.py:90
 #, python-format
 msgid "Q Cluster %(name)s has stopped."
 msgstr "Q-Cluster %(name)s wurde gestoppt."
 
-
-#: cluster.py:94
+#: cluster.py:97
 #, python-format
 msgid "%(name)s got signal %(signal)s"
 msgstr "%(name)s erhielt das Signal %(signal)s"
 
-#: cluster.py:225
+#: cluster.py:224
 #, python-format
 msgid "reincarnated monitor %(name)s after sudden death"
 msgstr "Monitor %(name)s wurde nach unerwartetem Absturz neu gestartet"
 
-#: cluster.py:227
+#: cluster.py:230
 #, python-format
 msgid "reincarnated pusher %(name)s after sudden death"
 msgstr "Pusher %(name)s wurde nach unerwartetem Absturz neu gestartet"
 
-#: cluster.py:251
+#: cluster.py:250
 #, fuzzy, python-format
 #| msgid "reincarnated worker %(name)s after timeout"
 msgid ""
@@ -71,102 +70,100 @@ msgid ""
 "%(task_name)s"
 msgstr "Worker %(name)s wurde nach Zeitüberschreitung neu gestartet"
 
-#: cluster.py:256
+#: cluster.py:255
 #, python-format
 msgid "reincarnated worker %(name)s after timeout"
 msgstr "Worker %(name)s wurde nach Zeitüberschreitung neu gestartet"
 
-#: cluster.py:242
+#: cluster.py:260
 #, python-format
 msgid "recycled worker %(name)s"
 msgstr "Worker %(name)s wurde wiederverwendet"
 
-#: cluster.py:245
+#: cluster.py:263
 #, python-format
 msgid "reincarnated worker %(name)s after death"
 msgstr "Worker %(name)s wurde nach unerwartetem Absturz neu gestartet"
 
-#: cluster.py:269
+#: cluster.py:287
 #, python-format
 msgid "%(name)s guarding cluster %(cluster_name)s"
 msgstr "%(name)s beschützt das Cluster %(cluster_name)s"
 
-#: cluster.py:278
+#: cluster.py:296
 #, python-format
 msgid "Q Cluster %(cluster_name)s running."
 msgstr "Q-Cluster %(cluster_name)s läuft."
 
-
-#: cluster.py:314
+#: cluster.py:332
 #, python-format
 msgid "%(name)s stopping cluster processes"
 msgstr "%(name)s hält Cluster-Prozesse an"
 
-#: cluster.py:339
+#: cluster.py:357
 #, python-format
 msgid "%(name)s waiting for the monitor."
 msgstr "%(name)s wartet auf den Monitor."
 
-
-#: cluster.py:384
+#: cluster.py:383
 #, fuzzy, python-format
 #| msgid "%(process_name)s pushing tasks at %(id)s"
 msgid "%(name)s pushing tasks at %(id)s"
 msgstr "%(process_name)s veröffentlicht Aufagaben auf %(id)s"
 
-#: cluster.py:408
+#: cluster.py:407
 #, python-format
 msgid "queueing from %(list_key)s"
 msgstr "Einreihen von %(list_key)s"
 
-#: cluster.py:412
+#: cluster.py:411
 #, python-format
 msgid "%(name)s stopped pushing tasks"
 msgstr "%(name)s veröffentlicht keine Aufgaben mehr"
 
-#: cluster.py:427
+#: cluster.py:426
 #, python-format
 msgid "%(name)s monitoring at %(id)s"
 msgstr "%(name)s beobachtet auf %(id)s"
 
-#: cluster.py:446
+#: cluster.py:445
 #, python-format
 msgid "Processed '%(info_name)s' (%(task_name)s)"
 msgstr "[%(task_name)s] - '%(info_name)s' wurde verarbeitet"
 
-#: cluster.py:452
+#: cluster.py:451
 #, python-format
 msgid "Failed '%(info_name)s' (%(task_name)s) - %(task_result)s"
 msgstr "'%(info_name)s' (%(task_name)s) ist fehlgeschlagen - %(task_result)s"
 
-#: cluster.py:459
+#: cluster.py:458
 #, python-format
 msgid "%(name)s stopped monitoring results"
 msgstr "%(name)s überwacht keine Ergebnisse mehr"
 
-#: cluster.py:475
+#: cluster.py:474
 #, python-format
 msgid "%(proc_name)s ready for work at %(id)s"
 msgstr "%(proc_name)s ist bereit für Arbeit auf %(id)s"
 
-#: cluster.py:495
+#: cluster.py:494
 #, fuzzy, python-format
 #| msgid "%(proc_name)s processing '%(func_name)s' (%(task_name)s)"
 msgid "%(proc_name)s processing %(task_name)s '%(func_name)s'"
 msgstr "%(proc_name)s verarbeitet '%(func_name)s' (%(task_name)s)"
 
-#: cluster.py:543
+#: cluster.py:546
 #, python-format
 msgid "%(proc_name)s stopped doing work"
 msgstr "%(proc_name)s hat die Arbeit beendet"
 
-#: cluster.py:756
+#: cluster.py:751
 #, python-format
 msgid "%(process_name)s failed to create a task from schedule [%(schedule)s]"
 msgstr ""
 "%(process_name)s konnte keine Aufgabe von Zeitplan [%(schedule)s] erstellen"
 
-#: cluster.py:767
+#: cluster.py:762
 #, fuzzy, python-format
 #| msgid "%(process_name)s created a task from schedule [%(schedule)s]"
 msgid ""
@@ -174,22 +171,22 @@ msgid ""
 msgstr ""
 "%(process_name)s hat eine Aufgabe des Zeitplans [%(schedule)s] erstellt"
 
-#: cluster.py:813
+#: cluster.py:808
 msgid "Skipping cpu affinity because psutil was not found."
 msgstr "Cpu-Affinität wird übersprungen, da psutil nicht gefunden wurde."
 
-#: cluster.py:818
+#: cluster.py:813
 msgid "Faking cpu affinity because it is not supported on this platform"
 msgstr ""
 "Vortäuschen von CPU-Affinität, da diese auf dieser Plattform nicht "
 "unterstützt wird"
 
-#: cluster.py:840
+#: cluster.py:835
 #, python-format
 msgid "%(pid)s will use cpu %(affinity)s"
 msgstr "%(pid)s wird CPU %(affinity)s benutzen"
 
-#: conf.py:93
+#: conf.py:90
 #, python-format
 msgid ""
 "SAVE_LIMIT_PER (%(option)s) is not a valid option. Options are: 'group', "
@@ -199,23 +196,23 @@ msgstr ""
 "'group', 'name', 'func' und None. Standard ist None."
 
 #. Translators: Cluster status descriptions
-#: conf.py:210
+#: conf.py:207
 msgid "Starting"
 msgstr "Wird gestartet"
 
-#: conf.py:211
+#: conf.py:208
 msgid "Working"
 msgstr "Arbeitet"
 
-#: conf.py:212
+#: conf.py:209
 msgid "Idle"
 msgstr "Leerlauf"
 
-#: conf.py:213
+#: conf.py:210
 msgid "Stopped"
 msgstr "Gestoppt"
 
-#: conf.py:214
+#: conf.py:211
 msgid "Stopping"
 msgstr "Wird gestoppt"
 
@@ -239,116 +236,119 @@ msgstr "Überwacht die Speichernutzung von Q Cluster"
 msgid "Monitors Q Cluster activity"
 msgstr "Q-Cluster aktiv überwachen"
 
-
-#: models.py:124
+#: models.py:125
 msgid "Successful task"
 msgstr "Erfolgreiche Aufgabe"
 
-#: models.py:125
+#: models.py:126
 msgid "Successful tasks"
 msgstr "Erfolgreiche Aufgaben"
 
-#: models.py:140
+#: models.py:141
 msgid "Failed task"
 msgstr "Fehlgeschlagene Aufgabe"
 
-#: models.py:141
+#: models.py:142
 msgid "Failed tasks"
 msgstr "Fehlgeschlagene Aufgaben"
 
-#: models.py:149 models.py:222
+#: models.py:150 models.py:234
 msgid "Please install croniter to enable cron expressions"
 msgstr "Bitte installieren Sie croniter, um Cron-Ausdrücke zu aktivieren"
 
-#: models.py:165
+#: models.py:170
 msgid "e.g. 1, 2, 'John'"
 msgstr "zum Beispiel 1, 2, 'John'"
 
-#: models.py:167
+#: models.py:172
 msgid "e.g. x=1, y=2, name='John'"
 msgstr "zum Beispiel x=1, y=2, name='John'"
 
-#: models.py:181
+#: models.py:186
 msgid "Once"
 msgstr "Einmal"
 
-#: models.py:182
+#: models.py:187
 msgid "Minutes"
 msgstr "Minuten"
 
-#: models.py:183
+#: models.py:188
 msgid "Hourly"
 msgstr "Stündlich"
 
-#: models.py:184
+#: models.py:189
 msgid "Daily"
 msgstr "Täglich"
 
-#: models.py:185
+#: models.py:190
 msgid "Weekly"
 msgstr "Wöchentlich"
 
-#: models.py:186
+#: models.py:191
 msgid "Biweekly"
 msgstr "Zweiwöchentlich"
 
-#: models.py:187
+#: models.py:192
 msgid "Monthly"
 msgstr "Monatlich"
 
-#: models.py:188
+#: models.py:193
 msgid "Bimonthly"
 msgstr "Zweimonatlich"
 
-#: models.py:189
+#: models.py:194
 msgid "Quarterly"
 msgstr "Vierteljährlich"
 
-#: models.py:190
+#: models.py:195
 msgid "Yearly"
 msgstr "Jährlich"
 
-#: models.py:191
+#: models.py:196
 msgid "Cron"
 msgstr "Cron"
 
-#: models.py:194
+#: models.py:199
 msgid "Schedule Type"
 msgstr "Zeitplan-Typ"
 
-#: models.py:197
+#: models.py:202
 msgid "Number of minutes for the Minutes type"
 msgstr "Anzahl Minuten für den Typ 'Minuten'"
 
-#: models.py:200
+#: models.py:205
 msgid "Repeats"
 msgstr "Wiederhohlungen"
 
-#: models.py:200
+#: models.py:205
 msgid "n = n times, -1 = forever"
 msgstr "n = n mal, -1 = für immer"
 
-#: models.py:203
+#: models.py:208
 msgid "Next Run"
 msgstr "Nächste Ausführung"
 
-#: models.py:210
+#: models.py:215
 msgid "Cron expression"
 msgstr "Cron-Ausdruck"
 
-#: models.py:287
+#: models.py:224
+msgid "Name of kwarg to pass intended schedule date"
+msgstr "Name des zu passierenden Kwargs vorgesehenes Datum"
+
+#: models.py:299
 msgid "Scheduled task"
 msgstr "Geplante Aufgabe"
 
-#: models.py:288
+#: models.py:300
 msgid "Scheduled tasks"
 msgstr "Geplante Aufgaben"
 
-#: models.py:314
+#: models.py:326
 msgid "Queued task"
 msgstr "Eingereihte Aufgabe"
 
-#: models.py:315
+#: models.py:327
 msgid "Queued tasks"
 msgstr "Eingereihte Aufgaben"
 
