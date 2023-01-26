@@ -55,6 +55,10 @@ Optional
 
     $ pip install psutil
 
+- `setproctitle <https://github.com/dvarrazzo/py-setproctitle>`__  python module to customize the process title by Daniele Varrazzo', is an optional requirement used to set informative process titles::
+
+    $ pip install setproctitle
+
 -  `Hiredis <https://github.com/redis/hiredis>`__ parser. This C library maintained by the core Redis team is faster than the standard PythonParser during high loads::
 
     $ pip install hiredis

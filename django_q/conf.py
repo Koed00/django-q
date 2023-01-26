@@ -27,6 +27,11 @@ try:
 except ModuleNotFoundError:
     resource = None
 
+try:
+    import setproctitle
+except ModuleNotFoundError:
+    setproctitle = None
+
 
 class Conf:
     """
