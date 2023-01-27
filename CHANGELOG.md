@@ -2,6 +2,19 @@
 
 ## [Unreleased](https://github.com/GDay/django-q2/tree/HEAD)
 
+## [v1.4.10](https://github.com/GDay/django-q2/tree/v1.4.9) (2022-12-22)
+
+**Merged pull requests:**
+
+- Adding translation mo files automatically on build https://github.com/GDay/django-q2/pull/65
+- Update all dependencies https://github.com/GDay/django-q2/pull/64
+- Bump translations to latest changes https://github.com/GDay/django-q2/pull/63
+- Add meaningfull process titles with currently running task name https://github.com/GDay/django-q2/pull/57
+- Fix use of database router for write queries and remove Conf.HAS_REPLICA https://github.com/GDay/django-q2/pull/61 
+- Add intended_date_kwarg field to Schedule https://github.com/GDay/django-q2/pull/62 
+- Change task timeout logic to have now() as execution time https://github.com/GDay/django-q2/pull/58
+- More explicit log messages in exception handling https://github.com/GDay/django-q2/pull/59
+
 ## [v1.4.9](https://github.com/GDay/django-q2/tree/v1.4.9) (2022-12-22)
 
 **Merged pull requests:**
