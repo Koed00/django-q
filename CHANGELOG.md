@@ -2,7 +2,14 @@
 
 ## [Unreleased](https://github.com/GDay/django-q2/tree/HEAD)
 
-## [v1.4.10](https://github.com/GDay/django-q2/tree/v1.4.9) (2022-12-22)
+## [v1.4.11](https://github.com/GDay/django-q2/tree/v1.4.11) (2023-01-30)
+
+**Merged pull requests:**
+
+- Fix missing setup file for "No matching distribution" error https://github.com/GDay/django-q2/pull/69
+- Remove custom build (revert to auto create setup file) https://github.com/GDay/django-q2/pull/70
+
+## [v1.4.10](https://github.com/GDay/django-q2/tree/v1.4.10) (2023-01-26)
 
 **Merged pull requests:**
 
