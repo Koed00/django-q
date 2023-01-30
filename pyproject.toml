@@ -80,6 +80,3 @@ sentry = ["django-q-sentry"]
 [tool.isort]
 profile = "black"
 multi_line_output = 3
-
-[tool.poetry.build]
-script = "django_compilemessages.py"
