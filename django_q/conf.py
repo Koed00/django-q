@@ -179,6 +179,9 @@ class Conf:
     # Optional attempt count. set to 0 for infinite attempts
     MAX_ATTEMPTS = conf.get("max_attempts", 0)
 
+    # How often fetch is polling database
+    FETCH_INTERVAL = conf.get("fetch_interval", 0.01)
+
     # OSX doesn't implement qsize because of missing sem_getvalue()
     try:
         QSIZE = Queue().qsize() == 0
