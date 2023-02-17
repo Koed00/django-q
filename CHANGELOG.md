@@ -1,8 +1,106 @@
 # Changelog
 
-## [Unreleased](https://github.com/koed00/django-q/tree/HEAD)
+## [Unreleased](https://github.com/GDay/django-q2/tree/HEAD)
 
-[Full Changelog](https://github.com/koed00/django-q/compare/v1.3.9...HEAD)
+## [v1.4.11](https://github.com/GDay/django-q2/tree/v1.4.11) (2023-01-30)
+
+**Merged pull requests:**
+
+- Fix missing setup file for "No matching distribution" error https://github.com/GDay/django-q2/pull/69
+- Remove custom build (revert to auto create setup file) https://github.com/GDay/django-q2/pull/70
+
+## [v1.4.10](https://github.com/GDay/django-q2/tree/v1.4.10) (2023-01-26)
+
+**Merged pull requests:**
+
+- Adding translation mo files automatically on build https://github.com/GDay/django-q2/pull/65
+- Update all dependencies https://github.com/GDay/django-q2/pull/64
+- Bump translations to latest changes https://github.com/GDay/django-q2/pull/63
+- Add meaningfull process titles with currently running task name https://github.com/GDay/django-q2/pull/57
+- Fix use of database router for write queries and remove Conf.HAS_REPLICA https://github.com/GDay/django-q2/pull/61 
+- Add intended_date_kwarg field to Schedule https://github.com/GDay/django-q2/pull/62 
+- Change task timeout logic to have now() as execution time https://github.com/GDay/django-q2/pull/58
+- More explicit log messages in exception handling https://github.com/GDay/django-q2/pull/59
+
+## [v1.4.9](https://github.com/GDay/django-q2/tree/v1.4.9) (2022-12-22)
+
+**Merged pull requests:**
+
+- Fix DST timezone change (move from DST to normal jump) https://github.com/GDay/django-q2/pull/56
+
+## [v1.4.8](https://github.com/GDay/django-q2/tree/v1.4.8) (2022-12-21)
+
+**Merged pull requests:**
+
+- Fix: allow both ZoneInfo and Pytz depending on django version https://github.com/GDay/django-q2/pull/55
+
+## [v1.4.7](https://github.com/GDay/django-q2/tree/v1.4.7) (2022-12-21)
+
+**Merged pull requests:**
+
+- Fix: handling exceptions inside job function https://github.com/GDay/django-q2/pull/51
+- Fix: Daylight saving time issue with scheduler https://github.com/GDay/django-q2/pull/47
+- Chore: Fix badge and add download badge https://github.com/GDay/django-q2/pull/52
+- Chore: Remove release drafter https://github.com/GDay/django-q2/pull/53
+
+## [v1.4.6](https://github.com/GDay/django-q2/tree/v1.4.6) (2022-11-30)
+
+**Merged pull requests:**
+
+- Fix: Log exceptions with logger.exception https://github.com/GDay/django-q2/pull/42
+- Chore: flake8, isort, black https://github.com/GDay/django-q2/pull/40
+
+## [v1.4.5](https://github.com/GDay/django-q2/tree/v1.4.5) (2022-11-13)
+
+- Fix release workflow
+
+## [v1.4.4](https://github.com/GDay/django-q2/tree/v1.4.4) (2022-11-13)
+
+**Merged pull requests:**
+
+- Fix: Deprecation warning for Django 5.x https://github.com/GDay/django-q2/pull/34
+- Feat: Add biweekly and bimonthly https://github.com/GDay/django-q2/pull/36 
+- Fix: Fix all translation strings and remove compiled https://github.com/GDay/django-q2/pull/36 
+
+## [v1.4.3](https://github.com/GDay/django-q2/tree/v1.4.3) (2022-11-07)
+
+**Merged pull requests:**
+
+- Fix: func reference in admin https://github.com/GDay/django-q2/pull/28
+- Add python 3.11 support and remove 3.7 (as it was never supported by this package anyway)
+
+## [v1.4.2](https://github.com/GDay/django-q2/tree/v1.4.2) (2022-10-22)
+
+**Merged pull requests:**
+
+- Make redis dependency optional and update boto3 #22
+
+## [v1.4.1](https://github.com/GDay/django-q2/tree/v1.4.1) (2022-10-21)
+
+**Merged pull requests:**
+
+- Fix typo configure.rst https://github.com/GDay/django-q2/pull/1
+- Update dependencies https://github.com/GDay/django-q2/pull/2
+- Show function name in log when running task https://github.com/GDay/django-q2/pull/3
+- Codecov -> Coveralls https://github.com/GDay/django-q2/pull/4
+- Fix: readthedocs config file https://github.com/GDay/django-q2/pull/5
+- Docs updates https://github.com/GDay/django-q2/pull/6
+- Feat: Release plan to pypi https://github.com/GDay/django-q2/pull/7
+- Feat: Turkish translations https://github.com/GDay/django-q2/pull/8
+- Fix: Connection issues with CONN_MAX_AGE > 0 https://github.com/GDay/django-q2/pull/9
+- Replace use of eval() by ast.parse() + ast.literal_eval() https://github.com/GDay/django-q2/pull/10
+- Admin improvements https://github.com/GDay/django-q2/pull/11
+- Save limit per group/func/name https://github.com/GDay/django-q2/pull/12
+- Use logger.hasHandlers() to setup fallback logging https://github.com/GDay/django-q2/pull/13
+- allow atomic on external db https://github.com/GDay/django-q2/pull/14
+- Fix install command and remove old warnings https://github.com/GDay/django-q2/pull/16
+- Remove arrow dependency https://github.com/GDay/django-q2/pull/17
+- Remove funding file, add docker/compose for development project and fix https://github.com/GDay/django-q2/pull/18
+- Fix unclear error when function is not called correctly https://github.com/GDay/django-q2/pull/19
+- Remove blessed dependency https://github.com/GDay/django-q2/pull/20
+- Release new version and docs fixes https://github.com/GDay/django-q2/pull/21
+
+## v1.4.0 
 
 **Closed issues:**
 

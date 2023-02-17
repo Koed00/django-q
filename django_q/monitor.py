@@ -1,8 +1,5 @@
 from datetime import timedelta
 
-# external
-from blessed import Terminal
-
 # django
 from django.db import connection
 from django.db.models import F, Sum
@@ -26,16 +23,29 @@ except ImportError:
 def get_process_mb(pid):
     try:
         process = psutil.Process(pid)
-        mb_used = round(process.memory_info().rss / 1024 ** 2, 2)
+        mb_used = round(process.memory_info().rss / 1024**2, 2)
     except psutil.NoSuchProcess:
         mb_used = "NO_PROCESS_FOUND"
     return mb_used
 
 
+BLESSED_INSTALL_MESSAGE = (
+    "Blessed is not installed. Please install blessed to use this: "
+    "https://pypi.org/project/blessed/"
+)
+
+
 def monitor(run_once=False, broker=None):
     if not broker:
         broker = get_broker()
-    term = Terminal()
+    try:
+        from blessed import Terminal
+
+        term = Terminal()
+    except ImportError:
+        print(BLESSED_INSTALL_MESSAGE)
+        return
+
     broker.ping()
     with term.fullscreen(), term.hidden_cursor(), term.cbreak():
         val = None
@@ -195,7 +205,14 @@ def monitor(run_once=False, broker=None):
 def info(broker=None):
     if not broker:
         broker = get_broker()
-    term = Terminal()
+    try:
+        from blessed import Terminal
+
+        term = Terminal()
+    except ImportError:
+        print(BLESSED_INSTALL_MESSAGE)
+        return
+
     broker.ping()
     stat = Stat.get_all(broker=broker)
     # general stats
@@ -243,9 +260,12 @@ def info(broker=None):
     print(
         term.black_on_green(
             term.center(
-                _(
-                    f'-- {Conf.PREFIX.capitalize()} { ".".join(str(v) for v in VERSION)} on {broker.info()}  --'
-                )
+                _("-- %(prefix)s %(version)s on %(info)s --")
+                % {
+                    "prefix": Conf.PREFIX.capitalize(),
+                    "version": ".".join(str(v) for v in VERSION),
+                    "info": broker.info(),
+                }
             )
         )
     )
@@ -280,7 +300,7 @@ def info(broker=None):
         + term.move_x(1 * col_width)
         + term.white(str(models.Schedule.objects.count()))
         + term.move_x(2 * col_width)
-        + term.cyan(_(f"Tasks/{per}"))
+        + term.cyan(_("Tasks/%(per)s") % {"per": per})
         + term.move_x(3 * col_width)
         + term.white(f"{tasks_per:.2f}")
         + term.move_x(4 * col_width)
@@ -294,7 +314,13 @@ def info(broker=None):
 def memory(run_once=False, workers=False, broker=None):
     if not broker:
         broker = get_broker()
-    term = Terminal()
+    try:
+        from blessed import Terminal
+
+        term = Terminal()
+    except ImportError:
+        print(BLESSED_INSTALL_MESSAGE)
+        return
     broker.ping()
     if not psutil:
         print(term.clear_eos())
@@ -372,7 +398,7 @@ def memory(run_once=False, workers=False, broker=None):
                 )
                 # memory available (MB)
                 memory_available = round(
-                    psutil.virtual_memory().available / 1024 ** 2, 2
+                    psutil.virtual_memory().available / 1024**2, 2
                 )
                 if memory_available_percentage < MEMORY_AVAILABLE_LOWEST_PERCENTAGE:
                     MEMORY_AVAILABLE_LOWEST_PERCENTAGE = memory_available_percentage
@@ -396,7 +422,7 @@ def memory(run_once=False, workers=False, broker=None):
                 print(
                     term.move(row, 4 * col_width)
                     + term.center(
-                        round(psutil.virtual_memory().total / 1024 ** 2, 2),
+                        round(psutil.virtual_memory().total / 1024**2, 2),
                         width=col_width - 1,
                     )
                 )
@@ -458,17 +484,18 @@ def memory(run_once=False, workers=False, broker=None):
             row += 1
             print(
                 term.move(row, 0)
-                + _("Available lowest (%): {} ({})").format(
-                    str(MEMORY_AVAILABLE_LOWEST_PERCENTAGE),
-                    MEMORY_AVAILABLE_LOWEST_PERCENTAGE_AT.strftime(
+                + _("Available lowest (): %(memory_percent)s ((at)s)")
+                % {
+                    "memory_percent": str(MEMORY_AVAILABLE_LOWEST_PERCENTAGE),
+                    "at": MEMORY_AVAILABLE_LOWEST_PERCENTAGE_AT.strftime(
                         "%Y-%m-%d %H:%M:%S+00:00"
                     ),
-                )
+                }
             )
             # for testing
             if run_once:
                 return Stat.get_all(broker=broker)
-            print(term.move(row + 2, 0) + term.center("[Press q to quit]"))
+            print(term.move(row + 2, 0) + term.center(_("[Press q to quit]")))
             val = term.inkey(timeout=1)
 
 
@@ -479,5 +506,5 @@ def get_ids():
         for s in stat:
             print(s.cluster_id)
     else:
-        print("No clusters appear to be running.")
+        print(_("No clusters appear to be running."))
     return True

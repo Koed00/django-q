@@ -39,7 +39,8 @@ class Sqs(Broker):
                 raise ValueError("receive_message_wait_time_seconds should be int")
             if wait_time_second > 20:
                 raise ValueError(
-                    "receive_message_wait_time_seconds is invalid. Reason: Must be >= 0 and <= 20"
+                    "receive_message_wait_time_seconds is invalid. Reason: Must be >= 0"
+                    " and <= 20"
                 )
             params.update({"WaitTimeSeconds": wait_time_second})
 

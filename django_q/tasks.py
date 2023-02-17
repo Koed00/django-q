@@ -90,6 +90,7 @@ def schedule(func, *args, **kwargs):
     :type next_run: datetime.datetime
     :param cluster: optional cluster name.
     :param cron: optional cron expression
+    :param intended_date_kwarg: optional identifier to pass intended schedule date.
     :param kwargs: function keyword arguments.
     :return: the schedule object.
     :rtype: Schedule
@@ -102,6 +103,7 @@ def schedule(func, *args, **kwargs):
     next_run = kwargs.pop("next_run", timezone.now())
     cron = kwargs.pop("cron", None)
     cluster = kwargs.pop("cluster", None)
+    intended_date_kwarg = kwargs.pop("intended_date_kwarg", None)
 
     # check for name duplicates instead of am unique constraint
     if name and Schedule.objects.filter(name=name).exists():
@@ -120,6 +122,7 @@ def schedule(func, *args, **kwargs):
         next_run=next_run,
         cron=cron,
         cluster=cluster,
+        intended_date_kwarg=intended_date_kwarg,
     )
     # make sure we trigger validation
     s.full_clean()
@@ -600,7 +603,8 @@ class Chain:
 
     def result(self, wait=0):
         """
-        return the full list of results from the chain when it finishes. blocks until timeout.
+        return the full list of results from the chain when it finishes. blocks until
+        timeout.
         :param int wait: how many milliseconds to wait for a result
         :return: an unsorted list of results
         """
@@ -611,7 +615,8 @@ class Chain:
 
     def fetch(self, failures=True, wait=0):
         """
-        get the task result objects from the chain when it finishes. blocks until timeout.
+        get the task result objects from the chain when it finishes. blocks until
+        timeout.
         :param failures: include failed tasks
         :param int wait: how many milliseconds to wait for a result
         :return: an unsorted list of task objects

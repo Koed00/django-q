@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('django_q', '0013_task_attempt_count'),
+        ("django_q", "0013_task_attempt_count"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='schedule',
-            name='cluster',
+            model_name="schedule",
+            name="cluster",
             field=models.CharField(blank=True, default=None, max_length=100, null=True),
         ),
     ]

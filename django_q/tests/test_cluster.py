@@ -1,8 +1,8 @@
-from datetime import datetime
 import os
 import sys
 import threading
 import uuid as uuidlib
+from datetime import datetime
 from math import copysign
 from multiprocessing import Event, Value
 from time import sleep
@@ -10,9 +10,6 @@ from typing import Optional
 
 import pytest
 from django.utils import timezone
-
-myPath = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, myPath + "/../")
 
 from django_q.brokers import Broker, get_broker
 from django_q.cluster import Cluster, Sentinel, monitor, pusher, save_task, worker
@@ -32,8 +29,11 @@ from django_q.tasks import (
     result,
     result_group,
 )
-from django_q.tests.tasks import TaskError, multiply
+from django_q.tests.tasks import multiply, TaskError
 from django_q.utils import add_months, add_years
+
+myPath = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, myPath + "/../")
 
 
 class WordClass:
@@ -409,6 +409,7 @@ def test_recycle(broker, monkeypatch):
     assert Success.objects.count() == Conf.SAVE_LIMIT
     broker.delete_queue()
 
+
 @pytest.mark.django_db
 def test_save_limit_per_func(broker, monkeypatch):
     # set up the Sentinel
@@ -442,13 +443,12 @@ def test_save_limit_per_func(broker, monkeypatch):
     # run monitor
     monitor(result_queue)
     assert Success.objects.count() == 3
-    assert set(Success.objects.filter().values_list('func', flat=True)) == {
-        'django_q.tests.tasks.countdown',
-        'django_q.tests.tasks.hello',
-        'django_q.tests.tasks.multiply',
+    assert set(Success.objects.filter().values_list("func", flat=True)) == {
+        "django_q.tests.tasks.countdown",
+        "django_q.tests.tasks.hello",
+        "django_q.tests.tasks.multiply",
     }
     broker.delete_queue()
-
 
 
 @pytest.mark.django_db
@@ -538,7 +538,6 @@ def test_attempt_count(broker, monkeypatch):
     assert saved_task.attempt_count == 1
     sleep(0.5)
     # second save
-    old_stopped = task["stopped"]
     task["stopped"] = timezone.now()
     save_task(task, broker)
     saved_task = Task.objects.get(id=task["id"])
@@ -769,6 +768,7 @@ def test_add_months():
     assert new_date.year == 2020
     assert new_date.month == 2
     assert new_date.day == 29
+
 
 @pytest.mark.django_db
 def test_add_years():

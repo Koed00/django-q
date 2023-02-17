@@ -9,4 +9,4 @@ class DjangoQConfig(AppConfig):
     default_auto_field = "django.db.models.AutoField"
 
     def ready(self):
-        from django_q.signals import call_hook
+        from django_q.signals import call_hook  # noqa: F401

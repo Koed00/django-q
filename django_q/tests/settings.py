@@ -1,7 +1,5 @@
 import os
 
-import django
-
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -77,7 +75,7 @@ DATABASES = {
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Europe/Amsterdam"
 
 USE_I18N = True
 
@@ -130,5 +128,5 @@ Q_CLUSTER = {
     "testing": True,
     "log_level": "DEBUG",
     "django_redis": "default",
-    "redis": f"redis://{REDIS_HOST}:6379/0"
+    "redis": f"redis://{REDIS_HOST}:6379/0",
 }

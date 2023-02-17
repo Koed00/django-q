@@ -1,7 +1,7 @@
 A multiprocessing distributed task queue for Django
 ---------------------------------------------------
 
-|image0| |image1| |docs|
+|image0| |image1| |docs| |downloads|
 
 ::
 
@@ -22,14 +22,25 @@ Features
 -  Redis, IronMQ, SQS, MongoDB or ORM
 -  Rollbar and Sentry support
 
+Changes compared to the original Django-Q:
+
+- Dropped support for Disque (hasn't been updated in a long time)
+- Dropped Redis, Arrow and Blessed dependencies
+- Updated all current dependencies
+- Added tests for Django 4.x
+- Added Turkish language
+- Improved admin area
+- Fixed a lot of issues
+
+See the `changelog <https://github.com/GDay/django-q2/blob/master/CHANGELOG.md>`__ for all changes.
+
 Requirements
 ~~~~~~~~~~~~
 
 -  `Django <https://www.djangoproject.com>`__ > = 3.2
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
--  `Blessed <https://github.com/jquast/blessed>`__
 
-Tested with: Python 3.7, 3.8, 3.9, 3.10 Django 3.2.X and 4.1.X
+Tested with: Python 3.8, 3.9, 3.10, 3.11 Django 3.2.X and 4.1.X
 
 Brokers
 ~~~~~~~
@@ -92,6 +103,11 @@ For full configuration options, see the `configuration documentation <https://dj
 
 Management Commands
 ~~~~~~~~~~~~~~~~~~~
+
+::
+
+    For the management commands to work, you will need to install Blessed: <https://github.com/jquast/blessed>
+
 
 Start a cluster with::
 
@@ -195,6 +211,7 @@ Testing
 Running tests is easy with docker compose, it will also start the necessary databases. Just run:
 
 .. code:: bash
+
     docker-compose -f test-services-docker-compose.yaml run --rm django-q2 poetry run pytest
 
 Locale
@@ -228,4 +245,6 @@ Acknowledgements
 .. |docs| image:: https://readthedocs.org/projects/docs/badge/?version=latest
     :alt: Documentation Status
     :scale: 100
-    :target: https://django-q.readthedocs.org/
+    :target: https://django-q2.readthedocs.org/
+.. |downloads| image:: https://img.shields.io/pypi/dm/django-q2
+   :target: https://img.shields.io/pypi/dm/django-q2

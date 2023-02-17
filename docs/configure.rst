@@ -75,6 +75,12 @@ fail_on_timeout
 
 When set to ``True``, timeouts will result in error. Defaults to ``False``.
 
+.. _time_zone:
+
+time_zone
+~~~~~~~
+
+The timezone that is used for task scheduling. Use this if you are having issue with DST. The scheduler uses UTC to calculate the next date and will therefore ignore any DST changes. This will cause 1 hour or 0.5 hour changes in the schedule when time is moved one hour ahead or back. Defaults to `settings.TIME_ZONE` if `USE_TZ` is enabled.
 
 .. _ack_failures:
 
@@ -149,7 +155,7 @@ Limits the amount of successful tasks saved to Django.
  - Failures are always saved.
 
 save_limit_per
-~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
 
 The above ``save_limit`` for successful tasks can be fine tuned per task type using
  - Set to ``"group"`` to store the tasks per group
@@ -315,16 +321,6 @@ Using the Django ORM backend will also enable the Queued Tasks table in the Admi
 
 If you need better performance , you should consider using a different database backend than the main project.
 Set ``orm`` to the name of that database connection and make sure you run migrations on it using the ``--database`` option.
-
-When using the Django database as a message broker, you can set the ``has_replica`` boolean keyword to ensure Django-Q2 works properly letting a `Database Router <https://docs.djangoproject.com/en/3.2/topics/db/multi-db/>`__. ::
-
-    # example ORM broker connection with replica database
-
-    Q_CLUSTER = {
-        ...
-        'orm': 'default',
-        'has_replica': True
-    }
 
 .. _mongo_configuration:
 

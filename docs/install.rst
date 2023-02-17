@@ -4,7 +4,7 @@ Installation
 
 -  Install the latest version with pip::
 
-    $ pip install django-q
+    $ pip install django-q2
 
 
 -  Add :mod:`django_q` to ``INSTALLED_APPS`` in your projects :file:`settings.py`::
@@ -27,7 +27,7 @@ Installation
 Requirements
 ------------
 
-Django Q2 is tested for Python 3.7, 3.8, 3.9 and 3.10
+Django Q2 is tested for Python 3.8, 3.9, 3.10 and 3.11
 
 -  `Django <https://www.djangoproject.com>`__
 
@@ -38,13 +38,13 @@ Django Q2 is tested for Python 3.7, 3.8, 3.9 and 3.10
 
     Used to store args, kwargs and result objects in the database.
 
--  `Blessed <https://github.com/jquast/blessed>`__
-
-    This feature-filled fork of Erik Rose's blessings project provides the terminal layout of the monitor.
-
 
 Optional
 ~~~~~~~~
+-  `Blessed <https://github.com/jquast/blessed>`__ is used to display the statistics in the terminal::
+
+    $ pip install blessed
+
 -  `Redis-py <https://github.com/andymccurdy/redis-py>`__ client by Andy McCurdy is used  to interface with both the Redis::
 
     $ pip install redis
@@ -54,6 +54,10 @@ Optional
 - `Psutil <https://github.com/giampaolo/psutil>`__  python system and process utilities module by Giampaolo Rodola', is an optional requirement and adds cpu affinity settings to the cluster::
 
     $ pip install psutil
+
+- `setproctitle <https://github.com/dvarrazzo/py-setproctitle>`__  python module to customize the process title by Daniele Varrazzo', is an optional requirement used to set informative process titles::
+
+    $ pip install setproctitle
 
 -  `Hiredis <https://github.com/redis/hiredis>`__ parser. This C library maintained by the core Redis team is faster than the standard PythonParser during high loads::
 
@@ -125,7 +129,7 @@ Other known issues are:
 
 Python
 ~~~~~~
-Current tests are performed with 3.7, 3.8, 3.9 and 3.10
+Current tests are performed with 3.8, 3.9, 3.10 and 3.11
 If you do encounter any regressions with earlier versions, please submit an issue on `github <https://github.com/GDay/django-q2>`__
 
 Open-source packages

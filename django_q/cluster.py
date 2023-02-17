@@ -1,6 +1,5 @@
 # Standard
 import ast
-import inspect
 import pydoc
 import signal
 import socket
@@ -21,7 +20,6 @@ except core.exceptions.AppRegistryNotReady:
 
     django.setup()
 
-from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -35,6 +33,7 @@ from django_q.conf import (
     get_ppid,
     logger,
     psutil,
+    setproctitle,
     resource,
 )
 from django_q.humanhash import humanize
@@ -44,7 +43,7 @@ from django_q.signals import post_execute, pre_execute
 from django_q.signing import BadSignature, SignedPackage
 from django_q.status import Stat, Status
 
-from .utils import add_months, add_years
+from .utils import get_func_repr, localtime
 
 
 class Cluster:
@@ -61,6 +60,8 @@ class Cluster:
         signal.signal(signal.SIGINT, self.sig_handler)
 
     def start(self) -> int:
+        if setproctitle:
+            setproctitle.setproctitle(f"qcluster {current_process().name} {self.name}")
         # Start Sentinel
         self.stop_event = Event()
         self.start_event = Event()
@@ -75,7 +76,7 @@ class Cluster:
             ),
         )
         self.sentinel.start()
-        logger.info(_(f"Q Cluster {self.name} starting."))
+        logger.info(_("Q Cluster %(name)s starting.") % {"name": self.name})
         while not self.start_event.is_set():
             sleep(0.1)
         return self.pid
@@ -83,19 +84,21 @@ class Cluster:
     def stop(self) -> bool:
         if not self.sentinel.is_alive():
             return False
-        logger.info(_(f"Q Cluster {self.name} stopping."))
+        logger.info(_("Q Cluster %(name)s stopping.") % {"name": self.name})
         self.stop_event.set()
         self.sentinel.join()
-        logger.info(_(f"Q Cluster {self.name} has stopped."))
+        logger.info(_("Q Cluster %(name)s has stopped.") % {"name": self.name})
         self.start_event = None
         self.stop_event = None
         return True
 
     def sig_handler(self, signum, frame):
         logger.debug(
-            _(
-                f'{current_process().name} got signal {Conf.SIGNAL_NAMES.get(signum, "UNKNOWN")}'
-            )
+            _("%(name)s got signal %(signal)s")
+            % {
+                "name": current_process().name,
+                "signal": Conf.SIGNAL_NAMES.get(signum, "UNKNOWN"),
+            }
         )
         self.stop()
 
@@ -217,21 +220,49 @@ class Sentinel:
             db.connections.close_all()
         if process == self.monitor:
             self.monitor = self.spawn_monitor()
-            logger.error(_(f"reincarnated monitor {process.name} after sudden death"))
+            logger.critical(
+                _("reincarnated monitor %(name)s after sudden death")
+                % {"name": process.name}
+            )
         elif process == self.pusher:
             self.pusher = self.spawn_pusher()
-            logger.error(_(f"reincarnated pusher {process.name} after sudden death"))
+            logger.critical(
+                _("reincarnated pusher %(name)s after sudden death")
+                % {"name": process.name}
+            )
         else:
             self.pool.remove(process)
             self.spawn_worker()
             if process.timer.value == 0:
-                # only need to terminate on timeout, otherwise we risk destabilizing the queues
+                # only need to terminate on timeout, otherwise we risk destabilizing
+                # the queues
+                task_name = ""
+                if psutil:
+                    try:
+                        process_name = psutil.Process(process.pid).name()
+                        name_splits = process_name.split(" ")
+                        task_name = name_splits[3] if len(name_splits) >= 4 and name_splits[2] == "processing" else ""
+                    except psutil.NoSuchProcess:
+                        pass
                 process.terminate()
-                logger.warning(_(f"reincarnated worker {process.name} after timeout"))
+                if task_name:
+                    msg = (
+                        _("reincarnated worker %(name)s after timeout while processing task %(task_name)s")
+                        % {"name": process.name, "task_name": task_name}
+                    )
+                else:
+                    msg = (
+                        _("reincarnated worker %(name)s after timeout")
+                        % {"name": process.name}
+                    )
+                logger.critical(msg)
             elif int(process.timer.value) == -2:
-                logger.info(_(f"recycled worker {process.name}"))
+                logger.info(_("recycled worker %(name)s") % {"name": process.name})
             else:
-                logger.error(_(f"reincarnated worker {process.name} after death"))
+                logger.critical(
+                    _("reincarnated worker %(name)s after death")
+                    % {"name": process.name}
+                )
 
         self.reincarnations += 1
 
@@ -253,13 +284,18 @@ class Sentinel:
 
     def guard(self):
         logger.info(
-            _(
-                f"{current_process().name} guarding cluster {humanize(self.cluster_id.hex)}"
-            )
+            _("%(name)s guarding cluster %(cluster_name)s")
+            % {
+                "name": current_process().name,
+                "cluster_name": humanize(self.cluster_id.hex),
+            }
         )
         self.start_event.set()
         Stat(self).save()
-        logger.info(_(f"Q Cluster {humanize(self.cluster_id.hex)} running."))
+        logger.info(
+            _("Q Cluster %(cluster_name)s running.")
+            % {"cluster_name": humanize(self.cluster_id.hex)}
+        )
         counter = 0
         cycle = Conf.GUARD_CYCLE  # guard loop sleep in seconds
         # Guard loop. Runs at least once
@@ -293,7 +329,7 @@ class Sentinel:
     def stop(self):
         Stat(self).save()
         name = current_process().name
-        logger.info(_(f"{name} stopping cluster processes"))
+        logger.info(_("%(name)s stopping cluster processes") % {"name": name})
         # Stopping pusher
         self.event_out.set()
         # Wait for it to stop
@@ -318,7 +354,7 @@ class Sentinel:
         self.result_queue.close()
         # Wait for the result queue to empty
         self.result_queue.join_thread()
-        logger.info(_(f"{name} waiting for the monitor."))
+        logger.info(_("%(name)s waiting for the monitor.") % {"name": name})
         # Wait for everything to close or time out
         count = 0
         if not self.timeout:
@@ -340,12 +376,18 @@ def pusher(task_queue: Queue, event: Event, broker: Broker = None):
     """
     if not broker:
         broker = get_broker()
-    logger.info(_(f"{current_process().name} pushing tasks at {current_process().pid}"))
+    proc_name = current_process().name
+    if setproctitle:
+        setproctitle.setproctitle(f"qcluster {proc_name} pusher")
+    logger.info(
+        _("%(name)s pushing tasks at %(id)s")
+        % {"name": proc_name, "id": current_process().pid}
+    )
     while True:
         try:
             task_set = broker.dequeue()
-        except Exception as e:
-            logger.error(e, traceback.format_exc())
+        except Exception:
+            logger.exception("Failed to pull task from broker")
             # broker probably crashed. Let the sentinel handle it.
             sleep(10)
             break
@@ -355,16 +397,18 @@ def pusher(task_queue: Queue, event: Event, broker: Broker = None):
                 # unpack the task
                 try:
                     task = SignedPackage.loads(task[1])
-                except (TypeError, BadSignature) as e:
-                    logger.error(e, traceback.format_exc())
+                except (TypeError, BadSignature):
+                    logger.exception("Failed to push task to queue")
                     broker.fail(ack_id)
                     continue
                 task["ack_id"] = ack_id
                 task_queue.put(task)
-            logger.debug(_(f"queueing from {broker.list_key}"))
+            logger.debug(
+                _("queueing from %(list_key)s") % {"list_key": broker.list_key}
+            )
         if event.is_set():
             break
-    logger.info(_(f"{current_process().name} stopped pushing tasks"))
+    logger.info(_("%(name)s stopped pushing tasks") % {"name": current_process().name})
 
 
 def monitor(result_queue: Queue, broker: Broker = None):
@@ -375,8 +419,12 @@ def monitor(result_queue: Queue, broker: Broker = None):
     """
     if not broker:
         broker = get_broker()
-    name = current_process().name
-    logger.info(_(f"{name} monitoring at {current_process().pid}"))
+    proc_name = current_process().name
+    if setproctitle:
+        setproctitle.setproctitle(f"qcluster {proc_name} monitor")
+    logger.info(
+        _("%(name)s monitoring at %(id)s") % {"name": proc_name, "id": current_process().pid}
+    )
     for task in iter(result_queue.get, "STOP"):
         # save the result
         if task.get("cached", False):
@@ -390,14 +438,24 @@ def monitor(result_queue: Queue, broker: Broker = None):
         # signal execution done
         post_execute.send(sender="django_q", task=task)
         # log the result
-        info_name = f"{task['name']} ({task['func']})"
+        info_name = get_func_repr(task["func"])
         if task["success"]:
             # log success
-            logger.info(_(f"Processed [{info_name}]"))
+            logger.info(
+                _("Processed '%(info_name)s' (%(task_name)s)")
+                % {"info_name": info_name, "task_name": task["name"]}
+            )
         else:
             # log failure
-            logger.error(_(f"Failed [{info_name}] - {task['result']}"))
-    logger.info(_(f"{name} stopped monitoring results"))
+            logger.error(
+                _("Failed '%(info_name)s' (%(task_name)s) - %(task_result)s")
+                % {
+                    "info_name": info_name,
+                    "task_name": task["name"],
+                    "task_result": task["result"],
+                }
+            )
+    logger.info(_("%(name)s stopped monitoring results") % {"name": proc_name})
 
 
 def _check_task_timed_out(key, task: dict):
@@ -427,14 +485,20 @@ def worker(
     task_queue: Queue, result_queue: Queue, timer: Value, timeout: int = Conf.TIMEOUT
 ):
     """
-    Takes a task from the task queue, tries to execute it and puts the result back in the result queue
+    Takes a task from the task queue, tries to execute it and puts the result back in
+    the result queue
     :param timeout: number of seconds wait for a worker to finish.
     :type task_queue: multiprocessing.Queue
     :type result_queue: multiprocessing.Queue
     :type timer: multiprocessing.Value
     """
     proc_name = current_process().name
-    logger.info(_(f"{proc_name} ready for work at {current_process().pid}"))
+    logger.info(
+        _("%(proc_name)s ready for work at %(id)s")
+        % {"proc_name": proc_name, "id": current_process().pid}
+    )
+    if setproctitle:
+        setproctitle.setproctitle(f"qcluster {proc_name} idle")
     task_count = 0
     if timeout is None:
         timeout = -1
@@ -445,13 +509,33 @@ def worker(
         result = None
         timer.value = -1  # Idle
         task_count += 1
-        # Get the function from the task
-        func = task["func"]
-        func_name = func.__name__ if hasattr(func, "__name__") else str(func)
-        logger.info(_(f'{proc_name} processing [{task["name"]}({func_name})]'))
         f = task["func"]
+
+        # Log task creation and set process name
+        # Get the function from the task
+        func_name = get_func_repr(f)
+        task_name = task["name"]
+        task_desc = (
+            _("%(proc_name)s processing %(task_name)s '%(func_name)s'")
+            % {
+                "proc_name": proc_name,
+                "func_name": func_name,
+                "task_name": task_name,
+            }
+        )
+        if "group" in task:
+            task_desc += f" [{task['group']}]"
+        logger.info(task_desc)
+
+        if setproctitle:
+            proc_title = f"qcluster {proc_name} processing {task_name} '{func_name}'"
+            if "group" in task:
+                proc_title += f" [{task['group']}]"
+            setproctitle.setproctitle(proc_title)
+
         # if it's not an instance try to get it from the string
-        if not callable(task["func"]):
+        if not callable(f):
+            # locate() returns None if f cannot be loaded
             f = pydoc.locate(f)
         close_old_django_connections()
         timer_value = task.pop("timeout", timeout)
@@ -464,6 +548,9 @@ def worker(
         try:
             if Conf.FAIL_ON_TIMEOUT:
                 _check_task_timed_out(working_tasks_key, task)
+            if f is None:
+                # raise a meaningfull error if task["func"] is not a valid function
+                raise ValueError(f"Function {task['func']} is not defined")
             res = f(*task["args"], **task["kwargs"])
             result = (res, True)
         except Exception as e:
@@ -482,22 +569,14 @@ def worker(
             task["stopped"] = timezone.now()
             result_queue.put(task)
             timer.value = -1  # Idle
+            if setproctitle:
+                setproctitle.setproctitle(f"qcluster {proc_name} idle")
             # Recycle
             if task_count == Conf.RECYCLE or rss_check():
                 timer.value = -2  # Recycled
                 break
-    logger.info(_(f"{proc_name} stopped doing work"))
+    logger.info(_("%(proc_name)s stopped doing work") % {"proc_name": proc_name})
 
-def get_func_repr(func):
-    # convert func to string
-    if inspect.isfunction(func):
-        return f"{func.__module__}.{func.__name__}"
-    elif inspect.ismethod(func):
-        return (
-            f"{func.__self__.__module__}."
-            f"{func.__self__.__name__}.{func.__name__}"
-        )
-    return func
 
 def save_task(task, broker: Broker):
     """
@@ -522,16 +601,22 @@ def save_task(task, broker: Broker):
 
     try:
         filters = {}
-        if Conf.SAVE_LIMIT_PER and Conf.SAVE_LIMIT_PER in {"group", "name", "func"} and Conf.SAVE_LIMIT_PER in task:
+        if (
+            Conf.SAVE_LIMIT_PER
+            and Conf.SAVE_LIMIT_PER in {"group", "name", "func"}
+            and Conf.SAVE_LIMIT_PER in task
+        ):
             value = task[Conf.SAVE_LIMIT_PER]
             if Conf.SAVE_LIMIT_PER == "func":
                 value = get_func_repr(value)
             filters[Conf.SAVE_LIMIT_PER] = value
 
-        database_to_use = {"using": Conf.ORM if Conf.ORM else Schedule.objects.db} if not Conf.HAS_REPLICA else {}
-        with db.transaction.atomic(**database_to_use):
+        with db.transaction.atomic(using=db.router.db_for_write(Success)):
             last = Success.objects.filter(**filters).select_for_update().last()
-            if task["success"] and 0 < Conf.SAVE_LIMIT <= Success.objects.filter(**filters).count():
+            if (
+                task["success"]
+                and 0 < Conf.SAVE_LIMIT <= Success.objects.filter(**filters).count()
+            ):
                 last.delete()
 
         # check if this task has previous results
@@ -568,8 +653,8 @@ def save_task(task, broker: Broker):
                 success=task["success"],
                 attempt_count=1,
             )
-    except Exception as e:
-        logger.error(e)
+    except Exception:
+        logger.exception("Could not save task result")
 
 
 def save_cached(task, broker: Broker):
@@ -620,8 +705,8 @@ def save_cached(task, broker: Broker):
                 )
         # save the task
         broker.cache.set(task_key, SignedPackage.dumps(task), timeout)
-    except Exception as e:
-        logger.error(e)
+    except Exception:
+        logger.exception("Could not save task result")
 
 
 def scheduler(broker: Broker = None):
@@ -632,8 +717,7 @@ def scheduler(broker: Broker = None):
         broker = get_broker()
     close_old_django_connections()
     try:
-        database_to_use = {"using": Conf.ORM if Conf.ORM else Schedule.objects.db} if not Conf.HAS_REPLICA else {}
-        with db.transaction.atomic(**database_to_use):
+        with db.transaction.atomic(using=db.router.db_for_write(Schedule)):
             for s in (
                 Schedule.objects.select_for_update()
                 .exclude(repeats=0)
@@ -652,8 +736,13 @@ def scheduler(broker: Broker = None):
                     except (SyntaxError, ValueError):
                         # else use the kwargs syntax
                         try:
-                            parsed_kwargs = ast.parse(f"f({s.kwargs})").body[0].value.keywords
-                            kwargs = {kwarg.arg: ast.literal_eval(kwarg.value) for kwarg in parsed_kwargs}
+                            parsed_kwargs = (
+                                ast.parse(f"f({s.kwargs})").body[0].value.keywords
+                            )
+                            kwargs = {
+                                kwarg.arg: ast.literal_eval(kwarg.value)
+                                for kwarg in parsed_kwargs
+                            }
                         except (SyntaxError, ValueError):
                             kwargs = {}
                 if s.args:
@@ -662,34 +751,15 @@ def scheduler(broker: Broker = None):
                     if type(args) != tuple:
                         args = (args,)
                 q_options = kwargs.get("q_options", {})
+                if s.intended_date_kwarg:
+                    kwargs[s.intended_date_kwarg] = s.next_run.isoformat()
                 if s.hook:
                     q_options["hook"] = s.hook
                 # set up the next run time
                 if s.schedule_type != s.ONCE:
                     next_run = s.next_run
                     while True:
-                        if s.schedule_type == s.MINUTES:
-                            next_run = next_run + timedelta(minutes=(s.minutes or 1))
-                        elif s.schedule_type == s.HOURLY:
-                            next_run = next_run + timedelta(hours=1)
-                        elif s.schedule_type == s.DAILY:
-                            next_run = next_run + timedelta(days=1)
-                        elif s.schedule_type == s.WEEKLY:
-                            next_run = next_run + timedelta(weeks=1)
-                        elif s.schedule_type == s.MONTHLY:
-                            next_run = add_months(next_run, 1)
-                        elif s.schedule_type == s.QUARTERLY:
-                            next_run = add_months(next_run, 3)
-                        elif s.schedule_type == s.YEARLY:
-                            next_run = add_years(next_run, 1)
-                        elif s.schedule_type == s.CRON:
-                            if not croniter:
-                                raise ImportError(
-                                    _(
-                                        "Please install croniter to enable cron expressions"
-                                    )
-                                )
-                            next_run = croniter(s.cron, localtime()).get_next(datetime)
+                        next_run = s.calculate_next_run(next_run)
                         if Conf.CATCH_UP or next_run > localtime():
                             break
 
@@ -699,7 +769,8 @@ def scheduler(broker: Broker = None):
                 scheduled_broker = broker
                 try:
                     scheduled_broker = get_broker(q_options["broker_name"])
-                except:  # invalid broker_name or non existing broker with broker_name
+                except:  # noqa: E722
+                    # invalid broker_name or non existing broker with broker_name
                     pass
                 q_options["broker"] = scheduled_broker
                 q_options["group"] = q_options.get("group", s.name or s.id)
@@ -709,14 +780,25 @@ def scheduler(broker: Broker = None):
                 if not s.task:
                     logger.error(
                         _(
-                            f"{current_process().name} failed to create a task from schedule [{s.name or s.id}]"
+                            "%(process_name)s failed to create a task from schedule "
+                            "[%(schedule)s]"
                         )
+                        % {
+                            "process_name": current_process().name,
+                            "schedule": s.name or s.id,
+                        }
                     )
                 else:
                     logger.info(
                         _(
-                            f"{current_process().name} created a task from schedule [{s.name or s.id}]"
+                            "%(process_name)s created task %(task_name)s from schedule "
+                            "[%(schedule)s]"
                         )
+                        % {
+                            "process_name": current_process().name,
+                            "task_name": humanize(s.task),
+                            "schedule": s.name or s.id,
+                        }
                     )
                 # default behavior is to delete a ONCE schedule
                 if s.schedule_type == s.ONCE:
@@ -727,8 +809,8 @@ def scheduler(broker: Broker = None):
                     s.repeats = 0
                 # save the schedule
                 s.save()
-    except Exception as e:
-        logger.error(e)
+    except Exception:
+        logger.exception("Could not create task from schedule")
 
 
 def close_old_django_connections():
@@ -755,12 +837,12 @@ def set_cpu_affinity(n: int, process_ids: list, actual: bool = not Conf.TESTING)
     """
     # check if we have the psutil module
     if not psutil:
-        logger.warning("Skipping cpu affinity because psutil was not found.")
+        logger.warning(_("Skipping cpu affinity because psutil was not found."))
         return
     # check if the platform supports cpu_affinity
     if actual and not hasattr(psutil.Process(process_ids[0]), "cpu_affinity"):
         logger.warning(
-            "Faking cpu affinity because it is not supported on this platform"
+            _("Faking cpu affinity because it is not supported on this platform")
         )
         actual = False
     # get the available processors
@@ -781,7 +863,10 @@ def set_cpu_affinity(n: int, process_ids: list, actual: bool = not Conf.TESTING)
             p = psutil.Process(pid)
             if actual:
                 p.cpu_affinity(affinity)
-            logger.info(_(f"{pid} will use cpu {affinity}"))
+            logger.info(
+                _("%(pid)s will use cpu %(affinity)s")
+                % {"pid": pid, "affinity": affinity}
+            )
 
 
 def rss_check():
@@ -791,10 +876,3 @@ def rss_check():
         elif psutil:
             return psutil.Process().memory_info().rss >= Conf.MAX_RSS * 1024
     return False
-
-
-def localtime() -> datetime:
-    """Override for timezone.localtime to deal with naive times and local times"""
-    if settings.USE_TZ:
-        return timezone.localtime()
-    return datetime.now()

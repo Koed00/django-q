@@ -27,7 +27,7 @@ Features
 -  Rollbar and Sentry support
 
 
-Django Q is tested with: Python 3.7, 3.8, 3.9 and 3.10, Django 2.2.x and 3.2.x
+Django Q2 is tested with: Python 3.8, 3.9 and 3.10, 3.11, Django 3.2.x and 4.1.x
 
 Currently available in English, German and French.
 
