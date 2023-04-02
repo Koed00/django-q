@@ -15,7 +15,7 @@ def _timeout():
 
 
 class Mongo(Broker):
-    def __init__(self, list_key=Conf.PREFIX):
+    def __init__(self, list_key: str = None):
         super(Mongo, self).__init__(list_key)
         self.collection = self.get_collection()
 
@@ -24,7 +24,7 @@ class Mongo(Broker):
         self.collection = self.get_collection()
 
     @staticmethod
-    def get_connection(list_key: str = Conf.PREFIX) -> MongoClient:
+    def get_connection(list_key: str = None) -> MongoClient:
         return MongoClient(**Conf.MONGO)
 
     def get_collection(self):

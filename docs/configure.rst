@@ -20,7 +20,18 @@ Configuration is handled via the ``Q_CLUSTER`` dictionary in your :file:`setting
         'redis': {
             'host': '127.0.0.1',
             'port': 6379,
-            'db': 0, }
+            'db': 0, },
+        'ALT_CLUSTERS': {
+            'long': {
+                'timeout': 3000,
+                'retry': 3600,
+                'max_attempts': 2,
+            },
+            'short': {
+                'timeout': 10,
+                'max_attempts': 1,
+            },
+        }
     }
 
 All configuration settings are optional:
@@ -458,6 +469,24 @@ As a rule of thumb; cpu_affinity 1 favors repetitive short running tasks, while 
     The ``cpu_affinity`` setting requires the optional :ref:`psutil<psutil_package>` module.
 
     *Psutil does not support cpu affinity on OS X at this time.*
+
+.. _alt-clusters:
+
+ALT_CLUSTERS
+~~~~~~~~~~~~
+
+For multiple clusters working on multiple queues to run in one Django site.
+ALT_CLUSTERS should be a dict with cluster_name as its key, and the value is the configuration for the cluster
+with the key as its name. The configuration items are consistent with Q_CLUSTER,
+except for a few items such as name/cluster_name/ALT_CLUSTER, which are not available of course.
+
+See :ref:`multiple-queues`.
+
+.. note::
+
+    For a cluster, if its name is in ALT_CLUSTERS, the config item in ALT_CLUSTER will override
+    the same config item in the Q_CLUSTER root. Other config items in Q_CLUSTER root remain in effect for this cluster.
+
 
 .. py:module:: django_q
 

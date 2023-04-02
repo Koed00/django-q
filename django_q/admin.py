@@ -13,7 +13,7 @@ from django_q.tasks import async_task
 class TaskAdmin(admin.ModelAdmin):
     """model admin for success tasks."""
 
-    list_display = ("name", "group", "func", "started", "stopped", "time_taken")
+    list_display = ("name", "group", "func", "cluster", "started", "stopped", "time_taken")
 
     def has_add_permission(self, request):
         """Don't allow adds."""
@@ -26,7 +26,7 @@ class TaskAdmin(admin.ModelAdmin):
 
     search_fields = ("name", "func", "group")
     readonly_fields = []
-    list_filter = ("group",)
+    list_filter = ("group", "cluster")
 
     def get_readonly_fields(self, request, obj=None):
         """Set all fields readonly."""
@@ -36,7 +36,8 @@ class TaskAdmin(admin.ModelAdmin):
 def retry_failed(FailAdmin, request, queryset):
     """Submit selected tasks back to the queue."""
     for task in queryset:
-        async_task(task.func, *task.args or (), hook=task.hook, **task.kwargs or {})
+        async_task(task.func, *task.args or (), hook=task.hook,
+                   group=task.group, cluster=task.cluster, **task.kwargs or {})
         task.delete()
 
 
@@ -46,7 +47,7 @@ retry_failed.short_description = _("Resubmit selected tasks to queue")
 class FailAdmin(admin.ModelAdmin):
     """model admin for failed tasks."""
 
-    list_display = ("name", "group", "func", "started", "stopped", "short_result")
+    list_display = ("name", "group", "func", "cluster", "started", "stopped", "short_result")
 
     def has_add_permission(self, request):
         """Don't allow adds."""
@@ -54,7 +55,7 @@ class FailAdmin(admin.ModelAdmin):
 
     actions = [retry_failed]
     search_fields = ("name", "func", "group")
-    list_filter = ("group",)
+    list_filter = ("group", "cluster")
     readonly_fields = []
 
     def get_readonly_fields(self, request, obj=None):
@@ -123,6 +124,8 @@ class QueueAdmin(admin.ModelAdmin):
     """queue admin for ORM broker"""
 
     list_display = ("id", "key", "name", "group", "func", "lock", "task_id")
+    fields = ("key", "lock", "task_id", "name", "group", "func", "args", "kwargs", "q_options")
+    readonly_fields = fields[2:]
 
     def save_model(self, request, obj, form, change):
         obj.save(using=Conf.ORM)

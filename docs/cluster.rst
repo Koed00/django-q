@@ -52,6 +52,30 @@ You can have multiple clusters on multiple machines, working on the same queue a
 - They use the same cluster name. See :doc:`configure`
 - They share the same ``SECRET_KEY`` for Django.
 
+.. _multiple-queues
+
+Multiple Queues
+-----------------
+You can have multiple queues in one Django site, and use multiple cluster to work on each queue.
+Different queues are identified by different queue names which are also cluster names.
+To run an alternate cluster, e.g. to work on the 'long' queue, start your cluster with command::
+
+    # On Linux
+    $ Q_CLUSTER_NAME=long python manage.py qcluster
+
+    # On Windows
+    $ python manage.py qcluster --name long
+
+You can set different Q_CLUSTER options for alternative clusters, such as 'timeout', 'queue_limit'
+and any other options which are valid in :doc:`configure`. See :ref:`alt-clusters`.
+
+.. note::
+
+    To use multiple queue, use the keyword argument `cluster` in async_task() and schedule():
+
+    * if `cluster` is not set (the default), async_task() and schedule() will be handled by the default cluster;
+    * if `cluster` is set, only clusters with matching cluster name will run the task or do the schedule.
+
 Using a Procfile
 ----------------
 If you host on `Heroku <https://heroku.com>`__ or you are using `Honcho <https://github.com/nickstenning/honcho>`__ you can start the cluster from a :file:`Procfile` with an entry like this::

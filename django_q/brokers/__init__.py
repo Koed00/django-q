@@ -7,7 +7,9 @@ from django_q.conf import Conf
 
 
 class Broker:
-    def __init__(self, list_key: str = Conf.PREFIX):
+    def __init__(self, list_key: str = None):
+        # With same BROKER_CLASS, `list_key` is just a synonym for `queue_name` except for RedisBroker
+        list_key = list_key or Conf.CLUSTER_NAME
         self.connection = self.get_connection(list_key)
         self.list_key = list_key
         self.cache = self.get_cache()
@@ -151,7 +153,7 @@ class Broker:
             return None
 
     @staticmethod
-    def get_connection(list_key: str = Conf.PREFIX):
+    def get_connection(list_key: str = None):
         """
         Gets a connection to the broker
         :param list_key: Optional queue name
@@ -160,13 +162,14 @@ class Broker:
         return 0
 
 
-def get_broker(list_key: str = Conf.PREFIX) -> Broker:
+def get_broker(list_key: str = None) -> Broker:
     """
     Gets the configured broker type
     :param list_key: optional queue name
     :type list_key: str
     :return: a broker instance
     """
+    list_key = list_key or Conf.CLUSTER_NAME
     # custom
     if Conf.BROKER_CLASS:
         module, func = Conf.BROKER_CLASS.rsplit(".", 1)

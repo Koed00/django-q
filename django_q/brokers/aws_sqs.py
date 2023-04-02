@@ -8,7 +8,7 @@ QUEUE_DOES_NOT_EXIST = "AWS.SimpleQueueService.NonExistentQueue"
 
 
 class Sqs(Broker):
-    def __init__(self, list_key: str = Conf.PREFIX):
+    def __init__(self, list_key: str = None):
         self.sqs = None
         super(Sqs, self).__init__(list_key)
         self.queue = self.get_queue()
@@ -77,7 +77,7 @@ class Sqs(Broker):
         return "AWS SQS"
 
     @staticmethod
-    def get_connection(list_key: str = Conf.PREFIX) -> Session:
+    def get_connection(list_key: str = None) -> Session:
         config = Conf.SQS
         if "aws_region" in config:
             config["region_name"] = config["aws_region"]

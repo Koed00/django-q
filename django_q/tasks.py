@@ -31,6 +31,7 @@ def async_task(func, *args, **kwargs):
         "iter_cached",
         "chain",
         "broker",
+        "cluster",
         "timeout",
     )
     q_options = keywords.pop("q_options", {})
@@ -52,7 +53,7 @@ def async_task(func, *args, **kwargs):
         elif key in keywords:
             task[key] = keywords.pop(key)
     # don't serialize the broker
-    broker = task.pop("broker", get_broker())
+    broker = task.pop("broker", None) or get_broker(task.get("cluster"))
     # overrides
     if "cached" not in task and Conf.CACHED:
         task["cached"] = Conf.CACHED
@@ -71,7 +72,7 @@ def async_task(func, *args, **kwargs):
         return _sync(pack)
     # push it
     enqueue_id = broker.enqueue(pack)
-    logger.info(f"Enqueued {enqueue_id}")
+    logger.info(f"Enqueued [{broker.list_key}] {enqueue_id}")
     logger.debug(f"Pushed {tag}")
     return task["id"]
 
@@ -273,6 +274,7 @@ def fetch_cached(task_id, wait=0, broker=None):
                 hook=task.get("hook"),
                 args=task["args"],
                 kwargs=task["kwargs"],
+                cluster=task.get("cluster"),
                 started=task["started"],
                 stopped=task["stopped"],
                 result=task["result"],
@@ -343,6 +345,7 @@ def fetch_group_cached(group_id, failures=True, wait=0, count=None, broker=None)
                         hook=task.get("hook"),
                         args=task["args"],
                         kwargs=task["kwargs"],
+                        cluster=task.get("cluster"),
                         started=task["started"],
                         stopped=task["stopped"],
                         result=task["result"],

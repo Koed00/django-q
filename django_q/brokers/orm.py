@@ -16,7 +16,7 @@ def _timeout():
 
 class ORM(Broker):
     @staticmethod
-    def get_connection(list_key: str = Conf.PREFIX):
+    def get_connection(list_key: str = None):
         if transaction.get_autocommit(
             using=Conf.ORM
         ):  # Only True when not in an atomic block
@@ -55,8 +55,9 @@ class ORM(Broker):
         self.delete(task_id)
 
     def enqueue(self, task):
+        # list_key might be null (e.g. in a test setup) but OrmQ.key has not-null constraint
         package = self.get_connection().create(
-            key=self.list_key, payload=task, lock=timezone.now()
+            key=self.list_key or Conf.CLUSTER_NAME, payload=task, lock=timezone.now()
         )
         return package.pk
 

@@ -39,9 +39,21 @@ class Conf:
     """
 
     try:
-        conf = settings.Q_CLUSTER
+        conf = settings.Q_CLUSTER.copy()
     except AttributeError:
         conf = {}
+
+    _Q_CLUSTER_NAME = os.getenv("Q_CLUSTER_NAME")
+    if _Q_CLUSTER_NAME and _Q_CLUSTER_NAME != conf.get("name") and \
+            _Q_CLUSTER_NAME != conf.get("cluster_name"):
+        conf["cluster_name"] = _Q_CLUSTER_NAME
+        alt_conf = conf.pop("ALT_CLUSTERS")
+        if isinstance(alt_conf, dict):
+            alt_conf = alt_conf.get(_Q_CLUSTER_NAME)
+            if isinstance(alt_conf, dict):
+                alt_conf.pop('name', None)
+                alt_conf.pop('cluster_name', None)
+                conf.update(alt_conf)
 
     # Redis server configuration . Follows standard redis keywords
     REDIS = conf.get("redis", {})
@@ -70,7 +82,13 @@ class Conf:
     MONGO_DB = conf.get("mongo_db", None)
 
     # Name of the cluster or site. For when you run multiple sites on one redis server
+    # It's also the `salt` for signing OrmQ, and part of the Redis stats caching key
+    # For all clusters in one site, PREFIX should be the same value to be able to decrypt payloads
     PREFIX = conf.get("name", "default")
+
+    # Support alternative cluster name to use multiple queues in one site.
+    #   cluster name and queue name are interchangeable, same thing.
+    CLUSTER_NAME = conf.get("cluster_name", PREFIX)
 
     # Log output level
     LOG_LEVEL = conf.get("log_level", "INFO")

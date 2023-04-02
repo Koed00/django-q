@@ -54,7 +54,7 @@ def get_func_repr(func):
             f"{func.__self__.__module__}." f"{func.__self__.__name__}.{func.__name__}"
         )
     else:
-        return str(func)
+        return str(func) if func else None
 
 
 def localtime(value=None) -> datetime:

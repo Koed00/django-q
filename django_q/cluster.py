@@ -48,14 +48,16 @@ from .utils import get_func_repr, localtime
 
 class Cluster:
     def __init__(self, broker: Broker = None):
-        self.broker = broker or get_broker()
+        # Cluster do not need an init or default broker except for testing,
+        # The sentinel will create a broker for cluster and utilize ALT_CLUSTERS config in Conf.
+        self.broker = broker  # DON'T USE get_broker() to set a default broker here.
         self.sentinel = None
         self.stop_event = None
         self.start_event = None
         self.pid = current_process().pid
         self.cluster_id = uuid.uuid4()
         self.host = socket.gethostname()
-        self.timeout = Conf.TIMEOUT
+        self.timeout = None
         signal.signal(signal.SIGTERM, self.sig_handler)
         signal.signal(signal.SIGINT, self.sig_handler)
 
@@ -141,7 +143,7 @@ class Sentinel:
         start_event,
         cluster_id,
         broker=None,
-        timeout=Conf.TIMEOUT,
+        timeout=None,
         start=True,
     ):
         # Make sure we catch signals for the pool
@@ -158,7 +160,7 @@ class Sentinel:
         self.start_event = start_event
         self.pool_size = Conf.WORKERS
         self.pool = []
-        self.timeout = timeout
+        self.timeout = timeout or Conf.TIMEOUT
         self.task_queue = (
             Queue(maxsize=Conf.QUEUE_LIMIT) if Conf.QUEUE_LIMIT else Queue()
         )
@@ -168,6 +170,10 @@ class Sentinel:
         self.pusher = None
         if start:
             self.start()
+
+    def queue_name(self):
+        # multi-queue: cluster name is (broker's) queue_name
+        return self.broker.list_key if self.broker else '--'
 
     def start(self):
         self.broker.ping()
@@ -287,14 +293,14 @@ class Sentinel:
             _("%(name)s guarding cluster %(cluster_name)s")
             % {
                 "name": current_process().name,
-                "cluster_name": humanize(self.cluster_id.hex),
+                "cluster_name": humanize(self.cluster_id.hex) + f" [{self.queue_name()}]",
             }
         )
         self.start_event.set()
         Stat(self).save()
         logger.info(
             _("Q Cluster %(cluster_name)s running.")
-            % {"cluster_name": humanize(self.cluster_id.hex)}
+            % {"cluster_name": humanize(self.cluster_id.hex) + f" [{self.queue_name()}]"}
         )
         counter = 0
         cycle = Conf.GUARD_CYCLE  # guard loop sleep in seconds
@@ -401,6 +407,7 @@ def pusher(task_queue: Queue, event: Event, broker: Broker = None):
                     logger.exception("Failed to push task to queue")
                     broker.fail(ack_id)
                     continue
+                task["cluster"] = Conf.CLUSTER_NAME  # save actual cluster name to orm task table
                 task["ack_id"] = ack_id
                 task_queue.put(task)
             logger.debug(
@@ -518,6 +525,7 @@ def worker(
         pre_execute.send(sender="django_q", func=f, task=task)
         # execute the payload
         timer.value = timer_value  # Busy
+
         try:
             if f is None:
                 # raise a meaningfull error if task["func"] is not a valid function
@@ -614,6 +622,7 @@ def save_task(task, broker: Broker):
                 hook=task.get("hook"),
                 args=task["args"],
                 kwargs=task["kwargs"],
+                cluster=task.get("cluster"),
                 started=task["started"],
                 stopped=task["stopped"],
                 result=task["result"],
@@ -685,13 +694,16 @@ def scheduler(broker: Broker = None):
         broker = get_broker()
     close_old_django_connections()
     try:
+        # Only default cluster will handler schedule with default(null) cluster
+        Q_default = db.models.Q(cluster__isnull=True) if Conf.CLUSTER_NAME == Conf.PREFIX else db.models.Q(pk__in=[])
+
         with db.transaction.atomic(using=db.router.db_for_write(Schedule)):
             for s in (
                 Schedule.objects.select_for_update()
                 .exclude(repeats=0)
                 .filter(next_run__lt=timezone.now())
                 .filter(
-                    db.models.Q(cluster__isnull=True) | db.models.Q(cluster=Conf.PREFIX)
+                    Q_default | db.models.Q(cluster=Conf.CLUSTER_NAME)
                 )
             ):
                 args = ()
@@ -733,14 +745,11 @@ def scheduler(broker: Broker = None):
 
                     s.next_run = next_run
                     s.repeats += -1
-                # send it to the cluster
-                scheduled_broker = broker
-                try:
-                    scheduled_broker = get_broker(q_options["broker_name"])
-                except:  # noqa: E722
-                    # invalid broker_name or non existing broker with broker_name
-                    pass
-                q_options["broker"] = scheduled_broker
+                # send it to the cluster; any cluster name is allowed in multi-queue scenarios
+                # because `broker_name` is confusing, using `cluster` name is recommended and takes precedence
+                q_options["cluster"] = s.cluster or q_options.get("cluster", q_options.pop("broker_name", None))
+                if q_options['cluster'] is None or q_options['cluster'] == Conf.CLUSTER_NAME:
+                    q_options["broker"] = broker
                 q_options["group"] = q_options.get("group", s.name or s.id)
                 kwargs["q_options"] = q_options
                 s.task = django_q.tasks.async_task(s.func, *args, **kwargs)
