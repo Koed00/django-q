@@ -44,7 +44,7 @@ include = ['CHANGELOG.md']
 
 
 [tool.poetry.dependencies]
-python = ">=3.8.14, <4"
+python = ">=3.8, <4"
 django = ">=3.2"
 django-picklefield = "^3.1"
 
