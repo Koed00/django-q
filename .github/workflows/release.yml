@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    if: github.repository == 'GDay/django-q2'
+    if: github.repository == 'django-q2/django-q2'
     runs-on: ubuntu-latest
 
     steps:
