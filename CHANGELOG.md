@@ -2,6 +2,10 @@
 
 ## [Unreleased](https://github.com/GDay/django-q2/tree/HEAD)
 
+## [v1.5.1](https://github.com/GDay/django-q2/tree/v1.5.1) (2023-04-02)
+
+- Fix release to pipy due to changed org name
+
 ## [v1.5.0](https://github.com/GDay/django-q2/tree/v1.5.0) (2023-04-02)
 
 **Merged pull requests:**
