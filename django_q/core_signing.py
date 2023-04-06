@@ -6,7 +6,13 @@ from django.core.signing import BadSignature, JSONSerializer, SignatureExpired
 from django.core.signing import Signer as Sgnr
 from django.core.signing import TimestampSigner as TsS
 from django.core.signing import b64_decode, dumps
-from django.utils import baseconv
+# The `django.utils.baseconv` module is deprecated in Django 4.0 and removed in
+# Django 5.0. Base 62 functions have been moved to `django.core.signing`.
+try:
+    from django.core.signing import b62_decode
+except ImportError:
+    from django.utils.baseconv import base62
+    b62_decode = base62.decode
 from django.utils.crypto import constant_time_compare
 from django.utils.encoding import force_bytes, force_str
 
@@ -69,7 +75,7 @@ class TimestampSigner(Signer, TsS):
         """
         result = super(TimestampSigner, self).unsign(value)
         value, timestamp = result.rsplit(self.sep, 1)
-        timestamp = baseconv.base62.decode(timestamp)
+        timestamp = b62_decode(timestamp)
         if max_age is not None:
             if isinstance(max_age, datetime.timedelta):
                 max_age = max_age.total_seconds()
