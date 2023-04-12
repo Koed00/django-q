@@ -37,7 +37,7 @@ def loads(
     """
     # TimestampSigner.unsign() returns str but base64 and zlib compression
     # operate on bytes.
-    base64d = force_bytes(TimestampSigner(key, salt=salt).unsign(s, max_age=max_age))
+    base64d = force_bytes(TimestampSigner(key=key, salt=salt).unsign(s, max_age=max_age))
     decompress = False
     if base64d[:1] == b".":
         # It's compressed; uncompress it first
