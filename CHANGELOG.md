@@ -2,6 +2,13 @@
 
 ## [Unreleased](https://github.com/GDay/django-q2/tree/HEAD)
 
+## [v1.5.2](https://github.com/GDay/django-q2/tree/v1.5.2) (2023-04-13)
+
+**Merged pull requests:**
+
+- Added Django 4.2 to the test matrix, fixed deprecation warning https://github.com/GDay/django-q2/pull/89
+- Updated docs to show support for 4.2
+
 ## [v1.5.1](https://github.com/GDay/django-q2/tree/v1.5.1) (2023-04-02)
 
 - Fix release to pipy due to changed org name
