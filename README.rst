@@ -40,7 +40,7 @@ Requirements
 -  `Django <https://www.djangoproject.com>`__ > = 3.2
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
 
-Tested with: Python 3.8, 3.9, 3.10, 3.11 Django 3.2.X and 4.1.X
+Tested with: Python 3.8, 3.9, 3.10 and 3.11. Works with Django 3.2.X, 4.1.X and 4.2.X.
 
 Brokers
 ~~~~~~~
