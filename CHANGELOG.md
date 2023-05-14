@@ -2,6 +2,14 @@
 
 ## [Unreleased](https://github.com/GDay/django-q2/tree/HEAD)
 
+## [v1.5.3](https://github.com/GDay/django-q2/tree/v1.5.3) (2023-05-14)
+
+**Merged pull requests:**
+
+- Add post_spawn signal. https://github.com/django-q2/django-q2/pull/93
+- Post spawn docs https://github.com/django-q2/django-q2/pull/95
+- Make processes identifiable with uuid4 https://github.com/django-q2/django-q2/pull/91
+
 ## [v1.5.2](https://github.com/GDay/django-q2/tree/v1.5.2) (2023-04-13)
 
 **Merged pull requests:**
