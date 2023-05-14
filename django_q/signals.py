@@ -31,6 +31,8 @@ def call_hook(sender, instance, **kwargs):
                 % {"hook": instance.hook, "name": instance.name, "error": str(e)}
             )
 
+# args: proc_name
+post_spawn = Signal()
 
 # args: task
 pre_enqueue = Signal()

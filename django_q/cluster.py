@@ -39,7 +39,7 @@ from django_q.conf import (
 from django_q.humanhash import humanize
 from django_q.models import Schedule, Success, Task
 from django_q.queues import Queue
-from django_q.signals import post_execute, pre_execute
+from django_q.signals import post_execute, post_spawn, pre_execute
 from django_q.signing import BadSignature, SignedPackage
 from django_q.status import Stat, Status
 
@@ -481,6 +481,7 @@ def worker(
         _("%(proc_name)s ready for work at %(id)s")
         % {"proc_name": proc_name, "id": current_process().pid}
     )
+    post_spawn.send(sender="django_q", proc_name=proc_name)
     if setproctitle:
         setproctitle.setproctitle(f"qcluster {proc_name} idle")
     task_count = 0
