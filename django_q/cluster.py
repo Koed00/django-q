@@ -69,6 +69,7 @@ class Cluster:
         self.start_event = Event()
         self.sentinel = Process(
             target=Sentinel,
+            name=f"Process-{uuid.uuid4().hex}",
             args=(
                 self.stop_event,
                 self.start_event,
@@ -196,7 +197,7 @@ class Sentinel:
         """
         :type target: function or class
         """
-        p = Process(target=target, args=args)
+        p = Process(target=target, args=args, name=f"Process-{uuid.uuid4().hex}")
         p.daemon = True
         if target == worker:
             p.daemon = Conf.DAEMONIZE_WORKERS

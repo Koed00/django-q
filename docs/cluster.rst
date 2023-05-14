@@ -11,36 +11,36 @@ Start your cluster using Django's ``manage.py`` command::
 
 You should see the cluster starting ::
 
-    10:57:40 [Q] INFO Q Cluster-31781 starting.
-    10:57:40 [Q] INFO Process-1:1 ready for work at 31784
-    10:57:40 [Q] INFO Process-1:2 ready for work at 31785
-    10:57:40 [Q] INFO Process-1:3 ready for work at 31786
-    10:57:40 [Q] INFO Process-1:4 ready for work at 31787
-    10:57:40 [Q] INFO Process-1:5 ready for work at 31788
-    10:57:40 [Q] INFO Process-1:6 ready for work at 31789
-    10:57:40 [Q] INFO Process-1:7 ready for work at 31790
-    10:57:40 [Q] INFO Process-1:8 ready for work at 31791
-    10:57:40 [Q] INFO Process-1:9 monitoring at 31792
-    10:57:40 [Q] INFO Process-1 guarding cluster at 31783
-    10:57:40 [Q] INFO Process-1:10 pushing tasks at 31793
-    10:57:40 [Q] INFO Q Cluster-31781 running.
+    10:57:40 [Q] INFO Q Cluster freddie-uncle-twenty-ten starting.
+    10:57:40 [Q] INFO Process-ede257774c4444c980ab479f10947acc ready for work at 31784
+    10:57:40 [Q] INFO Process-ed580482da3f42968230baa2e4253e42 ready for work at 31785
+    10:57:40 [Q] INFO Process-8a370dc2bc1d49aa9864e517c9895f74 ready for work at 31786
+    10:57:40 [Q] INFO Process-74912f9844264d1397c6e54476b530c0 ready for work at 31787
+    10:57:40 [Q] INFO Process-b00edb26c6074a6189e5696c60aeb35b ready for work at 31788
+    10:57:40 [Q] INFO Process-b0862965db04479f9784a26639ee51e0 ready for work at 31789
+    10:57:40 [Q] INFO Process-7e8abbb8ca2d4d9bb20a937dd5e2872b ready for work at 31790
+    10:57:40 [Q] INFO Process-b0862965db04479f9784a26639ee51e0 ready for work at 31791
+    10:57:40 [Q] INFO Process-67fa9461ac034736a766cd813f617e62 monitoring at 31792
+    10:57:40 [Q] INFO Process-eac052c646b2459797cee98bdb84c85d guarding cluster at 31783
+    10:57:40 [Q] INFO Process-5d98deb19b1e4b2da2ef1e5bd6824f75 pushing tasks at 31793
+    10:57:40 [Q] INFO Q Cluster freddie-uncle-twenty-ten running.
 
 
 Stopping the cluster with ctrl-c or either the ``SIGTERM`` and ``SIGKILL`` signals, will initiate the :ref:`stop_procedure`::
 
-    16:44:12 [Q] INFO Q Cluster-31781 stopping.
-    16:44:12 [Q] INFO Process-1 stopping cluster processes
-    16:44:13 [Q] INFO Process-1:10 stopped pushing tasks
-    16:44:13 [Q] INFO Process-1:6 stopped doing work
-    16:44:13 [Q] INFO Process-1:4 stopped doing work
-    16:44:13 [Q] INFO Process-1:1 stopped doing work
-    16:44:13 [Q] INFO Process-1:5 stopped doing work
-    16:44:13 [Q] INFO Process-1:7 stopped doing work
-    16:44:13 [Q] INFO Process-1:3 stopped doing work
-    16:44:13 [Q] INFO Process-1:8 stopped doing work
-    16:44:13 [Q] INFO Process-1:2 stopped doing work
-    16:44:14 [Q] INFO Process-1:9 stopped monitoring results
-    16:44:15 [Q] INFO Q Cluster-31781 has stopped.
+    16:44:12 [Q] INFO Q Cluster freddie-uncle-twenty-ten stopping.
+    16:44:12 [Q] INFO Process-eac052c646b2459797cee98bdb84c85d stopping cluster processes
+    16:44:13 [Q] INFO Process-5d98deb19b1e4b2da2ef1e5bd6824f75 stopped pushing tasks
+    16:44:13 [Q] INFO Process-b0862965db04479f9784a26639ee51e0 stopped doing work
+    16:44:13 [Q] INFO Process-7e8abbb8ca2d4d9bb20a937dd5e2872b stopped doing work
+    16:44:13 [Q] INFO Process-b0862965db04479f9784a26639ee51e0 stopped doing work
+    16:44:13 [Q] INFO Process-b00edb26c6074a6189e5696c60aeb35b stopped doing work
+    16:44:13 [Q] INFO Process-74912f9844264d1397c6e54476b530c0 stopped doing work
+    16:44:13 [Q] INFO Process-8a370dc2bc1d49aa9864e517c9895f74 stopped doing work
+    16:44:13 [Q] INFO Process-ed580482da3f42968230baa2e4253e42 stopped doing work
+    16:44:13 [Q] INFO Process-ede257774c4444c980ab479f10947acc stopped doing work
+    16:44:14 [Q] INFO Process-67fa9461ac034736a766cd813f617e62 stopped monitoring results
+    16:44:15 [Q] INFO Q Cluster freddie-uncle-twenty-ten has stopped.
 
 The number of workers, optional timeouts, recycles and cpu_affinity can be controlled via the :doc:`configure` settings.
 
