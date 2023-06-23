@@ -10,10 +10,29 @@ from django_q.models import Failure, OrmQ, Schedule, Success, Task
 from django_q.tasks import async_task
 
 
+def resubmit_task(model_admin, request, queryset):
+    """Submit selected tasks back to the queue."""
+    for task in queryset:
+        async_task(
+            task.func,
+            *task.args or (),
+            hook=task.hook,
+            group=task.group,
+            cluster=task.cluster,
+            **task.kwargs or {},
+        )
+        if isinstance(model_admin, FailAdmin):
+            task.delete()
+
+
+resubmit_task.short_description = _("Resubmit selected tasks to queue")
+
+
 class TaskAdmin(admin.ModelAdmin):
     """model admin for success tasks."""
 
     list_display = ("name", "group", "func", "cluster", "started", "stopped", "time_taken")
+    actions = [resubmit_task]
 
     def has_add_permission(self, request):
         """Don't allow adds."""
@@ -33,17 +52,6 @@ class TaskAdmin(admin.ModelAdmin):
         return list(self.readonly_fields) + [field.name for field in obj._meta.fields]
 
 
-def retry_failed(FailAdmin, request, queryset):
-    """Submit selected tasks back to the queue."""
-    for task in queryset:
-        async_task(task.func, *task.args or (), hook=task.hook,
-                   group=task.group, cluster=task.cluster, **task.kwargs or {})
-        task.delete()
-
-
-retry_failed.short_description = _("Resubmit selected tasks to queue")
-
-
 class FailAdmin(admin.ModelAdmin):
     """model admin for failed tasks."""
 
@@ -53,7 +61,7 @@ class FailAdmin(admin.ModelAdmin):
         """Don't allow adds."""
         return False
 
-    actions = [retry_failed]
+    actions = [resubmit_task]
     search_fields = ("name", "func", "group")
     list_filter = ("group", "cluster")
     readonly_fields = []

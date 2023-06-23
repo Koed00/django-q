@@ -64,7 +64,7 @@ def test_admin_views(admin_client, monkeypatch):
 
     # resubmit the failure
     url = reverse("admin:django_q_failure_changelist")
-    data = {"action": "retry_failed", "_selected_action": [f.pk]}
+    data = {"action": "resubmit_task", "_selected_action": [f.pk]}
     response = admin_client.post(url, data)
     assert response.status_code == 302
     assert Failure.objects.filter(name=f.id).exists() is False
@@ -84,3 +84,10 @@ def test_admin_views(admin_client, monkeypatch):
     data = {"post": "yes"}
     response = admin_client.post(url, data)
     assert response.status_code == 302
+    # Resubmit a successful task.
+    url = reverse("admin:django_q_success_changelist")
+    data = {"action": "resubmit_task", "_selected_action": [t.pk]}
+    initial_queue_count = OrmQ.objects.count()
+    response = admin_client.post(url, data)
+    assert response.status_code == 302
+    assert OrmQ.objects.count() > initial_queue_count
