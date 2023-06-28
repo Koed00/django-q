@@ -2,6 +2,12 @@
 
 ## [Unreleased](https://github.com/GDay/django-q2/tree/HEAD)
 
+## [v1.5.4](https://github.com/GDay/django-q2/tree/v1.5.4) (2023-06-29)
+
+**Merged pull requests:**
+
+- Rerun successful tasks https://github.com/django-q2/django-q2/pull/99
+
 ## [v1.5.3](https://github.com/GDay/django-q2/tree/v1.5.3) (2023-05-14)
 
 **Merged pull requests:**
