@@ -8,19 +8,19 @@ from django.db import models
 from django.template.defaultfilters import truncatechars
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.timezone import is_aware
-from django.utils.html import format_html
-from django.utils.translation import gettext_lazy as _
 from django.utils.functional import cached_property
+from django.utils.html import format_html
+from django.utils.timezone import is_aware
+from django.utils.translation import gettext_lazy as _
 
 # External
 from picklefield import PickledObjectField
 from picklefield.fields import dbsafe_decode
 
 # Local
-from django_q.conf import croniter, Conf
+from django_q.conf import Conf, croniter
 from django_q.signing import SignedPackage
-from django_q.utils import localtime, add_months, add_years
+from django_q.utils import add_months, add_years, localtime
 
 from .utils import get_func_repr
 
@@ -218,8 +218,11 @@ class Schedule(models.Model):
     )
     task = models.CharField(max_length=100, null=True, editable=False)
     cluster = models.CharField(
-        max_length=100, default=None, null=True, blank=True,
-        help_text=_("Name of the target cluster")
+        max_length=100,
+        default=None,
+        null=True,
+        blank=True,
+        help_text=_("Name of the target cluster"),
     )
     intended_date_kwarg = models.CharField(
         max_length=100,
@@ -309,7 +312,9 @@ class Schedule(models.Model):
 class OrmQ(models.Model):
     key = models.CharField(max_length=100, help_text=_("Name of the target cluster"))
     payload = models.TextField()
-    lock = models.DateTimeField(null=True, help_text=_("Prevent any cluster from pulling until"))
+    lock = models.DateTimeField(
+        null=True, help_text=_("Prevent any cluster from pulling until")
+    )
 
     @cached_property
     def task(self):

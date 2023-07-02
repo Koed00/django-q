@@ -3,7 +3,7 @@ from django.utils.translation import gettext as _
 
 from django_q import VERSION
 from django_q.conf import Conf
-from django_q.monitor import get_ids, info
+from django_q.monitor_terminal import get_ids, info
 
 
 class Command(BaseCommand):

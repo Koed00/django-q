@@ -763,7 +763,8 @@ class AsyncTask:
 
 def _sync(pack):
     """Simulate a package travelling through the cluster."""
-    from django_q.cluster import monitor, worker
+    from django_q.monitor import monitor
+    from django_q.worker import worker
 
     task_queue = Queue()
     result_queue = Queue()

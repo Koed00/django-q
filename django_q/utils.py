@@ -1,13 +1,13 @@
-from datetime import datetime
 import calendar
 import inspect
-from datetime import date
+from datetime import date, datetime
 
 import django
-from django.utils import timezone
+from django import db
 from django.conf import settings
+from django.utils import timezone
 
-from django_q.conf import Conf
+from django_q.conf import Conf, logger
 
 if django.VERSION < (4, 0):
     # pytz is the default in django 3.2. Remove when no support for 3.2
@@ -72,3 +72,17 @@ def localtime(value=None) -> datetime:
         return datetime.now()
     else:
         return value
+
+
+def close_old_django_connections():
+    """
+    Close django connections unless running with sync=True.
+    """
+    if Conf.SYNC:
+        logger.warning(
+            "Preserving django database connections because sync=True. Beware "
+            "that tasks are now injected in the calling context/transactions "
+            "which may result in unexpected behaviour."
+        )
+    else:
+        db.close_old_connections()

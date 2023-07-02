@@ -3,8 +3,8 @@ from datetime import datetime, timedelta
 from multiprocessing import Event, Value
 from unittest import mock
 
-import pytest
 import django
+import pytest
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.test import override_settings
@@ -12,9 +12,11 @@ from django.utils import timezone
 from django.utils.timezone import is_naive
 
 from django_q.brokers import Broker, get_broker
-from django_q.cluster import localtime, monitor, pusher, scheduler, worker
 from django_q.conf import Conf
+from django_q.monitor import monitor
+from django_q.pusher import pusher
 from django_q.queues import Queue
+from django_q.scheduler import scheduler
 from django_q.tasks import Schedule, fetch
 from django_q.tasks import schedule as create_schedule
 from django_q.tests.settings import BASE_DIR
@@ -22,7 +24,8 @@ from django_q.tests.testing_utilities.multiple_database_routers import (
     TestingMultipleAppsDatabaseRouter,
     TestingReplicaDatabaseRouter,
 )
-from django_q.utils import add_months
+from django_q.utils import add_months, localtime
+from django_q.worker import worker
 
 if django.VERSION < (4, 0):
     # pytz is the default in django 3.2. Remove when no support for 3.2
@@ -85,7 +88,7 @@ def test_scheduler_daylight_saving_time_daily(broker, monkeypatch):
     # 28th of March 2021 is the day when sunlight saving starts (at 2 am)
 
     monkeypatch.setattr(Conf, "TIME_ZONE", "Europe/Amsterdam")
-    tz = ZoneInfo('Europe/Amsterdam')
+    tz = ZoneInfo("Europe/Amsterdam")
     broker.list_key = "scheduler_test:q"
     # Let's start a schedule at 1 am on the 27th of March. This is in AMS timezone.
     # So, 2021-03-27 00:00:00 when saved (due to TZ being Amsterdam and saved in UTC)
@@ -179,7 +182,6 @@ def test_scheduler_daylight_saving_time_daily(broker, monkeypatch):
     # Switch of DST
     next_run = next_run.astimezone(tz)
     assert str(next_run) == "2021-11-01 01:00:00+01:00"
-
 
 
 @pytest.mark.django_db
@@ -407,7 +409,7 @@ def test_scheduler(broker, monkeypatch):
 def test_intended_schedule_kwarg(broker, monkeypatch):
     broker.list_key = "scheduler_test:q"
     broker.delete_queue()
-    run_date = timezone.now()-timedelta(hours=1)
+    run_date = timezone.now() - timedelta(hours=1)
     schedule = create_schedule(
         "math.copysign",
         1,
@@ -417,10 +419,10 @@ def test_intended_schedule_kwarg(broker, monkeypatch):
         schedule_type=Schedule.HOURLY,
         repeats=1,
         next_run=run_date,
-        intended_date_kwarg='intended_date',
+        intended_date_kwarg="intended_date",
     )
     assert schedule.last_run() is None
-    assert schedule.intended_date_kwarg == 'intended_date'
+    assert schedule.intended_date_kwarg == "intended_date"
     # run scheduler
     scheduler(broker=broker)
     # set up the workflow
@@ -431,8 +433,8 @@ def test_intended_schedule_kwarg(broker, monkeypatch):
     pusher(task_queue, stop_event, broker=broker)
     assert task_queue.qsize() == 1
     task = task_queue.get()
-    assert 'intended_date' in task['kwargs']
-    assert task['kwargs']['intended_date'] == run_date.isoformat()
+    assert "intended_date" in task["kwargs"]
+    assert task["kwargs"]["intended_date"] == run_date.isoformat()
 
 
 @override_settings(

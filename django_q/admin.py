@@ -31,7 +31,15 @@ resubmit_task.short_description = _("Resubmit selected tasks to queue")
 class TaskAdmin(admin.ModelAdmin):
     """model admin for success tasks."""
 
-    list_display = ("name", "group", "func", "cluster", "started", "stopped", "time_taken")
+    list_display = (
+        "name",
+        "group",
+        "func",
+        "cluster",
+        "started",
+        "stopped",
+        "time_taken",
+    )
     actions = [resubmit_task]
 
     def has_add_permission(self, request):
@@ -55,7 +63,15 @@ class TaskAdmin(admin.ModelAdmin):
 class FailAdmin(admin.ModelAdmin):
     """model admin for failed tasks."""
 
-    list_display = ("name", "group", "func", "cluster", "started", "stopped", "short_result")
+    list_display = (
+        "name",
+        "group",
+        "func",
+        "cluster",
+        "started",
+        "stopped",
+        "short_result",
+    )
 
     def has_add_permission(self, request):
         """Don't allow adds."""
@@ -132,7 +148,17 @@ class QueueAdmin(admin.ModelAdmin):
     """queue admin for ORM broker"""
 
     list_display = ("id", "key", "name", "group", "func", "lock", "task_id")
-    fields = ("key", "lock", "task_id", "name", "group", "func", "args", "kwargs", "q_options")
+    fields = (
+        "key",
+        "lock",
+        "task_id",
+        "name",
+        "group",
+        "func",
+        "args",
+        "kwargs",
+        "q_options",
+    )
     readonly_fields = fields[2:]
 
     def save_model(self, request, obj, form, change):

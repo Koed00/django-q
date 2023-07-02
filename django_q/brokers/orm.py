@@ -37,7 +37,9 @@ class ORM(Broker):
 
     def lock_size(self) -> int:
         return (
-            self.get_connection().filter(key=self.list_key, lock__gt=timezone.now()).count()
+            self.get_connection()
+            .filter(key=self.list_key, lock__gt=timezone.now())
+            .count()
         )
 
     def purge_queue(self):
@@ -62,7 +64,9 @@ class ORM(Broker):
         return package.pk
 
     def dequeue(self):
-        tasks = self.get_connection().filter(key=self.list_key, lock__lt=timezone.now())[
+        tasks = self.get_connection().filter(
+            key=self.list_key, lock__lt=timezone.now()
+        )[
             0 : Conf.BULK  # noqa: E203
         ]
         if tasks:

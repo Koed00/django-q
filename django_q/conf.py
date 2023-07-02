@@ -44,15 +44,18 @@ class Conf:
         conf = {}
 
     _Q_CLUSTER_NAME = os.getenv("Q_CLUSTER_NAME")
-    if _Q_CLUSTER_NAME and _Q_CLUSTER_NAME != conf.get("name") and \
-            _Q_CLUSTER_NAME != conf.get("cluster_name"):
+    if (
+        _Q_CLUSTER_NAME
+        and _Q_CLUSTER_NAME != conf.get("name")
+        and _Q_CLUSTER_NAME != conf.get("cluster_name")
+    ):
         conf["cluster_name"] = _Q_CLUSTER_NAME
         alt_conf = conf.pop("ALT_CLUSTERS")
         if isinstance(alt_conf, dict):
             alt_conf = alt_conf.get(_Q_CLUSTER_NAME)
             if isinstance(alt_conf, dict):
-                alt_conf.pop('name', None)
-                alt_conf.pop('cluster_name', None)
+                alt_conf.pop("name", None)
+                alt_conf.pop("cluster_name", None)
                 conf.update(alt_conf)
 
     # Redis server configuration . Follows standard redis keywords

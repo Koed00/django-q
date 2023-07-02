@@ -1,17 +1,18 @@
 # Standard
-import ast
-import pydoc
 import signal
 import socket
-import traceback
 import uuid
-from datetime import datetime, timedelta
 from multiprocessing import Event, Process, Value, current_process
 from time import sleep
 
 # Django
 from django import core, db
 from django.apps.registry import apps
+
+from django_q.monitor import monitor
+from django_q.pusher import pusher
+from django_q.scheduler import scheduler
+from django_q.worker import worker
 
 try:
     apps.check_apps_ready()
@@ -26,24 +27,14 @@ from django.utils.translation import gettext_lazy as _
 # Local
 import django_q.tasks
 from django_q.brokers import Broker, get_broker
-from django_q.conf import (
-    Conf,
-    croniter,
-    error_reporter,
-    get_ppid,
-    logger,
-    psutil,
-    setproctitle,
-    resource,
-)
+from django_q.conf import Conf, get_ppid, logger, psutil, setproctitle
 from django_q.humanhash import humanize
 from django_q.models import Schedule, Success, Task
 from django_q.queues import Queue
-from django_q.signals import post_execute, post_spawn, pre_execute
 from django_q.signing import BadSignature, SignedPackage
 from django_q.status import Stat, Status
 
-from .utils import get_func_repr, localtime
+from .utils import get_func_repr
 
 
 class Cluster:
@@ -174,7 +165,7 @@ class Sentinel:
 
     def queue_name(self):
         # multi-queue: cluster name is (broker's) queue_name
-        return self.broker.list_key if self.broker else '--'
+        return self.broker.list_key if self.broker else "--"
 
     def start(self):
         self.broker.ping()
@@ -248,20 +239,22 @@ class Sentinel:
                     try:
                         process_name = psutil.Process(process.pid).name()
                         name_splits = process_name.split(" ")
-                        task_name = name_splits[3] if len(name_splits) >= 4 and name_splits[2] == "processing" else ""
+                        task_name = (
+                            name_splits[3]
+                            if len(name_splits) >= 4 and name_splits[2] == "processing"
+                            else ""
+                        )
                     except psutil.NoSuchProcess:
                         pass
                 process.terminate()
                 if task_name:
-                    msg = (
-                        _("reincarnated worker %(name)s after timeout while processing task %(task_name)s")
-                        % {"name": process.name, "task_name": task_name}
-                    )
+                    msg = _(
+                        "reincarnated worker %(name)s after timeout while processing task %(task_name)s"
+                    ) % {"name": process.name, "task_name": task_name}
                 else:
-                    msg = (
-                        _("reincarnated worker %(name)s after timeout")
-                        % {"name": process.name}
-                    )
+                    msg = _("reincarnated worker %(name)s after timeout") % {
+                        "name": process.name
+                    }
                 logger.critical(msg)
             elif int(process.timer.value) == -2:
                 logger.info(_("recycled worker %(name)s") % {"name": process.name})
@@ -294,14 +287,18 @@ class Sentinel:
             _("%(name)s guarding cluster %(cluster_name)s")
             % {
                 "name": current_process().name,
-                "cluster_name": humanize(self.cluster_id.hex) + f" [{self.queue_name()}]",
+                "cluster_name": humanize(self.cluster_id.hex)
+                + f" [{self.queue_name()}]",
             }
         )
         self.start_event.set()
         Stat(self).save()
         logger.info(
             _("Q Cluster %(cluster_name)s running.")
-            % {"cluster_name": humanize(self.cluster_id.hex) + f" [{self.queue_name()}]"}
+            % {
+                "cluster_name": humanize(self.cluster_id.hex)
+                + f" [{self.queue_name()}]"
+            }
         )
         counter = 0
         cycle = Conf.GUARD_CYCLE  # guard loop sleep in seconds
@@ -374,438 +371,6 @@ class Sentinel:
         Stat(self).save()
 
 
-def pusher(task_queue: Queue, event: Event, broker: Broker = None):
-    """
-    Pulls tasks of the broker and puts them in the task queue
-    :type broker:
-    :type task_queue: multiprocessing.Queue
-    :type event: multiprocessing.Event
-    """
-    if not broker:
-        broker = get_broker()
-    proc_name = current_process().name
-    if setproctitle:
-        setproctitle.setproctitle(f"qcluster {proc_name} pusher")
-    logger.info(
-        _("%(name)s pushing tasks at %(id)s")
-        % {"name": proc_name, "id": current_process().pid}
-    )
-    while True:
-        try:
-            task_set = broker.dequeue()
-        except Exception:
-            logger.exception("Failed to pull task from broker")
-            # broker probably crashed. Let the sentinel handle it.
-            sleep(10)
-            break
-        if task_set:
-            for task in task_set:
-                ack_id = task[0]
-                # unpack the task
-                try:
-                    task = SignedPackage.loads(task[1])
-                except (TypeError, BadSignature):
-                    logger.exception("Failed to push task to queue")
-                    broker.fail(ack_id)
-                    continue
-                task["cluster"] = Conf.CLUSTER_NAME  # save actual cluster name to orm task table
-                task["ack_id"] = ack_id
-                task_queue.put(task)
-            logger.debug(
-                _("queueing from %(list_key)s") % {"list_key": broker.list_key}
-            )
-        if event.is_set():
-            break
-    logger.info(_("%(name)s stopped pushing tasks") % {"name": current_process().name})
-
-
-def monitor(result_queue: Queue, broker: Broker = None):
-    """
-    Gets finished tasks from the result queue and saves them to Django
-    :type broker: brokers.Broker
-    :type result_queue: multiprocessing.Queue
-    """
-    if not broker:
-        broker = get_broker()
-    proc_name = current_process().name
-    if setproctitle:
-        setproctitle.setproctitle(f"qcluster {proc_name} monitor")
-    logger.info(
-        _("%(name)s monitoring at %(id)s") % {"name": proc_name, "id": current_process().pid}
-    )
-    for task in iter(result_queue.get, "STOP"):
-        # save the result
-        if task.get("cached", False):
-            save_cached(task, broker)
-        else:
-            save_task(task, broker)
-        # acknowledge result
-        ack_id = task.pop("ack_id", False)
-        if ack_id and (task["success"] or task.get("ack_failure", False)):
-            broker.acknowledge(ack_id)
-        # signal execution done
-        post_execute.send(sender="django_q", task=task)
-        # log the result
-        info_name = get_func_repr(task["func"])
-        if task["success"]:
-            # log success
-            logger.info(
-                _("Processed '%(info_name)s' (%(task_name)s)")
-                % {"info_name": info_name, "task_name": task["name"]}
-            )
-        else:
-            # log failure
-            logger.error(
-                _("Failed '%(info_name)s' (%(task_name)s) - %(task_result)s")
-                % {
-                    "info_name": info_name,
-                    "task_name": task["name"],
-                    "task_result": task["result"],
-                }
-            )
-    logger.info(_("%(name)s stopped monitoring results") % {"name": proc_name})
-
-
-def worker(
-    task_queue: Queue, result_queue: Queue, timer: Value, timeout: int = Conf.TIMEOUT
-):
-    """
-    Takes a task from the task queue, tries to execute it and puts the result back in
-    the result queue
-    :param timeout: number of seconds wait for a worker to finish.
-    :type task_queue: multiprocessing.Queue
-    :type result_queue: multiprocessing.Queue
-    :type timer: multiprocessing.Value
-    """
-    proc_name = current_process().name
-    logger.info(
-        _("%(proc_name)s ready for work at %(id)s")
-        % {"proc_name": proc_name, "id": current_process().pid}
-    )
-    post_spawn.send(sender="django_q", proc_name=proc_name)
-    if setproctitle:
-        setproctitle.setproctitle(f"qcluster {proc_name} idle")
-    task_count = 0
-    if timeout is None:
-        timeout = -1
-    # Start reading the task queue
-    for task in iter(task_queue.get, "STOP"):
-        result = None
-        timer.value = -1  # Idle
-        task_count += 1
-        f = task["func"]
-
-        # Log task creation and set process name
-        # Get the function from the task
-        func_name = get_func_repr(f)
-        task_name = task["name"]
-        task_desc = (
-            _("%(proc_name)s processing %(task_name)s '%(func_name)s'")
-            % {
-                "proc_name": proc_name,
-                "func_name": func_name,
-                "task_name": task_name,
-            }
-        )
-        if "group" in task:
-            task_desc += f" [{task['group']}]"
-        logger.info(task_desc)
-
-        if setproctitle:
-            proc_title = f"qcluster {proc_name} processing {task_name} '{func_name}'"
-            if "group" in task:
-                proc_title += f" [{task['group']}]"
-            setproctitle.setproctitle(proc_title)
-
-        # if it's not an instance try to get it from the string
-        if not callable(f):
-            # locate() returns None if f cannot be loaded
-            f = pydoc.locate(f)
-        close_old_django_connections()
-        timer_value = task.pop("timeout", timeout)
-        # signal execution
-        pre_execute.send(sender="django_q", func=f, task=task)
-        # execute the payload
-        timer.value = timer_value  # Busy
-
-        try:
-            if f is None:
-                # raise a meaningfull error if task["func"] is not a valid function
-                raise ValueError(f"Function {task['func']} is not defined")
-            res = f(*task["args"], **task["kwargs"])
-            result = (res, True)
-        except Exception as e:
-            result = (f"{e} : {traceback.format_exc()}", False)
-            if error_reporter:
-                error_reporter.report()
-            if task.get("sync", False):
-                raise
-        with timer.get_lock():
-            # Process result
-            task["result"] = result[0]
-            task["success"] = result[1]
-            task["stopped"] = timezone.now()
-            result_queue.put(task)
-            timer.value = -1  # Idle
-            if setproctitle:
-                setproctitle.setproctitle(f"qcluster {proc_name} idle")
-            # Recycle
-            if task_count == Conf.RECYCLE or rss_check():
-                timer.value = -2  # Recycled
-                break
-    logger.info(_("%(proc_name)s stopped doing work") % {"proc_name": proc_name})
-
-
-def save_task(task, broker: Broker):
-    """
-    Saves the task package to Django or the cache
-    :param task: the task package
-    :type broker: brokers.Broker
-    """
-    # SAVE LIMIT < 0 : Don't save success
-    if not task.get("save", Conf.SAVE_LIMIT >= 0) and task["success"]:
-        return
-    # enqueues next in a chain
-    if task.get("chain", None):
-        django_q.tasks.async_chain(
-            task["chain"],
-            group=task["group"],
-            cached=task["cached"],
-            sync=task["sync"],
-            broker=broker,
-        )
-    # SAVE LIMIT > 0: Prune database, SAVE_LIMIT 0: No pruning
-    close_old_django_connections()
-
-    try:
-        filters = {}
-        if (
-            Conf.SAVE_LIMIT_PER
-            and Conf.SAVE_LIMIT_PER in {"group", "name", "func"}
-            and Conf.SAVE_LIMIT_PER in task
-        ):
-            value = task[Conf.SAVE_LIMIT_PER]
-            if Conf.SAVE_LIMIT_PER == "func":
-                value = get_func_repr(value)
-            filters[Conf.SAVE_LIMIT_PER] = value
-
-        with db.transaction.atomic(using=db.router.db_for_write(Success)):
-            last = Success.objects.filter(**filters).select_for_update().last()
-            if (
-                task["success"]
-                and 0 < Conf.SAVE_LIMIT <= Success.objects.filter(**filters).count()
-            ):
-                last.delete()
-
-        # check if this task has previous results
-        try:
-            existing_task = Task.objects.get(id=task["id"], name=task["name"])
-            # only update the result if it hasn't succeeded yet
-            if not existing_task.success:
-                existing_task.stopped = task["stopped"]
-                existing_task.result = task["result"]
-                existing_task.success = task["success"]
-                existing_task.attempt_count = existing_task.attempt_count + 1
-                existing_task.save()
-
-            if (
-                Conf.MAX_ATTEMPTS > 0
-                and existing_task.attempt_count >= Conf.MAX_ATTEMPTS
-            ):
-                broker.acknowledge(task["ack_id"])
-
-        except Task.DoesNotExist:
-            # convert func to string
-            func = get_func_repr(task["func"])
-            Task.objects.create(
-                id=task["id"],
-                name=task["name"],
-                func=func,
-                hook=task.get("hook"),
-                args=task["args"],
-                kwargs=task["kwargs"],
-                cluster=task.get("cluster"),
-                started=task["started"],
-                stopped=task["stopped"],
-                result=task["result"],
-                group=task.get("group"),
-                success=task["success"],
-                attempt_count=1,
-            )
-    except Exception:
-        logger.exception("Could not save task result")
-
-
-def save_cached(task, broker: Broker):
-    task_key = f'{broker.list_key}:{task["id"]}'
-    timeout = task["cached"]
-    if timeout is True:
-        timeout = None
-    try:
-        group = task.get("group", None)
-        iter_count = task.get("iter_count", 0)
-        # if it's a group append to the group list
-        if group:
-            group_key = f"{broker.list_key}:{group}:keys"
-            group_list = broker.cache.get(group_key) or []
-            # if it's an iter group, check if we are ready
-            if iter_count and len(group_list) == iter_count - 1:
-                group_args = f"{broker.list_key}:{group}:args"
-                # collate the results into a Task result
-                results = [
-                    SignedPackage.loads(broker.cache.get(k))["result"]
-                    for k in group_list
-                ]
-                results.append(task["result"])
-                task["result"] = results
-                task["id"] = group
-                task["args"] = SignedPackage.loads(broker.cache.get(group_args))
-                task.pop("iter_count", None)
-                task.pop("group", None)
-                if task.get("iter_cached", None):
-                    task["cached"] = task.pop("iter_cached", None)
-                    save_cached(task, broker=broker)
-                else:
-                    save_task(task, broker)
-                broker.cache.delete_many(group_list)
-                broker.cache.delete_many([group_key, group_args])
-                return
-            # save the group list
-            group_list.append(task_key)
-            broker.cache.set(group_key, group_list, timeout)
-            # async_task next in a chain
-            if task.get("chain", None):
-                django_q.tasks.async_chain(
-                    task["chain"],
-                    group=group,
-                    cached=task["cached"],
-                    sync=task["sync"],
-                    broker=broker,
-                )
-        # save the task
-        broker.cache.set(task_key, SignedPackage.dumps(task), timeout)
-    except Exception:
-        logger.exception("Could not save task result")
-
-
-def scheduler(broker: Broker = None):
-    """
-    Creates a task from a schedule at the scheduled time and schedules next run
-    """
-    if not broker:
-        broker = get_broker()
-    close_old_django_connections()
-    try:
-        # Only default cluster will handler schedule with default(null) cluster
-        Q_default = db.models.Q(cluster__isnull=True) if Conf.CLUSTER_NAME == Conf.PREFIX else db.models.Q(pk__in=[])
-
-        with db.transaction.atomic(using=db.router.db_for_write(Schedule)):
-            for s in (
-                Schedule.objects.select_for_update()
-                .exclude(repeats=0)
-                .filter(next_run__lt=timezone.now())
-                .filter(
-                    Q_default | db.models.Q(cluster=Conf.CLUSTER_NAME)
-                )
-            ):
-                args = ()
-                kwargs = {}
-                # get args, kwargs and hook
-                if s.kwargs:
-                    try:
-                        # first try the dict syntax
-                        kwargs = ast.literal_eval(s.kwargs)
-                    except (SyntaxError, ValueError):
-                        # else use the kwargs syntax
-                        try:
-                            parsed_kwargs = (
-                                ast.parse(f"f({s.kwargs})").body[0].value.keywords
-                            )
-                            kwargs = {
-                                kwarg.arg: ast.literal_eval(kwarg.value)
-                                for kwarg in parsed_kwargs
-                            }
-                        except (SyntaxError, ValueError):
-                            kwargs = {}
-                if s.args:
-                    args = ast.literal_eval(s.args)
-                    # single value won't eval to tuple, so:
-                    if type(args) != tuple:
-                        args = (args,)
-                q_options = kwargs.get("q_options", {})
-                if s.intended_date_kwarg:
-                    kwargs[s.intended_date_kwarg] = s.next_run.isoformat()
-                if s.hook:
-                    q_options["hook"] = s.hook
-                # set up the next run time
-                if s.schedule_type != s.ONCE:
-                    next_run = s.next_run
-                    while True:
-                        next_run = s.calculate_next_run(next_run)
-                        if Conf.CATCH_UP or next_run > localtime():
-                            break
-
-                    s.next_run = next_run
-                    s.repeats += -1
-                # send it to the cluster; any cluster name is allowed in multi-queue scenarios
-                # because `broker_name` is confusing, using `cluster` name is recommended and takes precedence
-                q_options["cluster"] = s.cluster or q_options.get("cluster", q_options.pop("broker_name", None))
-                if q_options['cluster'] is None or q_options['cluster'] == Conf.CLUSTER_NAME:
-                    q_options["broker"] = broker
-                q_options["group"] = q_options.get("group", s.name or s.id)
-                kwargs["q_options"] = q_options
-                s.task = django_q.tasks.async_task(s.func, *args, **kwargs)
-                # log it
-                if not s.task:
-                    logger.error(
-                        _(
-                            "%(process_name)s failed to create a task from schedule "
-                            "[%(schedule)s]"
-                        )
-                        % {
-                            "process_name": current_process().name,
-                            "schedule": s.name or s.id,
-                        }
-                    )
-                else:
-                    logger.info(
-                        _(
-                            "%(process_name)s created task %(task_name)s from schedule "
-                            "[%(schedule)s]"
-                        )
-                        % {
-                            "process_name": current_process().name,
-                            "task_name": humanize(s.task),
-                            "schedule": s.name or s.id,
-                        }
-                    )
-                # default behavior is to delete a ONCE schedule
-                if s.schedule_type == s.ONCE:
-                    if s.repeats < 0:
-                        s.delete()
-                        continue
-                    # but not if it has a positive repeats
-                    s.repeats = 0
-                # save the schedule
-                s.save()
-    except Exception:
-        logger.exception("Could not create task from schedule")
-
-
-def close_old_django_connections():
-    """
-    Close django connections unless running with sync=True.
-    """
-    if Conf.SYNC:
-        logger.warning(
-            "Preserving django database connections because sync=True. Beware "
-            "that tasks are now injected in the calling context/transactions "
-            "which may result in unexpected behaviour."
-        )
-    else:
-        db.close_old_connections()
-
-
 def set_cpu_affinity(n: int, process_ids: list, actual: bool = not Conf.TESTING):
     """
     Sets the cpu affinity for the supplied processes.
@@ -846,12 +411,3 @@ def set_cpu_affinity(n: int, process_ids: list, actual: bool = not Conf.TESTING)
                 _("%(pid)s will use cpu %(affinity)s")
                 % {"pid": pid, "affinity": affinity}
             )
-
-
-def rss_check():
-    if Conf.MAX_RSS:
-        if resource:
-            return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss >= Conf.MAX_RSS
-        elif psutil:
-            return psutil.Process().memory_info().rss >= Conf.MAX_RSS * 1024
-    return False

@@ -1,8 +1,9 @@
+import os
+
 from django.core.management.base import BaseCommand
 from django.utils.translation import gettext as _
 
 from django_q.cluster import Cluster
-import os
 
 
 class Command(BaseCommand):
@@ -23,7 +24,7 @@ class Command(BaseCommand):
             dest="cluster_name",
             default=None,
             help="Set alternative cluster name instead of the name in Q_CLUSTER settings (for multi-queue setup). "
-                 "On Linux you should set name through `Q_CLUSTER_NAME=cluster_name python manage.py qcluster` instead."
+            "On Linux you should set name through `Q_CLUSTER_NAME=cluster_name python manage.py qcluster` instead.",
         )
 
     def handle(self, *args, **options):

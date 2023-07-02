@@ -12,10 +12,12 @@ import pytest
 from django.utils import timezone
 
 from django_q.brokers import Broker, get_broker
-from django_q.cluster import Cluster, Sentinel, monitor, pusher, save_task, worker
+from django_q.cluster import Cluster, Sentinel
 from django_q.conf import Conf
 from django_q.humanhash import DEFAULT_WORDLIST, uuid
 from django_q.models import Success, Task
+from django_q.monitor import monitor, save_task
+from django_q.pusher import pusher
 from django_q.queues import Queue
 from django_q.signals import post_execute, pre_enqueue, pre_execute
 from django_q.status import Stat
@@ -29,8 +31,9 @@ from django_q.tasks import (
     result,
     result_group,
 )
-from django_q.tests.tasks import multiply, TaskError
+from django_q.tests.tasks import TaskError, multiply
 from django_q.utils import add_months, add_years
+from django_q.worker import worker
 
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + "/../")
