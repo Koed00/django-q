@@ -1,15 +1,21 @@
 import logging
 import os
+import sys
 from copy import deepcopy
 from multiprocessing import cpu_count
 from signal import signal
 from warnings import warn
 
-import pkg_resources
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from django_q.queues import Queue
+
+# The "selectable" entry points were introduced in importlib_metadata 3.6 and Python 3.10.
+if sys.version_info < (3, 10):
+    from importlib_metadata import entry_points
+else:
+    from importlib.metadata import entry_points
 
 # optional
 try:
@@ -276,9 +282,7 @@ if Conf.ERROR_REPORTER:
         # iterate through the configured error reporters,
         # and instantiate an ErrorReporter using the provided config
         for name, conf in error_conf.items():
-            for entry in pkg_resources.iter_entry_points(
-                "djangoq.errorreporters", name
-            ):
+            for entry in entry_points(group="djangoq.errorreporters", name=name):
                 Reporter = entry.load()
                 reporters.append(Reporter(**conf))
         error_reporter = ErrorReporter(reporters)
