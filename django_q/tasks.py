@@ -148,7 +148,7 @@ def result(task_id, wait=0, cached=Conf.CACHED):
     start = time()
     while True:
         r = Task.get_result(task_id)
-        if r:
+        if r is not None:
             return r
         if (time() - start) * 1000 >= wait >= 0:
             break

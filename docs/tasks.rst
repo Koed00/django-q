@@ -121,6 +121,7 @@ Optionally you can use the :class:`AsyncTask` class to instantiate a task and ke
     a.run()
 
     # wait indefinitely for the result and print it
+    # don't let the task return `None` or it will wait indefinitely
     print(a.result(wait=-1))
 
     # change the args
@@ -264,7 +265,7 @@ Reference
     Gets the result of a previously executed task
 
     :param str task_id: the uuid or name of the task
-    :param int wait: optional milliseconds to wait for a result. -1 for indefinite
+    :param int wait: optional milliseconds to wait for a result. -1 for indefinite, but be sure the result will not be `None` otherwise it will wait indefinitely!
     :param bool cached: run this against the cache backend.
     :returns: The result of the executed task
 

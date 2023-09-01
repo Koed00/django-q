@@ -142,6 +142,30 @@ def test_cluster(broker):
 
 
 @pytest.mark.django_db
+def test_results(broker):
+    broker.list_key = "cluster_test:q"
+    broker.delete_queue()
+    a = async_task(
+        "django_q.tests.tasks.return_falsy_value",
+        broker=broker,
+    )
+
+    task_queue = Queue()
+    stop_event = Event()
+    stop_event.set()
+    pusher(task_queue, stop_event, broker=broker)
+    task_queue.put("STOP")
+    result_queue = Queue()
+    worker(task_queue, result_queue, Value("f", -1))
+    result_queue.put("STOP")
+    monitor(result_queue)
+
+    # should not loop indefinitely when a real value is returned
+    value = result(a, wait=-1)
+    assert value == []
+
+
+@pytest.mark.django_db
 def test_enqueue(broker, admin_user):
     broker.list_key = "cluster_test:q"
     broker.delete_queue()

@@ -46,6 +46,10 @@ def hello():
     return "hello"
 
 
+def return_falsy_value():
+    return []
+
+
 def result(obj):
     print(f"RESULT HOOK {obj.name} : {obj.result()}")
 
