@@ -2,6 +2,15 @@
 
 ## [Unreleased](https://github.com/GDay/django-q2/tree/HEAD)
 
+## [v1.5.5](https://github.com/django-q2/django-q2/tree/v1.5.5) (2023-09-01)
+
+**Merged pull requests:**
+
+- Add documentation to migrate from django-q to django-q2 https://github.com/django-q2/django-q2/pull/108
+- Fix not picking up result from falsy result https://github.com/django-q2/django-q2/pull/107
+- Remove deprecated usage pkg_resources https://github.com/django-q2/django-q2/pull/103
+- Move worker, scheduler, pusher and monitor to separate files https://github.com/django-q2/django-q2/pull/100
+
 ## [v1.5.4](https://github.com/GDay/django-q2/tree/v1.5.4) (2023-06-29)
 
 **Merged pull requests:**
