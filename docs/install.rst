@@ -24,6 +24,22 @@ Installation
 
     $ python manage.py qcluster
 
+
+Migrate from Django-Q to Django-Q2
+----------------------------------
+
+If you have an application with django-q running right now, you can simply swap the libraries and you should be good to go.::
+
+
+    $ pip uninstall django-q # you might have to uninstall django-q add-ons as well
+    $ pip install django-q2
+
+
+Then migrate the database to get the latest tables/fields::
+
+    $ python manage.py migrate
+
+
 Requirements
 ------------
 
@@ -139,7 +155,7 @@ You can reference the `requirements <https://github.com/GDay/django-q2/blob/mast
 
 Django
 ~~~~~~
-We strive to be compatible with last two major version of Django.
+We strive to be compatible with the last two major version of Django.
 At the moment this means we support the 3.2.x, 4.1.x and 4.2.x releases.
 
 Since we are now no longer supporting Python 2, we can also not support older versions of Django that do not support Python >= 3.6
