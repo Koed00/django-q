@@ -111,7 +111,7 @@ You can check the status of your clusters straight from your code with the :clas
 
 .. code:: python
 
-    from django_q.monitor import Stat
+    from django_q.status import Stat
 
     for stat in Stat.get_all():
         print(stat.cluster_id, stat.status)

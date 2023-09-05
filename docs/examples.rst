@@ -328,7 +328,7 @@ Requires cache to be enabled. Save file in your Django project's root directory 
     # All django stuff has to come after the setup:
     django.setup()
 
-    from django_q.monitor import Stat
+    from django_q.status import Stat
     from django_q.conf import Conf
 
     # Set host and port settings
