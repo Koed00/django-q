@@ -115,11 +115,11 @@ Add-ons
 -------
 - `django-q-rollbar <https://github.com/danielwelch/django-q-rollbar>`__ is a Rollbar error reporter::
 
-    $ pip install django-q[rollbar]
+    $ pip install django-q2[rollbar]
 
 - `django-q-sentry <https://github.com/danielwelch/django-q-sentry>`__ is a Sentry error reporter::
 
-    $ pip install django-q[sentry]
+    $ pip install django-q2[sentry]
 
 - `django-q-email <https://github.com/joeyespo/django-q-email>`__ is a compatible Django email backend that will automatically async queue your emails.
 
