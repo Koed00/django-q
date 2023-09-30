@@ -318,7 +318,7 @@ msgstr "Anzahl Minuten für den Typ 'Minuten'"
 
 #: models.py:205
 msgid "Repeats"
-msgstr "Wiederhohlungen"
+msgstr "Wiederholungen"
 
 #: models.py:205
 msgid "n = n times, -1 = forever"
