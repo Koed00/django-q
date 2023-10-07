@@ -348,7 +348,7 @@ To use MongoDB as a message broker you simply provide the connection information
         }
     }
 
-The ``mongo`` dictionary can contain any of the parameters exposed by pymongo's `MongoClient <https://api.mongodb.org/python/current/api/pymongo/mongo_client.html#pymongo.mongo_client.MongoClient>`__
+The ``mongo`` dictionary can contain any of the parameters exposed by pymongo's `MongoClient <https://pymongo.readthedocs.io/en/stable/api/pymongo/mongo_client.html#pymongo.mongo_client.MongoClient>`__
 If you want to use a mongodb uri, you can supply it as the ``host`` parameter.
 
 mongo_db
