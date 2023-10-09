@@ -3,7 +3,16 @@ from multiprocessing.process import current_process
 from multiprocessing.queues import Queue
 from time import sleep
 
+from django import core
 from django.utils.translation import gettext_lazy as _
+from django.apps.registry import apps
+
+try:
+    apps.check_apps_ready()
+except core.exceptions.AppRegistryNotReady:
+    import django
+
+    django.setup()
 
 from django_q.brokers import Broker, get_broker
 from django_q.conf import Conf, logger

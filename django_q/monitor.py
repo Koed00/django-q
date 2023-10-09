@@ -1,15 +1,23 @@
 from multiprocessing.process import current_process
 from multiprocessing.queues import Queue
 
-from django import db
+from django import core, db
 from django.utils.translation import gettext_lazy as _
+from django.apps.registry import apps
 
-import django_q.tasks
+try:
+    apps.check_apps_ready()
+except core.exceptions.AppRegistryNotReady:
+    import django
+
+    django.setup()
+
 from django_q.brokers import Broker, get_broker
 from django_q.conf import Conf, logger, setproctitle
 from django_q.models import Success, Task
 from django_q.signals import post_execute
 from django_q.signing import SignedPackage
+from django_q.tasks import async_chain
 from django_q.utils import close_old_django_connections, get_func_repr
 
 try:
@@ -77,7 +85,7 @@ def save_task(task, broker: Broker):
         return
     # enqueues next in a chain
     if task.get("chain", None):
-        django_q.tasks.async_chain(
+        async_chain(
             task["chain"],
             group=task["group"],
             cached=task["cached"],
@@ -185,7 +193,7 @@ def save_cached(task, broker: Broker):
             broker.cache.set(group_key, group_list, timeout)
             # async_task next in a chain
             if task.get("chain", None):
-                django_q.tasks.async_chain(
+                async_chain(
                     task["chain"],
                     group=group,
                     cached=task["cached"],

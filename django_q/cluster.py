@@ -9,11 +9,6 @@ from time import sleep
 from django import core, db
 from django.apps.registry import apps
 
-from django_q.monitor import monitor
-from django_q.pusher import pusher
-from django_q.scheduler import scheduler
-from django_q.worker import worker
-
 try:
     apps.check_apps_ready()
 except core.exceptions.AppRegistryNotReady:
@@ -25,16 +20,15 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 # Local
-import django_q.tasks
 from django_q.brokers import Broker, get_broker
 from django_q.conf import Conf, get_ppid, logger, psutil, setproctitle
 from django_q.humanhash import humanize
-from django_q.models import Schedule, Success, Task
+from django_q.monitor import monitor
+from django_q.pusher import pusher
 from django_q.queues import Queue
-from django_q.signing import BadSignature, SignedPackage
+from django_q.scheduler import scheduler
 from django_q.status import Stat, Status
-
-from .utils import get_func_repr
+from django_q.worker import worker
 
 
 class Cluster:
