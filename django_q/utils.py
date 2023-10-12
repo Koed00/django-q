@@ -60,7 +60,7 @@ def get_func_repr(func):
 def localtime(value=None) -> datetime:
     """Override for timezone.localtime to deal with naive times and local times"""
     if settings.USE_TZ:
-        if django.VERSION >= (4, 0) and settings.USE_DEPRECATED_PYTZ:
+        if django.VERSION >= (4, 0) and getattr(settings, "USE_DEPRECATED_PYTZ", False):
             import pytz
 
             convert_to_tz = pytz.timezone(Conf.TIME_ZONE)

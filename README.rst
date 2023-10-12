@@ -27,7 +27,7 @@ Changes compared to the original Django-Q:
 - Dropped support for Disque (hasn't been updated in a long time)
 - Dropped Redis, Arrow and Blessed dependencies
 - Updated all current dependencies
-- Added tests for Django 4.x
+- Added tests for Django 4.x and 5.x
 - Added Turkish language
 - Improved admin area
 - Fixed a lot of issues
@@ -40,7 +40,7 @@ Requirements
 -  `Django <https://www.djangoproject.com>`__ > = 3.2
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
 
-Tested with: Python 3.8, 3.9, 3.10 and 3.11. Works with Django 3.2.X, 4.1.X and 4.2.X.
+Tested with: Python 3.8, 3.9, 3.10, 3.11 and 3.12. Works with Django 3.2.X, 4.1.X, 4.2.X and 5.0.X
 
 Brokers
 ~~~~~~~
