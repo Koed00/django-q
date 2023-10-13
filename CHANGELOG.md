@@ -1,5 +1,11 @@
 # Changelog
 
+## [v1.6.1](https://github.com/django-q2/django-q2/tree/v1.6.1) (2023-10-13)
+
+**Merged pull requests:**
+
+- Fix strict versions for python/django https://github.com/django-q2/django-q2/pull/130
+
 ## [v1.6.0](https://github.com/django-q2/django-q2/tree/v1.6.0) (2023-10-12)
 
 **Merged pull requests:**
