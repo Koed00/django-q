@@ -8,11 +8,12 @@ from django.core.signing import Signer as Sgnr
 from django.core.signing import TimestampSigner as TsS
 from django.core.signing import b64_decode, dumps
 
-if django.VERSION < (5, 0):
+try:
+    from django.core.signing import b62_decode
+except ImportError:
+    # fallback for django 3.x
     from django.utils.baseconv import base62
     b62_decode = base62.decode
-else:
-    from django.core.signing import b62_decode
 
 from django.utils.crypto import constant_time_compare
 from django.utils.encoding import force_bytes, force_str
