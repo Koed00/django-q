@@ -303,7 +303,7 @@ msgstr "Bimestriel"
 
 #: models.py:194
 msgid "Quarterly"
-msgstr "Tous les quart-d’heure"
+msgstr "Trimestriel"
 
 #: models.py:195
 msgid "Yearly"
