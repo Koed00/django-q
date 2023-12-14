@@ -85,7 +85,7 @@ jobs:
   finish:
     needs: test
     runs-on: ubuntu-latest
-    container: python:3-slim
+    container: python:3.11-bookworm
     steps:
       - name: Upload to coveralls
         run: |
