@@ -5,7 +5,7 @@ from multiprocessing import cpu_count
 from signal import signal
 from warnings import warn
 
-import pkg_resources
+from importlib_metadata import entry_points
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
@@ -239,13 +239,13 @@ if Conf.ERROR_REPORTER:
         # iterate through the configured error reporters,
         # and instantiate an ErrorReporter using the provided config
         for name, conf in error_conf.items():
-            for entry in pkg_resources.iter_entry_points(
-                "djangoq.errorreporters", name
+            for entry in entry_points(
+                group="djangoq.errorreporters", name=name
             ):
                 Reporter = entry.load()
                 reporters.append(Reporter(**conf))
         error_reporter = ErrorReporter(reporters)
-    except ImportError:
+    except ModuleNotFoundError:
         error_reporter = None
 else:
     error_reporter = None
