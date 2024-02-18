@@ -75,6 +75,10 @@ broker
 """"""
 A broker instance, in case you want to control your own connections.
 
+cluster
+""""""
+The name of the cluster. Only useful if you are using [alternative queues](https://django-q2.readthedocs.io/en/master/cluster.html#multiple-queues).
+
 task_name
 """""""""
 
@@ -241,7 +245,7 @@ Reference
 ---------
 
 .. py:function:: async_task(func, *args, hook=None, group=None, timeout=None,\
-    save=None, sync=False, cached=False, broker=None, q_options=None, **kwargs)
+    save=None, sync=False, cached=False, broker=None, cluster=None, q_options=None, **kwargs)
 
     Puts a task in the cluster queue
 
@@ -255,6 +259,7 @@ Reference
    :param bool sync: If set to True, async_task will simulate a task execution
    :param cached: Output the result to the cache backend. Bool or timeout in seconds
    :param broker: Optional broker connection from :func:`brokers.get_broker`
+   :param cluster: Optional cluster name if using alternative queues
    :param dict q_options: Options dict, overrides option keywords
    :param dict kwargs: Keyword arguments for the task function
    :returns: The uuid of the task
