@@ -49,8 +49,9 @@ Reference
     :param str group: an optional group name.
     :param bool cached: run this against the cache backend
     :param bool sync: execute this inline instead of asynchronous
+    :param broker: an optional broker instance
 
-.. py:class:: Chain(chain=None, group=None, cached=Conf.CACHED, sync=Conf.SYNC)
+.. py:class:: Chain(chain=None, group=None, cached=Conf.CACHED, sync=Conf.SYNC, broker=None)
 
     A sequential chain of tasks. Acts as a convenient wrapper for :func:`async_chain`
     You can pass the task chain at construction or you can append individual tasks before running them.
@@ -59,6 +60,8 @@ Reference
         :param str group: an optional group name.
         :param bool cached: run this against the cache backend
         :param bool sync: execute this inline instead of asynchronous
+        :param bool sync: execute this inline instead of asynchronous
+        :param broker: an optional broker instance
 
 
     .. py:method:: append(func, *args, **kwargs)
