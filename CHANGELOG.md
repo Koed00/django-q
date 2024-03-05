@@ -1,5 +1,18 @@
 # Changelog
 
+## [v1.6.2](https://github.com/django-q2/django-q2/tree/v1.6.2) (2024-03-05)
+
+**Merged pull requests:**
+
+- Allow different broker on chain https://github.com/django-q2/django-q2/pull/156
+- Fix formatting issues in README.rst https://github.com/django-q2/django-q2/pull/159
+- Update docs to add cluster option to the async_task https://github.com/django-q2/django-q2/pull/157
+- Update release/test dependencies https://github.com/django-q2/django-q2/pull/147
+- Fix for Negative Repeat Count in Scheduler https://github.com/django-q2/django-q2/pull/146
+- Update django.po https://github.com/django-q2/django-q2/pull/138
+- Use importerror for b62_decode and avoid deprecation notification https://github.com/django-q2/django-q2/pull/134
+- Specify build system in pyproject.toml https://github.com/django-q2/django-q2/pull/131
+
 ## [v1.6.1](https://github.com/django-q2/django-q2/tree/v1.6.1) (2023-10-13)
 
 **Merged pull requests:**
