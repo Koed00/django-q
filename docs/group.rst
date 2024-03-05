@@ -49,11 +49,6 @@ Instead of :func:`result_group` you can also use :func:`fetch_group` to return a
 
 Getting results by using :func:`result_group` is of course much faster than using :func:`fetch_group`, but it doesn't offer the benefits of Django's queryset functions.
 
-.. note::
-
-   Calling ``Queryset.values`` for the result on Django 1.7 or lower will return a list of encoded results.
-   If you can't upgrade to Django 1.8, use list comprehension or an iterator to return decoded results.
-
 You can also access group functions from a task result instance:
 
 .. code-block:: python

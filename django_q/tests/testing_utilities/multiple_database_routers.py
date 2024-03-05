@@ -12,9 +12,9 @@ class TestingReplicaDatabaseRouter:
 
     def db_for_write(self, model, **hints):
         """
-        Always write to DEFAULT database
+        Always write to WRITABLE database
         """
-        return "default"
+        return "writable"
 
 
 class TestingMultipleAppsDatabaseRouter:

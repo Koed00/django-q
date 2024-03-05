@@ -1,9 +1,9 @@
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta
 from multiprocessing import Event, Value
 from unittest import mock
 
-import arrow
+import django
 import pytest
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
@@ -12,9 +12,11 @@ from django.utils import timezone
 from django.utils.timezone import is_naive
 
 from django_q.brokers import Broker, get_broker
-from django_q.cluster import monitor, pusher, scheduler, worker, localtime
 from django_q.conf import Conf
+from django_q.monitor import monitor
+from django_q.pusher import pusher
 from django_q.queues import Queue
+from django_q.scheduler import scheduler
 from django_q.tasks import Schedule, fetch
 from django_q.tasks import schedule as create_schedule
 from django_q.tests.settings import BASE_DIR
@@ -22,11 +24,25 @@ from django_q.tests.testing_utilities.multiple_database_routers import (
     TestingMultipleAppsDatabaseRouter,
     TestingReplicaDatabaseRouter,
 )
+from django_q.utils import add_months, localtime
+from django_q.worker import worker
+
+if django.VERSION < (4, 0):
+    # pytz is the default in django 3.2. Remove when no support for 3.2
+    from pytz import timezone as ZoneInfo
+else:
+    try:
+        from zoneinfo import ZoneInfo
+    except ImportError:
+        from backports.zoneinfo import ZoneInfo
 
 
 @pytest.fixture
 def broker(monkeypatch) -> Broker:
-    """Patches the Conf object setting the DJANGO_REDIS attribute allowing a default redis configuration."""
+    """
+    Patches the Conf object setting the DJANGO_REDIS attribute allowing a default
+    redis configuration.
+    """
     monkeypatch.setattr(Conf, "DJANGO_REDIS", "default")
     return get_broker()
 
@@ -37,25 +53,11 @@ def orm_broker(monkeypatch) -> None:
     monkeypatch.setattr(Conf, "ORM", "default")
 
 
-@pytest.fixture
-def orm_no_replica_broker(orm_broker, monkeypatch) -> Broker:
-    """Generates a Broker with a disabled read replica database configuration."""
-    monkeypatch.setattr(Conf, "HAS_REPLICA", False)
-    return get_broker(list_key="scheduler_test:q")
-
-
-@pytest.fixture
-def orm_replica_broker(orm_broker, monkeypatch) -> Broker:
-    """Generates a Broker with read replica database configuration."""
-    monkeypatch.setattr(Conf, "HAS_REPLICA", True)
-    return get_broker(list_key="scheduler_test:q")
-
-
 REPLICA_DATABASE_ROUTERS = [
     f"{TestingReplicaDatabaseRouter.__module__}.{TestingReplicaDatabaseRouter.__name__}"
 ]
 REPLICA_DATABASES = {
-    "default": {
+    "writable": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
     },
@@ -66,7 +68,7 @@ REPLICA_DATABASES = {
 }
 
 MULTIPLE_APPS_DATABASE_ROUTERS = [
-    f"{TestingMultipleAppsDatabaseRouter.__module__}.{TestingMultipleAppsDatabaseRouter.__name__}"
+    f"{TestingMultipleAppsDatabaseRouter.__module__}.{TestingMultipleAppsDatabaseRouter.__name__}"  # noqa: E501
 ]
 MULTIPLE_APPS_DATABASES = {
     "default": {
@@ -78,6 +80,108 @@ MULTIPLE_APPS_DATABASES = {
         "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
     },
 }
+
+
+@pytest.mark.django_db
+def test_scheduler_daylight_saving_time_daily(broker, monkeypatch):
+    # Set up a startdate in the Amsterdam timezone (without dst 1 hour ahead). The
+    # 28th of March 2021 is the day when sunlight saving starts (at 2 am)
+
+    monkeypatch.setattr(Conf, "TIME_ZONE", "Europe/Amsterdam")
+    tz = ZoneInfo("Europe/Amsterdam")
+    broker.list_key = "scheduler_test:q"
+    # Let's start a schedule at 1 am on the 27th of March. This is in AMS timezone.
+    # So, 2021-03-27 00:00:00 when saved (due to TZ being Amsterdam and saved in UTC)
+    start_date = datetime(2021, 3, 27, 1, 0, 0)
+
+    # Create schedule with the next run date on the start date. It will move one day
+    # forward when we run the scheduler
+    schedule = create_schedule(
+        "math.copysign",
+        1,
+        -1,
+        name="test math",
+        schedule_type=Schedule.DAILY,
+        next_run=start_date,
+    )
+
+    # Run scheduler so we get the next run date
+    scheduler(broker=broker)
+    schedule.refresh_from_db()
+
+    # It's now the day after exactly at midnight UTC
+    next_run = schedule.next_run
+    assert str(next_run) == "2021-03-28 00:00:00+00:00"
+
+    # In the Amsterdam timezone, it's 1 hour over midnight (+01)
+    next_run = next_run.astimezone(tz)
+    assert str(next_run) == "2021-03-28 01:00:00+01:00"
+
+    # Run scheduler so we get the next run date
+    scheduler(broker=broker)
+    schedule.refresh_from_db()
+
+    next_run = schedule.next_run
+
+    assert str(next_run) == "2021-03-28 23:00:00+00:00"
+    next_run = next_run.astimezone(tz)
+    # In the Amsterdam timezone, it's 1 hour over midnight (+02)
+    assert str(next_run) == "2021-03-29 01:00:00+02:00"
+
+    # Run scheduler so we get the next run date
+    scheduler(broker=broker)
+    schedule.refresh_from_db()
+
+    next_run = schedule.next_run
+
+    assert str(next_run) == "2021-03-29 23:00:00+00:00"
+    next_run = next_run.astimezone(tz)
+    assert str(next_run) == "2021-03-30 01:00:00+02:00"
+
+    # Create second schedule with the next run date on the start date. It will move
+    # one day forward when we run the scheduler
+    start_date = datetime(2021, 10, 29, 1, 0, 0)
+    schedule = create_schedule(
+        "django_q.tests.tasks.word_multiply",
+        2,
+        name="multiply",
+        schedule_type=Schedule.DAILY,
+        next_run=start_date,
+    )
+
+    # Run scheduler so we get the next run date
+    scheduler(broker=broker)
+    schedule.refresh_from_db()
+
+    next_run = schedule.next_run
+
+    assert str(next_run) == "2021-10-29 23:00:00+00:00"
+    # In the Amsterdam timezone, it's 1 hour over midnight (+02)
+    next_run = next_run.astimezone(tz)
+    assert str(next_run) == "2021-10-30 01:00:00+02:00"
+
+    # Run scheduler so we get the next run date
+    scheduler(broker=broker)
+    schedule.refresh_from_db()
+
+    next_run = schedule.next_run
+
+    assert str(next_run) == "2021-10-30 23:00:00+00:00"
+    # In the Amsterdam timezone, it's 1 hour over midnight (+02)
+    next_run = next_run.astimezone(tz)
+    assert str(next_run) == "2021-10-31 01:00:00+02:00"
+
+    # Run scheduler so we get the next run date
+    scheduler(broker=broker)
+    schedule.refresh_from_db()
+
+    next_run = schedule.next_run
+
+    assert str(next_run) == "2021-11-01 00:00:00+00:00"
+    # In the Amsterdam timezone, it's 1 hour over midnight (+01)
+    # Switch of DST
+    next_run = next_run.astimezone(tz)
+    assert str(next_run) == "2021-11-01 01:00:00+01:00"
 
 
 @pytest.mark.django_db
@@ -128,7 +232,7 @@ def test_scheduler(broker, monkeypatch):
     assert schedule.repeats == 0
     assert schedule.last_run() is not None
     assert schedule.success() is True
-    assert schedule.next_run < arrow.get(timezone.now()).shift(hours=+1)
+    assert schedule.next_run < timezone.now() + timedelta(hours=1)
     task = fetch(schedule.task)
     assert task is not None
     assert task.success is True
@@ -229,7 +333,30 @@ def test_scheduler(broker, monkeypatch):
     # Done
     broker.delete_queue()
 
-    monkeypatch.setattr(Conf, "PREFIX", "some_cluster_name")
+    # test bimonthly
+    schedule = create_schedule(
+        "django_q.tests.tasks.word_multiply",
+        2,
+        word="catch_up",
+        schedule_type=Schedule.BIMONTHLY,
+    )
+    scheduler(broker=broker)
+    schedule = Schedule.objects.get(pk=schedule.pk)
+    assert schedule.next_run.date() == add_months(timezone.now(), 2).date()
+
+    # test biweekly
+    schedule = create_schedule(
+        "django_q.tests.tasks.word_multiply",
+        2,
+        word="catch_up",
+        schedule_type=Schedule.BIWEEKLY,
+    )
+    scheduler(broker=broker)
+    schedule = Schedule.objects.get(pk=schedule.pk)
+    assert schedule.next_run.date() == (timezone.now() + timedelta(weeks=2)).date()
+    broker.delete_queue()
+
+    monkeypatch.setattr(Conf, "CLUSTER_NAME", "some_cluster_name")
     # create a schedule on another cluster
     schedule = create_schedule(
         "math.copysign",
@@ -253,7 +380,7 @@ def test_scheduler(broker, monkeypatch):
     # queue must be empty
     assert task_queue.qsize() == 0
 
-    monkeypatch.setattr(Conf, "PREFIX", "default")
+    monkeypatch.setattr(Conf, "CLUSTER_NAME", "default")
     # create a schedule on the same cluster
     schedule = create_schedule(
         "math.copysign",
@@ -278,61 +405,72 @@ def test_scheduler(broker, monkeypatch):
     assert task_queue.qsize() == 1
 
 
-@override_settings(
-    DATABASE_ROUTERS=REPLICA_DATABASE_ROUTERS, DATABASES=REPLICA_DATABASES
-)
 @pytest.mark.django_db
-def test_scheduler_atomic_transaction_must_specify_a_database_when_no_replicas_are_used(
-    orm_no_replica_broker: Broker,
-):
-    """
-    GIVEN a environment without a read replica database
-    WHEN the scheduler is called
-    THEN the transaction atomic must be called using the configured database in the Conf.ORM settings.
-    """
-    broker = orm_no_replica_broker
-    with mock.patch("django_q.cluster.db") as mocked_db:
-        scheduler(broker=broker)
-        # The router should correctly set the database to use!
-        mocked_db.transaction.atomic.assert_called_with(using=broker.connection.db)
+def test_intended_schedule_kwarg(broker, monkeypatch):
+    broker.list_key = "scheduler_test:q"
+    broker.delete_queue()
+    run_date = timezone.now() - timedelta(hours=1)
+    schedule = create_schedule(
+        "math.copysign",
+        1,
+        -1,
+        name="test math",
+        hook="django_q.tests.tasks.result",
+        schedule_type=Schedule.HOURLY,
+        repeats=1,
+        next_run=run_date,
+        intended_date_kwarg="intended_date",
+    )
+    assert schedule.last_run() is None
+    assert schedule.intended_date_kwarg == "intended_date"
+    # run scheduler
+    scheduler(broker=broker)
+    # set up the workflow
+    task_queue = Queue()
+    stop_event = Event()
+    stop_event.set()
+    # push it
+    pusher(task_queue, stop_event, broker=broker)
+    assert task_queue.qsize() == 1
+    task = task_queue.get()
+    assert "intended_date" in task["kwargs"]
+    assert task["kwargs"]["intended_date"] == run_date.isoformat()
 
 
 @override_settings(
     DATABASE_ROUTERS=REPLICA_DATABASE_ROUTERS, DATABASES=REPLICA_DATABASES
 )
 @pytest.mark.django_db
-def test_scheduler_atomic_transaction_must_specify_no_database_when_read_write_replicas_are_used(
-    orm_replica_broker: Broker,
+def test_scheduler_atomic_must_specify_the_write_db(
+    orm_broker: Broker,
 ):
     """
     GIVEN a environment with a read/write configured replica database
     WHEN the scheduler is called
-    THEN the transaction must be called without a specific database, thus letting the database router pick.
+    THEN the transaction must be called with the write database.
     """
-    with mock.patch("django_q.cluster.db") as mocked_db:
-        scheduler(broker=orm_replica_broker)
-        # No specific databases should be set here, this is the job of the router!
-        mocked_db.transaction.atomic.assert_called_with()
+    broker = get_broker(list_key="scheduler_test:q")
+    with mock.patch("django_q.cluster.db.transaction") as mocked_db:
+        scheduler(broker=broker)
+        mocked_db.atomic.assert_called_with(using="writable")
 
 
 @override_settings(
     DATABASE_ROUTERS=MULTIPLE_APPS_DATABASE_ROUTERS, DATABASES=MULTIPLE_APPS_DATABASES
 )
 @pytest.mark.django_db
-def test_scheduler_atomic_transaction_must_specify_the_database_based_on_router_redirection(
-    orm_no_replica_broker: Broker,
+def test_scheduler_atomic_must_specify_the_database_based_on_router_redirection(
+    orm_broker: Broker,
 ):
     """
     GIVEN a environment without a read replica database
     WHEN the scheduler is called
-    THEN the transaction atomic must be called using the configured database in the Conf.ORM settings.
+    THEN the transaction atomic must be called using the default connection.
     """
-    broker = orm_no_replica_broker
-    with mock.patch("django_q.cluster.db") as mocked_db:
+    broker = get_broker(list_key="scheduler_test:q")
+    with mock.patch("django_q.cluster.db.transaction") as mocked_db:
         scheduler(broker=broker)
-        # The router should correctly set the database to use!
-        assert broker.connection.db == "default"
-        mocked_db.transaction.atomic.assert_called_with(using=broker.connection.db)
+        mocked_db.atomic.assert_called_with(using="default")
 
 
 def test_localtime():

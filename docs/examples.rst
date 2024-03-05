@@ -38,7 +38,7 @@ Sending an email can take a while so why not queue it:
         # this schedule will erase itself after having run
 
 
-Since you're only telling Django Q to take care of the emails, you can quickly move on to serving web pages to your user.
+Since you're only telling Django Q2 to take care of the emails, you can quickly move on to serving web pages to your user.
 
 Signals
 =======
@@ -142,7 +142,7 @@ The hook is practical here, because it allows us to detach the sending task from
 Haystack
 ========
 If you use `Haystack <http://haystacksearch.org/>`__ as your projects search engine,
-here's an example of how you can have Django Q take care of your indexes in real time using model signals:
+here's an example of how you can have Django Q2 take care of your indexes in real time using model signals:
 
 .. code-block:: python
 
@@ -286,7 +286,7 @@ Adapted from `Sebastian Raschka's blog <http://sebastianraschka.com/Articles/201
 
 
 
-Django Q is not optimized for distributed computing, but this example will give you an idea of what you can do with task :doc:`group`.
+Django Q2 is not optimized for distributed computing, but this example will give you an idea of what you can do with task :doc:`group`.
 
 Alternatively the ``parzen_async()`` function can also be written with :func:`async_iter`, which automatically utilizes the cache backend and groups to return a single result from an iterable:
 
@@ -328,7 +328,7 @@ Requires cache to be enabled. Save file in your Django project's root directory 
     # All django stuff has to come after the setup:
     django.setup()
 
-    from django_q.monitor import Stat
+    from django_q.status import Stat
     from django_q.conf import Conf
 
     # Set host and port settings
@@ -389,7 +389,7 @@ Requires cache to be enabled. Save file in your Django project's root directory 
         
 .. note::
 
-    If you have an example you want to share, please submit a pull request on `github <https://github.com/Koed00/django-q/>`__.
+    If you have an example you want to share, please submit a pull request on `github <https://github.com/GDay/django-q2/>`__.
 
 
 

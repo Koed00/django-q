@@ -19,18 +19,21 @@ def call_hook(sender, instance, **kwargs):
                 f = getattr(m, func)
             except (ValueError, ImportError, AttributeError):
                 logger.error(
-                    _(f"malformed return hook '{instance.hook}' for [{instance.name}]")
+                    _("malformed return hook '%(hook)s' for [%(name)s]")
+                    % {"hook": instance.hook, "name": instance.name}
                 )
                 return
         try:
             f(instance)
         except Exception as e:
             logger.error(
-                _(
-                    f"return hook {instance.hook} failed on [{instance.name}] because {str(e)}"
-                )
+                _("return hook %(hook)s failed on [%(name)s] because %(error)s")
+                % {"hook": instance.hook, "name": instance.name, "error": str(e)}
             )
 
+
+# args: proc_name
+post_spawn = Signal()
 
 # args: task
 pre_enqueue = Signal()

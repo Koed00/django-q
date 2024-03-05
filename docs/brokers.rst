@@ -1,8 +1,8 @@
 Brokers
 =======
 
-The broker sits between your Django instances and your Django Q cluster instances; accepting, saving and delivering task packages.
-Currently we support a variety of brokers from the default Redis, bleeding edge Disque to the convenient ORM and fast MongoDB.
+The broker sits between your Django instances and your Django Q2 cluster instances; accepting, saving and delivering task packages.
+Currently we support a variety of brokers.
 
 The default Redis broker does not support message receipts.
 This means that in case of a catastrophic failure of the cluster server or worker timeouts, tasks that were being executed get lost.
@@ -11,7 +11,7 @@ Keep in mind this is not the same as a failing task. If a tasks code crashes, th
 Even though this might be acceptable in some use cases, you might prefer brokers with message receipts support.
 These guarantee delivery by waiting for the cluster to send a receipt after the task has been processed.
 In case a receipt has not been received after a set time, the task package is put back in the queue.
-Django Q supports this behavior by setting the :ref:`retry` timer on brokers that support message receipts.
+Django Q2 supports this behavior by setting the :ref:`retry` timer on brokers that support message receipts.
 
 Some pointers:
 
@@ -29,7 +29,7 @@ Support for more brokers is being worked on.
 
 Redis
 -----
-The default broker for Django Q clusters.
+The default broker for Django Q2 clusters.
 
 * Atomic
 * Requires `Redis-py <https://github.com/andymccurdy/redis-py>`__ client library: ``pip install redis``
@@ -38,29 +38,13 @@ The default broker for Django Q clusters.
 * Can use existing :ref:`django_redis` connections.
 * Configure with :ref:`redis_configuration`-py compatible configuration
 
-Disque
-------
-Unlike Redis, Disque supports message receipts which make delivery to the cluster workers guaranteed.
-In our tests it is as fast or faster than the Redis broker.
-You can control the amount of time Disque should wait for completion of a task by configuring the :ref:`retry` setting.
-Bulk task retrieval is supported via the :ref:`bulk` option.
-
-* Delivery receipts
-* Atomic
-* Needs Django's `Cache framework <https://docs.djangoproject.com/en/2.2/topics/cache/#setting-up-the-cache>`__ configured for monitoring
-* Compatible with `Tynd <https://disque.tynd.co/>`__ Disque addon on `Heroku <https://heroku.com>`__
-* Still considered Alpha software
-* Supports bulk dequeue
-* Requires `Redis-py <https://github.com/andymccurdy/redis-py>`__ client library: ``pip install redis``
-* See the :ref:`disque_configuration` configuration section for more info.
-
 IronMQ
 ------
 This HTTP based queue service is both available directly via `Iron.io <http://www.iron.io/mq/>`__ and as an add-on on Heroku.
 
 * Delivery receipts
 * Supports bulk dequeue
-* Needs Django's `Cache framework <https://docs.djangoproject.com/en/2.2/topics/cache/#setting-up-the-cache>`__ configured for monitoring
+* Needs Django's `Cache framework <https://docs.djangoproject.com/en/4.0/topics/cache/#setting-up-the-cache>`__ configured for monitoring
 * Requires the `iron-mq <https://github.com/iron-io/iron_mq_python>`__ client library: ``pip install iron-mq``
 * See the :ref:`ironmq_configuration` configuration section for options.
 
@@ -72,7 +56,7 @@ Although `SQS <https://aws.amazon.com/sqs/>`__ is not the fastest, it is stable,
 * Delivery receipts
 * Maximum message size is 256Kb
 * Supports bulk dequeue up to 10 messages with a maximum total size of 256Kb
-* Needs Django's `Cache framework <https://docs.djangoproject.com/en/2.2/topics/cache/#setting-up-the-cache>`__ configured for monitoring
+* Needs Django's `Cache framework <https://docs.djangoproject.com/en/4.0/topics/cache/#setting-up-the-cache>`__ configured for monitoring
 * Requires the `boto3 <https://github.com/boto/boto3>`__ client library: ``pip install boto3``
 * See the :ref:`sqs_configuration` configuration section for options.
 
@@ -83,7 +67,7 @@ This highly scalable NoSQL database makes for a very fast and reliably persisten
 Usually available on most PaaS providers, as `open-source <https://www.mongodb.org/>`__ or commercial `enterprise <https://www.mongodb.com/lp/download/mongodb-enterprise>`__ edition.
 
 * Delivery receipts
-* Needs Django's `Cache framework <https://docs.djangoproject.com/en/2.2/topics/cache/#setting-up-the-cache>`__ configured for monitoring
+* Needs Django's `Cache framework <https://docs.djangoproject.com/en/4.0/topics/cache/#setting-up-the-cache>`__ configured for monitoring
 * Can be configured as the Django cache-backend through several open-source cache providers.
 * Requires the `pymongo <https://github.com/mongodb/mongo-python-driver>`__ driver: ``pip install pymongo``
 * See the :ref:`mongo_configuration` configuration section for options.
@@ -98,8 +82,8 @@ However for a medium message rate and scheduled tasks, this is the most convenie
 
 * Delivery receipts
 * Supports bulk dequeue
-* Needs Django's `Cache framework <https://docs.djangoproject.com/en/2.2/topics/cache/#setting-up-the-cache>`__ configured for monitoring
-* Can be `configured <https://docs.djangoproject.com/en/2.2/topics/cache/#database-caching>`__ as its own cache backend.
+* Needs Django's `Cache framework <https://docs.djangoproject.com/en/4.0/topics/cache/#setting-up-the-cache>`__ configured for monitoring
+* Can be `configured <https://docs.djangoproject.com/en/4.0/topics/cache/#database-caching>`__ as its own cache backend.
 * Queue editable in Django Admin
 * See the :ref:`orm_configuration` configuration on how to set it up.
 
@@ -118,7 +102,7 @@ You can override the :class:`Broker` or any of its existing derived broker types
         def info(self):
             return 'My Custom Broker'
 
-Using the :ref:`broker_class` configuration setting you can then instruct Django Q to use this instead of one of the existing brokers:
+Using the :ref:`broker_class` configuration setting you can then instruct Django Q2 to use this instead of one of the existing brokers:
 
 .. code-block:: python
 

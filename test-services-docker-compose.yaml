@@ -1,17 +1,31 @@
-version: '2.2'
+version: '3'
 
 services:
-  disque:
-    image: efrecon/disque:1.0-rc1
-    ports:
-      - '7711:7711/tcp'
-
   redis:
     image: redis:latest
-    ports:
-      - '6379:6379/tcp'
+    expose:
+      - '6379/tcp'
+    networks:
+      - main
 
   mongo:
-    image: mongo:4
-    ports:
-      - '27017:27017/tcp'
+    image: mongo:6
+    expose:
+      - '27017/tcp'
+    networks:
+      - main
+
+  django-q2:
+    build:
+      dockerfile: ./Dockerfile.dev
+      context: .
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - mongo
+    networks:
+      - main
+
+networks:
+  main:

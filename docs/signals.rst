@@ -5,13 +5,19 @@ Signals
 Available signals
 -----------------
 
-Django Q emits the following signals during its lifecycle.
+Django Q2 emits the following signals during its lifecycle.
 
 Before enqueuing a task
 """""""""""""""""""""""
 
 The ``django_q.signals.pre_enqueue`` signal is emitted before a task is
 enqueued. The task dictionary is given as the ``task`` argument.
+
+After spawning a worker process
+"""""""""""""""""""""""""""""""
+
+The ``django_q.signals.post_spawn`` signal is emitted after a worker process has
+spawned. The process name is given as the ``proc_name`` argument (string).
 
 Before executing a task
 """""""""""""""""""""""
@@ -33,11 +39,11 @@ executed by a worker and processed by the monitor. It included the ``task`` dict
 Subscribing to a signal
 -----------------------
 
-Connecting to a Django Q signal is done the same as any other Django
+Connecting to a Django Q2 signal is done the same as any other Django
 signal::
 
     from django.dispatch import receiver
-    from django_q.signals import pre_enqueue, pre_execute, post_execute
+    from django_q.signals import pre_enqueue, pre_execute, post_execute, post_spawn
 
     @receiver(pre_enqueue)
     def my_pre_enqueue_callback(sender, task, **kwargs):
@@ -50,5 +56,9 @@ signal::
     @receiver(post_execute)
     def my_post_execute_callback(sender, task, **kwargs):
         print(f"Task {task['name']} was executed with result {task['result']}")
+
+    @receiver(post_spawn)
+    def my_post_spawn_callback(sender, proc_name, **kwargs):
+        print(f"Process {proc_name} has spawned")
 
 

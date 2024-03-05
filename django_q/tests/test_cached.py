@@ -3,8 +3,9 @@ from multiprocessing import Event, Value
 import pytest
 
 from django_q.brokers import get_broker
-from django_q.cluster import monitor, pusher, worker
 from django_q.conf import Conf
+from django_q.monitor import monitor
+from django_q.pusher import pusher
 from django_q.queues import Queue
 from django_q.tasks import (
     AsyncTask,
@@ -21,6 +22,7 @@ from django_q.tasks import (
     result,
     result_group,
 )
+from django_q.worker import worker
 
 
 @pytest.fixture

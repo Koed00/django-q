@@ -2,7 +2,7 @@ Architecture
 ------------
 
 .. image:: _static/cluster.png
-   :alt: Django Q schema
+   :alt: Django Q2 schema
 
 
 Signed Tasks

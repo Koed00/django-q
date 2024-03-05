@@ -2,11 +2,19 @@ import datetime
 import time
 import zlib
 
+import django
 from django.core.signing import BadSignature, JSONSerializer, SignatureExpired
 from django.core.signing import Signer as Sgnr
 from django.core.signing import TimestampSigner as TsS
 from django.core.signing import b64_decode, dumps
-from django.utils import baseconv
+
+try:
+    from django.core.signing import b62_decode
+except ImportError:
+    # fallback for django 3.x
+    from django.utils.baseconv import base62
+    b62_decode = base62.decode
+
 from django.utils.crypto import constant_time_compare
 from django.utils.encoding import force_bytes, force_str
 
@@ -32,7 +40,9 @@ def loads(
     """
     # TimestampSigner.unsign() returns str but base64 and zlib compression
     # operate on bytes.
-    base64d = force_bytes(TimestampSigner(key, salt=salt).unsign(s, max_age=max_age))
+    base64d = force_bytes(
+        TimestampSigner(key=key, salt=salt).unsign(s, max_age=max_age)
+    )
     decompress = False
     if base64d[:1] == b".":
         # It's compressed; uncompress it first
@@ -69,7 +79,7 @@ class TimestampSigner(Signer, TsS):
         """
         result = super(TimestampSigner, self).unsign(value)
         value, timestamp = result.rsplit(self.sep, 1)
-        timestamp = baseconv.base62.decode(timestamp)
+        timestamp = b62_decode(timestamp)
         if max_age is not None:
             if isinstance(max_age, datetime.timedelta):
                 max_age = max_age.total_seconds()

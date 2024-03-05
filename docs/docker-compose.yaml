@@ -1,0 +1,7 @@
+version: "3.0"
+services:
+  docs:
+    container_name: djangoq2-docs
+    build: .
+    volumes:
+        - .:/docs

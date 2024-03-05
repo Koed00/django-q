@@ -1,12 +1,36 @@
 name: tests
-on: [ push, pull_request ]
+on: 
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ 3.7, 3.8, 3.9 ]
-        django: [ "2.2", "3.2" ]
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12.0-rc.3" ]
+        django: [ "3.2", "4.1", "4.2", "5.0a1"]
+        exclude:
+          # django 5.0 does not support 3.8 and 3.9
+          - python-version: "3.8"
+            django: "5.0a1" 
+          - python-version: "3.9"
+            django: "5.0a1" 
+          # django 4.2 does not support 3.12
+          - python-version: "3.12.0-rc.3"
+            django: "4.2" 
+          # django 4.1 does not support 3.12
+          - python-version: "3.12.0-rc.3"
+            django: "4.1" 
+          # django 3.2 does not support 3.11 and 3.12
+          - python-version: "3.11"
+            django: "3.2" 
+          - python-version: "3.12.0-rc.3"
+            django: "3.2" 
+
     services:
       disque:
         image: efrecon/disque:1.0-rc1
@@ -32,29 +56,45 @@ jobs:
           - 6379:6379
         options: --entrypoint redis-server
     steps:
-        - uses: actions/checkout@v2
+        - uses: actions/checkout@v3
         - name: Set up Python ${{ matrix.python-version }}
-          uses: actions/setup-python@v2
+          uses: actions/setup-python@v4
           with:
             python-version: ${{ matrix.python-version }}
         - name: Install dependencies with Django ${{ matrix.django }}
           run: |
             python -m pip install --upgrade pip
             pip install poetry
-            poetry add "django==${{ matrix.django }}"
+            poetry add "django==${{ matrix.django }}" --python=${{ matrix.python-version }}
             poetry install -E testing
         - name: Run Tests
           run: |
             poetry run pytest --cov=./django_q --cov-report=xml
-        - name: Upload coverage
-          uses: codecov/codecov-action@v1
           env:
-            PYTHON: ${{ matrix.python-version }}
-            DJANGO: ${{ matrix.django }}
-          with:
-            token: ${{ secrets.CODECOV_TOKEN }}
-            env_vars: PYTHON, DJANGO
-            fail_ci_if_error: true
-        - name: Build docs
+            MONGO_HOST: "127.0.0.1"
+            REDIS_HOST: "127.0.0.1"
+        - name: Upload to coveralls
           run: |
-            poetry run sphinx-build -b html -d docs/_build/doctrees  -nW docs docs/_build/html
+            python -m pip install coveralls
+            coveralls --service=github
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            COVERALLS_FLAG_NAME: python-${{ matrix.python-version }}-django-${{ matrix.django }}
+            COVERALLS_PARALLEL: true
+
+  finish:
+    needs: test
+    runs-on: ubuntu-latest
+    container: python:3.11-bookworm
+    steps:
+      - name: Upload to coveralls
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install coveralls flake8 black
+          coveralls --service=github --finish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check flake8/black
+        run: |
+          flake8 .
+          black --check .

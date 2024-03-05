@@ -11,12 +11,12 @@ from django_q.models import OrmQ
 
 
 def _timeout():
-    return timezone.now() - timedelta(seconds=Conf.RETRY)
+    return timezone.now() + timedelta(seconds=Conf.RETRY)
 
 
 class ORM(Broker):
     @staticmethod
-    def get_connection(list_key: str = Conf.PREFIX):
+    def get_connection(list_key: str = None):
         if transaction.get_autocommit(
             using=Conf.ORM
         ):  # Only True when not in an atomic block
@@ -31,13 +31,15 @@ class ORM(Broker):
     def queue_size(self) -> int:
         return (
             self.get_connection()
-            .filter(key=self.list_key, lock__lte=_timeout())
+            .filter(key=self.list_key, lock__lte=timezone.now())
             .count()
         )
 
     def lock_size(self) -> int:
         return (
-            self.get_connection().filter(key=self.list_key, lock__gt=_timeout()).count()
+            self.get_connection()
+            .filter(key=self.list_key, lock__gt=timezone.now())
+            .count()
         )
 
     def purge_queue(self):
@@ -55,14 +57,17 @@ class ORM(Broker):
         self.delete(task_id)
 
     def enqueue(self, task):
+        # list_key might be null (e.g. in a test setup) but OrmQ.key has not-null constraint
         package = self.get_connection().create(
-            key=self.list_key, payload=task, lock=_timeout()
+            key=self.list_key or Conf.CLUSTER_NAME, payload=task, lock=timezone.now()
         )
         return package.pk
 
     def dequeue(self):
-        tasks = self.get_connection().filter(key=self.list_key, lock__lt=_timeout())[
-            0 : Conf.BULK
+        tasks = self.get_connection().filter(
+            key=self.list_key, lock__lt=timezone.now()
+        )[
+            0 : Conf.BULK  # noqa: E203
         ]
         if tasks:
             task_list = []
@@ -70,10 +75,11 @@ class ORM(Broker):
                 if (
                     self.get_connection()
                     .filter(id=task.id, lock=task.lock)
-                    .update(lock=timezone.now())
+                    .update(lock=_timeout())
                 ):
                     task_list.append((task.pk, task.payload))
-                # else don't process, as another cluster has been faster than us on that task
+                # else don't process, as another cluster has been faster than us on
+                # that task
             return task_list
         # empty queue, spare the cpu
         sleep(Conf.POLL)

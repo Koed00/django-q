@@ -1,12 +1,9 @@
-.. image:: docs/_static/logo.png
-    :align: center
-    :alt: Q logo
-    :target: https://django-q.readthedocs.org/
-
 A multiprocessing distributed task queue for Django
 ---------------------------------------------------
 
-|image0| |image1| |docs| |image2|
+|image0| |image1| |docs| |downloads|
+
+Django Q2 is a fork of Django Q. Big thanks to Ilan Steemers for starting this project. Unfortunately, development has stalled since June 2021. Django Q2 is the new updated version of Django Q, with dependencies updates, docs updates and several bug fixes. Original repository: https://github.com/Koed00/django-q
 
 Features
 ~~~~~~~~
@@ -20,36 +17,43 @@ Features
 -  Django Admin integration
 -  PaaS compatible with multiple instances
 -  Multi cluster monitor
--  Redis, Disque, IronMQ, SQS, MongoDB or ORM
+-  Redis, IronMQ, SQS, MongoDB or ORM
 -  Rollbar and Sentry support
+
+Changes compared to the original Django-Q:
+
+- Dropped support for Disque (hasn't been updated in a long time)
+- Dropped Redis, Arrow and Blessed dependencies
+- Updated all current dependencies
+- Added tests for Django 4.x and 5.x
+- Added Turkish language
+- Improved admin area
+- Fixed a lot of issues
+
+See the `changelog <https://github.com/GDay/django-q2/blob/master/CHANGELOG.md>`__ for all changes.
 
 Requirements
 ~~~~~~~~~~~~
 
--  `Django <https://www.djangoproject.com>`__ > = 2.2
+-  `Django <https://www.djangoproject.com>`__ > = 3.2
 -  `Django-picklefield <https://github.com/gintas/django-picklefield>`__
--  `Arrow <https://github.com/crsmithdev/arrow>`__
--  `Blessed <https://github.com/jquast/blessed>`__
 
-Tested with: Python 3.7, 3.8, 3.9 Django 2.2.X and 3.2.X
-
-.. warning:: Since Python 3.7 `async` became a reserved keyword and was refactored to `async_task`
+Tested with: Python 3.8, 3.9, 3.10, 3.11 and 3.12. Works with Django 3.2.X, 4.1.X, 4.2.X and 5.0.X
 
 Brokers
 ~~~~~~~
-- `Redis <https://django-q.readthedocs.org/en/latest/brokers.html#redis>`__
-- `Disque <https://django-q.readthedocs.org/en/latest/brokers.html#disque>`__
-- `IronMQ <https://django-q.readthedocs.org/en/latest/brokers.html#ironmq>`__
-- `Amazon SQS <https://django-q.readthedocs.org/en/latest/brokers.html#amazon-sqs>`__
-- `MongoDB <https://django-q.readthedocs.org/en/latest/brokers.html#mongodb>`__
-- `Django ORM <https://django-q.readthedocs.org/en/latest/brokers.html#django-orm>`__
+- `Redis <https://django-q2.readthedocs.org/en/latest/brokers.html#redis>`__
+- `IronMQ <https://django-q2.readthedocs.org/en/latest/brokers.html#ironmq>`__
+- `Amazon SQS <https://django-q2.readthedocs.org/en/latest/brokers.html#amazon-sqs>`__
+- `MongoDB <https://django-q2.readthedocs.org/en/latest/brokers.html#mongodb>`__
+- `Django ORM <https://django-q2.readthedocs.org/en/latest/brokers.html#django-orm>`__
 
 Installation
 ~~~~~~~~~~~~
 
 -  Install the latest version with pip::
 
-    $ pip install django-q
+    $ pip install django-q2
 
 
 -  Add `django_q` to your `INSTALLED_APPS` in your projects `settings.py`::
@@ -63,10 +67,9 @@ Installation
 
     $ python manage.py migrate
 
--  Choose a message `broker <https://django-q.readthedocs.org/en/latest/brokers.html>`__ , configure and install the appropriate client library.
+-  Choose a message `broker <https://django-q2.readthedocs.org/en/latest/brokers.html>`__, configure and install the appropriate client library.
 
-Read the full documentation at `https://django-q.readthedocs.org <https://django-q.readthedocs.org>`__
-
+Read the full documentation at `https://django-q2.readthedocs.org <https://django-q2.readthedocs.org>`__
 
 Configuration
 ~~~~~~~~~~~~~
@@ -89,13 +92,16 @@ All configuration settings are optional. e.g:
         'redis': {
             'host': '127.0.0.1',
             'port': 6379,
-            'db': 0, }
+            'db': 0,
+        }
     }
 
-For full configuration options, see the `configuration documentation <https://django-q.readthedocs.org/en/latest/configure.html>`__.
+For full configuration options, see the `configuration documentation <https://django-q2.readthedocs.org/en/latest/configure.html>`__.
 
 Management Commands
 ~~~~~~~~~~~~~~~~~~~
+
+For the management commands to work, you will need to install Blessed: <https://github.com/jquast/blessed>
 
 Start a cluster with::
 
@@ -145,8 +151,7 @@ Use `async_task` from your code to quickly offload tasks:
     def print_result(task):
         print(task.result)
 
-For more info see `Tasks <https://django-q.readthedocs.org/en/latest/tasks.html>`__
-
+For more info see `Tasks <https://django-q2.readthedocs.org/en/latest/tasks.html>`__
 
 Schedule
 ~~~~~~~~
@@ -175,14 +180,14 @@ Admin page or directly from your code:
 
     # Run a task every 5 minutes, starting at 6 today
     # for 2 hours
-    import arrow
+    from datetime import datetime
 
     schedule('math.hypot',
              3, 4,
              schedule_type=Schedule.MINUTES,
              minutes=5,
              repeats=24,
-             next_run=arrow.utcnow().replace(hour=18, minute=0))
+             next_run=datetime.utcnow().replace(hour=18, minute=0))
 
     # Use a cron expression
     schedule('math.hypot',
@@ -190,51 +195,21 @@ Admin page or directly from your code:
              schedule_type=Schedule.CRON,
              cron = '0 22 * * 1-5')
 
-For more info check the `Schedules <https://django-q.readthedocs.org/en/latest/schedules.html>`__ documentation.
-
+For more info check the `Schedules <https://django-q2.readthedocs.org/en/latest/schedules.html>`__ documentation.
 
 Testing
 ~~~~~~~
 
-To run the tests you will need the following in addition to install requirements:
-
-* `py.test <http://pytest.org/latest/>`__
-* `pytest-django <https://github.com/pytest-dev/pytest-django>`__
-* Disque from https://github.com/antirez/disque.git
-* Redis
-* MongoDB
-
-Or you can use the included Docker Compose file.
-
-The following commands can be used to run the tests:
+Running tests is easy with docker compose, it will also start the necessary databases. Just run:
 
 .. code:: bash
 
-    # Create virtual environment
-    python -m venv venv
-
-    # Install requirements
-    venv/bin/pip install -r requirements.txt
-
-    # Install test dependencies
-    venv/bin/pip install pytest pytest-django
-
-    # Install django-q
-    venv/bin/python setup.py develop
-
-    # Run required services (you need to have docker-compose installed)
-    docker-compose -f test-services-docker-compose.yaml up -d
-
-    # Run tests
-    venv/bin/pytest
-
-    # Stop the services required by tests (when you no longer plan to run tests)
-    docker-compose -f test-services-docker-compose.yaml down
+    docker-compose -f test-services-docker-compose.yaml run --rm django-q2 poetry run pytest
 
 Locale
 ~~~~~~
 
-Currently available in English, German and French.
+Currently available in English, German, Turkish, and French.
 Translation pull requests are always welcome.
 
 Todo
@@ -255,13 +230,13 @@ Acknowledgements
 
 -  JetBrains for their `Open Source Support Program <https://www.jetbrains.com/community/opensource>`__
 
-.. |image0| image:: https://github.com/koed00/django-q/workflows/Tests/badge.svg?branche=master
-   :target: https://github.com/Koed00/django-q/actions?query=workflow%3Atests
-.. |image1| image:: http://codecov.io/github/Koed00/django-q/coverage.svg?branch=master
-   :target: http://codecov.io/github/Koed00/django-q?branch=master
-.. |image2| image:: http://badges.gitter.im/Join%20Chat.svg
-   :target: https://gitter.im/Koed00/django-q
+.. |image0| image:: https://github.com/GDay/django-q2/actions/workflows/test.yml/badge.svg?branche=master
+   :target: https://github.com/GDay/django-q2/actions?query=workflow%3Atests
+.. |image1| image:: https://coveralls.io/repos/github/GDay/django-q2/badge.svg?branch=master
+   :target: https://coveralls.io/github/GDay/django-q2?branch=master
 .. |docs| image:: https://readthedocs.org/projects/docs/badge/?version=latest
     :alt: Documentation Status
     :scale: 100
-    :target: https://django-q.readthedocs.org/
+    :target: https://django-q2.readthedocs.org/
+.. |downloads| image:: https://img.shields.io/pypi/dm/django-q2
+   :target: https://img.shields.io/pypi/dm/django-q2

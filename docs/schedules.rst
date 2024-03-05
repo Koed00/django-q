@@ -37,14 +37,14 @@ You can manage them through the :ref:`admin_page` or directly from your code wit
 
     # Run a schedule every 5 minutes, starting at 6 today
     # for 2 hours
-    import arrow
+    from datetime import datetime
 
     schedule('math.hypot',
              3, 4,
              schedule_type=Schedule.MINUTES,
              minutes=5,
              repeats=24,
-             next_run=arrow.utcnow().replace(hour=18, minute=0))
+             next_run=datetime.utcnow().replace(hour=18, minute=0))
 
     # Use a cron expression
     schedule('math.hypot',
@@ -68,6 +68,10 @@ This default behavior is intended to facilitate schedules that poll or gather st
 You can change this by setting the :ref:`catch_up` configuration setting to ``False``.
 The scheduler will then skip execution of scheduled events in the past.
 Instead those tasks will run once when the cluster starts again and the scheduler will find the next available slot in the future according to original schedule parameters.
+
+When :ref:`catch_up` is to ``True`` it may be useful for the task to know what was the date and time it was originally intended to run at.
+To achieve this, pass an identifier name to parameter `intended_date_kwarg` when creating the schedule. The intended datetime will then be passed - in isoformat string - as
+a kwarg with that identifier name to the task that has been created.
 
 Management Commands
 -------------------
@@ -123,9 +127,10 @@ Reference
     :param int repeats: Number of times to repeat schedule. -1=Always, 0=Never, n =n.
     :param datetime next_run: Next or first scheduled execution datetime.
     :param str cluster: optional cluster name. Task will be executed only on a cluster with a matching :ref:`name`.
+    :param str intended_date_kwarg: optional identifier to pass intended schedule date.
     :param dict q_options: options passed to async_task for this schedule
     :param kwargs: optional keyword arguments for the scheduled function.
-    
+
     .. note::
 
         q_options does not accept the 'broker' key with a broker instance but accepts a 'broker_name' key instead. This can be used to specify the broker connection name to assign the task. If a broker with the specified name does not exist or is not running at the moment of placing the task in queue it fallbacks to the random broker/queue that handled the schedule.
@@ -165,7 +170,7 @@ Reference
 
     .. py:attribute:: TYPE
 
-    :attr:`ONCE`, :attr:`MINUTES`, :attr:`HOURLY`, :attr:`DAILY`, :attr:`WEEKLY`, :attr:`MONTHLY`, :attr:`QUARTERLY`, :attr:`YEARLY`, :attr:`CRON`
+    :attr:`ONCE`, :attr:`MINUTES`, :attr:`HOURLY`, :attr:`DAILY`, :attr:`WEEKLY`, :attr:`BIWEEKLY`, :attr:`MONTHLY`, :attr:`BIMONTHLY`, :attr:`QUARTERLY`, :attr:`YEARLY`, :attr:`CRON`
 
 
     .. py:attribute:: minutes
@@ -183,8 +188,12 @@ Reference
     When set to -1, this will keep counting down.
 
     .. py:attribute:: cluster
-    
+
     Task will be executed only on a cluster with a matching :ref:`name`.
+
+    .. py:attribute:: intended_date_kwarg
+
+    Name of kwarg to pass intended schedule date.
 
     .. py:attribute:: next_run
 
@@ -224,9 +233,22 @@ Reference
 
     `'W'` the task will run every week on they day and time of the first run.
 
+    .. py:attribute:: BIWEEKLY
+
+    `'BW'` the task will run once every two weeks on they day and time of the first run.
+
     .. py:attribute:: MONTHLY
 
     `'M'` the tasks runs every month on they day and time of the last run.
+
+    .. note::
+
+        Months are tricky. If you schedule something on the 31st of the month and the next month has only 30 days or less, the task will run on the last day of the next month.
+        It will however continue to run on that day, e.g. the 28th, in subsequent months.
+
+    .. py:attribute:: BIMONTHLY
+
+    `'BM'` the tasks runs once every two months on they day and time of the last run.
 
     .. note::
 

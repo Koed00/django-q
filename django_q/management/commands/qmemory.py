@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.utils.translation import gettext as _
 
-from django_q.monitor import memory
+from django_q.monitor_terminal import memory
 
 
 class Command(BaseCommand):

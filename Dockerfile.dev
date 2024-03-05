@@ -7,34 +7,18 @@ ENV PYTHONUNBUFFERED 1
 # Sets the default shell to bash
 ENV SHELL /bin/bash
 
-# Creates a non-root user
-RUN adduser --disabled-password docker
-
 # Upgrades pip
-RUN pip install --upgrade pip
+RUN pip install --upgrade pip 
 
-# Poetry project setup for development
-# Copies poetry requirements files
-COPY --chown=docker Dockerfile.dev requirements.txt* setup.py* ./
+# Install poetry
+RUN pip install poetry
 
-RUN pip install -r requirements.txt
+WORKDIR /app
 
-RUN pip install pytest pytest-django codecov poetry
+COPY . .
 
-# Clean up
-RUN apt-get autoremove -y \
-    && apt-get clean -y \
-    && rm -rf /var/lib/apt/lists/*
+RUN poetry lock --no-update
 
-WORKDIR /home/docker
+RUN poetry config virtualenvs.create false
 
-# Sets the binaries to path
-ENV PATH="/home/docker/.local/bin:${PATH}"
-
-# Copy in as non-root user, so permissions match what we need
-COPY --chown=docker:docker . .
-
-RUN python setup.py develop
-
-# Applies the container user to be non-root
-USER docker
+RUN poetry install -E testing

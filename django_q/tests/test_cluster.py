@@ -2,6 +2,7 @@ import os
 import sys
 import threading
 import uuid as uuidlib
+from datetime import datetime
 from math import copysign
 from multiprocessing import Event, Value
 from time import sleep
@@ -10,14 +11,13 @@ from typing import Optional
 import pytest
 from django.utils import timezone
 
-myPath = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, myPath + "/../")
-
 from django_q.brokers import Broker, get_broker
-from django_q.cluster import Cluster, Sentinel, monitor, pusher, save_task, worker
+from django_q.cluster import Cluster, Sentinel
 from django_q.conf import Conf
 from django_q.humanhash import DEFAULT_WORDLIST, uuid
 from django_q.models import Success, Task
+from django_q.monitor import monitor, save_task
+from django_q.pusher import pusher
 from django_q.queues import Queue
 from django_q.signals import post_execute, pre_enqueue, pre_execute
 from django_q.status import Stat
@@ -32,6 +32,11 @@ from django_q.tasks import (
     result_group,
 )
 from django_q.tests.tasks import TaskError, multiply
+from django_q.utils import add_months, add_years
+from django_q.worker import worker
+
+myPath = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, myPath + "/../")
 
 
 class WordClass:
@@ -134,6 +139,30 @@ def test_cluster(broker):
     # check result
     assert result(task) == 1506
     broker.delete_queue()
+
+
+@pytest.mark.django_db
+def test_results(broker):
+    broker.list_key = "cluster_test:q"
+    broker.delete_queue()
+    a = async_task(
+        "django_q.tests.tasks.return_falsy_value",
+        broker=broker,
+    )
+
+    task_queue = Queue()
+    stop_event = Event()
+    stop_event.set()
+    pusher(task_queue, stop_event, broker=broker)
+    task_queue.put("STOP")
+    result_queue = Queue()
+    worker(task_queue, result_queue, Value("f", -1))
+    result_queue.put("STOP")
+    monitor(result_queue)
+
+    # should not loop indefinitely when a real value is returned
+    value = result(a, wait=-1)
+    assert value == []
 
 
 @pytest.mark.django_db
@@ -409,6 +438,47 @@ def test_recycle(broker, monkeypatch):
 
 
 @pytest.mark.django_db
+def test_save_limit_per_func(broker, monkeypatch):
+    # set up the Sentinel
+    broker.list_key = "test_recycle_test:q"
+    async_task("django_q.tests.tasks.hello", broker=broker)
+    async_task("django_q.tests.tasks.countdown", 2, broker=broker)
+    async_task("django_q.tests.tasks.multiply", 2, 2, broker=broker)
+    start_event = Event()
+    stop_event = Event()
+    cluster_id = uuidlib.uuid4()
+    task_queue = Queue()
+    result_queue = Queue()
+    # override settings
+    monkeypatch.setattr(Conf, "RECYCLE", 3)
+    monkeypatch.setattr(Conf, "WORKERS", 1)
+    # set a timer to stop the Sentinel
+    threading.Timer(3, stop_event.set).start()
+    for i in range(3):
+        pusher(task_queue, stop_event, broker=broker)
+    worker(task_queue, result_queue, Value("f", -1))
+    s = Sentinel(stop_event, start_event, cluster_id=cluster_id, broker=broker)
+    assert start_event.is_set()
+    assert s.status() == Conf.STOPPED
+    # worker should exit on recycle
+    # check if the work has been done
+    assert result_queue.qsize() == 3
+    # save_limit test
+    monkeypatch.setattr(Conf, "SAVE_LIMIT", 1)
+    monkeypatch.setattr(Conf, "SAVE_LIMIT_PER", "func")
+    result_queue.put("STOP")
+    # run monitor
+    monitor(result_queue)
+    assert Success.objects.count() == 3
+    assert set(Success.objects.filter().values_list("func", flat=True)) == {
+        "django_q.tests.tasks.countdown",
+        "django_q.tests.tasks.hello",
+        "django_q.tests.tasks.multiply",
+    }
+    broker.delete_queue()
+
+
+@pytest.mark.django_db
 def test_max_rss(broker, monkeypatch):
     # set up the Sentinel
     broker.list_key = "test_max_rss_test:q"
@@ -495,7 +565,6 @@ def test_attempt_count(broker, monkeypatch):
     assert saved_task.attempt_count == 1
     sleep(0.5)
     # second save
-    old_stopped = task["stopped"]
     task["stopped"] = timezone.now()
     save_task(task, broker)
     saved_task = Task.objects.get(id=task["id"])
@@ -702,3 +771,44 @@ def assert_result(task):
 def assert_bad_result(task):
     assert task is not None
     assert task.success is False
+
+
+@pytest.mark.django_db
+def test_add_months():
+    # add some months
+    initial_date = datetime(2020, 2, 2)
+    new_date = add_months(initial_date, 3)
+    assert new_date.year == 2020
+    assert new_date.month == 5
+    assert new_date.day == 2
+
+    # push to next year
+    initial_date = datetime(2020, 11, 2)
+    new_date = add_months(initial_date, 3)
+    assert new_date.year == 2021
+    assert new_date.month == 2
+    assert new_date.day == 2
+
+    # last day of the month
+    initial_date = datetime(2020, 1, 31)
+    new_date = add_months(initial_date, 1)
+    assert new_date.year == 2020
+    assert new_date.month == 2
+    assert new_date.day == 29
+
+
+@pytest.mark.django_db
+def test_add_years():
+    # add some months
+    initial_date = datetime(2020, 2, 2)
+    new_date = add_years(initial_date, 1)
+    assert new_date.year == 2021
+    assert new_date.month == 2
+    assert new_date.day == 2
+
+    # test leap year
+    initial_date = datetime(2020, 2, 29)
+    new_date = add_years(initial_date, 1)
+    assert new_date.year == 2021
+    assert new_date.month == 2
+    assert new_date.day == 28

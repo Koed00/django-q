@@ -1,3 +1,6 @@
+from datetime import datetime, timedelta
+from keyword import iskeyword
+
 # Django
 from django import get_version
 from django.core.exceptions import ValidationError
@@ -5,7 +8,9 @@ from django.db import models
 from django.template.defaultfilters import truncatechars
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.html import format_html
+from django.utils.timezone import is_aware
 from django.utils.translation import gettext_lazy as _
 
 # External
@@ -13,8 +18,11 @@ from picklefield import PickledObjectField
 from picklefield.fields import dbsafe_decode
 
 # Local
-from django_q.conf import croniter
+from django_q.conf import Conf, croniter
 from django_q.signing import SignedPackage
+from django_q.utils import add_months, add_years, localtime
+
+from .utils import get_func_repr
 
 
 class Task(models.Model):
@@ -26,6 +34,7 @@ class Task(models.Model):
     kwargs = PickledObjectField(null=True, protocol=-1)
     result = PickledObjectField(null=True, protocol=-1)
     group = models.CharField(max_length=100, editable=False, null=True)
+    cluster = models.CharField(max_length=100, default=None, null=True, blank=True)
     started = models.DateTimeField(editable=False)
     stopped = models.DateTimeField(editable=False)
     success = models.BooleanField(default=True, editable=False)
@@ -147,6 +156,10 @@ def validate_cron(value):
         raise ValidationError(e)
 
 
+def validate_kwarg(value):
+    return value.isidentifier() and not iskeyword(value)
+
+
 class Schedule(models.Model):
     name = models.CharField(max_length=100, null=True, blank=True)
     func = models.CharField(max_length=256, help_text="e.g. module.tasks.function")
@@ -165,7 +178,9 @@ class Schedule(models.Model):
     HOURLY = "H"
     DAILY = "D"
     WEEKLY = "W"
+    BIWEEKLY = "BW"
     MONTHLY = "M"
+    BIMONTHLY = "BM"
     QUARTERLY = "Q"
     YEARLY = "Y"
     CRON = "C"
@@ -175,13 +190,15 @@ class Schedule(models.Model):
         (HOURLY, _("Hourly")),
         (DAILY, _("Daily")),
         (WEEKLY, _("Weekly")),
+        (BIWEEKLY, _("Biweekly")),
         (MONTHLY, _("Monthly")),
+        (BIMONTHLY, _("Bimonthly")),
         (QUARTERLY, _("Quarterly")),
         (YEARLY, _("Yearly")),
         (CRON, _("Cron")),
     )
     schedule_type = models.CharField(
-        max_length=1, choices=TYPE, default=TYPE[0][0], verbose_name=_("Schedule Type")
+        max_length=2, choices=TYPE, default=TYPE[0][0], verbose_name=_("Schedule Type")
     )
     minutes = models.PositiveSmallIntegerField(
         null=True, blank=True, help_text=_("Number of minutes for the Minutes type")
@@ -200,7 +217,68 @@ class Schedule(models.Model):
         help_text=_("Cron expression"),
     )
     task = models.CharField(max_length=100, null=True, editable=False)
-    cluster = models.CharField(max_length=100, default=None, null=True, blank=True)
+    cluster = models.CharField(
+        max_length=100,
+        default=None,
+        null=True,
+        blank=True,
+        help_text=_("Name of the target cluster"),
+    )
+    intended_date_kwarg = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        validators=[validate_kwarg],
+        help_text=_("Name of kwarg to pass intended schedule date"),
+    )
+
+    def calculate_next_run(self, next_run=None):
+        # next run is always in UTC
+        next_run = next_run or self.next_run
+
+        if self.schedule_type == self.CRON:
+            if not croniter:
+                raise ImportError(
+                    _("Please install croniter to enable cron expressions")
+                )
+            return croniter(self.cron, localtime()).get_next(datetime)
+
+        if self.schedule_type == self.MINUTES:
+            add = timedelta(minutes=(self.minutes or 1))
+        elif self.schedule_type == self.HOURLY:
+            add = timedelta(hours=1)
+        elif self.schedule_type == self.DAILY:
+            add = timedelta(days=1)
+        elif self.schedule_type == self.WEEKLY:
+            add = timedelta(weeks=1)
+        elif self.schedule_type == self.BIWEEKLY:
+            add = timedelta(weeks=2)
+        elif self.schedule_type == self.MONTHLY:
+            add = timedelta(days=(add_months(next_run, 1) - next_run).days)
+        elif self.schedule_type == self.BIMONTHLY:
+            add = timedelta(days=(add_months(next_run, 2) - next_run).days)
+        elif self.schedule_type == self.QUARTERLY:
+            add = timedelta(days=(add_months(next_run, 3) - next_run).days)
+        elif self.schedule_type == self.YEARLY:
+            add = timedelta(days=(add_years(next_run, 1) - next_run).days)
+
+        # add normal timedelta, we will correct this later based on timezone
+        next_run += add
+
+        # DST differencers don't matter with minutes, hourly or yearly, so skip those
+        if self.schedule_type not in [self.MINUTES, self.HOURLY, self.YEARLY]:
+            # Get localtimes and then remove the tzinfo, so we can get the actual difference
+            current_next_run = localtime(next_run - add).replace(tzinfo=None)
+            new_next_run = localtime(next_run).replace(tzinfo=None)
+
+            # get the difference between them, this should be (-)1 or (-)0.5 hour
+            # based on DST active or not
+            extra_diff = (new_next_run - current_next_run) - add
+
+            # subtract difference
+            next_run -= extra_diff
+
+        return next_run
 
     def success(self):
         if self.task and Task.objects.filter(id=self.task):
@@ -220,7 +298,9 @@ class Schedule(models.Model):
         return self.func
 
     success.boolean = True
+    success.short_description = _("success")
     last_run.allow_tags = True
+    last_run.short_description = _("last_run")
 
     class Meta:
         app_label = "django_q"
@@ -230,21 +310,40 @@ class Schedule(models.Model):
 
 
 class OrmQ(models.Model):
-    key = models.CharField(max_length=100)
+    key = models.CharField(max_length=100, help_text=_("Name of the target cluster"))
     payload = models.TextField()
-    lock = models.DateTimeField(null=True)
+    lock = models.DateTimeField(
+        null=True, help_text=_("Prevent any cluster from pulling until")
+    )
 
+    @cached_property
     def task(self):
-        return SignedPackage.loads(self.payload)
+        try:
+            return SignedPackage.loads(self.payload)
+        except Exception as e:
+            return {"id": "*" + e.__class__.__name__}
 
     def func(self):
-        return self.task()["func"]
+        return get_func_repr(self.task.get("func"))
 
     def task_id(self):
-        return self.task()["id"]
+        return self.task.get("id")
 
     def name(self):
-        return self.task()["name"]
+        return self.task.get("name")
+
+    def group(self):
+        return self.task.get("group")
+
+    def args(self):
+        return self.task.get("args")
+
+    def kwargs(self):
+        return self.task.get("kwargs")
+
+    def q_options(self):
+        exclude = {"id", "name", "group", "func", "args", "kwargs"}
+        return {k: v for k, v in self.task.items() if k not in exclude}
 
     class Meta:
         app_label = "django_q"

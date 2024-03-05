@@ -6,18 +6,35 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('django_q', '0010_auto_20200610_0856'),
+        ("django_q", "0010_auto_20200610_0856"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='schedule',
-            name='cron',
-            field=models.CharField(blank=True, help_text='Cron expression', max_length=100, null=True),
+            model_name="schedule",
+            name="cron",
+            field=models.CharField(
+                blank=True, help_text="Cron expression", max_length=100, null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='schedule',
-            name='schedule_type',
-            field=models.CharField(choices=[('O', 'Once'), ('I', 'Minutes'), ('H', 'Hourly'), ('D', 'Daily'), ('W', 'Weekly'), ('M', 'Monthly'), ('Q', 'Quarterly'), ('Y', 'Yearly'), ('C', 'Cron')], default='O', max_length=1, verbose_name='Schedule Type'),
+            model_name="schedule",
+            name="schedule_type",
+            field=models.CharField(
+                choices=[
+                    ("O", "Once"),
+                    ("I", "Minutes"),
+                    ("H", "Hourly"),
+                    ("D", "Daily"),
+                    ("W", "Weekly"),
+                    ("M", "Monthly"),
+                    ("Q", "Quarterly"),
+                    ("Y", "Yearly"),
+                    ("C", "Cron"),
+                ],
+                default="O",
+                max_length=1,
+                verbose_name="Schedule Type",
+            ),
         ),
     ]

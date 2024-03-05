@@ -2,6 +2,11 @@ Monitor
 =======
 .. py:currentmodule::django_q.monitor
 
+
+.. warning::
+    Blessed needs to be installed to get this to work! See: https://pypi.org/project/blessed/
+
+
 The cluster monitor shows live information about all the Q clusters connected to your project.
 
 Start the monitor with Django's `manage.py` command::
@@ -106,7 +111,7 @@ You can check the status of your clusters straight from your code with the :clas
 
 .. code:: python
 
-    from django_q.monitor import Stat
+    from django_q.status import Stat
 
     for stat in Stat.get_all():
         print(stat.cluster_id, stat.status)
